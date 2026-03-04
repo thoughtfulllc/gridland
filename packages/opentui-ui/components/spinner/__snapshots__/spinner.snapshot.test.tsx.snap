@@ -1,0 +1,5 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Spinner snapshots renders default spinner 1`] = `"⠋ Loading"`;
+
+exports[`Spinner snapshots renders with custom text and color 1`] = `"⠋ Processing..."`;

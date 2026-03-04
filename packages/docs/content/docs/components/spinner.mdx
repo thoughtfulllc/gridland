@@ -1,0 +1,59 @@
+---
+title: Spinner
+description: Animated loading spinner with customizable text and color
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import SpinnerDemo from '@/components/demos/spinner-demo'
+
+The `Spinner` component from `opentui-ui` renders an animated loading indicator
+with customizable text and color.
+
+<div className="my-8">
+  <SpinnerDemo />
+</div>
+
+## Installation
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install opentui-ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add opentui-ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add opentui-ui
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add opentui-ui
+```
+</Tab>
+</Tabs>
+
+## Import
+
+```tsx title="Import"
+import { Spinner } from "opentui-ui"
+```
+
+## Usage
+
+```tsx title="Example"
+<Spinner text="Loading..." color="cyan" />
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `text` | `string` | `"Loading"` | Text displayed next to the spinner |
+| `color` | `string` | `"gray"` | Color of the spinner and text |
+| `interval` | `number` | `100` | Animation frame interval in milliseconds |

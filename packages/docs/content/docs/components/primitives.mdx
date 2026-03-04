@@ -1,0 +1,130 @@
+---
+title: TUI Primitives
+description: Built-in JSX elements for terminal UI rendering
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import PrimitivesDemo from '@/components/demos/primitives-demo'
+
+OpenTUI Web uses JSX intrinsic elements that map to renderable components.
+These are used inside `<OpenTuiCanvas>`.
+
+<div className="my-8">
+  <PrimitivesDemo />
+</div>
+
+<Callout type="info">
+These are JSX intrinsic elements, not DOM elements. `<box>` renders to the
+canvas cell grid, not to an HTML `<div>`. They only work inside an
+`<OpenTuiCanvas>` wrapper.
+</Callout>
+
+## `<box>`
+
+A container element with flexbox layout support.
+
+```tsx title="Box example"
+<box
+  flexDirection="column"
+  padding={1}
+  border
+  borderStyle="rounded"
+  borderColor="#5e81ac"
+  backgroundColor="#2e3440"
+>
+  {children}
+</box>
+```
+
+### Box Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `flexDirection` | `"row" \| "column"` | Layout direction |
+| `padding` | `number` | Padding in cells |
+| `margin` | `number` | Margin in cells |
+| `border` | `boolean` | Show border |
+| `borderStyle` | `"single" \| "rounded" \| "double" \| "bold"` | Border style |
+| `borderColor` | `string` | Border color (hex) |
+| `backgroundColor` | `string` | Background color (hex) |
+| `title` | `string` | Border title text |
+| `titleAlignment` | `"left" \| "center" \| "right"` | Title position |
+| `flexGrow` | `number` | Flex grow factor |
+| `flexShrink` | `number` | Flex shrink factor |
+| `width` | `number \| string` | Width in cells or percentage |
+| `height` | `number \| string` | Height in cells or percentage |
+| `gap` | `number` | Gap between children |
+
+## `<text>`
+
+Renders styled text content.
+
+```tsx title="Text example"
+<text fg="#a3be8c" bold>
+  Hello World
+</text>
+```
+
+### Text Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `fg` | `string` | Foreground color (hex) |
+| `bg` | `string` | Background color (hex) |
+| `bold` | `boolean` | Bold text |
+| `italic` | `boolean` | Italic text |
+| `underline` | `boolean` | Underlined text |
+| `dim` | `boolean` | Dimmed text |
+| `strikethrough` | `boolean` | Strikethrough text |
+
+## `<input>`
+
+A text input field.
+
+```tsx title="Input example"
+<input
+  placeholder="Type here..."
+  onInput={(value) => console.log(value)}
+  onSubmit={(value) => console.log("Submitted:", value)}
+/>
+```
+
+## `<select>`
+
+A selection list.
+
+```tsx title="Select example"
+<select
+  options={[
+    { label: "Option A", value: "a" },
+    { label: "Option B", value: "b" },
+  ]}
+  onChange={(index, option) => console.log(option)}
+/>
+```
+
+## `<scrollbox>`
+
+A scrollable container.
+
+```tsx title="Scrollbox example"
+<scrollbox height={10}>
+  {/* Content taller than 10 rows will scroll */}
+</scrollbox>
+```
+
+## `<code>`
+
+Syntax-highlighted code block.
+
+```tsx title="Code example"
+<code content="const x = 42" filetype="typescript" />
+```
+
+## `<markdown>`
+
+Rendered markdown content.
+
+```tsx title="Markdown example"
+<markdown content="# Hello\n\nThis is **bold** text." />
+```

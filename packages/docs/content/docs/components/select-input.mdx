@@ -1,0 +1,79 @@
+---
+title: SelectInput
+description: Keyboard-navigable selection list
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import SelectInputDemo from '@/components/demos/select-input-demo'
+
+The `SelectInput` component from `opentui-ui` renders a keyboard-navigable
+selection list with arrow key support.
+
+<div className="my-8">
+  <SelectInputDemo />
+</div>
+
+## Installation
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install opentui-ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add opentui-ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add opentui-ui
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add opentui-ui
+```
+</Tab>
+</Tabs>
+
+## Import
+
+```tsx title="Import"
+import { SelectInput } from "opentui-ui"
+```
+
+## Usage
+
+```tsx title="Example"
+<SelectInput
+  items={[
+    { label: "Option A", value: "a" },
+    { label: "Option B", value: "b" },
+    { label: "Option C", value: "c" },
+  ]}
+  onSelect={(item) => console.log("Selected:", item.value)}
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `SelectInputItem<V>[]` | `[]` | Array of selectable items |
+| `focus` | `boolean` | `true` | Whether the list is focused for keyboard input |
+| `initialIndex` | `number` | `0` | Initially highlighted index |
+| `limit` | `number` | — | Max visible items (enables scrolling) |
+| `onSelect` | `(item: SelectInputItem<V>) => void` | — | Called when an item is selected (Enter) |
+| `onHighlight` | `(item: SelectInputItem<V>) => void` | — | Called when highlighted item changes |
+
+## Item Shape
+
+```tsx
+type SelectInputItem<V> = {
+  key?: string
+  label: string
+  value: V
+}
+```

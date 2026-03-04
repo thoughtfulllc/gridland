@@ -1,0 +1,13 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`TextInput snapshots renders with placeholder 1`] = `
+"
+
+  Error: Zig render library not availabl"
+`;
+
+exports[`TextInput snapshots renders with custom prompt 1`] = `
+"
+
+  Error: Zig render library not availabl"
+`;

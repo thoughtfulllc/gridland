@@ -1,0 +1,128 @@
+---
+title: Testing
+description: Test OpenTUI Web components with opentui-testing
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import { Callout } from 'fumadocs-ui/components/callout'
+
+## Installation
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install --save-dev opentui-testing
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add -D opentui-testing
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add -D opentui-testing
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add -D opentui-testing
+```
+</Tab>
+</Tabs>
+
+## Creating a Test Screen
+
+The `createScreen` function renders your component to a virtual buffer that you
+can inspect:
+
+```ts title="example.test.ts"
+import { createScreen } from "opentui-testing"
+
+const screen = await createScreen(
+  <box border padding={1}>
+    <text>Hello World</text>
+  </box>,
+  { cols: 40, rows: 10 }
+)
+```
+
+## Querying Content
+
+Use `screen.getByText()` to find text in the rendered output:
+
+```ts title="example.test.ts"
+const match = screen.getByText("Hello World")
+expect(match).toBeTruthy()
+expect(match.row).toBeGreaterThan(0)
+```
+
+## Simulating Input
+
+Send keystrokes to test interactive components:
+
+```ts title="input.test.ts"
+import { createScreen, keys } from "opentui-testing"
+
+const screen = await createScreen(<MyInputComponent />, {
+  cols: 40,
+  rows: 10,
+})
+
+screen.sendKeys(keys.type("hello"))
+screen.sendKeys(keys.enter)
+```
+
+### Available Key Helpers
+
+| Helper | Description |
+|--------|-------------|
+| `keys.type(str)` | Type a string character by character |
+| `keys.enter` | Press Enter |
+| `keys.escape` | Press Escape |
+| `keys.tab` | Press Tab |
+| `keys.backspace` | Press Backspace |
+| `keys.up` / `keys.down` | Arrow keys |
+| `keys.left` / `keys.right` | Arrow keys |
+
+## Waiting for Updates
+
+Use `waitFor` to wait for async state changes:
+
+```ts title="async.test.ts"
+import { createScreen, waitFor } from "opentui-testing"
+
+const screen = await createScreen(<AsyncComponent />)
+
+await waitFor(() => {
+  expect(screen.getByText("Loaded")).toBeTruthy()
+})
+```
+
+## Snapshot Testing
+
+Capture the rendered buffer as a string for snapshot comparisons:
+
+```ts title="snapshot.test.ts"
+const output = screen.toString()
+expect(output).toMatchSnapshot()
+```
+
+## Test Runner Compatibility
+
+`opentui-testing` works with any test runner that supports ESM:
+
+- **Bun** — Recommended, used in the opentui-web test suite
+- **Vitest** — Works with proper module resolution
+- **Jest** — Works with ESM transforms configured
+
+<Callout type="info">
+Bun is the recommended test runner for OpenTUI Web projects. It has native ESM
+support and is used for the opentui-web test suite itself.
+</Callout>
+
+## Tips
+
+- Set explicit `cols` and `rows` for deterministic layout
+- Run tests multiple times with randomized order to catch state leaks
+- Use `screen.debug()` to print the buffer to the console during development

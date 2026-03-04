@@ -1,0 +1,140 @@
+---
+title: Next.js Setup
+description: Use OpenTUI Web with Next.js
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Callout } from 'fumadocs-ui/components/callout'
+
+## Prerequisites
+
+- Node.js 18+
+- Next.js 15+ with App Router
+
+<Steps>
+<Step>
+
+## Install
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install opentui-web
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add opentui-web
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add opentui-web
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add opentui-web
+```
+</Tab>
+</Tabs>
+
+</Step>
+<Step>
+
+## Configure Webpack
+
+Next.js uses webpack, so module resolution is configured in `next.config.ts`
+instead of a Vite plugin. The webpack config mirrors the Vite plugin behavior:
+
+```ts title="next.config.ts"
+import type { NextConfig } from "next"
+import path from "path"
+
+const opentui = path.resolve(__dirname, "../path/to/opentui")
+const pkgRoot = path.resolve(__dirname, "./node_modules/opentui-web")
+
+function shimPath(p: string) {
+  return path.resolve(pkgRoot, p)
+}
+
+const nextConfig: NextConfig = {
+  webpack: (config, { isServer, webpack }) => {
+    // Set up @opentui package aliases, FFI shims, tree-sitter stubs,
+    // and core file shims for both server and client builds.
+    // See examples/next-example/next.config.ts for the full configuration.
+
+    if (!isServer) {
+      // Client-only: Node.js built-in stubs and scheme prefix stripping
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+          resource.request = resource.request.replace(/^node:/, "")
+        }),
+      )
+    }
+
+    config.experiments = {
+      ...config.experiments,
+      topLevelAwait: true,
+    }
+
+    return config
+  },
+}
+
+export default nextConfig
+```
+
+See `examples/next-example/next.config.ts` in the repository for the complete
+working configuration with all aliases.
+
+</Step>
+<Step>
+
+## Create Your Component
+
+Mark your page as a client component and use `OpenTuiCanvas`:
+
+```tsx title="app/page.tsx"
+"use client"
+
+import { OpenTuiCanvas } from "opentui-web"
+
+function TuiDemo() {
+  return (
+    <box border borderStyle="rounded" padding={1}>
+      <text fg="#a3be8c">Hello from Next.js!</text>
+    </box>
+  )
+}
+
+export default function Home() {
+  return (
+    <OpenTuiCanvas style={{ width: "100vw", height: "100vh" }}>
+      <TuiDemo />
+    </OpenTuiCanvas>
+  )
+}
+```
+
+</Step>
+</Steps>
+
+## SSR Safety
+
+<Callout type="success">
+`OpenTuiCanvas` is SSR-safe by default. On the server it renders an empty
+container div. On the client it hydrates and creates the canvas. No
+`dynamic(() => import(...), { ssr: false })` wrapper is needed.
+</Callout>
+
+## Key Differences from Vite
+
+| Concern | Vite | Next.js |
+|---------|------|---------|
+| Plugin | `opentuiWebPlugin()` in vite.config | webpack config in next.config |
+| `node:` imports | Handled by resolveId hook | `NormalModuleReplacementPlugin` |
+| CJS modules | Virtual module redirects | Webpack handles natively |
+| Top-level await | Supported by default | Needs `experiments.topLevelAwait` |
+| Node.js builtins | Shimmed via resolveId | Shimmed via `resolve.alias` with `$` suffix |

@@ -1,0 +1,79 @@
+---
+title: OpenTuiCanvas
+description: The root mounting component for OpenTUI Web
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import PrimitivesDemo from '@/components/demos/primitives-demo'
+
+`OpenTuiCanvas` is the single entry point for rendering TUI content to a
+canvas. It handles client detection, canvas creation, React reconciler setup,
+and automatic resizing.
+
+<div className="my-8">
+  <PrimitivesDemo />
+</div>
+
+## Import
+
+```tsx title="Import"
+import { OpenTuiCanvas } from "opentui-web"
+```
+
+## Usage
+
+```tsx title="Example"
+<OpenTuiCanvas style={{ width: "100vw", height: "100vh" }}>
+  <box border padding={1}>
+    <text>Your TUI content here</text>
+  </box>
+</OpenTuiCanvas>
+```
+
+## Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | TUI elements to render (`<box>`, `<text>`, etc.) |
+| `style` | `CSSProperties` | CSS styles for the outer container div |
+| `className` | `string` | CSS class for the outer container div |
+
+## SSR Behavior
+
+<Callout type="info">
+On the server, `OpenTuiCanvas` renders an empty `<div>` with the provided
+style and className. On the client, it hydrates and creates the canvas
+automatically. No `dynamic(() => import(...), { ssr: false })` wrapper is needed.
+</Callout>
+
+The client-side hydration process:
+
+1. Detects the browser environment via `useEffect`
+2. Creates a `<canvas>` element inside the container
+3. Initializes the React reconciler with a `BrowserRenderContext`
+4. Sets up `ResizeObserver` for automatic canvas resizing
+5. Renders children through the TUI reconciler to the canvas
+
+## Architecture
+
+```
+React JSX
+  |
+  v
+@opentui/react reconciler
+  |
+  v
+Renderable tree (Box, Text, etc.)
+  |
+  v
+Yoga layout engine (flexbox)
+  |
+  v
+BrowserBuffer (cell grid)
+  |
+  v
+CanvasPainter (pixels)
+  |
+  v
+HTML5 Canvas
+```

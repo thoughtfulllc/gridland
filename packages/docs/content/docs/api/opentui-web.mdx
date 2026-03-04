@@ -1,0 +1,68 @@
+---
+title: opentui-web
+description: Core package API reference
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+## OpenTuiCanvas
+
+The main mounting component. See [OpenTuiCanvas](/docs/components/canvas) for
+full documentation.
+
+```tsx title="Import"
+import { OpenTuiCanvas } from "opentui-web"
+```
+
+## Vite Plugin
+
+```tsx title="Import"
+import { opentuiWebPlugin } from "opentui-web/vite-plugin"
+```
+
+### `opentuiWebPlugin(options)`
+
+Returns an array of Vite plugins that configure module resolution for OpenTUI.
+
+**Options:**
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `opentuiPath` | `string` | Yes | Path to the opentui monorepo root |
+
+## Internal Modules
+
+<Callout type="warn">
+These modules are used internally by `OpenTuiCanvas` and are not part of the
+public API. They may change without notice between releases.
+</Callout>
+
+### BrowserBuffer
+
+In-memory cell grid that stores character, foreground, background, and
+attribute data for each cell position.
+
+### BrowserRenderContext
+
+Implements the `RenderContext` interface for the browser environment. Manages
+the buffer, layout, painting, and input handling.
+
+### CanvasPainter
+
+Draws the cell grid to an HTML5 Canvas context. Handles font measurement,
+glyph caching, and efficient dirty-region repainting.
+
+### BrowserTextBuffer / BrowserTextBufferView
+
+Browser-safe replacements for the native text buffer modules. Provide
+line-based text storage and viewport windowing.
+
+### BrowserSyntaxStyle
+
+Stub replacement for the native syntax highlighting module. Returns no
+highlighting in the browser (syntax highlighting requires tree-sitter).
+
+### SelectionManager
+
+Handles text selection on the canvas. Tracks selection start/end positions
+and provides methods to get selected text.

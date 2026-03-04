@@ -1,0 +1,77 @@
+---
+title: TextInput
+description: Interactive text input field with prompt and placeholder
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import TextInputDemo from '@/components/demos/text-input-demo'
+
+The `TextInput` component from `opentui-ui` provides an interactive text input
+with customizable prompt, placeholder, and controlled/uncontrolled modes.
+
+<div className="my-8">
+  <TextInputDemo />
+</div>
+
+## Installation
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install opentui-ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add opentui-ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add opentui-ui
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add opentui-ui
+```
+</Tab>
+</Tabs>
+
+## Import
+
+```tsx title="Import"
+import { TextInput } from "opentui-ui"
+```
+
+## Usage
+
+```tsx title="Uncontrolled"
+<TextInput
+  placeholder="Type something..."
+  onSubmit={(value) => console.log("Submitted:", value)}
+/>
+```
+
+```tsx title="Controlled"
+const [value, setValue] = useState("")
+
+<TextInput
+  value={value}
+  onChange={setValue}
+  onSubmit={(v) => console.log("Submitted:", v)}
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `string` | — | Controlled value |
+| `onChange` | `(value: string) => void` | — | Called when value changes |
+| `onSubmit` | `(value: string) => void` | — | Called on Enter key |
+| `placeholder` | `string` | `""` | Placeholder text |
+| `prompt` | `string` | `"> "` | Prompt string displayed before input |
+| `promptColor` | `string` | `"cyan"` | Color of the prompt text |
+| `focus` | `boolean` | `true` | Whether the input is focused |
+| `maxLength` | `number` | — | Maximum input length |

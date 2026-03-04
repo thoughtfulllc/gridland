@@ -1,0 +1,58 @@
+---
+title: Link
+description: Clickable hyperlink component
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import LinkDemo from '@/components/demos/link-demo'
+
+The `Link` component from `opentui-ui` renders a clickable hyperlink in the
+terminal UI.
+
+<div className="my-8">
+  <LinkDemo />
+</div>
+
+## Installation
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install opentui-ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add opentui-ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add opentui-ui
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add opentui-ui
+```
+</Tab>
+</Tabs>
+
+## Import
+
+```tsx title="Import"
+import { Link } from "opentui-ui"
+```
+
+## Usage
+
+```tsx title="Example"
+<Link url="https://opentui.dev">Visit opentui.dev</Link>
+```
+
+## Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Link text content |
+| `url` | `string` | Target URL |

@@ -1,0 +1,123 @@
+---
+title: Vite Setup
+description: Use OpenTUI Web with Vite
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Callout } from 'fumadocs-ui/components/callout'
+
+## Prerequisites
+
+- Node.js 18+
+- A Vite + React project
+
+<Steps>
+<Step>
+
+## Install
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install opentui-web
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add opentui-web
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add opentui-web
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add opentui-web
+```
+</Tab>
+</Tabs>
+
+</Step>
+<Step>
+
+## Configure the Vite Plugin
+
+OpenTUI Web provides a Vite plugin that handles module resolution for the
+underlying opentui engine. Add it to your `vite.config.ts`:
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
+import { opentuiWebPlugin } from "opentui-web/vite-plugin"
+
+export default defineConfig({
+  plugins: [
+    react(),
+    ...opentuiWebPlugin({
+      opentuiPath: "../path/to/opentui",
+    }),
+  ],
+})
+```
+
+<Callout type="warn">
+The `opentuiPath` option must point to the root of the opentui monorepo so the
+plugin can resolve `@opentui/core`, `@opentui/react`, and `@opentui/ui`.
+</Callout>
+
+</Step>
+<Step>
+
+## Create Your Component
+
+Wrap your TUI content in `OpenTuiCanvas`:
+
+```tsx title="App.tsx"
+import { OpenTuiCanvas } from "opentui-web"
+
+function TuiDemo() {
+  return (
+    <box flexDirection="column" padding={1}>
+      <box border borderStyle="rounded" borderColor="#88c0d0" padding={1}>
+        <text fg="#a3be8c">Hello from Vite!</text>
+      </box>
+    </box>
+  )
+}
+
+export default function App() {
+  return (
+    <OpenTuiCanvas style={{ width: "100vw", height: "100vh" }}>
+      <TuiDemo />
+    </OpenTuiCanvas>
+  )
+}
+```
+
+</Step>
+</Steps>
+
+## How It Works
+
+The Vite plugin sets up:
+
+- **Module aliases** — Redirects `@opentui/core` and Node.js built-ins to
+  browser-safe shims
+- **FFI stubs** — Replaces Zig/Bun FFI imports with JavaScript implementations
+- **npm redirects** — Virtual modules for CJS-to-ESM conversion of packages
+  imported by the opentui monorepo
+- **Dependency pre-bundling** — Ensures `react`, `react-reconciler`,
+  `yoga-layout`, and other dependencies are optimized
+
+## Interaction Support
+
+OpenTUI Web supports user interaction on the canvas:
+
+- **Text selection** — Click and drag to select text
+- **Copy** — Selected text can be copied to clipboard
+- **Paste** — Clipboard content can be pasted into input components
+- **Drag and drop** — Files can be dropped onto the canvas
+- **Keyboard** — Key events are forwarded to focused components

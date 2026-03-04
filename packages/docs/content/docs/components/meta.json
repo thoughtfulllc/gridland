@@ -1,0 +1,4 @@
+{
+  "title": "Components",
+  "pages": ["canvas", "primitives", "gradient", "table", "spinner", "text-input", "select-input", "multi-select", "link", "ascii"]
+}

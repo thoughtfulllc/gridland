@@ -1,0 +1,79 @@
+---
+title: Table
+description: Tabular data rendering with configurable columns
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import TableDemo from '@/components/demos/table-demo'
+
+The `Table` component from `opentui-ui` renders structured data in a table
+layout with configurable columns and alignment.
+
+<div className="my-8">
+  <TableDemo />
+</div>
+
+## Installation
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install opentui-ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add opentui-ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add opentui-ui
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add opentui-ui
+```
+</Tab>
+</Tabs>
+
+## Import
+
+```tsx title="Import"
+import { Table } from "opentui-ui"
+```
+
+## Usage
+
+```tsx title="Example"
+<Table
+  columns={[
+    { header: "Name", key: "name", width: 20 },
+    { header: "Age", key: "age", width: 5, align: "right" },
+  ]}
+  data={[
+    { name: "Alice", age: 30 },
+    { name: "Bob", age: 25 },
+  ]}
+/>
+```
+
+## Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `columns` | `Column[]` | Column definitions |
+| `data` | `Record[]` | Array of row data objects |
+| `borderStyle` | `string` | Border style for the table |
+| `headerColor` | `string` | Foreground color for headers |
+
+## Column Definition
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `header` | `string` | Column header text |
+| `key` | `string` | Key to read from data objects |
+| `width` | `number` | Column width in cells |
+| `align` | `"left" \| "center" \| "right"` | Text alignment (default: left) |
+| `color` | `string` | Foreground color for this column |

@@ -1,0 +1,83 @@
+---
+title: Gradient
+description: Gradient text and background rendering
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import GradientDemo from '@/components/demos/gradient-demo'
+
+The `Gradient` component from `opentui-ui` renders color gradients across text
+or backgrounds.
+
+<div className="my-8">
+  <GradientDemo />
+</div>
+
+## Installation
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install opentui-ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add opentui-ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add opentui-ui
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add opentui-ui
+```
+</Tab>
+</Tabs>
+
+## Import
+
+```tsx title="Import"
+import { Gradient } from "opentui-ui"
+```
+
+## Usage
+
+```tsx title="Example"
+<Gradient colors={["#ff0000", "#00ff00", "#0000ff"]}>
+  <text>Rainbow text!</text>
+</Gradient>
+```
+
+## Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `colors` | `string[]` | Array of hex colors for the gradient |
+| `direction` | `"horizontal" \| "vertical"` | Gradient direction (default: horizontal) |
+| `children` | `ReactNode` | Content to apply the gradient to |
+
+## Gradient Modes
+
+### Foreground Gradient
+
+Apply colors to text foreground:
+
+```tsx title="Foreground gradient"
+<Gradient colors={["#ff6b6b", "#feca57", "#48dbfb"]}>
+  <text>Gradient foreground text</text>
+</Gradient>
+```
+
+### Background Gradient
+
+Apply colors to cell backgrounds:
+
+```tsx title="Background gradient"
+<Gradient colors={["#2d3436", "#636e72"]} mode="background">
+  <box width={40} height={3} />
+</Gradient>
+```
