@@ -87,25 +87,3 @@ export default function App() {
 
 </Step>
 </Steps>
-
-## How It Works
-
-The Vite plugin sets up:
-
-- **Module aliases** — Redirects `@opentui/core` and Node.js built-ins to
-  browser-safe shims
-- **FFI stubs** — Replaces Zig/Bun FFI imports with JavaScript implementations
-- **npm redirects** — Virtual modules for CJS-to-ESM conversion of packages
-  imported by the opentui monorepo
-- **Dependency pre-bundling** — Ensures `react`, `react-reconciler`,
-  `yoga-layout`, and other dependencies are optimized
-
-## Interaction Support
-
-Polyterm supports user interaction on the canvas:
-
-- **Text selection** — Click and drag to select text
-- **Copy** — Selected text can be copied to clipboard
-- **Paste** — Clipboard content can be pasted into input components
-- **Drag and drop** — Files can be dropped onto the canvas
-- **Keyboard** — Key events are forwarded to focused components

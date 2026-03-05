@@ -45,16 +45,7 @@ Use the `withPolyterm` plugin to configure webpack automatically:
 ```ts title="next.config.ts"
 import { withPolyterm } from "@polyterm.io/web/next-plugin"
 
-export default withPolyterm()
-```
-
-You can pass additional Next.js config as an argument:
-
-```ts title="next.config.ts"
-import { withPolyterm } from "@polyterm.io/web/next-plugin"
-
 export default withPolyterm({
-  reactStrictMode: true,
   // ... other Next.js config
 })
 ```
@@ -101,13 +92,3 @@ export default function Home() {
 container div. On the client it hydrates and creates the canvas. No
 `dynamic(() => import(...), { ssr: false })` wrapper is needed.
 </Callout>
-
-## Key Differences from Vite
-
-| Concern | Vite | Next.js |
-|---------|------|---------|
-| Plugin | `polytermWebPlugin()` in vite.config | `withPolyterm()` in next.config |
-| `node:` imports | Handled by resolveId hook | `NormalModuleReplacementPlugin` |
-| CJS modules | Virtual module redirects | Webpack handles natively |
-| Top-level await | Supported by default | Enabled by plugin |
-| Node.js builtins | Shimmed via resolveId | Shimmed via `resolve.alias` with `$` suffix |
