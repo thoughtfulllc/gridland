@@ -1,6 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
-import { TabBar } from "../../../../packages/opentui-ui/components/tab-bar/tab-bar"
+import { TabBar } from "../../../../packages/polyterm-ui/components/tab-bar/tab-bar"
 
 export function TabBarFixture() {
   return (

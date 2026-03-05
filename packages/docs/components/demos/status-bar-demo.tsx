@@ -1,9 +1,9 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { useState } from "react"
-import { OpenTuiCanvas } from "opentui-web"
+import { TUI } from "@polyterm.io/web"
 import { MacWindow } from "@/components/ui/mac-window"
-import { StatusBar, textStyle } from "opentui-ui"
+import { StatusBar, textStyle } from "@polyterm.io/ui"
 import { useKeyboard } from "@opentui/react"
 
 const shortcuts = [
@@ -51,9 +51,9 @@ function StatusBarApp() {
 export default function StatusBarDemo() {
   return (
     <MacWindow title="StatusBar">
-      <OpenTuiCanvas style={{ width: "100%", height: 80 }}>
+      <TUI style={{ width: "100%", height: 80 }}>
         <StatusBarApp />
-      </OpenTuiCanvas>
+      </TUI>
     </MacWindow>
   )
 }

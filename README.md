@@ -1,6 +1,6 @@
-# OpenTUI Web PoC
+# Polyterm
 
-Proof-of-concept that renders [OpenTUI](https://github.com/nicosalm/opentui) React apps directly in the browser using HTML5 `<canvas>`, bypassing any terminal emulator.
+Polyterm renders [opentui](https://github.com/nicosalm/opentui) React apps directly in the browser using HTML5 `<canvas>`, bypassing any terminal emulator. Polyterm is built on the opentui engine.
 
 ![Screenshot](screenshot.png)
 
@@ -35,7 +35,7 @@ bun install
 bun run dev
 # -> http://localhost:5173
 
-# Tests (38 tests across 5 suites)
+# Tests
 bun run test
 
 # Production build
@@ -45,32 +45,40 @@ bun run build
 ## Project structure
 
 ```
-src/
-  browser-buffer.ts          # Pure-JS OptimizedBuffer replacement
-  browser-text-buffer.ts     # Pure-JS TextBuffer replacement
-  browser-text-buffer-view.ts # Pure-JS TextBufferView (word/char wrapping)
-  browser-syntax-style.ts    # SyntaxStyle stub
-  browser-render-context.ts  # RenderContext implementation
-  browser-renderer.ts        # Render loop orchestrator
-  canvas-painter.ts          # Canvas 2D painter
-  create-browser-root.tsx    # React integration (createBrowserRoot)
-  App.tsx                    # Demo app
-  main.tsx                   # Entry point
-  core-shims/
-    index.ts                 # Barrel aliased as @opentui/core
-    rgba.ts                  # Standalone RGBA + parseColor
-    types.ts                 # RenderContext interface, TextAttributes, etc.
-  shims/
-    zig-stub.ts              # No-op Zig render lib
-    bun-ffi.ts               # Dummy bun:ffi exports
-    bun-ffi-structs.ts       # Stub defineStruct/defineEnum
-    text-buffer-shim.ts      # Re-exports BrowserTextBuffer as TextBuffer
-    text-buffer-view-shim.ts # Re-exports BrowserTextBufferView as TextBufferView
-    syntax-style-shim.ts     # Re-exports BrowserSyntaxStyle as SyntaxStyle
-    slider-deps.ts           # Breaks circular dep for Slider.ts
-    node-*.ts                # Browser stubs for Node.js builtins
-    ...
-  __tests__/                 # Unit + integration tests
+packages/
+  polyterm-web/              # Core browser runtime (npm: @polyterm.io/web)
+    src/
+      index.ts               # Main exports (bundled mode)
+      core.ts                # Core exports (external mode for Vite plugin users)
+      TUI.tsx                # Single React component — THE mounting layer
+      mount.ts               # Imperative mount API: mountPolyterm(canvas, element)
+      browser-buffer.ts
+      browser-text-buffer.ts
+      browser-text-buffer-view.ts
+      browser-renderer.ts
+      browser-render-context.ts
+      canvas-painter.ts
+      selection-manager.ts
+      vite-plugin.ts         # Vite plugin for shim resolution
+      next.ts                # Next.js export (thin — just "use client" re-export)
+      next-plugin.ts         # Next.js webpack plugin
+      utils.ts               # SSR-safe utilities
+      core-shims/            # @opentui/core browser replacements
+      shims/                 # Node.js built-in stubs
+    __tests__/               # Unit + integration tests
+
+  polyterm-ui/               # UI component library (npm: @polyterm.io/ui)
+    components/              # Components with tests
+
+  polyterm-testing/           # Testing utilities (npm: @polyterm.io/testing)
+    src/
+
+examples/
+  vite-example/              # Minimal Vite example
+  next-example/              # Next.js example
+
+packages/docs/               # Fumadocs documentation site
+e2e/                         # Playwright E2E tests
 ```
 
 ## How the Vite plugin works

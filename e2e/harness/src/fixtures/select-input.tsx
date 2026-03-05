@@ -1,6 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
-import { SelectInput } from "../../../../packages/opentui-ui/components/select-input/select-input"
+import { SelectInput } from "../../../../packages/polyterm-ui/components/select-input/select-input"
 
 const selectItems = [
   { label: "TypeScript", value: "ts" },

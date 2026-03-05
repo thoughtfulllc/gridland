@@ -1,22 +1,22 @@
 import { type Page, expect } from "@playwright/test"
 
 /**
- * Waits for the OpenTUI canvas to be fully initialized.
- * Polls for the data-opentui-ready attribute on the body element.
+ * Waits for the Polyterm canvas to be fully initialized.
+ * Polls for the data-polyterm-ready attribute on the body element.
  */
 export async function waitForReady(page: Page, timeout = 15000): Promise<void> {
-  await page.waitForSelector("body[data-opentui-ready='true']", { timeout })
+  await page.waitForSelector("body[data-polyterm-ready='true']", { timeout })
   // Give the renderer one extra frame to paint
   await page.waitForTimeout(200)
 }
 
 /**
- * Returns the full text content of the OpenTUI buffer as a string.
+ * Returns the full text content of the Polyterm buffer as a string.
  * Each row is separated by a newline. Trailing whitespace per line is trimmed.
  * Trailing empty lines are removed.
  */
 export async function getBufferText(page: Page): Promise<string> {
-  return page.evaluate(() => window.__opentui__.getBufferText())
+  return page.evaluate(() => window.__polyterm__.getBufferText())
 }
 
 /**
@@ -33,7 +33,7 @@ export async function getCellAt(
   attributes: number
 }> {
   return page.evaluate(
-    ({ col, row }) => window.__opentui__.getCellAt(col, row),
+    ({ col, row }) => window.__polyterm__.getCellAt(col, row),
     { col, row },
   )
 }

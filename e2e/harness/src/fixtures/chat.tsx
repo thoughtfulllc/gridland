@@ -1,6 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
-import { ChatPanel } from "../../../../packages/opentui-ui/components/chat/chat"
+import { ChatPanel } from "../../../../packages/polyterm-ui/components/chat/chat"
 
 export function ChatFixture() {
   return (

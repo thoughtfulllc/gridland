@@ -1,14 +1,14 @@
 ---
-title: OpenTuiCanvas
-description: The root mounting component for OpenTUI Web
+title: TUI
+description: The root mounting component for Polyterm
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout'
 import PrimitivesDemo from '@/components/demos/primitives-demo'
 
-`OpenTuiCanvas` is the single entry point for rendering TUI content to a
+`TUI` is the single entry point for rendering TUI content to a
 canvas. It handles client detection, canvas creation, React reconciler setup,
-and automatic resizing.
+and automatic resizing. Polyterm is built on the [opentui](https://opentui.dev) engine.
 
 <div className="my-8">
   <PrimitivesDemo />
@@ -17,17 +17,17 @@ and automatic resizing.
 ## Import
 
 ```tsx title="Import"
-import { OpenTuiCanvas } from "opentui-web"
+import { TUI } from "@polyterm.io/web"
 ```
 
 ## Usage
 
 ```tsx title="Example"
-<OpenTuiCanvas style={{ width: "100vw", height: "100vh" }}>
+<TUI style={{ width: "100vw", height: "100vh" }}>
   <box border padding={1}>
     <text>Your TUI content here</text>
   </box>
-</OpenTuiCanvas>
+</TUI>
 ```
 
 ## Props
@@ -41,7 +41,7 @@ import { OpenTuiCanvas } from "opentui-web"
 ## SSR Behavior
 
 <Callout type="info">
-On the server, `OpenTuiCanvas` renders an empty `<div>` with the provided
+On the server, `TUI` renders an empty `<div>` with the provided
 style and className. On the client, it hydrates and creates the canvas
 automatically. No `dynamic(() => import(...), { ssr: false })` wrapper is needed.
 </Callout>

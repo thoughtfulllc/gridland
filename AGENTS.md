@@ -11,9 +11,12 @@
 - Clean rebuild: `bun run clean && bun install && bun run build`
 
 ## Monorepo Structure
-- `packages/opentui-web` — Core browser runtime
-- `packages/opentui-ui` — UI component library
-- `packages/opentui-testing` — Testing utilities
+- `packages/polyterm-web` — Core browser runtime (@polyterm.io/web)
+- `packages/polyterm-ui` — UI component library (@polyterm.io/ui)
+- `packages/polyterm-testing` — Testing utilities (@polyterm.io/testing)
+
+Polyterm is built on the [opentui](https://opentui.dev) engine. The underlying
+`@opentui/core`, `@opentui/react`, and `@opentui/ui` packages are preserved unchanged.
 
 ## Debugging Component Rendering
 
@@ -24,7 +27,7 @@ bun run demo              # all components
 bun run demo table        # specific component
 bun run demo select-input # by name
 ```
-Fixtures are defined in `packages/opentui-ui/scripts/demo-fixtures.tsx`. Add new
+Fixtures are defined in `packages/polyterm-ui/scripts/demo-fixtures.tsx`. Add new
 fixtures there to include them in the demo runner.
 
 ### Snapshot Tests
@@ -32,7 +35,7 @@ Each UI component has snapshot tests (`*.snapshot.test.tsx`) that capture render
 text output. Use these to catch visual regressions:
 ```bash
 bun run test                        # verify snapshots match
-bun run --cwd packages/opentui-ui test -- --update-snapshots  # regenerate
+bun run --cwd packages/polyterm-ui test -- --update-snapshots  # regenerate
 ```
 When modifying a component's rendering, run the tests — any visual change will
 cause a snapshot mismatch. Review the diff, then update snapshots if the change
@@ -73,12 +76,12 @@ import { textStyle } from "./text-style"
 <span style={{ fg: "cyan", attributes: 33 }}>
 ```
 
-The `textStyle()` helper is exported from `opentui-ui` and converts
+The `textStyle()` helper is exported from `@polyterm.io/ui` and converts
 `{ bold, dim, italic, underline, inverse, fg, bg }` into `{ attributes, fg, bg }`.
 
 ## Docs Demos
 
-Demos live in `packages/docs/components/demos/`. They render inside `<OpenTuiCanvas>`.
+Demos live in `packages/docs/components/demos/`. They render inside `<TUI>`.
 
 **Demos for interactive components must be interactive.** If a component accepts
 keyboard input (`useKeyboard` prop) or has state that changes on user action,
@@ -120,7 +123,7 @@ Structural translation copies assumptions from ink's element model (`<Text>` can
 be inline) that don't hold in opentui (`<text>` is always block).
 
 ## Key Rules
-1. New Node.js dependencies in opentui must be shimmed in `packages/opentui-web/src/shims/`
+1. New Node.js dependencies in opentui must be shimmed in `packages/polyterm-web/src/shims/`
 2. Browser code must not import from Zig/FFI — use the core-shims barrel
 3. The Vite plugin handles module resolution — don't add manual aliases
 4. Do NOT publish to npm without explicit approval

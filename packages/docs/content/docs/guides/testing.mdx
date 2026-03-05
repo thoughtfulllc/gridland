@@ -1,6 +1,6 @@
 ---
 title: Testing
-description: Test OpenTUI Web components with opentui-testing
+description: Test Polyterm components with @polyterm.io/testing
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
@@ -11,22 +11,22 @@ import { Callout } from 'fumadocs-ui/components/callout'
 <Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
 <Tab value="npm">
 ```bash title="Terminal"
-npm install --save-dev opentui-testing
+npm install --save-dev @polyterm.io/testing
 ```
 </Tab>
 <Tab value="yarn">
 ```bash title="Terminal"
-yarn add -D opentui-testing
+yarn add -D @polyterm.io/testing
 ```
 </Tab>
 <Tab value="pnpm">
 ```bash title="Terminal"
-pnpm add -D opentui-testing
+pnpm add -D @polyterm.io/testing
 ```
 </Tab>
 <Tab value="bun">
 ```bash title="Terminal"
-bun add -D opentui-testing
+bun add -D @polyterm.io/testing
 ```
 </Tab>
 </Tabs>
@@ -37,7 +37,7 @@ The `createScreen` function renders your component to a virtual buffer that you
 can inspect:
 
 ```ts title="example.test.ts"
-import { createScreen } from "opentui-testing"
+import { createScreen } from "@polyterm.io/testing"
 
 const screen = await createScreen(
   <box border padding={1}>
@@ -62,7 +62,7 @@ expect(match.row).toBeGreaterThan(0)
 Send keystrokes to test interactive components:
 
 ```ts title="input.test.ts"
-import { createScreen, keys } from "opentui-testing"
+import { createScreen, keys } from "@polyterm.io/testing"
 
 const screen = await createScreen(<MyInputComponent />, {
   cols: 40,
@@ -90,7 +90,7 @@ screen.sendKeys(keys.enter)
 Use `waitFor` to wait for async state changes:
 
 ```ts title="async.test.ts"
-import { createScreen, waitFor } from "opentui-testing"
+import { createScreen, waitFor } from "@polyterm.io/testing"
 
 const screen = await createScreen(<AsyncComponent />)
 
@@ -110,15 +110,15 @@ expect(output).toMatchSnapshot()
 
 ## Test Runner Compatibility
 
-`opentui-testing` works with any test runner that supports ESM:
+`@polyterm.io/testing` works with any test runner that supports ESM:
 
-- **Bun** — Recommended, used in the opentui-web test suite
+- **Bun** — Recommended, used in the Polyterm test suite
 - **Vitest** — Works with proper module resolution
 - **Jest** — Works with ESM transforms configured
 
 <Callout type="info">
-Bun is the recommended test runner for OpenTUI Web projects. It has native ESM
-support and is used for the opentui-web test suite itself.
+Bun is the recommended test runner for Polyterm projects. It has native ESM
+support and is used for the Polyterm test suite itself.
 </Callout>
 
 ## Tips

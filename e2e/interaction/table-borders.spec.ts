@@ -29,7 +29,7 @@ test.describe("Table Border Connectivity", () => {
     const results = await page.evaluate((directionMap) => {
       const canvas = document.querySelector("canvas") as HTMLCanvasElement
       const ctx = canvas.getContext("2d")!
-      const renderer = window.__opentui__.renderer as any
+      const renderer = window.__polyterm__.renderer as any
       const cellSize = renderer.painter.getCellSize()
       const cellWidth = cellSize.width as number
       const cellHeight = cellSize.height as number

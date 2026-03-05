@@ -1,4 +1,4 @@
-# opentui-web Monorepo Plan
+# Polyterm Monorepo Plan
 
 ## Overview
 

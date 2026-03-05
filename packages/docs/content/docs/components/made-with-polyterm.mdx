@@ -1,0 +1,75 @@
+---
+title: Made with Polyterm
+description: Branding components that link back to the Polyterm project
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+
+The `PolytermCornerRibbon`, `PolytermBadgeButton`, and `PolytermTextBadge` components from `@polyterm.io/ui` provide
+branding attribution that links back to the Polyterm website.
+
+## Installation
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tab value="npm">
+```bash title="Terminal"
+npm install @polyterm.io/ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add @polyterm.io/ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add @polyterm.io/ui
+```
+</Tab>
+<Tab value="bun">
+```bash title="Terminal"
+bun add @polyterm.io/ui
+```
+</Tab>
+</Tabs>
+
+## Import
+
+```tsx title="Import"
+import { PolytermCornerRibbon, PolytermBadgeButton, PolytermTextBadge } from "@polyterm.io/ui"
+```
+
+## Usage
+
+```tsx title="PolytermCornerRibbon"
+<PolytermCornerRibbon position="top-right" />
+```
+
+```tsx title="PolytermBadgeButton"
+<PolytermBadgeButton variant="dark" />
+```
+
+```tsx title="PolytermTextBadge"
+<PolytermTextBadge />
+```
+
+## PolytermCornerRibbon Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `position` | `"top-right" \| "top-left" \| "bottom-right" \| "bottom-left"` | `"top-right"` | Corner position |
+| `className` | `string` | `undefined` | Additional CSS classes on the ribbon link |
+| `absolute` | `boolean` | `false` | Use absolute instead of fixed positioning |
+
+## PolytermBadgeButton Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `"dark" \| "light" \| "outline"` | `"dark"` | Visual style variant |
+| `className` | `string` | `undefined` | Additional CSS classes |
+
+## PolytermTextBadge Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | `undefined` | Additional CSS classes |

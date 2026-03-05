@@ -30,10 +30,16 @@
         "./.source/*"
       ],
       "opentui-web": [
-        "../opentui-web/src/index.ts"
+        "../polyterm-web/src/index.ts"
+      ],
+      "@polyterm.io/web": [
+        "../polyterm-web/src/index.ts"
       ],
       "opentui-ui": [
-        "../opentui-ui/components/index.ts"
+        "../polyterm-ui/components/index.ts"
+      ],
+      "@polyterm.io/ui": [
+        "../polyterm-ui/components/index.ts"
       ]
     }
   },
@@ -44,7 +50,7 @@
     ".source/**/*.ts",
     "next-env.d.ts",
     ".next/types/**/*.ts",
-    "opentui-jsx.d.ts"
+    "polyterm-jsx.d.ts"
   ],
   "exclude": [
     "node_modules"

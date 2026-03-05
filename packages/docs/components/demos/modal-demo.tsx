@@ -1,9 +1,9 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { useState } from "react"
-import { OpenTuiCanvas } from "opentui-web"
+import { TUI } from "@polyterm.io/web"
 import { MacWindow } from "@/components/ui/mac-window"
-import { Modal, StatusBar, textStyle } from "opentui-ui"
+import { Modal, StatusBar, textStyle } from "@polyterm.io/ui"
 import { useKeyboard } from "@opentui/react"
 
 function ModalApp() {
@@ -47,9 +47,9 @@ function ModalApp() {
 export default function ModalDemo() {
   return (
     <MacWindow title="Modal">
-      <OpenTuiCanvas style={{ width: "100%", height: 200 }}>
+      <TUI style={{ width: "100%", height: 200 }}>
         <ModalApp />
-      </OpenTuiCanvas>
+      </TUI>
     </MacWindow>
   )
 }

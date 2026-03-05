@@ -1,6 +1,6 @@
 "use client"
 
-import { OpenTuiCanvas } from "../../../packages/opentui-web/src/OpenTuiCanvas"
+import { TUI } from "../../../packages/polyterm-web/src/TUI"
 
 function TuiDemo() {
   return (
@@ -10,12 +10,12 @@ function TuiDemo() {
         borderStyle="rounded"
         borderColor="#88c0d0"
         backgroundColor="#2e3440"
-        title=" OpenTUI Web — Next.js Example "
+        title=" Polyterm — Next.js Example "
         titleAlignment="center"
         flexDirection="column"
         padding={1}
       >
-        <text fg="#a3be8c">Welcome to OpenTUI Web!</text>
+        <text fg="#a3be8c">Welcome to Polyterm!</text>
         <text fg="#81a1c1">
           This is rendered directly to an HTML5 Canvas.
         </text>
@@ -67,8 +67,8 @@ function TuiDemo() {
 
 export default function Home() {
   return (
-    <OpenTuiCanvas style={{ width: "100vw", height: "100vh" }}>
+    <TUI style={{ width: "100vw", height: "100vh" }}>
       <TuiDemo />
-    </OpenTuiCanvas>
+    </TUI>
   )
 }

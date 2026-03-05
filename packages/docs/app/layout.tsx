@@ -4,8 +4,8 @@ import "./global.css"
 
 export const metadata = {
   title: {
-    template: "%s | OpenTUI Web",
-    default: "OpenTUI Web",
+    template: "%s | Polyterm",
+    default: "Polyterm",
   },
   description: "Render terminal UIs to HTML5 Canvas with React",
 }

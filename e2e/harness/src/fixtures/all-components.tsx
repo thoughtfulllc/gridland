@@ -1,9 +1,9 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
-import { Table } from "../../../../packages/opentui-ui/components/table/table"
-import { SelectInput } from "../../../../packages/opentui-ui/components/select-input/select-input"
-import { TextInput } from "../../../../packages/opentui-ui/components/text-input/text-input"
-import { Link } from "../../../../packages/opentui-ui/components/link/link"
+import { Table } from "../../../../packages/polyterm-ui/components/table/table"
+import { SelectInput } from "../../../../packages/polyterm-ui/components/select-input/select-input"
+import { TextInput } from "../../../../packages/polyterm-ui/components/text-input/text-input"
+import { Link } from "../../../../packages/polyterm-ui/components/link/link"
 
 const tableData = [
   { name: "Alice", role: "Engineer", status: "Active" },

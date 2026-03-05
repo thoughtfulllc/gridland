@@ -1,8 +1,8 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
-import { OpenTuiCanvas } from "opentui-web"
+import { TUI } from "@polyterm.io/web"
 import { MacWindow } from "@/components/ui/mac-window"
-import { MultiSelect } from "opentui-ui"
+import { MultiSelect } from "@polyterm.io/ui"
 import { useKeyboard } from "@opentui/react"
 
 const items = [
@@ -15,12 +15,12 @@ const items = [
 export default function MultiSelectDemo() {
   return (
     <MacWindow title="MultiSelect">
-      <OpenTuiCanvas style={{ width: "100%", height: 160 }}>
+      <TUI style={{ width: "100%", height: 160 }}>
         <box padding={1} flexDirection="column" gap={1}>
           <text fg="#d8dee9" bold>Select languages:</text>
           <MultiSelect items={items} useKeyboard={useKeyboard} />
         </box>
-      </OpenTuiCanvas>
+      </TUI>
     </MacWindow>
   )
 }

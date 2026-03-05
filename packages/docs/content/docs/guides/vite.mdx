@@ -1,16 +1,11 @@
 ---
 title: Vite Setup
-description: Use OpenTUI Web with Vite
+description: Use Polyterm with Vite
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 import { Callout } from 'fumadocs-ui/components/callout'
-
-## Prerequisites
-
-- Node.js 18+
-- A Vite + React project
 
 <Steps>
 <Step>
@@ -20,22 +15,22 @@ import { Callout } from 'fumadocs-ui/components/callout'
 <Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
 <Tab value="npm">
 ```bash title="Terminal"
-npm install opentui-web
+npm install @polyterm.io/web
 ```
 </Tab>
 <Tab value="yarn">
 ```bash title="Terminal"
-yarn add opentui-web
+yarn add @polyterm.io/web
 ```
 </Tab>
 <Tab value="pnpm">
 ```bash title="Terminal"
-pnpm add opentui-web
+pnpm add @polyterm.io/web
 ```
 </Tab>
 <Tab value="bun">
 ```bash title="Terminal"
-bun add opentui-web
+bun add @polyterm.io/web
 ```
 </Tab>
 </Tabs>
@@ -45,18 +40,18 @@ bun add opentui-web
 
 ## Configure the Vite Plugin
 
-OpenTUI Web provides a Vite plugin that handles module resolution for the
+Polyterm provides a Vite plugin that handles module resolution for the
 underlying opentui engine. Add it to your `vite.config.ts`:
 
 ```ts title="vite.config.ts"
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
-import { opentuiWebPlugin } from "opentui-web/vite-plugin"
+import { polytermWebPlugin } from "@polyterm.io/web/vite-plugin"
 
 export default defineConfig({
   plugins: [
     react(),
-    ...opentuiWebPlugin({
+    ...polytermWebPlugin({
       opentuiPath: "../path/to/opentui",
     }),
   ],
@@ -73,10 +68,10 @@ plugin can resolve `@opentui/core`, `@opentui/react`, and `@opentui/ui`.
 
 ## Create Your Component
 
-Wrap your TUI content in `OpenTuiCanvas`:
+Wrap your TUI content in `TUI`:
 
 ```tsx title="App.tsx"
-import { OpenTuiCanvas } from "opentui-web"
+import { TUI } from "@polyterm.io/web"
 
 function TuiDemo() {
   return (
@@ -90,9 +85,9 @@ function TuiDemo() {
 
 export default function App() {
   return (
-    <OpenTuiCanvas style={{ width: "100vw", height: "100vh" }}>
+    <TUI style={{ width: "100vw", height: "100vh" }}>
       <TuiDemo />
-    </OpenTuiCanvas>
+    </TUI>
   )
 }
 ```
@@ -114,7 +109,7 @@ The Vite plugin sets up:
 
 ## Interaction Support
 
-OpenTUI Web supports user interaction on the canvas:
+Polyterm supports user interaction on the canvas:
 
 - **Text selection** — Click and drag to select text
 - **Copy** — Selected text can be copied to clipboard

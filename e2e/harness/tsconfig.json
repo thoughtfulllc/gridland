@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "paths": {
-      "@opentui/core": ["../../packages/opentui-web/src/core-shims/index.ts"],
+      "@opentui/core": ["../../packages/polyterm-web/src/core-shims/index.ts"],
       "@opentui/react": ["../../../../opentui/packages/react/src/index.ts"],
       "@opentui/ui": ["../../../../opentui/packages/ui/src/index.ts"]
     }

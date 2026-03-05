@@ -1,11 +1,11 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
+// @ts-nocheck — Polyterm intrinsic elements conflict with React's HTML/SVG types
 import { type ReactNode, useCallback } from "react"
-import { OpenTuiCanvas } from "../../../packages/opentui-web/src/OpenTuiCanvas"
-import type { BrowserRenderer } from "../../../packages/opentui-web/src/browser-renderer"
+import { TUI } from "../../../packages/polyterm-web/src/TUI"
+import type { BrowserRenderer } from "../../../packages/polyterm-web/src/browser-renderer"
 
 declare global {
   interface Window {
-    __opentui__: {
+    __polyterm__: {
       renderer: BrowserRenderer
       getBufferText: () => string
       getCellAt: (col: number, row: number) => {
@@ -29,7 +29,7 @@ export function FixtureWrapper({ cols, rows, children, fontSize = 14 }: FixtureW
   const handleReady = useCallback((renderer: BrowserRenderer) => {
     const buffer = renderer.buffer
 
-    window.__opentui__ = {
+    window.__polyterm__ = {
       renderer,
       getBufferText() {
         const lines: string[] = []
@@ -72,7 +72,7 @@ export function FixtureWrapper({ cols, rows, children, fontSize = 14 }: FixtureW
       },
     }
 
-    document.body.setAttribute("data-opentui-ready", "true")
+    document.body.setAttribute("data-polyterm-ready", "true")
   }, [])
 
   // Calculate pixel dimensions from cell count
@@ -84,14 +84,14 @@ export function FixtureWrapper({ cols, rows, children, fontSize = 14 }: FixtureW
 
   return (
     <div style={{ padding: 0, background: "#1e1e2e" }}>
-      <OpenTuiCanvas
+      <TUI
         style={{ width: `${widthPx}px`, height: `${heightPx}px` }}
         fontSize={fontSize}
         fontFamily={fontFamily}
         onReady={handleReady}
       >
         {children}
-      </OpenTuiCanvas>
+      </TUI>
     </div>
   )
 }

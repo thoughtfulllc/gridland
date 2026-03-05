@@ -1,16 +1,11 @@
 ---
 title: Next.js Setup
-description: Use OpenTUI Web with Next.js
+description: Use Polyterm with Next.js
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 import { Callout } from 'fumadocs-ui/components/callout'
-
-## Prerequisites
-
-- Node.js 18+
-- Next.js 15+ with App Router
 
 <Steps>
 <Step>
@@ -20,22 +15,22 @@ import { Callout } from 'fumadocs-ui/components/callout'
 <Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
 <Tab value="npm">
 ```bash title="Terminal"
-npm install opentui-web
+npm install @polyterm.io/web
 ```
 </Tab>
 <Tab value="yarn">
 ```bash title="Terminal"
-yarn add opentui-web
+yarn add @polyterm.io/web
 ```
 </Tab>
 <Tab value="pnpm">
 ```bash title="Terminal"
-pnpm add opentui-web
+pnpm add @polyterm.io/web
 ```
 </Tab>
 <Tab value="bun">
 ```bash title="Terminal"
-bun add opentui-web
+bun add @polyterm.io/web
 ```
 </Tab>
 </Tabs>
@@ -45,27 +40,27 @@ bun add opentui-web
 
 ## Configure Next.js
 
-Use the `withOpenTui` plugin to configure webpack automatically:
+Use the `withPolyterm` plugin to configure webpack automatically:
 
 ```ts title="next.config.ts"
-import { withOpenTui } from "opentui-web/next-plugin"
+import { withPolyterm } from "@polyterm.io/web/next-plugin"
 
-export default withOpenTui("../path/to/opentui")
+export default withPolyterm("../path/to/opentui")
 ```
 
 The first argument is the path to the opentui monorepo root. You can pass
 additional Next.js config as a second argument:
 
 ```ts title="next.config.ts"
-import { withOpenTui } from "opentui-web/next-plugin"
+import { withPolyterm } from "@polyterm.io/web/next-plugin"
 
-export default withOpenTui("../path/to/opentui", {
+export default withPolyterm("../path/to/opentui", {
   reactStrictMode: true,
   // ... other Next.js config
 })
 ```
 
-If you provide your own `webpack` function, `withOpenTui` will chain it —
+If you provide your own `webpack` function, `withPolyterm` will chain it —
 your config runs first, then opentui aliases and shims are applied on top.
 
 </Step>
@@ -73,12 +68,12 @@ your config runs first, then opentui aliases and shims are applied on top.
 
 ## Create Your Component
 
-Mark your page as a client component and use `OpenTuiCanvas`:
+Mark your page as a client component and use `TUI`:
 
 ```tsx title="app/page.tsx"
 "use client"
 
-import { OpenTuiCanvas } from "opentui-web"
+import { TUI } from "@polyterm.io/web"
 
 function TuiDemo() {
   return (
@@ -90,9 +85,9 @@ function TuiDemo() {
 
 export default function Home() {
   return (
-    <OpenTuiCanvas style={{ width: "100vw", height: "100vh" }}>
+    <TUI style={{ width: "100vw", height: "100vh" }}>
       <TuiDemo />
-    </OpenTuiCanvas>
+    </TUI>
   )
 }
 ```
@@ -103,7 +98,7 @@ export default function Home() {
 ## SSR Safety
 
 <Callout type="success">
-`OpenTuiCanvas` is SSR-safe by default. On the server it renders an empty
+`TUI` is SSR-safe by default. On the server it renders an empty
 container div. On the client it hydrates and creates the canvas. No
 `dynamic(() => import(...), { ssr: false })` wrapper is needed.
 </Callout>
@@ -112,7 +107,7 @@ container div. On the client it hydrates and creates the canvas. No
 
 | Concern | Vite | Next.js |
 |---------|------|---------|
-| Plugin | `opentuiWebPlugin()` in vite.config | `withOpenTui()` in next.config |
+| Plugin | `polytermWebPlugin()` in vite.config | `withPolyterm()` in next.config |
 | `node:` imports | Handled by resolveId hook | `NormalModuleReplacementPlugin` |
 | CJS modules | Virtual module redirects | Webpack handles natively |
 | Top-level await | Supported by default | Enabled by plugin |

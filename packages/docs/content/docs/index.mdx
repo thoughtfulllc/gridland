@@ -7,14 +7,14 @@ import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { Callout } from 'fumadocs-ui/components/callout'
 import { Card, Cards } from 'fumadocs-ui/components/card'
 
-OpenTUI Web renders terminal-style UIs directly to an HTML5 Canvas using React.
-No xterm.js, no terminal emulator — just a React reconciler, Yoga layout, and canvas pixels.
+Polyterm renders terminal-style UIs directly to an HTML5 Canvas using React.
+Built on the [opentui](https://opentui.dev) engine — no xterm.js, no terminal emulator — just a React reconciler, Yoga layout, and canvas pixels.
 
 ## Features
 
 - **Canvas rendering** — TUI content drawn directly to `<canvas>`, not a DOM tree
 - **React reconciler** — Use JSX with `<box>`, `<text>`, and other TUI primitives
-- **SSR-safe** — Single `<OpenTuiCanvas>` component with built-in client detection
+- **SSR-safe** — Single `<TUI>` component with built-in client detection
 - **Yoga layout** — Flexbox positioning via `yoga-layout`
 - **Framework support** — Works with Vite and Next.js
 - **Interaction** — Text selection, copy/paste, keyboard events, and drag-and-drop
@@ -26,51 +26,51 @@ Install the package in your project:
 <Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
 <Tab value="npm">
 ```bash title="Terminal"
-npm install opentui-web
+npm install @polyterm.io/web
 ```
 </Tab>
 <Tab value="yarn">
 ```bash title="Terminal"
-yarn add opentui-web
+yarn add @polyterm.io/web
 ```
 </Tab>
 <Tab value="pnpm">
 ```bash title="Terminal"
-pnpm add opentui-web
+pnpm add @polyterm.io/web
 ```
 </Tab>
 <Tab value="bun">
 ```bash title="Terminal"
-bun add opentui-web
+bun add @polyterm.io/web
 ```
 </Tab>
 </Tabs>
 
-Then wrap your TUI content in `OpenTuiCanvas`:
+Then wrap your TUI content in `TUI`:
 
 ```tsx title="App.tsx"
-import { OpenTuiCanvas } from "opentui-web"
+import { TUI } from "@polyterm.io/web"
 
 function App() {
   return (
-    <OpenTuiCanvas style={{ width: "100vw", height: "100vh" }}>
+    <TUI style={{ width: "100vw", height: "100vh" }}>
       <box border borderStyle="rounded" padding={1}>
-        <text fg="#a3be8c">Hello from OpenTUI Web!</text>
+        <text fg="#a3be8c">Hello from Polyterm!</text>
       </box>
-    </OpenTuiCanvas>
+    </TUI>
   )
 }
 ```
 
 <Callout type="info">
-You'll also need to configure your bundler (Vite or webpack) to resolve OpenTUI's internal modules. See the framework guides below.
+You'll also need to configure your bundler (Vite or webpack) to resolve the underlying opentui engine modules. See the framework guides below.
 </Callout>
 
 ## Framework Guides
 
 <Cards>
   <Card title="Vite Setup" href="/docs/guides/vite">
-    Quickest way to get started with OpenTUI Web.
+    Quickest way to get started with Polyterm.
   </Card>
   <Card title="Next.js Setup" href="/docs/guides/nextjs">
     For server-rendered apps using the App Router.
@@ -80,13 +80,13 @@ You'll also need to configure your bundler (Vite or webpack) to resolve OpenTUI'
 ## Packages
 
 <Cards>
-  <Card title="opentui-web" href="/docs/api/opentui-web">
+  <Card title="@polyterm.io/web" href="/docs/api/polyterm-web">
     Core canvas renderer and React integration.
   </Card>
-  <Card title="opentui-ui" href="/docs/api/opentui-ui">
+  <Card title="@polyterm.io/ui" href="/docs/api/polyterm-ui">
     Higher-level UI components (Gradient, Table).
   </Card>
-  <Card title="opentui-testing" href="/docs/api/opentui-testing">
+  <Card title="@polyterm.io/testing" href="/docs/api/polyterm-testing">
     Test utilities for TUI components.
   </Card>
 </Cards>

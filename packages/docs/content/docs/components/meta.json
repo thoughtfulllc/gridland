@@ -1,4 +1,4 @@
 {
   "title": "Components",
-  "pages": ["canvas", "primitives", "gradient", "table", "spinner", "text-input", "select-input", "multi-select", "link", "ascii", "tab-bar", "status-bar", "modal", "chat", "mac-window", "made-with-opentui"]
+  "pages": ["canvas", "primitives", "gradient", "table", "spinner", "text-input", "select-input", "multi-select", "link", "ascii", "tab-bar", "status-bar", "modal", "chat", "mac-window", "made-with-opentui", "made-with-polyterm"]
 }

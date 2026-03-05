@@ -1,10 +1,10 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVX types
 "use client"
 import { useState, useCallback, useRef } from "react"
-import { OpenTuiCanvas } from "opentui-web"
+import { TUI } from "@polyterm.io/web"
 import { MacWindow } from "@/components/ui/mac-window"
-import { ChatPanel } from "opentui-ui"
-import type { ChatMessage, ToolCallInfo } from "opentui-ui"
+import { ChatPanel } from "@polyterm.io/ui"
+import type { ChatMessage, ToolCallInfo } from "@polyterm.io/ui"
 import { useKeyboard } from "@opentui/react"
 
 const initialMessages: ChatMessage[] = [
@@ -94,9 +94,9 @@ function ChatApp() {
 export default function ChatDemo() {
   return (
     <MacWindow title="Chat">
-      <OpenTuiCanvas style={{ width: "100%", height: 280 }}>
+      <TUI style={{ width: "100%", height: 280 }}>
         <ChatApp />
-      </OpenTuiCanvas>
+      </TUI>
     </MacWindow>
   )
 }

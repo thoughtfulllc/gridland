@@ -1,0 +1,94 @@
+---
+title: "@polyterm.io/testing"
+description: Testing utilities API reference
+---
+
+## createScreen
+
+Creates a virtual screen for testing TUI components.
+
+```ts
+import { createScreen } from "@polyterm.io/testing"
+
+const screen = await createScreen(element, options?)
+```
+
+**Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `cols` | `number` | `80` | Number of columns |
+| `rows` | `number` | `24` | Number of rows |
+
+**Returns:** `Screen`
+
+## Screen
+
+The screen object returned by `createScreen`.
+
+### `screen.getByText(text)`
+
+Find rendered text in the buffer.
+
+- **Returns:** `{ row: number, col: number, text: string }` or `null`
+
+### `screen.getAllByText(text)`
+
+Find all occurrences of text in the buffer.
+
+- **Returns:** `Array<{ row: number, col: number, text: string }>`
+
+### `screen.sendKeys(keys)`
+
+Send key events to the focused component.
+
+### `screen.toString()`
+
+Render the buffer to a plain text string for snapshot testing.
+
+### `screen.debug()`
+
+Print the buffer to the console with ANSI colors.
+
+### `screen.unmount()`
+
+Clean up the screen and reconciler.
+
+## keys
+
+Key event helpers for `sendKeys`.
+
+```ts
+import { keys } from "@polyterm.io/testing"
+```
+
+| Helper | Description |
+|--------|-------------|
+| `keys.type(str)` | Type characters |
+| `keys.enter` | Enter key |
+| `keys.escape` | Escape key |
+| `keys.tab` | Tab key |
+| `keys.backspace` | Backspace key |
+| `keys.up` | Up arrow |
+| `keys.down` | Down arrow |
+| `keys.left` | Left arrow |
+| `keys.right` | Right arrow |
+
+## waitFor
+
+Wait for a condition to be met, polling at intervals.
+
+```ts
+import { waitFor } from "@polyterm.io/testing"
+
+await waitFor(() => {
+  expect(screen.getByText("Done")).toBeTruthy()
+}, { timeout: 5000, interval: 50 })
+```
+
+**Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `timeout` | `number` | `1000` | Max wait time in ms |
+| `interval` | `number` | `50` | Poll interval in ms |

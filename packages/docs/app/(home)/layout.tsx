@@ -4,12 +4,12 @@ import type { ReactNode } from "react"
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <HomeLayout
-      nav={{ title: "OpenTUI Web" }}
+      nav={{ title: "Polyterm" }}
       links={[
         { text: "Docs", url: "/docs" },
         {
           text: "GitHub",
-          url: "https://github.com/nicktomlin/opentui-web",
+          url: "https://github.com/cjroth/polyterm",
           external: true,
         },
       ]}

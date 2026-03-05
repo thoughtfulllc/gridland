@@ -5,10 +5,10 @@ export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-4 py-16">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">OpenTUI Web</h1>
+        <h1 className="text-4xl font-bold mb-4">Polyterm</h1>
         <p className="text-lg text-fd-muted-foreground mb-8 max-w-lg mx-auto">
-          Render terminal UIs to HTML5 Canvas with React. No xterm.js. No
-          terminal emulator. Just pixels.
+          Render terminal UIs to HTML5 Canvas with React. Built on the opentui
+          engine. No xterm.js. No terminal emulator. Just pixels.
         </p>
         <div className="flex gap-4 justify-center">
           <Link
@@ -18,7 +18,7 @@ export default function HomePage() {
             Get Started
           </Link>
           <Link
-            href="https://github.com/nichochar/opentui"
+            href="https://github.com/cjroth/polyterm"
             className="rounded-lg border border-fd-border px-6 py-3 font-medium hover:bg-fd-accent"
           >
             GitHub
@@ -56,7 +56,7 @@ export default function HomePage() {
       <Accordions type="single" className="w-full max-w-3xl text-left">
         <Accordion title="How is this different from xterm.js?">
           xterm.js is a terminal emulator that interprets ANSI escape codes.
-          OpenTUI Web takes a fundamentally different approach: it renders
+          Polyterm takes a fundamentally different approach: it renders
           directly to canvas using a React reconciler and Yoga layout engine. No
           terminal emulation layer, no escape codes — just a React component tree
           painted to pixels.
@@ -66,7 +66,7 @@ export default function HomePage() {
           framework can work with appropriate module resolution configuration.
         </Accordion>
         <Accordion title="Is it SSR-safe?">
-          Yes. <code>OpenTuiCanvas</code> renders an empty div on the server and
+          Yes. <code>TUI</code> renders an empty div on the server and
           hydrates the canvas on the client. No{" "}
           <code>dynamic(() =&gt; import(...), {"{"} ssr: false {"}"})</code>{" "}
           wrapper is needed.
@@ -81,8 +81,8 @@ export default function HomePage() {
           Yoga computes flexbox layout, a BrowserBuffer stores the cell grid, and
           CanvasPainter draws it to an HTML5 Canvas element.
         </Accordion>
-        <Accordion title="Is OpenTUI Web production-ready?">
-          OpenTUI Web is experimental. APIs may change between releases. Use it
+        <Accordion title="Is Polyterm production-ready?">
+          Polyterm is experimental. APIs may change between releases. Use it
           at your own risk.
         </Accordion>
       </Accordions>

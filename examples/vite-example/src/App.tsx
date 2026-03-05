@@ -1,4 +1,4 @@
-import { OpenTuiCanvas } from "../../../packages/opentui-web/src/OpenTuiCanvas"
+import { TUI } from "../../../packages/polyterm-web/src/TUI"
 
 function TuiDemo() {
   return (
@@ -13,12 +13,12 @@ function TuiDemo() {
         borderStyle="rounded"
         borderColor="#88c0d0"
         backgroundColor="#2e3440"
-        title=" OpenTUI Web — Vite Example "
+        title=" Polyterm — Vite Example "
         titleAlignment="center"
         flexDirection="column"
         padding={1}
       >
-        <text fg="#a3be8c">Welcome to OpenTUI Web!</text>
+        <text fg="#a3be8c">Welcome to Polyterm!</text>
         <text fg="#81a1c1">This is rendered directly to an HTML5 Canvas.</text>
         <text fg="#b48ead">No xterm.js. No terminal emulator. Just pixels.</text>
       </box>
@@ -61,8 +61,8 @@ function TuiDemo() {
 
 export function App() {
   return (
-    <OpenTuiCanvas style={{ width: "100vw", height: "100vh" }}>
+    <TUI style={{ width: "100vw", height: "100vh" }}>
       <TuiDemo />
-    </OpenTuiCanvas>
+    </TUI>
   )
 }

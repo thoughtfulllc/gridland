@@ -1,4 +1,4 @@
 {
   "title": "API Reference",
-  "pages": ["opentui-web", "opentui-testing", "opentui-ui"]
+  "pages": ["polyterm-web", "polyterm-testing", "polyterm-ui"]
 }

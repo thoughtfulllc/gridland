@@ -1,5 +1,5 @@
 "use client"
-import { MacWindow } from "opentui-ui"
+import { MacWindow } from "@polyterm.io/ui"
 
 export default function MacWindowDemo() {
   return (

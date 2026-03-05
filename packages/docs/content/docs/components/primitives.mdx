@@ -6,8 +6,8 @@ description: Built-in JSX elements for terminal UI rendering
 import { Callout } from 'fumadocs-ui/components/callout'
 import PrimitivesDemo from '@/components/demos/primitives-demo'
 
-OpenTUI Web uses JSX intrinsic elements that map to renderable components.
-These are used inside `<OpenTuiCanvas>`.
+Polyterm uses JSX intrinsic elements that map to renderable components in the opentui engine.
+These are used inside `<TUI>`.
 
 <div className="my-8">
   <PrimitivesDemo />
@@ -15,8 +15,8 @@ These are used inside `<OpenTuiCanvas>`.
 
 <Callout type="info">
 These are JSX intrinsic elements, not DOM elements. `<box>` renders to the
-canvas cell grid, not to an HTML `<div>`. They only work inside an
-`<OpenTuiCanvas>` wrapper.
+canvas cell grid, not to an HTML `<div>`. They only work inside a
+`<TUI>` wrapper.
 </Callout>
 
 ## `<box>`

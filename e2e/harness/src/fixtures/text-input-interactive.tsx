@@ -1,7 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState } from "react"
 import { FixtureWrapper } from "../fixture-wrapper"
-import { TextInput } from "../../../../packages/opentui-ui/components/text-input/text-input"
+import { TextInput } from "../../../../packages/polyterm-ui/components/text-input/text-input"
 
 export function TextInputInteractiveFixture() {
   const [value, setValue] = useState("")

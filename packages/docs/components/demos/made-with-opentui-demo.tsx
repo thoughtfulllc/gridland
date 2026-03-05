@@ -1,5 +1,5 @@
 "use client"
-import { BadgeButton, TextBadge } from "opentui-ui"
+import { BadgeButton, TextBadge } from "@polyterm.io/ui"
 
 export default function MadeWithOpentuiDemo() {
   return (

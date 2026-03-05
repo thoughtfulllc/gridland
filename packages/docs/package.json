@@ -1,5 +1,5 @@
 {
-  "name": "opentui-web-docs",
+  "name": "polyterm-docs",
   "private": true,
   "scripts": {
     "dev": "next dev",

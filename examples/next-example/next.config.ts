@@ -1,3 +1,3 @@
-import { withOpenTui } from "opentui-web/next-plugin"
+import { withPolyterm } from "@polyterm.io/web/next-plugin"
 
-export default withOpenTui("../../../opentui")
+export default withPolyterm("../../../opentui")
