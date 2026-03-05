@@ -17,7 +17,7 @@ const gradientNames = Object.keys(GRADIENTS) as GradientName[]
 
 function GradientApp() {
   const theme = useTheme()
-  const [index, setIndex] = useState(0)
+  const [index, setIndex] = useState(gradientNames.indexOf("instagram"))
   const name = gradientNames[index]
 
   useKeyboard((event) => {

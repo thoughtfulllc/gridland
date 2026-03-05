@@ -45,7 +45,7 @@ function getLines(fontName: string) {
 
 function AsciiApp() {
   const theme = useTheme()
-  const [fontIndex, setFontIndex] = useState(0)
+  const [fontIndex, setFontIndex] = useState(fonts.findIndex((f) => f.name === "Colossal"))
   const font = fonts[fontIndex]
   const lines = getLines(font.name)
 

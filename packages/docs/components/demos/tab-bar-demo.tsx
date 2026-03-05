@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { TUI } from "@polyterm.io/web"
 import { TerminalWindow } from "@/components/ui/mac-window"
-import { TabBar, textStyle } from "@polyterm.io/ui"
+import { TabBar, StatusBar } from "@polyterm.io/ui"
 import { useKeyboard } from "@opentui/react"
 
 const tabs = ["Files", "Search", "Git", "Debug"]
@@ -21,9 +21,12 @@ function TabBarApp() {
   })
 
   return (
-    <box flexDirection="column" gap={1} padding={1}>
-      <TabBar label="View" options={tabs} selectedIndex={selectedIndex} />
-      <text style={textStyle({ dim: true })}>Use ←/→ arrow keys to switch tabs</text>
+    <box flexDirection="column" flexGrow={1}>
+      <box padding={1}>
+        <TabBar label="View" options={tabs} selectedIndex={selectedIndex} />
+      </box>
+      <box flexGrow={1} />
+      <StatusBar items={[{ key: "←→", label: "switch tab" }]} />
     </box>
   )
 }
@@ -31,7 +34,7 @@ function TabBarApp() {
 export default function TabBarDemo() {
   return (
     <TerminalWindow title="TabBar">
-      <TUI style={{ width: "100%", height: 80 }}>
+      <TUI style={{ width: "100%", height: 120 }}>
         <TabBarApp />
       </TUI>
     </TerminalWindow>
