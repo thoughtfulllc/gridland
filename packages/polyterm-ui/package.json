@@ -19,6 +19,7 @@
     "test:ci": "bun test --preload ../polyterm-web/test/preload.ts --randomize --rerun-each 3"
   },
   "devDependencies": {
+    "@types/bun": "^1.3.10",
     "@types/react": "^19.0.0",
     "figlet": "^1.10.0",
     "react": "^19.0.0",

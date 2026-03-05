@@ -1,33 +1,38 @@
 // Browser shim for node:buffer
 // TextEncoder/TextDecoder are available in browsers
-class BrowserBuffer extends Uint8Array {
-  static from(data: string | ArrayBuffer | Uint8Array, encoding?: string): BrowserBuffer {
+const BrowserBuffer = {
+  from(data: string | ArrayBuffer | Uint8Array, encoding?: string): Uint8Array {
     if (typeof data === "string") {
       const encoder = new TextEncoder()
-      const bytes = encoder.encode(data)
-      return new BrowserBuffer(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+      return encoder.encode(data)
     }
     if (data instanceof ArrayBuffer) {
-      return new BrowserBuffer(data)
+      return new Uint8Array(data)
     }
     if (data instanceof Uint8Array) {
-      return new BrowserBuffer(data.buffer, data.byteOffset, data.byteLength)
+      return new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
     }
-    return new BrowserBuffer(0)
-  }
+    return new Uint8Array(0)
+  },
 
-  static alloc(size: number): BrowserBuffer {
-    return new BrowserBuffer(size)
-  }
+  alloc(size: number): Uint8Array {
+    return new Uint8Array(size)
+  },
 
-  static isBuffer(obj: any): boolean {
-    return obj instanceof BrowserBuffer || obj instanceof Uint8Array
-  }
+  isBuffer(obj: any): boolean {
+    return obj instanceof Uint8Array
+  },
 
-  toString(encoding?: string): string {
-    const decoder = new TextDecoder(encoding === "utf8" || encoding === "utf-8" ? "utf-8" : "utf-8")
-    return decoder.decode(this)
-  }
+  concat(list: Uint8Array[], totalLength?: number): Uint8Array {
+    const length = totalLength ?? list.reduce((acc, buf) => acc + buf.byteLength, 0)
+    const result = new Uint8Array(length)
+    let offset = 0
+    for (const buf of list) {
+      result.set(buf, offset)
+      offset += buf.byteLength
+    }
+    return result
+  },
 }
 
 export const Buffer = BrowserBuffer

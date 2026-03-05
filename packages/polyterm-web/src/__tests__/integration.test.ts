@@ -33,10 +33,10 @@ describe("Integration", () => {
     buffer.drawTextBufferView(view, 0, 0)
 
     // Verify the buffer has the text
-    expect(buffer.char[0]).toBe("H".codePointAt(0))
-    expect(buffer.char[1]).toBe("e".codePointAt(0))
-    expect(buffer.char[5]).toBe(" ".codePointAt(0))
-    expect(buffer.char[6]).toBe("W".codePointAt(0))
+    expect(buffer.char[0]).toBe("H".codePointAt(0)!)
+    expect(buffer.char[1]).toBe("e".codePointAt(0)!)
+    expect(buffer.char[5]).toBe(" ".codePointAt(0)!)
+    expect(buffer.char[6]).toBe("W".codePointAt(0)!)
 
     // Verify colors - first chars should be red
     expect(buffer.fg[0]).toBe(1) // R

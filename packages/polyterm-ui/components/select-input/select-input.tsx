@@ -68,8 +68,9 @@ export function SelectInput<V>({
       selectedIndex={initialIndex}
       focused={focus}
       wrapSelection
-      onChange={handleChange}
-      onSelect={handleSelect}
+      // Cast: polyterm's custom <select> takes (index: number) => void, not DOM event handlers
+      onChange={handleChange as any}
+      onSelect={handleSelect as any}
       height={limit ?? items.length}
       showDescription={false}
       textColor={resolvedTextColor}

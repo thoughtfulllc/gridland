@@ -14,5 +14,5 @@
       "@opentui/ui": ["../../../../opentui/packages/ui/src/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "polyterm-jsx.d.ts"]
 }

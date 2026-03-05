@@ -52,8 +52,9 @@ export function TextInput({
         placeholder={placeholder}
         maxLength={maxLength}
         focused={focus}
-        onInput={handleInput}
-        onSubmit={handleSubmit}
+        // Cast: polyterm's custom <input> takes (value: string) => void, not DOM event handlers
+        onInput={handleInput as any}
+        onSubmit={handleSubmit as any}
       />
     </box>
   )

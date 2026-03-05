@@ -61,11 +61,11 @@ describe("BrowserBuffer", () => {
   it("draws text", () => {
     const buf = BrowserBuffer.create(20, 5, "wcwidth")
     buf.drawText("Hello", 2, 1, green, black)
-    expect(buf.char[1 * 20 + 2]).toBe("H".codePointAt(0))
-    expect(buf.char[1 * 20 + 3]).toBe("e".codePointAt(0))
-    expect(buf.char[1 * 20 + 4]).toBe("l".codePointAt(0))
-    expect(buf.char[1 * 20 + 5]).toBe("l".codePointAt(0))
-    expect(buf.char[1 * 20 + 6]).toBe("o".codePointAt(0))
+    expect(buf.char[1 * 20 + 2]).toBe("H".codePointAt(0)!)
+    expect(buf.char[1 * 20 + 3]).toBe("e".codePointAt(0)!)
+    expect(buf.char[1 * 20 + 4]).toBe("l".codePointAt(0)!)
+    expect(buf.char[1 * 20 + 5]).toBe("l".codePointAt(0)!)
+    expect(buf.char[1 * 20 + 6]).toBe("o".codePointAt(0)!)
     // Check fg is green
     const offset = (1 * 20 + 2) * 4
     expect(buf.fg[offset]).toBe(0) // R
@@ -118,7 +118,7 @@ describe("BrowserBuffer", () => {
     buf.popScissorRect()
 
     expect(buf.char[0]).toBe(0x20) // not set
-    expect(buf.char[1 * 10 + 3]).toBe("Y".codePointAt(0)) // set
+    expect(buf.char[1 * 10 + 3]).toBe("Y".codePointAt(0)!) // set
   })
 
   it("supports nested scissor rects (intersection)", () => {
@@ -132,7 +132,7 @@ describe("BrowserBuffer", () => {
     buf.popScissorRect()
 
     expect(buf.char[2 * 10 + 2]).toBe(0x20) // not set
-    expect(buf.char[2 * 10 + 3]).toBe("B".codePointAt(0)) // set
+    expect(buf.char[2 * 10 + 3]).toBe("B".codePointAt(0)!) // set
   })
 
   it("applies opacity", () => {

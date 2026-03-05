@@ -21,9 +21,9 @@
       "types": "./dist/next.d.ts"
     },
     "./next-plugin": {
+      "types": "./dist/next-plugin.d.ts",
       "import": "./dist/next-plugin.js",
-      "require": "./dist/next-plugin.cjs",
-      "types": "./dist/next-plugin.d.ts"
+      "require": "./dist/next-plugin.cjs"
     },
     "./utils": {
       "import": "./dist/utils.js",
@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^17.4.4",
+    "@types/bun": "^1.3.10",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
