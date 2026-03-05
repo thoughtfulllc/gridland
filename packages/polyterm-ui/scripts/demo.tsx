@@ -1,7 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { createElement, type ReactNode } from "react"
-import { createCliRenderer, type CliRenderer } from "../../../../opentui/packages/core/src/index"
-import { createRoot, useKeyboard } from "../../../../opentui/packages/react/src/index"
+import { createCliRenderer, type CliRenderer } from "@opentui/core"
+import { createRoot, useKeyboard } from "@opentui/react"
 import { demos } from "./demo-apps"
 
 let _renderer: CliRenderer

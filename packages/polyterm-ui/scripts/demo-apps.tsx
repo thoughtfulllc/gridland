@@ -1,6 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState, useCallback, useRef } from "react"
-import { useKeyboard } from "../../../../opentui/packages/react/src/index"
+import { useKeyboard } from "@opentui/react"
 import {
   Gradient, GRADIENTS, type GradientName,
   StatusBar, textStyle,

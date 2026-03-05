@@ -6,7 +6,7 @@ import { useKeyboard } from "@opentui/react"
 import { TerminalWindow } from "@/components/ui/mac-window"
 import { Link, StatusBar, textStyle, type UnderlineStyle } from "@polyterm.io/ui"
 
-const MODES: UnderlineStyle[] = ["solid", "dotted", "none"]
+const MODES: UnderlineStyle[] = ["solid", "dashed", "dotted", "none"]
 
 function LinkApp() {
   const [modeIndex, setModeIndex] = useState(0)
@@ -23,7 +23,7 @@ function LinkApp() {
   return (
     <box flexDirection="column" flexGrow={1}>
       <box padding={1} flexGrow={1}>
-        <text>Made by <a href="https://cjroth.com" style={{ attributes: mode === "solid" ? 8 : mode === "dotted" ? 24 : 0 }}>Chris Roth</a>.</text>
+        <text>Made by <a href="https://cjroth.com" style={{ attributes: mode === "solid" ? 8 : mode === "dashed" ? 24 : mode === "dotted" ? 72 : 0 }}>Chris Roth</a>.</text>
       </box>
       <StatusBar
         extra={<span style={textStyle({ bold: true })}>{mode.padEnd(6)}</span>}

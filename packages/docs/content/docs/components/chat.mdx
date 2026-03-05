@@ -13,9 +13,20 @@ with message display, tool call status cards, streaming text, loading indicators
   <ChatDemo />
 </div>
 
+## Run demo
+
+```bash title="Terminal"
+curl -fsSL https://raw.githubusercontent.com/cjroth/polyterm/main/scripts/run-demo.sh | bash -s chat
+```
+
 ## Installation
 
-<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+<Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
+<Tab value="bun">
+```bash title="Terminal"
+bun add @polyterm.io/ui
+```
+</Tab>
 <Tab value="npm">
 ```bash title="Terminal"
 npm install @polyterm.io/ui
@@ -29,11 +40,6 @@ yarn add @polyterm.io/ui
 <Tab value="pnpm">
 ```bash title="Terminal"
 pnpm add @polyterm.io/ui
-```
-</Tab>
-<Tab value="bun">
-```bash title="Terminal"
-bun add @polyterm.io/ui
 ```
 </Tab>
 </Tabs>

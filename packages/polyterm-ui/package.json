@@ -14,11 +14,13 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsup",
-    "demo": "bun run --preload ./scripts/preload.ts scripts/demo.tsx",
+    "demo": "bun run --tsconfig-override ./tsconfig.json scripts/demo.tsx",
     "test": "bun test --preload ../polyterm-web/test/preload.ts",
     "test:ci": "bun test --preload ../polyterm-web/test/preload.ts --randomize --rerun-each 3"
   },
   "devDependencies": {
+    "@opentui/core": "^0.1.86",
+    "@opentui/react": "^0.1.86",
     "@types/bun": "^1.3.10",
     "@types/react": "^19.0.0",
     "figlet": "^1.10.0",

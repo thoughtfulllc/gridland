@@ -3,7 +3,7 @@ import { Link, type UnderlineStyle } from "./link"
 import { StatusBar } from "../status-bar/status-bar"
 import { textStyle } from "../text-style"
 
-const MODES: UnderlineStyle[] = ["solid", "dotted", "none"]
+const MODES: UnderlineStyle[] = ["solid", "dashed", "dotted", "none"]
 
 export interface LinkDemoProps {
   url?: string
