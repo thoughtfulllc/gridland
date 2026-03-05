@@ -46,14 +46,14 @@ export {
   LayoutEvents,
   RenderableEvents,
   isRenderable,
-} from "../../../../../opentui/packages/core/src/Renderable"
+} from "../../../../opentui/packages/core/src/Renderable"
 export type {
   RenderableOptions,
   LayoutOptions,
   BaseRenderableOptions,
   Position,
   RenderCommand,
-} from "../../../../../opentui/packages/core/src/Renderable"
+} from "../../../../opentui/packages/core/src/Renderable"
 
 // Border (pure TS)
 export {
@@ -64,7 +64,7 @@ export {
   getBorderFromSides,
   getBorderSides,
   borderCharsToArray,
-} from "../../../../../opentui/packages/core/src/lib/border"
+} from "../../../../opentui/packages/core/src/lib/border"
 export type {
   BorderCharacters,
   BorderStyle,
@@ -72,7 +72,7 @@ export type {
   BorderConfig,
   BoxDrawOptions,
   BorderSidesConfig,
-} from "../../../../../opentui/packages/core/src/lib/border"
+} from "../../../../opentui/packages/core/src/lib/border"
 
 // Styled text (pure TS)
 export {
@@ -97,7 +97,7 @@ export {
   magenta,
   cyan,
   white,
-} from "../../../../../opentui/packages/core/src/lib/styled-text"
+} from "../../../../opentui/packages/core/src/lib/styled-text"
 
 // Yoga options (pure TS)
 export {
@@ -108,7 +108,7 @@ export {
   parseOverflow,
   parsePositionType,
   parseWrap,
-} from "../../../../../opentui/packages/core/src/lib/yoga.options"
+} from "../../../../opentui/packages/core/src/lib/yoga.options"
 export type {
   AlignString,
   FlexDirectionString,
@@ -116,7 +116,7 @@ export type {
   OverflowString,
   PositionTypeString,
   WrapString,
-} from "../../../../../opentui/packages/core/src/lib/yoga.options"
+} from "../../../../opentui/packages/core/src/lib/yoga.options"
 
 // Renderable validations (pure TS)
 export {
@@ -129,39 +129,39 @@ export {
   isPaddingType,
   isPositionTypeType,
   isOverflowType,
-} from "../../../../../opentui/packages/core/src/lib/renderable.validations"
+} from "../../../../opentui/packages/core/src/lib/renderable.validations"
 
 // Selection (pure TS)
 export {
   Selection,
   convertGlobalToLocalSelection,
-} from "../../../../../opentui/packages/core/src/lib/selection"
+} from "../../../../opentui/packages/core/src/lib/selection"
 
 // VNode composition (pure TS)
-export { maybeMakeRenderable } from "../../../../../opentui/packages/core/src/renderables/composition/vnode"
-export type { VNode } from "../../../../../opentui/packages/core/src/renderables/composition/vnode"
+export { maybeMakeRenderable } from "../../../../opentui/packages/core/src/renderables/composition/vnode"
+export type { VNode } from "../../../../opentui/packages/core/src/renderables/composition/vnode"
 
 // ─── Renderable subclasses (re-exported from individual files, not barrel) ─
 
 // These are needed by @opentui/react for the component catalogue and host-config.
 // File-level shims (zig, buffer, renderer, etc.) handle their internal imports.
-export * from "../../../../../opentui/packages/core/src/renderables/Box"
-export * from "../../../../../opentui/packages/core/src/renderables/Text"
-export * from "../../../../../opentui/packages/core/src/renderables/TextNode"
-export * from "../../../../../opentui/packages/core/src/renderables/Code"
-export * from "../../../../../opentui/packages/core/src/renderables/Diff"
-export * from "../../../../../opentui/packages/core/src/renderables/Input"
-export * from "../../../../../opentui/packages/core/src/renderables/Select"
-export * from "../../../../../opentui/packages/core/src/renderables/TabSelect"
-export * from "../../../../../opentui/packages/core/src/renderables/Textarea"
-export * from "../../../../../opentui/packages/core/src/renderables/ScrollBox"
-export * from "../../../../../opentui/packages/core/src/renderables/ScrollBar"
-export * from "../../../../../opentui/packages/core/src/renderables/Slider"
-export * from "../../../../../opentui/packages/core/src/renderables/ASCIIFont"
-export * from "../../../../../opentui/packages/core/src/renderables/LineNumberRenderable"
-export * from "../../../../../opentui/packages/core/src/renderables/Markdown"
-export * from "../../../../../opentui/packages/core/src/renderables/FrameBuffer"
-export * from "../../../../../opentui/packages/core/src/renderables/TextBufferRenderable"
+export * from "../../../../opentui/packages/core/src/renderables/Box"
+export * from "../../../../opentui/packages/core/src/renderables/Text"
+export * from "../../../../opentui/packages/core/src/renderables/TextNode"
+export * from "../../../../opentui/packages/core/src/renderables/Code"
+export * from "../../../../opentui/packages/core/src/renderables/Diff"
+export * from "../../../../opentui/packages/core/src/renderables/Input"
+export * from "../../../../opentui/packages/core/src/renderables/Select"
+export * from "../../../../opentui/packages/core/src/renderables/TabSelect"
+export * from "../../../../opentui/packages/core/src/renderables/Textarea"
+export * from "../../../../opentui/packages/core/src/renderables/ScrollBox"
+export * from "../../../../opentui/packages/core/src/renderables/ScrollBar"
+export * from "../../../../opentui/packages/core/src/renderables/Slider"
+export * from "../../../../opentui/packages/core/src/renderables/ASCIIFont"
+export * from "../../../../opentui/packages/core/src/renderables/LineNumberRenderable"
+export * from "../../../../opentui/packages/core/src/renderables/Markdown"
+export * from "../../../../opentui/packages/core/src/renderables/FrameBuffer"
+export * from "../../../../opentui/packages/core/src/renderables/TextBufferRenderable"
 
 // ─── Browser replacements ─────────────────────────────────────────────────
 
@@ -198,15 +198,15 @@ export {
   CliRenderer,
   CliRenderEvents,
   createCliRenderer,
-} from "../../../../../opentui/packages/core/src/renderer"
-export type { MouseEvent } from "../../../../../opentui/packages/core/src/renderer"
+} from "../../../../opentui/packages/core/src/renderer"
+export type { MouseEvent } from "../../../../opentui/packages/core/src/renderer"
 
 // Timeline & engine — re-exported from shimmed source path (resolved to timeline-stub.ts)
 export {
   Timeline,
   engine,
   createTimeline,
-} from "../../../../../opentui/packages/core/src/animation/Timeline"
+} from "../../../../opentui/packages/core/src/animation/Timeline"
 
 // Yoga re-export
 export * as Yoga from "yoga-layout"

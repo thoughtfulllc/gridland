@@ -25,15 +25,31 @@ The key insight: OpenTUI renderables never call Zig directly. They call `Optimiz
 - **Vite plugin** — Custom `resolveId` plugin that intercepts all Zig/FFI/Node.js imports from the opentui source tree and redirects them to browser shims.
 - **React integration** — `createBrowserRoot()` wires the @opentui/react reconciler to the browser renderer.
 
+## Getting started
+
+```bash
+git clone --recurse-submodules https://github.com/<org>/polyterm.git
+cd polyterm
+bun setup
+```
+
+If you already cloned without `--recurse-submodules`:
+
+```bash
+bun setup
+```
+
+This initializes the [opentui](https://github.com/anomalyco/opentui) submodule, installs all dependencies, and builds the packages.
+
 ## Running
 
 ```bash
-# Install dependencies
-bun install
-
 # Dev server
 bun run dev
 # -> http://localhost:5173
+
+# Docs site
+bun run dev:docs
 
 # Tests
 bun run test
@@ -45,6 +61,7 @@ bun run build
 ## Project structure
 
 ```
+opentui/                     # Git submodule — opentui engine source
 packages/
   polyterm-web/              # Core browser runtime (npm: @polyterm.io/web)
     src/
@@ -83,7 +100,7 @@ e2e/                         # Playwright E2E tests
 
 ## How the Vite plugin works
 
-The opentui source tree (`../opentui/`) is loaded directly — Vite serves it via `/@fs/` URLs. A custom plugin intercepts imports at resolution time:
+The opentui source tree (`opentui/` submodule) is loaded directly — Vite serves it via `/@fs/` URLs. A custom plugin intercepts imports at resolution time:
 
 1. **File-level redirects** — Relative imports that resolve to zig-dependent files (buffer, text-buffer, text-buffer-view, syntax-style, renderer, etc.) are redirected to browser shims.
 2. **Pattern-based interception** — tree-sitter, hast, and Node.js builtin imports are caught by string matching and redirected to stubs.

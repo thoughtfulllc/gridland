@@ -18,8 +18,8 @@
     "paths": {
       "@opentui/core": ["./src/core-shims/index.ts"],
       "@opentui/core/*": ["./src/core-shims/*"],
-      "@opentui/react": ["../../../opentui/packages/react/src/index.ts"],
-      "@opentui/ui": ["../../../opentui/packages/ui/src/index.ts"]
+      "@opentui/react": ["../../opentui/packages/react/src/index.ts"],
+      "@opentui/ui": ["../../opentui/packages/ui/src/index.ts"]
     },
     "baseUrl": "."
   },

@@ -43,7 +43,7 @@ const _coreModule = await import("../../polyterm-web/src/core-shims/index").catc
   )
 })
 // Import reconciler to flush concurrent work synchronously in tests
-const _reconcilerModule = await import("../../../../opentui/packages/react/src/reconciler/reconciler")
+const _reconcilerModule = await import("../../../opentui/packages/react/src/reconciler/reconciler")
 
 /**
  * Render a Polyterm component for testing.

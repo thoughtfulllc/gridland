@@ -14,8 +14,8 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsup",
-    "test": "bun test --preload ./test/preload.ts",
-    "test:ci": "bun test --preload ./test/preload.ts --randomize --rerun-each 3"
+    "test": "bun test --preload ../polyterm-web/test/preload.ts",
+    "test:ci": "bun test --preload ../polyterm-web/test/preload.ts --randomize --rerun-each 3"
   },
   "dependencies": {
     "events": "^3.3.0"

@@ -4,7 +4,7 @@ import path from "path"
 
 const withMDX = createMDX()
 
-const opentui = path.resolve(__dirname, "../../../opentui")
+const opentui = path.resolve(__dirname, "../../opentui")
 const pkgRoot = path.resolve(__dirname, "../polyterm-web")
 
 function shimPath(p: string) {
@@ -40,8 +40,6 @@ const nextConfig: NextConfig = {
       // @opentui packages
       "@opentui/core": shimPath("src/core-shims/index.ts"),
       "@opentui/react": path.resolve(opentui, "packages/react/src/index.ts"),
-      "@opentui/ui": path.resolve(opentui, "packages/ui/src/index.ts"),
-
       // Convenience aliases for docs imports
       "opentui-web": path.resolve(pkgRoot, "src/index.ts"),
       "@polyterm.io/web": path.resolve(pkgRoot, "src/index.ts"),

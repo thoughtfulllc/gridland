@@ -1,5 +1,4 @@
 import path from "path"
-import { createRequire } from "module"
 
 type WebpackConfig = any
 type WebpackInstance = any
@@ -22,12 +21,12 @@ interface NextConfig {
 export function withPolyterm(nextConfig: NextConfig = {}): NextConfig {
   // __dirname works natively in CJS; tsup shims it for ESM via import.meta.url
   const pkgRoot = path.resolve(__dirname, "..")
-  const _require = createRequire(path.resolve(pkgRoot, "package.json"))
 
-  // Resolve opentui package roots from peer dependencies
-  const coreRoot = path.dirname(_require.resolve("@opentui/core/package.json"))
-  const reactRoot = path.dirname(_require.resolve("@opentui/react/package.json"))
-  const uiRoot = path.dirname(_require.resolve("@opentui/ui/package.json"))
+  // Resolve opentui package roots from the git submodule
+  const opentuiRoot = path.resolve(pkgRoot, "../../opentui")
+  const coreRoot = path.resolve(opentuiRoot, "packages/core")
+  const reactRoot = path.resolve(opentuiRoot, "packages/react")
+  const uiRoot = path.resolve(opentuiRoot, "packages/ui")
 
   function shimPath(p: string) {
     return path.resolve(pkgRoot, p)

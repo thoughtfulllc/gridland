@@ -31,8 +31,8 @@ describe("MultiSelect behavior", () => {
       { cols: 40, rows: 8 },
     )
     const text = screen.text()
-    // The highlighted item gets a ❯ indicator
-    expect(text).toContain("\u276f")
+    // The highlighted item gets a ▶ indicator
+    expect(text).toContain("\u25b6")
   })
 
   it("shows unchecked indicator for unselected items", () => {

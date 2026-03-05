@@ -4,6 +4,14 @@ import path from "path"
 import fs from "fs"
 import os from "os"
 
+// Suppress React's console.error for expected zig shim errors caught by ErrorBoundary
+const _origConsoleError = console.error
+console.error = (...args: any[]) => {
+  const msg = typeof args[0] === "string" ? args[0] : String(args[0] ?? "")
+  if (msg.includes("Zig render library not available")) return
+  _origConsoleError(...args)
+}
+
 // Pre-load React modules and cache on globalThis for the patched reconciler.
 const _react = await import("react")
 ;(globalThis as any).__OPENTUI_REACT = _react.default ?? _react
