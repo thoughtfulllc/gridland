@@ -1,5 +1,6 @@
 import { GlobalRegistrator } from "@happy-dom/global-registrator"
 import { plugin } from "bun"
+import { createRequire } from "module"
 import path from "path"
 import fs from "fs"
 import os from "os"
@@ -20,7 +21,9 @@ const _react = await import("react")
 // instead of require("react"), and uses absolute paths for scheduler.
 const reconcilerDir = path.dirname(import.meta.resolveSync("react-reconciler"))
 const reconcilerCjsPath = path.join(reconcilerDir, "cjs/react-reconciler.development.js")
-const schedulerPath = import.meta.resolveSync("scheduler")
+// Resolve scheduler from react-reconciler's location (it's a peer dep, not always directly installed)
+const _reconcilerRequire = createRequire(path.join(reconcilerDir, "package.json"))
+const schedulerPath = _reconcilerRequire.resolve("scheduler")
 const constantsCjsPath = path.join(reconcilerDir, "cjs/react-reconciler-constants.development.js")
 
 const tmpDir = path.join(os.tmpdir(), "opentui-test-shims")
