@@ -1,5 +1,6 @@
 import { type Plugin } from "vite"
 import path from "path"
+import fs from "fs"
 import { createRequire } from "module"
 
 /**
@@ -124,7 +125,13 @@ export function polytermWebPlugin(): Plugin[] {
         const subpath = parts.slice(2).join("/") // "jsx-dev-runtime"
         if (subpath) {
           const root = pkgRoots[pkgName]
-          if (root) return path.resolve(root, subpath + ".js")
+          if (root) {
+            const base = path.resolve(root, "src", subpath)
+            for (const ext of ["", ".ts", ".tsx", ".js", ".jsx"]) {
+              const candidate = base + ext
+              if (fs.existsSync(candidate)) return candidate
+            }
+          }
         }
       }
 
