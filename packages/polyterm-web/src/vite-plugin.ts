@@ -226,13 +226,26 @@ export function polytermWebPlugin(): Plugin[] {
         aliases[path.resolve(coreRoot, "src", key)] = path.resolve(pkgRoot, shimPath)
       }
 
-      // Resolve npm packages from polyterm-web's node_modules so consuming
-      // projects don't need them as direct dependencies. Directory aliases
-      // let subpath imports (e.g. react-reconciler/constants) work via
-      // Vite's prefix matching, and ensure CJS packages go through
-      // Vite's pre-bundling for proper ESM conversion.
+      // Resolve npm packages from wherever they're actually installed (may be
+      // hoisted to root node_modules) so consuming projects don't need them
+      // as direct dependencies. Directory aliases let subpath imports
+      // (e.g. react-reconciler/constants) work via Vite's prefix matching,
+      // and ensure CJS packages go through Vite's pre-bundling for proper
+      // ESM conversion.
       for (const pkg of ["react-reconciler", "yoga-layout", "diff", "marked"]) {
-        aliases[pkg] = path.resolve(pkgRoot, "node_modules", pkg)
+        try {
+          const resolved = path.dirname(_require.resolve(`${pkg}/package.json`))
+          aliases[pkg] = resolved
+        } catch {
+          // Some packages don't export package.json — resolve the main entry and find the package root
+          const mainEntry = _require.resolve(pkg)
+          // Walk up to find the package directory (contains node_modules/<pkg>)
+          let dir = path.dirname(mainEntry)
+          while (dir !== path.dirname(dir) && path.basename(dir) !== pkg) {
+            dir = path.dirname(dir)
+          }
+          aliases[pkg] = dir
+        }
       }
 
       return {
