@@ -32,6 +32,7 @@ export class BrowserTextBufferView {
   private _viewportWidth: number = 0
   private _viewportHeight: number = 0
   private _truncate: boolean = false
+  public textAlign: "left" | "center" | "right" = "left"
   private _selection: { start: number; end: number } | null = null
   private _selectionBg: RGBA | undefined
   private _selectionFg: RGBA | undefined

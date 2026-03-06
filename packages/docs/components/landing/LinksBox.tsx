@@ -22,10 +22,6 @@ export function LinksBox() {
         <a href="/docs" style={{ attributes: UNDERLINE, fg: theme.accent }}>
           Docs
         </a>
-        <span>{"  "}</span>
-        <a href="https://www.npmjs.com/package/@gridland/web" style={{ attributes: UNDERLINE, fg: theme.accent }}>
-          npm
-        </a>
       </text>
     </box>
   )

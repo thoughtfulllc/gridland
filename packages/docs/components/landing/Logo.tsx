@@ -86,37 +86,51 @@ export function Logo({ compact, narrow }: { compact?: boolean; narrow?: boolean 
 
   const taglineOpacity = Math.max(0, Math.min(1, (progress - 0.7) / 0.3))
 
+  const subtitle = (
+    <>
+      <text>{" "}</text>
+      <box flexDirection="column" alignItems="center" width="100%">
+        <text style={textStyle({ dim: true })} opacity={taglineOpacity} wrapMode="word" textAlign="center" width="100%">A framework for building terminal apps, built on OpenTUI + React.</text>
+        <text style={textStyle({ dim: true })} opacity={taglineOpacity} wrapMode="word" textAlign="center" width="100%">(Gridland apps, like this website, work in the browser and terminal.)</text>
+      </box>
+    </>
+  )
+
   if (compact) {
     return (
-      <box flexDirection="column" alignItems="center" height={artHeight + 1} overflow="hidden" position="relative">
-        <box position="absolute" top={dropOffset} width="100%" flexDirection="column" alignItems="center">
-          <RevealGradient revealCol={revealCol}>gridland</RevealGradient>
-          <text style={textStyle({ dim: true })} opacity={taglineOpacity}>Browser TUI framework</text>
+      <box flexDirection="column" flexShrink={0} width="100%">
+        <box height={artHeight} overflow="hidden" position="relative" width="100%" flexShrink={0}>
+          <box position="absolute" top={dropOffset} width="100%" flexDirection="column" alignItems="center">
+            <RevealGradient revealCol={revealCol}>gridland</RevealGradient>
+          </box>
         </box>
+        {subtitle}
       </box>
     )
   }
 
   if (narrow) {
     return (
-      <box flexDirection="column" alignItems="center" height={artHeight + 1} overflow="hidden" position="relative">
-        <box position="absolute" top={dropOffset} width="100%" flexDirection="column" alignItems="center">
-          <RevealGradient revealCol={revealCol}>{gridArt}</RevealGradient>
-          <RevealGradient revealCol={revealCol}>{landArt}</RevealGradient>
-          <text style={textStyle({ dim: true })} opacity={taglineOpacity}>Browser TUI framework</text>
+      <box flexDirection="column" flexShrink={0} width="100%">
+        <box height={artHeight} overflow="hidden" position="relative" width="100%" flexShrink={0}>
+          <box position="absolute" top={dropOffset} width="100%" flexDirection="column" alignItems="center">
+            <RevealGradient revealCol={revealCol}>{gridArt}</RevealGradient>
+            <RevealGradient revealCol={revealCol}>{landArt}</RevealGradient>
+          </box>
         </box>
+        {subtitle}
       </box>
     )
   }
 
   return (
-    <box flexDirection="column" alignItems="center" height={artHeight + 1} overflow="hidden" position="relative">
-      <box position="absolute" top={dropOffset} width="100%" flexDirection="column" alignItems="center">
-        <RevealGradient revealCol={revealCol}>{fullArt}</RevealGradient>
-        <text style={textStyle({ dim: true })} opacity={taglineOpacity}>
-          Browser TUI framework. Canvas-rendered. React-powered.
-        </text>
+    <box flexDirection="column" flexShrink={0} width="100%">
+      <box height={artHeight} overflow="hidden" position="relative" width="100%" flexShrink={0}>
+        <box position="absolute" top={dropOffset} width="100%" flexDirection="column" alignItems="center">
+          <RevealGradient revealCol={revealCol}>{fullArt}</RevealGradient>
+        </box>
       </box>
+      {subtitle}
     </box>
   )
 }

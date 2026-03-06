@@ -162,6 +162,23 @@ export * from "../../../../opentui/packages/core/src/renderables/LineNumberRende
 export * from "../../../../opentui/packages/core/src/renderables/Markdown"
 export * from "../../../../opentui/packages/core/src/renderables/FrameBuffer"
 export * from "../../../../opentui/packages/core/src/renderables/TextBufferRenderable"
+import { TextBufferRenderable } from "../../../../opentui/packages/core/src/renderables/TextBufferRenderable"
+
+// Gridland extension: textAlign property on TextBufferRenderable
+// Proxies to the BrowserTextBufferView's textAlign property for centered text rendering.
+Object.defineProperty(TextBufferRenderable.prototype, "textAlign", {
+  get(this: any) {
+    return this.textBufferView?.textAlign ?? "left"
+  },
+  set(this: any, value: "left" | "center" | "right") {
+    if (this.textBufferView) {
+      this.textBufferView.textAlign = value
+      this.requestRender()
+    }
+  },
+  enumerable: true,
+  configurable: true,
+})
 
 // ─── Browser replacements ─────────────────────────────────────────────────
 

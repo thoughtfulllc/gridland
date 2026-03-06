@@ -512,11 +512,22 @@ export class BrowserBuffer {
     const lines = view.getVisibleLines()
     if (!lines) return
 
+    const textAlign = view.textAlign as string | undefined
+    const viewWidth = view._viewportWidth as number | undefined
+
     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
       const line = lines[lineIdx]
       if (!line) continue
 
       let curX = x
+      if (textAlign && textAlign !== "left" && viewWidth) {
+        const lineWidth = line.chunks.reduce((sum: number, c: any) => sum + c.text.length, 0)
+        if (textAlign === "center") {
+          curX = x + Math.floor((viewWidth - lineWidth) / 2)
+        } else if (textAlign === "right") {
+          curX = x + viewWidth - lineWidth
+        }
+      }
       for (const chunk of line.chunks) {
         const text = chunk.text
         const fgColor = chunk.fg

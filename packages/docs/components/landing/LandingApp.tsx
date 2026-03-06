@@ -39,7 +39,7 @@ export default function LandingApp() {
 
   return (
     <box flexDirection="column" width="100%" height="100%">
-      <box flexGrow={1} flexDirection="column" padding={1} gap={1}>
+      <box flexGrow={1} flexDirection="column" paddingTop={3} paddingLeft={1} paddingRight={1} paddingBottom={1} gap={1}>
         <box flexShrink={0}>
           <Logo compact={isTiny} narrow={isNarrow} />
         </box>

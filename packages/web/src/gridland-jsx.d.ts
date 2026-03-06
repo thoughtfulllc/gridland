@@ -67,6 +67,7 @@ declare global {
         attributes?: number
         content?: any
         wrapMode?: "none" | "char" | "word"
+        textAlign?: "left" | "center" | "right"
         truncate?: boolean
         style?: Record<string, any>
         children?: React.ReactNode
