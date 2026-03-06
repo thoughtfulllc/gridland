@@ -28,7 +28,10 @@ const coreFileShims: Record<string, string> = {
 }
 
 const nextConfig: NextConfig = {
+  output: "export",
+  distDir: "dist",
   reactStrictMode: true,
+  images: { unoptimized: true },
   typescript: {
     // Source imports from @gridland/ui and @gridland/web use custom JSX intrinsics
     // (box, text, span) that conflict with React's HTML/SVG types.
