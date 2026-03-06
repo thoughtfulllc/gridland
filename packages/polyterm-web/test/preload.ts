@@ -18,10 +18,10 @@ const _react = await import("react")
 
 // Create a patched copy of react-reconciler that uses our React via globalThis
 // instead of require("react"), and uses absolute paths for scheduler.
-const rebalanceDir = path.resolve("/Users/chris/dev/rebalance-opentui/node_modules")
-const reconcilerCjsPath = path.join(rebalanceDir, "react-reconciler/cjs/react-reconciler.development.js")
-const schedulerPath = path.join(rebalanceDir, "scheduler/index.js")
-const constantsCjsPath = path.join(rebalanceDir, "react-reconciler/cjs/react-reconciler-constants.development.js")
+const reconcilerDir = path.dirname(import.meta.resolveSync("react-reconciler"))
+const reconcilerCjsPath = path.join(reconcilerDir, "cjs/react-reconciler.development.js")
+const schedulerPath = import.meta.resolveSync("scheduler")
+const constantsCjsPath = path.join(reconcilerDir, "cjs/react-reconciler-constants.development.js")
 
 const tmpDir = path.join(os.tmpdir(), "opentui-test-shims")
 fs.mkdirSync(tmpDir, { recursive: true })
