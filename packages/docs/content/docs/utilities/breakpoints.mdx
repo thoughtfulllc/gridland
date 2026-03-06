@@ -1,0 +1,104 @@
+---
+title: Breakpoints
+description: Responsive layout utilities for adapting to different terminal widths.
+---
+
+## Overview
+
+Gridland apps run in terminals of varying widths — from narrow mobile screens to wide desktop terminals. The `useBreakpoints` hook provides reactive boolean flags for common width thresholds, making it easy to adapt your layout.
+
+## Usage
+
+```tsx
+import { useBreakpoints } from "@gridland/ui"
+
+function MyApp() {
+  const { isMobile, isNarrow, isTiny, isDesktop, width, height } = useBreakpoints()
+
+  return (
+    <box flexDirection="column">
+      {isDesktop ? (
+        <box flexDirection="row">
+          <Sidebar />
+          <MainContent />
+        </box>
+      ) : (
+        <MainContent />
+      )}
+    </box>
+  )
+}
+```
+
+## Breakpoint Values
+
+| Flag | Condition | Use case |
+|------|-----------|----------|
+| `isTiny` | `width < 40` | Extremely narrow — hide decorative elements, use compact text |
+| `isNarrow` | `width < 60` | Narrow — stack layouts vertically, use abbreviated labels |
+| `isMobile` | `width < 70` | Mobile — simplify layouts, merge text blocks |
+| `isDesktop` | `width >= 70` | Desktop — full layouts with sidebars and multi-column content |
+
+The raw `width` and `height` values are also returned for custom thresholds.
+
+## Constants
+
+The breakpoint thresholds are exported as `BREAKPOINTS` for use outside of React components:
+
+```tsx
+import { BREAKPOINTS } from "@gridland/ui"
+
+// BREAKPOINTS.tiny   = 40
+// BREAKPOINTS.narrow = 60
+// BREAKPOINTS.mobile = 70
+```
+
+## API
+
+### `useBreakpoints()`
+
+Returns a `Breakpoints` object:
+
+```ts
+interface Breakpoints {
+  isTiny: boolean
+  isNarrow: boolean
+  isMobile: boolean
+  isDesktop: boolean
+  width: number
+  height: number
+}
+```
+
+## Examples
+
+### Responsive text
+
+```tsx
+function Subtitle() {
+  const { isMobile } = useBreakpoints()
+
+  return (
+    <text wrapMode="word" textAlign="center" width="100%">
+      {isMobile
+        ? "Short description for mobile."
+        : "A longer, more detailed description for desktop terminals."}
+    </text>
+  )
+}
+```
+
+### Responsive layout direction
+
+```tsx
+function ActionBar() {
+  const { isNarrow } = useBreakpoints()
+
+  return (
+    <box flexDirection={isNarrow ? "column" : "row"} gap={1}>
+      <InstallBox />
+      <LinksBox />
+    </box>
+  )
+}
+```

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useState } from "react"
-import { StatusBar, textStyle, useTheme } from "@gridland/ui"
-import { useKeyboard, useTerminalDimensions } from "@opentui/react"
+import { StatusBar, textStyle, useTheme, useBreakpoints } from "@gridland/ui"
+import { useKeyboard } from "@opentui/react"
 import { Logo } from "./Logo"
 import { InstallBox } from "./InstallBox"
 import { LinksBox } from "./LinksBox"
@@ -10,11 +10,8 @@ import { AboutModal } from "./AboutModal"
 
 export default function LandingApp() {
   const theme = useTheme()
-  const { width, height } = useTerminalDimensions()
+  const { width, height, isNarrow, isTiny, isMobile } = useBreakpoints()
   const [showAbout, setShowAbout] = useState(false)
-
-  const isNarrow = width < 60
-  const isTiny = width < 40
 
   useKeyboard((event: any) => {
     if (event.key === "?" && !showAbout) {
@@ -41,7 +38,7 @@ export default function LandingApp() {
     <box flexDirection="column" width="100%" height="100%">
       <box flexGrow={1} flexDirection="column" paddingTop={3} paddingLeft={1} paddingRight={1} paddingBottom={1} gap={1}>
         <box flexShrink={0}>
-          <Logo compact={isTiny} narrow={isNarrow} />
+          <Logo compact={isTiny} narrow={isNarrow} mobile={isMobile} />
         </box>
         <box flexDirection={isNarrow ? "column" : "row"} gap={1} flexShrink={0}>
           <InstallBox />

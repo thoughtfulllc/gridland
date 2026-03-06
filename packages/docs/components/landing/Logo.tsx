@@ -72,7 +72,7 @@ function RevealGradient({ children, revealCol }: { children: string; revealCol: 
   )
 }
 
-export function Logo({ compact, narrow }: { compact?: boolean; narrow?: boolean }) {
+export function Logo({ compact, narrow, mobile }: { compact?: boolean; narrow?: boolean; mobile?: boolean }) {
   const progress = useAnimation(900)
 
   // Drop: animate top offset from -ART_HEIGHT to 0
@@ -90,8 +90,7 @@ export function Logo({ compact, narrow }: { compact?: boolean; narrow?: boolean 
     <>
       <text>{" "}</text>
       <box flexDirection="column" alignItems="center" width="100%">
-        <text style={textStyle({ dim: true })} opacity={taglineOpacity} wrapMode="word" textAlign="center" width="100%">A framework for building terminal apps, built on OpenTUI + React.</text>
-        <text style={textStyle({ dim: true })} opacity={taglineOpacity} wrapMode="word" textAlign="center" width="100%">(Gridland apps, like this website, work in the browser and terminal.)</text>
+        <text style={textStyle({ dim: true })} opacity={taglineOpacity} wrapMode="word" textAlign="center" width="100%">{mobile ? "A framework for building terminal apps, built on OpenTUI + React. (Gridland apps, like this website, work in the browser and terminal.)" : "A framework for building terminal apps, built on OpenTUI + React.\n(Gridland apps, like this website, work in the browser and terminal.)"}</text>
       </box>
     </>
   )
