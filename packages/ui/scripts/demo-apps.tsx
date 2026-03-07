@@ -5,7 +5,7 @@ import {
   Gradient, GRADIENTS, type GradientName,
   StatusBar, textStyle,
   Table,
-  Spinner,
+  Spinner, SpinnerPicker, SpinnerShowcase,
   SelectInput,
   MultiSelect,
   TextInput,
@@ -128,11 +128,10 @@ export function TableApp() {
 export function SpinnerApp() {
   return (
     <box flexDirection="column" flexGrow={1}>
-      <box padding={1} flexDirection="column" gap={1} flexGrow={1}>
-        <Spinner text="Loading..." color="cyan" />
-        <Spinner text="Processing" color="#a3be8c" />
+      <box flexGrow={1}>
+        <SpinnerPicker useKeyboard={useKeyboard} />
       </box>
-      <StatusBar items={[{ key: "q", label: "quit" }]} />
+      <StatusBar items={[{ key: "←→", label: "change variant" }, { key: "q", label: "quit" }]} />
     </box>
   )
 }

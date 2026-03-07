@@ -8,7 +8,10 @@ export { Ascii } from "./ascii/ascii"
 export type { AsciiProps } from "./ascii/ascii"
 
 export { Spinner } from "./spinner/spinner"
-export type { SpinnerProps } from "./spinner/spinner"
+export type { SpinnerProps, SpinnerVariant } from "./spinner/spinner"
+
+export { SpinnerPicker, SpinnerShowcase } from "./spinner/spinner-showcase"
+export type { SpinnerPickerProps } from "./spinner/spinner-showcase"
 
 export { TextInput } from "./text-input/text-input"
 export type { TextInputProps } from "./text-input/text-input"
