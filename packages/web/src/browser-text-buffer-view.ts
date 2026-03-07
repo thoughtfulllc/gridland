@@ -150,6 +150,10 @@ export class BrowserTextBufferView {
   setViewportSize(width: number, height: number): void {
     this._viewportWidth = width
     this._viewportHeight = height
+
+    if (this._wrapMode !== "none" && width > 0 && this._wrapWidth !== width) {
+      this._wrapWidth = width
+    }
   }
 
   setViewport(x: number, y: number, width: number, height: number): void {
@@ -157,6 +161,11 @@ export class BrowserTextBufferView {
     this._viewportY = y
     this._viewportWidth = width
     this._viewportHeight = height
+
+    // Sync wrap width with viewport width (matches Zig TextBufferView.setViewport behavior)
+    if (this._wrapMode !== "none" && width > 0 && this._wrapWidth !== width) {
+      this._wrapWidth = width
+    }
   }
 
   setTabIndicator(_indicator: string | number): void {}
