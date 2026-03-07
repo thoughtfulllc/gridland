@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "paths": {
+      "@opentui/core": ["../../packages/web/src/core-shims/index.ts"],
+      "@opentui/react": ["../../../../opentui/packages/react/src/index.ts"],
+      "@opentui/ui": ["../../../../opentui/packages/ui/src/index.ts"]
+    }
+  },
+  "include": ["src", "gridland-jsx.d.ts"]
+}

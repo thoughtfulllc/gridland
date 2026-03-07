@@ -38,6 +38,20 @@
         "typescript": "^5.7.0",
       },
     },
+    "examples/ssr-demo": {
+      "name": "ssr-demo",
+      "dependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+      },
+      "devDependencies": {
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@vitejs/plugin-react": "^4.3.4",
+        "typescript": "^5.7.0",
+        "vite": "^6.0.0",
+      },
+    },
     "examples/vite-example": {
       "name": "vite-example",
       "dependencies": {
@@ -1158,6 +1172,8 @@
     "source-map-js": ["source-map-js@1.2.1", "", {}, "sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA=="],
 
     "space-separated-tokens": ["space-separated-tokens@2.0.2", "", {}, "sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q=="],
+
+    "ssr-demo": ["ssr-demo@workspace:examples/ssr-demo"],
 
     "stage-js": ["stage-js@1.0.1", "", {}, "sha512-cz14aPp/wY0s3bkb/B93BPP5ZAEhgBbRmAT3CCDqert8eCAqIpQ0RB2zpK8Ksxf+Pisl5oTzvPHtL4CVzzeHcw=="],
 
