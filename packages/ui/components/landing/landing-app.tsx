@@ -40,11 +40,11 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
 
   return (
     <box flexDirection="column" width="100%" height="100%">
-      <box flexGrow={1} flexDirection="column" paddingTop={3} paddingLeft={1} paddingRight={1} paddingBottom={1} gap={1}>
+      <box flexGrow={1} flexDirection="column" paddingTop={3} paddingLeft={1} paddingRight={1} paddingBottom={1} gap={isMobile ? 0 : 1}>
         <box flexShrink={0}>
           <Logo compact={isTiny} narrow={isNarrow} mobile={isMobile} />
         </box>
-        <box flexDirection={isNarrow ? "column" : "row"} gap={1} flexShrink={0}>
+        <box flexDirection={isNarrow ? "column" : "row"} gap={isMobile ? 0 : 1} flexShrink={0}>
           <InstallBox />
           <LinksBox />
         </box>
