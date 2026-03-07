@@ -65,8 +65,10 @@ const nextConfig: NextConfig = {
       [path.resolve(opentui, "packages/core/src/lib/hast-styled-text")]:
         shimPath("src/shims/hast-stub.ts"),
 
-      // Devtools polyfill stub
+      // Devtools stubs
       [path.resolve(opentui, "packages/react/src/reconciler/devtools-polyfill")]:
+        shimPath("src/shims/devtools-polyfill-stub.ts"),
+      [path.resolve(opentui, "packages/react/src/reconciler/devtools")]:
         shimPath("src/shims/devtools-polyfill-stub.ts"),
     }
 
@@ -80,6 +82,13 @@ const nextConfig: NextConfig = {
       ...config.resolve.alias,
       ...sharedAliases,
     }
+
+    // Ensure yoga-layout and other deps from packages/web are resolvable
+    config.resolve.modules = [
+      ...(config.resolve.modules || []),
+      path.resolve(pkgRoot, "node_modules"),
+      path.resolve(pkgRoot, "../../node_modules"),
+    ]
 
     // Slider circular dependency fix
     const renderablesDir = path.resolve(opentui, "packages/core/src/renderables")
@@ -108,12 +117,6 @@ const nextConfig: NextConfig = {
         ...config.resolve.alias,
         ...clientAliases,
       }
-
-      config.resolve.modules = [
-        ...(config.resolve.modules || []),
-        path.resolve(pkgRoot, "node_modules"),
-        path.resolve(pkgRoot, "../../node_modules"),
-      ]
 
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: any) => {

@@ -76,6 +76,7 @@
     "packages/docs": {
       "name": "gridland-docs",
       "dependencies": {
+        "diff": "^8.0.3",
         "fumadocs-core": "^16.6.10",
         "fumadocs-mdx": "14.1.0",
         "fumadocs-ui": "15.8.5",
@@ -83,6 +84,7 @@
         "next": "^15.0.0",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
+        "yoga-layout": "^3.2.1",
       },
       "devDependencies": {
         "@tailwindcss/postcss": "^4.0.0",
