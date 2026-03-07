@@ -157,7 +157,23 @@ export function TUI({
     }
     return (
       <div style={style} className={className}>
-        <pre suppressHydrationWarning style={{ fontFamily, fontSize, margin: 0 }}>{text}</pre>
+        <pre
+          suppressHydrationWarning
+          aria-hidden
+          style={{
+            fontFamily,
+            fontSize,
+            margin: 0,
+            position: "absolute",
+            width: "1px",
+            height: "1px",
+            overflow: "hidden",
+            clip: "rect(0, 0, 0, 0)",
+            whiteSpace: "pre",
+          }}
+        >
+          {text}
+        </pre>
       </div>
     )
   }
