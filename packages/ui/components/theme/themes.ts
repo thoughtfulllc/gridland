@@ -1,15 +1,15 @@
 import type { Theme } from "./types"
 
 export const darkTheme: Theme = {
-  primary: "#f92672",
-  accent: "#a6e22e",
-  secondary: "#66d9ef",
-  muted: "#75715e",
-  border: "#75715e",
-  text: "#f8f8f2",
-  success: "#a6e22e",
-  error: "#f92672",
-  warning: "#fd971f",
+  primary: "#FF71CE",
+  accent: "#01CDFE",
+  secondary: "#B967FF",
+  muted: "#7B6F8E",
+  border: "#B967FF",
+  text: "#F0E6FF",
+  success: "#05FFA1",
+  error: "#FF6B6B",
+  warning: "#FFC164",
 }
 
 export const lightTheme: Theme = {
