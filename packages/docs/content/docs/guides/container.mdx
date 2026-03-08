@@ -12,7 +12,7 @@ running untrusted demos, third-party packages, or student submissions with
 full isolation from your host system.
 
 ```bash title="Terminal"
-bunx @gridland/container chalk-animation
+bunx @gridland/container cowsay -- "Hello from a container"
 ```
 
 ## Source Types
@@ -21,7 +21,7 @@ bunx @gridland/container chalk-animation
 
 | Source | Example | What happens |
 |--------|---------|-------------|
-| npm package | `chalk-animation` | Installs and runs the package bin |
+| npm package | `cowsay` | Installs and runs the package bin |
 | GitHub shorthand | `cjroth/my-tui` | Clones the repo and runs it |
 | Git URL | `https://github.com/user/repo` | Clones the repo and runs it |
 | Local directory | `./my-app` | Mounts the directory read-only |
@@ -52,11 +52,17 @@ curl -fsSL https://get.docker.com | sh
 
 ## Run a Package
 
-Run any npm package that exposes a CLI binary:
+Run any npm package that exposes a CLI binary. Use `--` to forward
+arguments to the package:
 
 ```bash title="Terminal"
 bunx @gridland/container cowsay -- "Hello from a container"
 ```
+
+<Callout type="info">
+Arguments after `--` are passed to the container entry point. Without `--`,
+the package runs with no arguments (which may just print its help text).
+</Callout>
 
 The first run pulls or builds the sandbox image. Subsequent runs use the
 cached image.
@@ -110,14 +116,17 @@ bunx @gridland/container <source> [options] [-- <args...>]
 ### Examples
 
 ```bash title="Terminal"
+# Forward arguments to the package after --
+bunx @gridland/container cowsay -- "Moo from a container"
+
+# Run chalk-animation with the rainbow effect for 3 seconds
+bunx @gridland/container chalk-animation -- rainbow --duration 3000 "Hello!"
+
 # Run with no network access
-bunx @gridland/container some-tui --no-network
+bunx @gridland/container cowsay --no-network -- "Isolated moo"
 
 # Set a 1GB memory limit
 bunx @gridland/container heavy-app --memory 1g
-
-# Forward arguments after --
-bunx @gridland/container cjroth/gridland -- gradient --speed fast
 
 # Force rebuild the sandbox image
 bunx @gridland/container my-app --build
