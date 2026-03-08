@@ -1,7 +1,5 @@
 // @ts-nocheck
-import { Modal } from "../modal/modal"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
+import { Modal, textStyle, useTheme } from "@gridland/ui"
 
 interface AboutModalProps {
   onClose: () => void
@@ -45,7 +43,7 @@ export function AboutModal({ onClose, useKeyboard }: AboutModalProps) {
         </text>
 
         <text style={textStyle({ dim: true })}>
-          Press Esc to close
+          Press q to close
         </text>
       </box>
     </Modal>

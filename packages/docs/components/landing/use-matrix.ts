@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 
 const CHARS = "abcdefghijklmnopqrstuvwxyz0123456789@#$%^&*(){}[]|;:<>,.?/~`"
 
@@ -19,33 +19,54 @@ function randomChar(): string {
   return CHARS[Math.floor(Math.random() * CHARS.length)]
 }
 
-function createDrop(height: number): Drop {
+function createDrop(height: number, seeded = false): Drop {
   const length = Math.floor(Math.random() * Math.floor(height * 0.6)) + 4
   return {
-    y: -Math.floor(Math.random() * height),
+    y: seeded
+      ? Math.floor(Math.random() * (height + length))
+      : -Math.floor(Math.random() * height),
     speed: 1,
     length,
     chars: Array.from({ length }, randomChar),
   }
 }
 
+/** Build grid/brightness arrays from current columns state */
+function buildGrid(columns: (Drop | null)[], width: number, height: number) {
+  const grid: string[][] = Array.from({ length: height }, () => Array(width).fill(" "))
+  const brightness: number[][] = Array.from({ length: height }, () => Array(width).fill(0))
+
+  for (let x = 0; x < width; x++) {
+    const drop = columns[x]
+    if (!drop) continue
+
+    for (let i = 0; i < drop.length; i++) {
+      const row = Math.floor(drop.y) - i
+      if (row < 0 || row >= height) continue
+
+      grid[row][x] = drop.chars[i]
+      if (i === 0) {
+        brightness[row][x] = 1.0 // head is brightest
+      } else {
+        brightness[row][x] = Math.max(0.15, 1 - i / drop.length)
+      }
+    }
+  }
+
+  return { grid, brightness }
+}
+
 export function useMatrix(width: number, height: number) {
   const columnsRef = useRef<(Drop | null)[]>([])
 
-  const init = useCallback(() => {
-    columnsRef.current = Array.from({ length: width }, () =>
-      Math.random() < 0.5 ? createDrop(height) : null,
+  const [state, setState] = useState<{ grid: string[][]; brightness: number[][] }>(() => {
+    // Seed columns so the first frame already has coverage
+    const columns: (Drop | null)[] = Array.from({ length: width }, () =>
+      Math.random() < 0.5 ? createDrop(height, true) : null,
     )
-  }, [width, height])
-
-  const [state, setState] = useState<{ grid: string[][]; brightness: number[][] }>(() => ({
-    grid: Array.from({ length: height }, () => Array(width).fill(" ")),
-    brightness: Array.from({ length: height }, () => Array(width).fill(0)),
-  }))
-
-  useEffect(() => {
-    init()
-  }, [init])
+    columnsRef.current = columns
+    return buildGrid(columns, width, height)
+  })
 
   useEffect(() => {
     if (width < 2 || height < 2) return
@@ -77,36 +98,19 @@ export function useMatrix(width: number, height: number) {
         }
       }
 
-      // Build grid
-      const grid: string[][] = Array.from({ length: height }, () => Array(width).fill(" "))
-      const brightness: number[][] = Array.from({ length: height }, () => Array(width).fill(0))
-
-      for (let x = 0; x < width; x++) {
-        const drop = columns[x]
-        if (!drop) continue
-
-        for (let i = 0; i < drop.length; i++) {
-          const row = Math.floor(drop.y) - i
-          if (row < 0 || row >= height) continue
-
-          grid[row][x] = drop.chars[i]
-          if (i === 0) {
-            brightness[row][x] = 1.0 // head is brightest
-          } else {
-            brightness[row][x] = Math.max(0.15, 1 - i / drop.length)
-          }
-        }
-      }
-
-      setState({ grid, brightness })
+      setState(buildGrid(columns, width, height))
     }, 80)
 
     return () => clearInterval(id)
   }, [width, height])
 
   useEffect(() => {
-    init()
-  }, [width, height, init])
+    // Re-seed columns on resize
+    columnsRef.current = Array.from({ length: width }, () =>
+      Math.random() < 0.5 ? createDrop(height, true) : null,
+    )
+    setState(buildGrid(columnsRef.current, width, height))
+  }, [width, height])
 
   return state
 }

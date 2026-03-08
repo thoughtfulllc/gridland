@@ -16,8 +16,8 @@ import {
   ChatPanel,
   type ChatMessage,
   type ToolCallInfo,
-  LandingApp,
 } from "../components/index"
+import { LandingApp } from "../../docs/components/landing"
 import figlet from "figlet"
 // @ts-ignore
 import ansiShadow from "figlet/importable-fonts/ANSI Shadow.js"

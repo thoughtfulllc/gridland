@@ -13,7 +13,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "paths": {
+      "@gridland/ui": ["./components/index.ts"]
+    }
   },
-  "include": ["components", "gridland-jsx.d.ts"]
+  "include": ["components", "scripts", "../docs/components/landing", "gridland-jsx.d.ts"]
 }
