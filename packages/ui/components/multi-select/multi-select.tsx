@@ -1,4 +1,4 @@
-import { useReducer, useMemo } from "react"
+import { useReducer, useMemo, useRef } from "react"
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
 
@@ -7,12 +7,18 @@ export type MultiSelectItem<V> = {
   label: string
   value: V
   group?: string
+  disabled?: boolean
 }
 
 export interface MultiSelectProps<V> {
   items?: MultiSelectItem<V>[]
   defaultSelected?: V[]
+  selected?: V[]
+  onChange?: (values: V[]) => void
+  disabled?: boolean
+  maxCount?: number
   title?: string
+  submittedStatus?: string
   limit?: number
   enableSelectAll?: boolean
   enableClear?: boolean
@@ -30,11 +36,8 @@ type State<V> = {
 
 type Action<V> =
   | { type: "MOVE"; direction: 1 | -1; max: number }
-  | { type: "TOGGLE_ITEM"; value: V }
-  | { type: "SELECT_ALL"; values: V[] }
-  | { type: "CLEAR" }
+  | { type: "SET_SELECTED"; values: V[] }
   | { type: "SUBMIT" }
-  | { type: "RESET" }
 
 function reducer<V>(state: State<V>, action: Action<V>): State<V> {
   switch (action.type) {
@@ -44,23 +47,10 @@ function reducer<V>(state: State<V>, action: Action<V>): State<V> {
       if (next >= action.max) next = 0
       return { ...state, cursor: next }
     }
-    case "TOGGLE_ITEM": {
-      const next = new Set(state.selected)
-      if (next.has(action.value)) {
-        next.delete(action.value)
-      } else {
-        next.add(action.value)
-      }
-      return { ...state, selected: next }
-    }
-    case "SELECT_ALL":
+    case "SET_SELECTED":
       return { ...state, selected: new Set(action.values) }
-    case "CLEAR":
-      return { ...state, selected: new Set() }
     case "SUBMIT":
       return { ...state, submitted: true }
-    case "RESET":
-      return { ...state, selected: new Set(), submitted: false, cursor: 0 }
     default:
       return state
   }
@@ -79,7 +69,12 @@ type Row<V> =
 export function MultiSelect<V>({
   items = [],
   defaultSelected = [],
+  selected: controlledSelected,
+  onChange,
+  disabled = false,
+  maxCount,
   title = "Select",
+  submittedStatus = "submitted",
   limit,
   enableSelectAll = true,
   enableClear = true,
@@ -92,11 +87,19 @@ export function MultiSelect<V>({
   const resolvedHighlight = highlightColor ?? theme.primary
   const resolvedCheckbox = checkboxColor ?? theme.accent
 
+  const isControlled = controlledSelected !== undefined
+  const controlledRef = useRef(isControlled)
+  if (controlledRef.current !== isControlled) {
+    console.warn("MultiSelect: switching between controlled and uncontrolled is not supported.")
+  }
+
   const [state, dispatch] = useReducer(reducer<V>, {
     cursor: 0,
-    selected: new Set(defaultSelected),
+    selected: new Set(isControlled ? controlledSelected : defaultSelected),
     submitted: false,
   })
+
+  const currentSelected = isControlled ? new Set(controlledSelected) : state.selected
 
   const { flatRows, selectableItems } = useMemo(() => {
     const rows: Row<V>[] = []
@@ -123,16 +126,20 @@ export function MultiSelect<V>({
   }, [items])
 
   const visibleCount = limit ?? VISIBLE
-  const scrollOffset = Math.max(0, Math.min(state.cursor - Math.floor(visibleCount / 2), selectableItems.length - visibleCount))
-  const visibleRows = flatRows.slice(Math.max(0, scrollOffset), Math.max(0, scrollOffset) + visibleCount)
+  const cursorRowIndex = flatRows.findIndex((r) => r.type === "item" && r.index === state.cursor)
+  const scrollOffset = Math.max(0, Math.min(cursorRowIndex - Math.floor(visibleCount / 2), flatRows.length - visibleCount))
+  const visibleRows = flatRows.slice(scrollOffset, scrollOffset + visibleCount)
+
+  const setSelected = (values: V[]) => {
+    if (isControlled) {
+      onChange?.(values)
+    } else {
+      dispatch({ type: "SET_SELECTED", values })
+    }
+  }
 
   useKeyboard?.((event: any) => {
-    if (state.submitted) {
-      if (event.name === "r") {
-        dispatch({ type: "RESET" })
-      }
-      return
-    }
+    if (state.submitted || disabled) return
 
     if (event.name === "up" || event.name === "k") {
       dispatch({ type: "MOVE", direction: -1, max: selectableItems.length })
@@ -140,21 +147,27 @@ export function MultiSelect<V>({
       dispatch({ type: "MOVE", direction: 1, max: selectableItems.length })
     } else if (event.name === "space") {
       const current = selectableItems[state.cursor]
-      if (current) {
-        dispatch({ type: "TOGGLE_ITEM", value: current.item.value })
+      if (current && !current.item.disabled) {
+        const isDeselecting = currentSelected.has(current.item.value)
+        if (!isDeselecting && maxCount !== undefined && currentSelected.size >= maxCount) return
+        const next = new Set(currentSelected)
+        if (isDeselecting) next.delete(current.item.value)
+        else next.add(current.item.value)
+        setSelected(Array.from(next))
       }
     } else if (event.name === "a" && enableSelectAll) {
-      dispatch({ type: "SELECT_ALL", values: items.map((i) => i.value) })
+      const enabledValues = items.filter((i) => !i.disabled).map((i) => i.value)
+      setSelected(maxCount !== undefined ? enabledValues.slice(0, maxCount) : enabledValues)
     } else if (event.name === "x" && enableClear) {
-      dispatch({ type: "CLEAR" })
+      setSelected([])
     } else if (event.name === "return") {
       dispatch({ type: "SUBMIT" })
-      onSubmit?.(Array.from(state.selected))
+      onSubmit?.(Array.from(currentSelected))
     }
   })
 
   if (state.submitted) {
-    const selectedItems = items.filter((i) => state.selected.has(i.value))
+    const selectedItems = items.filter((i) => currentSelected.has(i.value))
     return (
       <box flexDirection="column">
         <text>
@@ -169,9 +182,9 @@ export function MultiSelect<V>({
             <span>{item.label}</span>
           </text>
         ))}
-        <text>{""}</text>
+        <text> </text>
         <text>
-          <span style={textStyle({ dim: true })}>{selectedItems.length} selected — submitted</span>
+          <span style={textStyle({ dim: true })}>{selectedItems.length} selected — {submittedStatus}</span>
         </text>
       </box>
     )
@@ -180,8 +193,11 @@ export function MultiSelect<V>({
   return (
     <box flexDirection="column">
       <text>
-        <span style={textStyle({ fg: theme.accent })}>{"◆ "}</span>
-        <span style={textStyle({ bold: true })}>{title}</span>
+        <span style={textStyle({ fg: disabled ? theme.muted : theme.accent, dim: disabled })}>{"◆ "}</span>
+        <span style={textStyle({ bold: true, dim: disabled })}>{title}</span>
+        {maxCount !== undefined && (
+          <span style={textStyle({ dim: true })}>{` (${currentSelected.size}/${maxCount})`}</span>
+        )}
       </text>
       {visibleRows.map((row, i) => {
         if (row.type === "group") {
@@ -194,19 +210,24 @@ export function MultiSelect<V>({
         }
 
         const { item, index: itemIndex } = row
-        const isHighlighted = itemIndex === state.cursor
-        const isSelected = state.selected.has(item.value)
+        const isHighlighted = !disabled && itemIndex === state.cursor
+        const isSelected = currentSelected.has(item.value)
+        const isItemDisabled = disabled || !!item.disabled
+        const itemColor = isItemDisabled ? theme.muted
+          : isHighlighted ? resolvedHighlight
+          : isSelected ? resolvedCheckbox
+          : undefined
 
         return (
           <text key={item.key ?? String(item.value)}>
             <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
-            <span style={{ fg: isHighlighted ? resolvedHighlight : undefined }}>
+            <span style={textStyle({ fg: isHighlighted ? resolvedHighlight : undefined })}>
               {isHighlighted ? CURSOR : " "}{" "}
             </span>
-            <span style={{ fg: isSelected ? resolvedCheckbox : theme.muted }}>
+            <span style={textStyle({ fg: isItemDisabled ? theme.muted : isSelected ? resolvedCheckbox : theme.muted, dim: isItemDisabled })}>
               {isSelected ? CHECKED : UNCHECKED}{" "}
             </span>
-            <span style={{ fg: isHighlighted ? resolvedHighlight : isSelected ? resolvedCheckbox : undefined }}>
+            <span style={textStyle({ fg: itemColor, dim: isItemDisabled })}>
               {item.label}
             </span>
           </text>

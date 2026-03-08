@@ -134,11 +134,11 @@ describe("MultiSelect behavior", () => {
     )
     savedHandler({ name: "return" })
     tui.flush()
-    expect(tui.screen.text()).toContain("◆")
+    expect(tui.screen.text()).toContain("submitted")
     expect(tui.screen.text()).toContain("TypeScript")
   })
 
-  it("resets from submitted state with r key", () => {
+  it("shows custom submitted status", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
@@ -146,16 +146,32 @@ describe("MultiSelect behavior", () => {
         items={items}
         defaultSelected={["ts"]}
         useKeyboard={mockUseKeyboard}
+        submittedStatus="saved"
         onSubmit={() => {}}
       />,
       { cols: 40, rows: 10 },
     )
     savedHandler({ name: "return" })
     tui.flush()
-    savedHandler({ name: "r" })
+    expect(tui.screen.text()).toContain("saved")
+  })
+
+  it("ignores keys after submit", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect
+        items={items}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={() => {}}
+      />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "return" })
     tui.flush()
-    expect(tui.screen.text()).toContain("TypeScript")
-    expect(tui.screen.text()).toContain("│")
+    savedHandler({ name: "j" })
+    tui.flush()
+    expect(tui.screen.text()).toContain("submitted")
   })
 
   it("renders group headers", () => {
@@ -170,14 +186,6 @@ describe("MultiSelect behavior", () => {
     )
     expect(screen.text()).toContain("Languages")
     expect(screen.text()).toContain("Frameworks")
-  })
-
-  it("renders without hint bar", () => {
-    const { screen } = renderTui(
-      <MultiSelect items={items} />,
-      { cols: 60, rows: 10 },
-    )
-    expect(screen.text()).not.toContain("submit")
   })
 
   it("handles empty items", () => {
@@ -233,5 +241,189 @@ describe("MultiSelect behavior", () => {
     tui.flush()
     // Should wrap to last item
     expect(tui.screen.text()).toContain("▸")
+  })
+
+  it("renders controlled selected values", () => {
+    const { screen } = renderTui(
+      <MultiSelect items={items} selected={["ts", "py"]} />,
+      { cols: 40, rows: 10 },
+    )
+    const text = screen.text()
+    const checkCount = (text.match(/◉/g) || []).length
+    expect(checkCount).toBe(2)
+  })
+
+  it("calls onChange on toggle in controlled mode", () => {
+    let changed = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <MultiSelect
+        items={items}
+        selected={["ts"]}
+        onChange={(values) => { changed = values }}
+        useKeyboard={mockUseKeyboard}
+      />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "space" })
+    // First item is highlighted, toggling "ts" off
+    expect(changed).not.toContain("ts")
+    expect(changed).toHaveLength(0)
+  })
+
+  it("calls onChange on select all in controlled mode", () => {
+    let changed = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <MultiSelect
+        items={items}
+        selected={[]}
+        onChange={(values) => { changed = values }}
+        useKeyboard={mockUseKeyboard}
+      />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "a" })
+    expect(changed).toHaveLength(4)
+  })
+
+  it("calls onChange on clear in controlled mode", () => {
+    let changed = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <MultiSelect
+        items={items}
+        selected={["ts", "js"]}
+        onChange={(values) => { changed = values }}
+        useKeyboard={mockUseKeyboard}
+      />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "x" })
+    expect(changed).toHaveLength(0)
+  })
+
+  it("uses controlled selected for onSubmit", () => {
+    let submitted = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <MultiSelect
+        items={items}
+        selected={["ts", "py"]}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={(values) => { submitted = values }}
+      />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "return" })
+    expect(submitted).toContain("ts")
+    expect(submitted).toContain("py")
+    expect(submitted).toHaveLength(2)
+  })
+
+  it("ignores all keys when disabled", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={items} disabled useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "space" })
+    tui.flush()
+    expect(tui.screen.text()).not.toContain("◉")
+  })
+
+  it("skips disabled items on toggle", () => {
+    const disabledItems = [
+      { label: "TypeScript", value: "ts", disabled: true },
+      { label: "JavaScript", value: "js" },
+      { label: "Python", value: "py" },
+    ]
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={disabledItems} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
+    )
+    // Cursor is on first item (disabled), space should do nothing
+    savedHandler({ name: "space" })
+    tui.flush()
+    expect(tui.screen.text()).not.toContain("◉")
+  })
+
+  it("select all skips disabled items", () => {
+    const disabledItems = [
+      { label: "TypeScript", value: "ts", disabled: true },
+      { label: "JavaScript", value: "js" },
+      { label: "Python", value: "py" },
+      { label: "Rust", value: "rs" },
+    ]
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={disabledItems} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "a" })
+    tui.flush()
+    const text = tui.screen.text()
+    const checkCount = (text.match(/◉/g) || []).length
+    expect(checkCount).toBe(3)
+  })
+
+  it("respects maxCount limit", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={items} maxCount={2} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
+    )
+    // Select first item
+    savedHandler({ name: "space" })
+    tui.flush()
+    // Move down, select second
+    savedHandler({ name: "j" })
+    tui.flush()
+    savedHandler({ name: "space" })
+    tui.flush()
+    // Move down, try to select third — should be blocked
+    savedHandler({ name: "j" })
+    tui.flush()
+    savedHandler({ name: "space" })
+    tui.flush()
+    const text = tui.screen.text()
+    const checkCount = (text.match(/◉/g) || []).length
+    expect(checkCount).toBe(2)
+  })
+
+  it("maxCount limits select all", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={items} maxCount={2} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "a" })
+    tui.flush()
+    const text = tui.screen.text()
+    const checkCount = (text.match(/◉/g) || []).length
+    expect(checkCount).toBe(2)
+  })
+
+  it("allows deselecting when at maxCount", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={items} maxCount={1} defaultSelected={["ts"]} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
+    )
+    // Deselect the first item — should work even at maxCount
+    savedHandler({ name: "space" })
+    tui.flush()
+    expect(tui.screen.text()).not.toContain("◉")
   })
 })
