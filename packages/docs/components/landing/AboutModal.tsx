@@ -43,7 +43,7 @@ export function AboutModal({ onClose }: AboutModalProps) {
         </text>
 
         <text style={textStyle({ dim: true })}>
-          Press Esc to close
+          Press q to close
         </text>
       </box>
     </Modal>

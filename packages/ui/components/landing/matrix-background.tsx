@@ -15,6 +15,8 @@ interface MatrixBackgroundProps {
   height: number
   /** Rectangular area to exclude from matrix rendering */
   clearRect?: ClearRect
+  /** Additional rectangular areas to exclude */
+  clearRects?: ClearRect[]
 }
 
 // Mix a hex color with the page background, then lighten slightly
@@ -40,7 +42,7 @@ function colorForCell(baseHex: string, b: number): string {
   return mute(baseHex, MUTE_LEVELS[idx])
 }
 
-export function MatrixBackground({ width, height, clearRect }: MatrixBackgroundProps) {
+export function MatrixBackground({ width, height, clearRect, clearRects }: MatrixBackgroundProps) {
   const { grid, brightness } = useMatrix(width, height)
 
   // Generate a gradient across the full width matching the logo palette
@@ -54,9 +56,13 @@ export function MatrixBackground({ width, height, clearRect }: MatrixBackgroundP
       {grid.map((row, y) => (
         <text key={y}>
           {row.map((cell, x) => {
-            const inClearRect = clearRect &&
+            const inClearRect = (clearRect &&
               y >= clearRect.top && y < clearRect.top + clearRect.height &&
-              x >= clearRect.left && x < clearRect.left + clearRect.width
+              x >= clearRect.left && x < clearRect.left + clearRect.width) ||
+              (clearRects && clearRects.some(r =>
+                y >= r.top && y < r.top + r.height &&
+                x >= r.left && x < r.left + r.width
+              ))
             const baseColor = columnColors[x]
             if (cell === " " || inClearRect || !baseColor) {
               return <span key={x}>{" "}</span>

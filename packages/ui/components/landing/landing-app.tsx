@@ -22,6 +22,9 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
     if (event.name === "a" && !showAbout) {
       setShowAbout(true)
     }
+    if (event.name === "q" && showAbout) {
+      setShowAbout(false)
+    }
   })
 
   if (showAbout) {
@@ -30,7 +33,7 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
         <box flexGrow={1}>
           <AboutModal onClose={() => setShowAbout(false)} useKeyboard={useKeyboard} />
         </box>
-        <StatusBar items={[{ key: "Esc", label: "close" }]} />
+        <StatusBar items={[{ key: "q", label: "close" }]} />
       </box>
     )
   }
@@ -42,14 +45,17 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
   // Browser logo has an extra spacer line before subtitle
   const logoExtra = isBrowser ? 1 : 0
   const gap = isMobile ? 0 : 1
-  const boxTop = 3 + logoHeight + logoExtra + gap + 3 + gap + 1
+  const installLinksTop = 3 + logoHeight + logoExtra + gap
+  const installLinksHeight = 3
+  const boxTop = installLinksTop + installLinksHeight + gap + 1
   // paddingLeft(1) to paddingRight(1), statusbar takes 1 row at bottom
   const boxHeight = height - boxTop - 1 - 1
   const clearRect = { top: boxTop, left: 1, width: width - 2, height: boxHeight }
+  const installLinksClearRect = { top: installLinksTop, left: 1, width: width - 2, height: installLinksHeight }
 
   return (
     <box width="100%" height="100%" position="relative">
-      <MatrixBackground width={width} height={height} clearRect={clearRect} />
+      <MatrixBackground width={width} height={height} clearRect={clearRect} clearRects={[installLinksClearRect]} />
       <box
         position="absolute"
         top={0}

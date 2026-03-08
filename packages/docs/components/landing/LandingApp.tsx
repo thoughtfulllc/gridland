@@ -17,6 +17,9 @@ export default function LandingApp() {
     if (event.name === "a" && !showAbout) {
       setShowAbout(true)
     }
+    if (event.name === "q" && showAbout) {
+      setShowAbout(false)
+    }
   })
 
   // Reserve space for logo (~7 lines), install/links (~3 lines), statusbar (1 line), padding/gaps (~6 lines)
@@ -29,7 +32,7 @@ export default function LandingApp() {
         <box flexGrow={1}>
           <AboutModal onClose={() => setShowAbout(false)} />
         </box>
-        <StatusBar items={[{ key: "Esc", label: "close" }]} />
+        <StatusBar items={[{ key: "q", label: "close" }]} />
       </box>
     )
   }

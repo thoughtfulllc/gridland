@@ -15,5 +15,5 @@
     "declaration": true,
     "sourceMap": true
   },
-  "include": ["components", "gridland-jsx.d.ts"]
+  "include": ["components", "scripts", "gridland-jsx.d.ts"]
 }
