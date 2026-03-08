@@ -1,0 +1,12 @@
+{
+  "name": "@gridland/container",
+  "version": "0.1.0",
+  "description": "Run CLI apps in isolated Docker containers",
+  "type": "module",
+  "bin": {
+    "gridland-container": "./bin/cli.mjs"
+  },
+  "files": ["bin", "Dockerfile", "entrypoint.sh"],
+  "keywords": ["gridland", "container", "docker", "sandbox", "isolation"],
+  "license": "MIT"
+}
