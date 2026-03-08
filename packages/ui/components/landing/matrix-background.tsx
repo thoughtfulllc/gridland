@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useMemo } from "react"
 import { useMatrix } from "./use-matrix"
-import { generateGradient, GRADIENTS } from "../gradient/gradient"
+import { generateGradient, GRADIENTS, hexToRgb, rgbToHex } from "../gradient/gradient"
 
 interface ClearRect {
   top: number
@@ -19,27 +19,24 @@ interface MatrixBackgroundProps {
   clearRects?: ClearRect[]
 }
 
-// Mix a hex color with the page background, then lighten slightly
-// factor 0 = invisible, 1 = full color
-function mute(hex: string, factor: number): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  // Page background is #1a1a2e
-  const br = 0x1a, bg = 0x1a, bb = 0x2e
-  const mr = Math.round(br + (r - br) * factor)
-  const mg = Math.round(bg + (g - bg) * factor)
-  const mb = Math.round(bb + (b - bb) * factor)
-  return `#${mr.toString(16).padStart(2, "0")}${mg.toString(16).padStart(2, "0")}${mb.toString(16).padStart(2, "0")}`
-}
-
 // Brightness levels — subtle tints above the page background
 const MUTE_LEVELS = [0.12, 0.18, 0.24, 0.30, 0.38]
+const BG = hexToRgb("#1a1a2e")
 
-function colorForCell(baseHex: string, b: number): string {
-  if (b >= 1.0) return mute(baseHex, MUTE_LEVELS[4])
+/** Precompute muted hex colors for a base color at each brightness level */
+function buildMutedColors(baseHex: string): string[] {
+  const fg = hexToRgb(baseHex)
+  return MUTE_LEVELS.map(factor => rgbToHex({
+    r: Math.round(BG.r + (fg.r - BG.r) * factor),
+    g: Math.round(BG.g + (fg.g - BG.g) * factor),
+    b: Math.round(BG.b + (fg.b - BG.b) * factor),
+  }))
+}
+
+function colorForCell(mutedColors: string[], b: number): string {
+  if (b >= 1.0) return mutedColors[4]
   const idx = Math.min(Math.floor(b * (MUTE_LEVELS.length - 1)), MUTE_LEVELS.length - 2)
-  return mute(baseHex, MUTE_LEVELS[idx])
+  return mutedColors[idx]
 }
 
 export function MatrixBackground({ width, height, clearRect, clearRects }: MatrixBackgroundProps) {
@@ -49,6 +46,12 @@ export function MatrixBackground({ width, height, clearRect, clearRects }: Matri
   const columnColors = useMemo(
     () => (width > 0 ? generateGradient(GRADIENTS.instagram, width) : []),
     [width],
+  )
+
+  // Precompute muted color variants for each column (width × 5 entries)
+  const columnMutedColors = useMemo(
+    () => columnColors.map(buildMutedColors),
+    [columnColors],
   )
 
   return (
@@ -63,15 +66,15 @@ export function MatrixBackground({ width, height, clearRect, clearRects }: Matri
                 y >= r.top && y < r.top + r.height &&
                 x >= r.left && x < r.left + r.width
               ))
-            const baseColor = columnColors[x]
-            if (cell === " " || inClearRect || !baseColor) {
+            const mutedColors = columnMutedColors[x]
+            if (cell === " " || inClearRect || !mutedColors) {
               return <span key={x}>{" "}</span>
             }
             return (
               <span
                 key={x}
                 style={{
-                  fg: colorForCell(baseColor, brightness[y][x]),
+                  fg: colorForCell(mutedColors, brightness[y][x]),
                 }}
               >
                 {cell}

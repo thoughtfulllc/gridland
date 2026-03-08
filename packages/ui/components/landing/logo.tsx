@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { Gradient, GRADIENTS, generateGradient } from "../gradient/gradient"
 import { textStyle } from "../text-style"
 import figlet from "figlet"
@@ -54,7 +54,7 @@ function RevealGradient({ children, revealCol }: { children: string; revealCol: 
 
   if (maxLength === 0) return <text>{children}</text>
 
-  const hexColors = generateGradient(gradientColors, maxLength)
+  const hexColors = useMemo(() => generateGradient(gradientColors, maxLength), [maxLength])
 
   return (
     <box position="relative" width={maxLength} height={lines.length} shouldFill={false}>

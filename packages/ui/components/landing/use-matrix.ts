@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 
 const CHARS = "abcdefghijklmnopqrstuvwxyz0123456789@#$%^&*(){}[]|;:<>,.?/~`"
 
@@ -19,21 +19,12 @@ function randomChar(): string {
   return CHARS[Math.floor(Math.random() * CHARS.length)]
 }
 
-function createDrop(height: number): Drop {
+function createDrop(height: number, seeded = false): Drop {
   const length = Math.floor(Math.random() * Math.floor(height * 0.6)) + 4
   return {
-    y: -Math.floor(Math.random() * height),
-    speed: 1,
-    length,
-    chars: Array.from({ length }, randomChar),
-  }
-}
-
-/** Create a drop already positioned somewhere on screen */
-function createSeededDrop(height: number): Drop {
-  const length = Math.floor(Math.random() * Math.floor(height * 0.6)) + 4
-  return {
-    y: Math.floor(Math.random() * (height + length)),
+    y: seeded
+      ? Math.floor(Math.random() * (height + length))
+      : -Math.floor(Math.random() * height),
     speed: 1,
     length,
     chars: Array.from({ length }, randomChar),
@@ -68,17 +59,10 @@ function buildGrid(columns: (Drop | null)[], width: number, height: number) {
 export function useMatrix(width: number, height: number) {
   const columnsRef = useRef<(Drop | null)[]>([])
 
-  const init = useCallback((seeded: boolean) => {
-    const createFn = seeded ? createSeededDrop : createDrop
-    columnsRef.current = Array.from({ length: width }, () =>
-      Math.random() < 0.5 ? createFn(height) : null,
-    )
-  }, [width, height])
-
   const [state, setState] = useState<{ grid: string[][]; brightness: number[][] }>(() => {
     // Seed columns so the first frame already has coverage
     const columns: (Drop | null)[] = Array.from({ length: width }, () =>
-      Math.random() < 0.5 ? createSeededDrop(height) : null,
+      Math.random() < 0.5 ? createDrop(height, true) : null,
     )
     columnsRef.current = columns
     return buildGrid(columns, width, height)
@@ -121,9 +105,12 @@ export function useMatrix(width: number, height: number) {
   }, [width, height])
 
   useEffect(() => {
-    init(true)
+    // Re-seed columns on resize
+    columnsRef.current = Array.from({ length: width }, () =>
+      Math.random() < 0.5 ? createDrop(height, true) : null,
+    )
     setState(buildGrid(columnsRef.current, width, height))
-  }, [width, height, init])
+  }, [width, height])
 
   return state
 }
