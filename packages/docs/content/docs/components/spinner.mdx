@@ -1,17 +1,17 @@
 ---
 title: Spinner
-description: Animated loading spinner with customizable text and color
+description: Animated loading spinner with 5 built-in variants
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { RunDemo } from '@/components/ui/run-demo'
-import SpinnerDemo from '@/components/demos/spinner-demo'
+import SpinnerPickerDemo, { SpinnerShowcaseDemo, SpinnerBasicDemo, SpinnerVariantsDemo } from '@/components/demos/spinner-demo'
 
 The `Spinner` component from `@gridland/ui` renders an animated loading indicator
-with customizable text and color.
+with 5 built-in animation styles selectable via the `variant` prop.
 
 <div className="my-8">
-  <SpinnerDemo />
+  <SpinnerPickerDemo />
 </div>
 
 <RunDemo name="spinner" />
@@ -43,16 +43,46 @@ pnpm add @gridland/ui
 
 ## Usage
 
-```tsx title="Example"
+```tsx title="Basic"
 import { Spinner } from "@gridland/ui"
 
-<Spinner text="Loading..." color="cyan" />
+<Spinner text="Loading..." />
 ```
+
+<div className="my-4">
+  <SpinnerBasicDemo />
+</div>
+
+```tsx title="With variant"
+<Spinner variant="bloom" text="Fetching data..." />
+<Spinner variant="pulse" text="Building" color="#05FFA1" />
+<Spinner variant="ellipsis" text="Please wait" />
+```
+
+<div className="my-4">
+  <SpinnerVariantsDemo />
+</div>
+
+### Available variants
+
+`dots` · `pulse` · `meter` · `bloom` · `ellipsis`
+
+<div className="my-4">
+  <SpinnerShowcaseDemo />
+</div>
 
 ## Props
 
+### Spinner
+
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `text` | `string` | `"Loading"` | Text displayed next to the spinner |
-| `color` | `string` | `"gray"` | Color of the spinner and text |
-| `interval` | `number` | `100` | Animation frame interval in milliseconds |
+| `variant` | `SpinnerVariant` | `"dots"` | Animation style |
+| `text` | `string` | — | Text displayed next to the spinner |
+| `color` | `string` | `theme.accent` | Foreground color of the spinner frame |
+
+### SpinnerPicker
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `useKeyboard` | `(handler) => void` | — | Keyboard handler from `@opentui/react` for ←→ navigation |

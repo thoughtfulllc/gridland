@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { Spinner } from "./spinner"
@@ -14,9 +14,9 @@ describe("Spinner snapshots", () => {
     expect(screen.text()).toMatchSnapshot()
   })
 
-  it("renders with custom text and color", () => {
+  it("renders with variant and custom text", () => {
     const { screen } = renderTui(
-      <Spinner text="Processing..." color="cyan" />,
+      <Spinner variant="pulse" text="Processing..." color="cyan" />,
       { cols: 30, rows: 4 },
     )
     expect(screen.text()).toMatchSnapshot()

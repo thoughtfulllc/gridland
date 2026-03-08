@@ -93,7 +93,7 @@ export function DemoWindow({
     <TerminalWindow title={title} className={className} titleBarRight={titleBarRight}>
       <div className="overflow-x-auto overscroll-x-none">
         <div style={{ display: mode === "browser" ? "block" : "none" }}>
-          <TUI style={tuiStyle}>{children}</TUI>
+          <TUI style={tuiStyle} autoFocus={false}>{children}</TUI>
         </div>
         {mode === "ssr" && asciiText != null && (
           <pre

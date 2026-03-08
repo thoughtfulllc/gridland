@@ -1,29 +1,42 @@
 import { useEffect, useState } from "react"
 import { useTheme } from "../theme/index"
 
+const VARIANTS = {
+  dots: { frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"], interval: 83 },
+  pulse: { frames: ["·", "∙", "●", "∙", "·", "·", "·"], interval: 180 },
+  meter: { frames: ["▱▱▱", "▰▱▱", "▰▰▱", "▰▰▰", "▰▰▱", "▰▱▱", "▱▱▱"], interval: 143 },
+  bloom: { frames: ["·", "✦", "✧", "✹", "✺", "❋", "✸", "✵", "✸", "❋", "✺", "✹", "✧", "✦", "·", "·"], interval: 100 },
+  ellipsis: { frames: ["   ", ".  ", ".. ", "..."], interval: 333 },
+} as const
+
+export type SpinnerVariant = keyof typeof VARIANTS
+
+export const VARIANT_NAMES = Object.keys(VARIANTS) as SpinnerVariant[]
+
 export interface SpinnerProps {
+  variant?: SpinnerVariant
   text?: string
   color?: string
-  interval?: number
 }
 
-const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-
-export function Spinner({ text = "Loading", color, interval = 100 }: SpinnerProps) {
+export function Spinner({ variant = "dots", text, color }: SpinnerProps) {
   const theme = useTheme()
-  const resolvedColor = color ?? theme.muted
+  const resolvedColor = color ?? theme.accent
+  const { frames, interval } = VARIANTS[variant]
   const [frame, setFrame] = useState(0)
 
   useEffect(() => {
+    setFrame(0)
     const timer = setInterval(() => {
       setFrame((prev) => (prev + 1) % frames.length)
     }, interval)
     return () => clearInterval(timer)
-  }, [interval])
+  }, [variant])
 
   return (
-    <text style={{ fg: resolvedColor }}>
-      {frames[frame]} {text}
+    <text>
+      <span style={{ fg: resolvedColor }}>{frames[frame]}</span>
+      {text ? <span> {text}</span> : null}
     </text>
   )
 }
