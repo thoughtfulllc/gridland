@@ -155,6 +155,7 @@ export function SelectInputApp() {
 }
 
 export function MultiSelectApp() {
+  const [submitted, setSubmitted] = useState(false)
   const items = [
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
@@ -164,16 +165,19 @@ export function MultiSelectApp() {
   return (
     <box flexDirection="column" flexGrow={1}>
       <box padding={1} flexDirection="column" flexGrow={1}>
-        <MultiSelect items={items} title="Select languages" useKeyboard={useKeyboard} />
+        <MultiSelect items={items} title="Select languages" useKeyboard={useKeyboard} onSubmit={() => setSubmitted(true)} />
       </box>
-      <StatusBar items={[
-        { key: "↑↓", label: "move" },
-        { key: "space", label: "select" },
-        { key: "a", label: "all" },
-        { key: "x", label: "clear" },
-        { key: "enter", label: "submit" },
-        { key: "q", label: "quit" },
-      ]} />
+      <StatusBar items={submitted
+        ? [{ key: "q", label: "quit" }]
+        : [
+          { key: "↑↓", label: "move" },
+          { key: "space", label: "select" },
+          { key: "a", label: "all" },
+          { key: "x", label: "clear" },
+          { key: "enter", label: "submit" },
+          { key: "q", label: "quit" },
+        ]
+      } />
     </box>
   )
 }

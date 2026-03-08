@@ -1,5 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
+import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { MultiSelect, StatusBar } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
@@ -12,17 +13,28 @@ const items = [
 ]
 
 function MultiSelectApp() {
+  const [submitted, setSubmitted] = useState(false)
+
   return (
-    <box padding={1} flexDirection="column" flexGrow={1}>
-      <MultiSelect items={items} title="Select languages" useKeyboard={useKeyboard} />
-      <text>{""}</text>
-      <StatusBar items={[
-        { key: "↑↓", label: "move" },
-        { key: "space", label: "select" },
-        { key: "a", label: "all" },
-        { key: "x", label: "clear" },
-        { key: "enter", label: "submit" },
-      ]} />
+    <box flexDirection="column" flexGrow={1} padding={1}>
+      <box flexDirection="column" flexGrow={1}>
+        <MultiSelect
+          items={items}
+          title="Select languages"
+          useKeyboard={useKeyboard}
+          onSubmit={() => setSubmitted(true)}
+        />
+      </box>
+      <StatusBar items={submitted
+        ? [{ key: "r", label: "reset demo" }]
+        : [
+          { key: "↑↓", label: "move" },
+          { key: "space", label: "select" },
+          { key: "a", label: "all" },
+          { key: "x", label: "clear" },
+          { key: "enter", label: "submit" },
+        ]
+      } />
     </box>
   )
 }
