@@ -37,9 +37,12 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
 
   // Approximate the bordered box position:
   // paddingTop(3) + logo(~7 for full, ~13 for narrow, ~2 for tiny) + gap + install/links(3) + gap
+  const isBrowser = typeof document !== "undefined"
   const logoHeight = isTiny ? 2 : isNarrow ? 13 : 7
+  // Browser logo has an extra spacer line before subtitle
+  const logoExtra = isBrowser ? 1 : 0
   const gap = isMobile ? 0 : 1
-  const boxTop = 3 + logoHeight + gap + 3 + gap + 1
+  const boxTop = 3 + logoHeight + logoExtra + gap + 3 + gap + 1
   // paddingLeft(1) to paddingRight(1), statusbar takes 1 row at bottom
   const boxHeight = height - boxTop - 1 - 1
   const clearRect = { top: boxTop, left: 1, width: width - 2, height: boxHeight }
