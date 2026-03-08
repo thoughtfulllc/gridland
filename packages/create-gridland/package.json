@@ -1,0 +1,31 @@
+{
+  "name": "create-gridland",
+  "version": "0.1.0",
+  "description": "Create a new Gridland project",
+  "type": "module",
+  "bin": {
+    "create-gridland": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "bun test src/__tests__/scaffold.test.ts src/__tests__/helpers.test.ts src/__tests__/cli.test.ts",
+    "test:e2e": "bun test src/__tests__/e2e.test.ts --timeout 120000"
+  },
+  "dependencies": {
+    "@opentui/core": "^0.1.86",
+    "@opentui/react": "^0.1.86",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@gridland/ui": "workspace:*",
+    "@types/react": "^19.0.0",
+    "commander": "^13.0.0",
+    "picocolors": "^1.1.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.0"
+  }
+}
