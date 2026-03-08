@@ -18,13 +18,13 @@
   "dependencies": {
     "@opentui/core": "^0.1.86",
     "@opentui/react": "^0.1.86",
-    "react": "^19.0.0",
-    "commander": "^13.0.0",
-    "picocolors": "^1.1.0"
+    "react": "^19.0.0"
   },
   "devDependencies": {
     "@gridland/ui": "workspace:*",
     "@types/react": "^19.0.0",
+    "commander": "^13.0.0",
+    "picocolors": "^1.1.0",
     "tsup": "^8.0.0",
     "typescript": "^5.7.0"
   }
