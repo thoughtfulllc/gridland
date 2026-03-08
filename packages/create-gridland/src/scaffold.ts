@@ -40,14 +40,18 @@ function copyDir(src: string, dest: string, replacements: Record<string, string>
     if (entry.isDirectory()) {
       copyDir(srcPath, destPath, replacements)
     } else {
-      let content = fs.readFileSync(srcPath, "utf-8")
+      const ext = path.extname(entry.name).toLowerCase()
+      const textExts = new Set([".ts", ".tsx", ".js", ".jsx", ".json", ".html", ".css", ".md", ".txt", ".yaml", ".yml", ".toml", ".env", ".gitignore", ""])
 
-      // Apply token replacements
-      for (const [token, value] of Object.entries(replacements)) {
-        content = content.replaceAll(token, value)
+      if (textExts.has(ext) || entry.name.startsWith("_") || entry.name.startsWith(".")) {
+        let content = fs.readFileSync(srcPath, "utf-8")
+        for (const [token, value] of Object.entries(replacements)) {
+          content = content.replaceAll(token, value)
+        }
+        fs.writeFileSync(destPath, content)
+      } else {
+        fs.copyFileSync(srcPath, destPath)
       }
-
-      fs.writeFileSync(destPath, content)
     }
   }
 }

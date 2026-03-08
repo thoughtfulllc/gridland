@@ -19,14 +19,13 @@ export function validateProjectName(name: string): { valid: boolean; message?: s
 }
 
 export function checkDirectory(targetDir: string): { exists: boolean; empty: boolean } {
-  if (!fs.existsSync(targetDir)) {
+  try {
+    const files = fs.readdirSync(targetDir)
+    const isEmpty = files.length === 0 || (files.length === 1 && files[0] === ".git")
+    return { exists: true, empty: isEmpty }
+  } catch {
     return { exists: false, empty: true }
   }
-
-  const files = fs.readdirSync(targetDir)
-  const isEmpty = files.length === 0 || (files.length === 1 && files[0] === ".git")
-
-  return { exists: true, empty: isEmpty }
 }
 
 export function resolveTargetDir(projectName: string): string {

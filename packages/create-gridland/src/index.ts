@@ -32,13 +32,14 @@ program
 
     if (isNonInteractive) {
       const projectName = projectNameArg || "my-gridland-app"
-      const framework = (options.framework || "vite") as Framework
+      const frameworkInput = options.framework || "vite"
 
-      if (!(FRAMEWORKS as readonly string[]).includes(framework)) {
-        console.error(pc.red(`Invalid framework: ${framework}. Use ${FRAMEWORKS.map(f => `"${f}"`).join(" or ")}.`))
+      if (!(FRAMEWORKS as readonly string[]).includes(frameworkInput)) {
+        console.error(pc.red(`Invalid framework: ${frameworkInput}. Use ${FRAMEWORKS.map(f => `"${f}"`).join(" or ")}.`))
         process.exit(1)
       }
 
+      const framework = frameworkInput as Framework
       const validation = validateProjectName(projectName)
       if (!validation.valid) {
         console.error(pc.red(validation.message!))
