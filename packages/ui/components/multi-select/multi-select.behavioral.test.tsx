@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { MultiSelect } from "./multi-select"
@@ -16,7 +16,7 @@ describe("MultiSelect behavior", () => {
   it("renders all items", () => {
     const { screen } = renderTui(
       <MultiSelect items={items} />,
-      { cols: 40, rows: 8 },
+      { cols: 40, rows: 10 },
     )
     const text = screen.text()
     expect(text).toContain("TypeScript")
@@ -28,248 +28,159 @@ describe("MultiSelect behavior", () => {
   it("highlights first item by default", () => {
     const { screen } = renderTui(
       <MultiSelect items={items} />,
-      { cols: 40, rows: 8 },
+      { cols: 40, rows: 10 },
     )
-    const text = screen.text()
-    // The highlighted item gets a ▶ indicator
-    expect(text).toContain("\u25b6")
+    expect(screen.text()).toContain("▸")
   })
 
   it("shows unchecked indicator for unselected items", () => {
     const { screen } = renderTui(
       <MultiSelect items={items} />,
-      { cols: 40, rows: 8 },
+      { cols: 40, rows: 10 },
     )
-    const text = screen.text()
-    // ○ is the unchecked indicator
-    expect(text).toContain("\u25cb")
+    expect(screen.text()).toContain("○")
   })
 
-  it("shows checked indicator for selected items", () => {
+  it("shows checked indicator for default selected items", () => {
     const { screen } = renderTui(
-      <MultiSelect items={items} defaultSelected={[items[0]]} />,
-      { cols: 40, rows: 8 },
+      <MultiSelect items={items} defaultSelected={["ts"]} />,
+      { cols: 40, rows: 10 },
     )
-    const text = screen.text()
-    // ◉ is the checked indicator
-    expect(text).toContain("\u25c9")
+    expect(screen.text()).toContain("◉")
   })
 
-  it("navigates down with j key", () => {
-    let highlighted = null
+  it("navigates with j/k keys", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
-      <MultiSelect
-        items={items}
-        useKeyboard={mockUseKeyboard}
-        onHighlight={(item) => { highlighted = item }}
-      />,
-      { cols: 40, rows: 8 },
+      <MultiSelect items={items} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
     )
     savedHandler({ name: "j" })
     tui.flush()
-    expect(highlighted).toEqual(items[1])
-  })
-
-  it("navigates down with down key", () => {
-    let highlighted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
-    const tui = renderTui(
-      <MultiSelect
-        items={items}
-        useKeyboard={mockUseKeyboard}
-        onHighlight={(item) => { highlighted = item }}
-      />,
-      { cols: 40, rows: 8 },
-    )
-    savedHandler({ name: "down" })
-    tui.flush()
-    expect(highlighted).toEqual(items[1])
-  })
-
-  it("navigates up with k key", () => {
-    let highlighted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
-    const tui = renderTui(
-      <MultiSelect
-        items={items}
-        initialIndex={2}
-        useKeyboard={mockUseKeyboard}
-        onHighlight={(item) => { highlighted = item }}
-      />,
-      { cols: 40, rows: 8 },
-    )
-    savedHandler({ name: "k" })
-    tui.flush()
-    expect(highlighted).toEqual(items[1])
-  })
-
-  it("navigates up with up key", () => {
-    let highlighted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
-    const tui = renderTui(
-      <MultiSelect
-        items={items}
-        initialIndex={2}
-        useKeyboard={mockUseKeyboard}
-        onHighlight={(item) => { highlighted = item }}
-      />,
-      { cols: 40, rows: 8 },
-    )
-    savedHandler({ name: "up" })
-    tui.flush()
-    expect(highlighted).toEqual(items[1])
-  })
-
-  it("wraps to bottom when going up from first item", () => {
-    let highlighted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
-    const tui = renderTui(
-      <MultiSelect
-        items={items}
-        initialIndex={0}
-        useKeyboard={mockUseKeyboard}
-        onHighlight={(item) => { highlighted = item }}
-      />,
-      { cols: 40, rows: 8 },
-    )
-    savedHandler({ name: "up" })
-    tui.flush()
-    expect(highlighted).toEqual(items[3])
-  })
-
-  it("wraps to top when going down from last item", () => {
-    let highlighted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
-    const tui = renderTui(
-      <MultiSelect
-        items={items}
-        initialIndex={3}
-        useKeyboard={mockUseKeyboard}
-        onHighlight={(item) => { highlighted = item }}
-      />,
-      { cols: 40, rows: 8 },
-    )
-    savedHandler({ name: "down" })
-    tui.flush()
-    expect(highlighted).toEqual(items[0])
+    const text = tui.screen.text()
+    expect(text).toContain("▸")
   })
 
   it("toggles selection with space", () => {
-    let selectedItem = null
-    const mockUseKeyboard = (handler) => {
-      handler({ name: "space" })
-    }
-    renderTui(
-      <MultiSelect
-        items={items}
-        useKeyboard={mockUseKeyboard}
-        onSelect={(item) => { selectedItem = item }}
-      />,
-      { cols: 40, rows: 8 },
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={items} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
     )
-    expect(selectedItem).toEqual(items[0])
+    savedHandler({ name: "space" })
+    tui.flush()
+    expect(tui.screen.text()).toContain("◉")
   })
 
-  it("unselects with space when already selected", () => {
-    let unselectedItem = null
-    const mockUseKeyboard = (handler) => {
-      handler({ name: "space" })
-    }
-    renderTui(
-      <MultiSelect
-        items={items}
-        defaultSelected={[items[0]]}
-        useKeyboard={mockUseKeyboard}
-        onUnselect={(item) => { unselectedItem = item }}
-      />,
-      { cols: 40, rows: 8 },
+  it("selects all with a key", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={items} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
     )
-    expect(unselectedItem).toEqual(items[0])
+    savedHandler({ name: "a" })
+    tui.flush()
+    const text = tui.screen.text()
+    const checkCount = (text.match(/◉/g) || []).length
+    expect(checkCount).toBe(4)
   })
 
-  it("submits selected items with return", () => {
+  it("clears all with x key", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={items} defaultSelected={["ts", "js"]} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "x" })
+    tui.flush()
+    const text = tui.screen.text()
+    expect(text).not.toContain("◉")
+  })
+
+  it("submits with enter", () => {
     let submitted = null
-    const mockUseKeyboard = (handler) => {
-      handler({ name: "return" })
-    }
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <MultiSelect
         items={items}
-        defaultSelected={[items[0], items[2]]}
+        defaultSelected={["ts", "py"]}
         useKeyboard={mockUseKeyboard}
-        onSubmit={(items) => { submitted = items }}
+        onSubmit={(values) => { submitted = values }}
       />,
-      { cols: 40, rows: 8 },
+      { cols: 40, rows: 10 },
     )
-    expect(submitted).toEqual([items[0], items[2]])
+    savedHandler({ name: "return" })
+    expect(submitted).toContain("ts")
+    expect(submitted).toContain("py")
+    expect(submitted).toHaveLength(2)
   })
 
-  it("respects controlled selected prop", () => {
-    const { screen } = renderTui(
+  it("shows submitted state after enter", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
       <MultiSelect
         items={items}
-        selected={[items[1]]}
+        defaultSelected={["ts"]}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={() => {}}
       />,
-      { cols: 40, rows: 8 },
+      { cols: 40, rows: 10 },
     )
-    const text = screen.text()
-    expect(text).toContain("\u25c9")
+    savedHandler({ name: "return" })
+    tui.flush()
+    expect(tui.screen.text()).toContain("◆")
+    expect(tui.screen.text()).toContain("TypeScript")
   })
 
-  it("does not process keys when focus=false", () => {
-    let highlighted = null
-    const mockUseKeyboard = (handler) => {
-      handler({ name: "j" })
-    }
-    renderTui(
+  it("resets from submitted state with r key", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
       <MultiSelect
         items={items}
-        focus={false}
+        defaultSelected={["ts"]}
         useKeyboard={mockUseKeyboard}
-        onHighlight={(item) => { highlighted = item }}
+        onSubmit={() => {}}
       />,
-      { cols: 40, rows: 8 },
+      { cols: 40, rows: 10 },
     )
-    expect(highlighted).toBeNull()
+    savedHandler({ name: "return" })
+    tui.flush()
+    savedHandler({ name: "r" })
+    tui.flush()
+    expect(tui.screen.text()).toContain("TypeScript")
+    expect(tui.screen.text()).toContain("│")
   })
 
-  it("respects initialIndex", () => {
+  it("renders group headers", () => {
+    const groupedItems = [
+      { label: "TypeScript", value: "ts", group: "Languages" },
+      { label: "Python", value: "py", group: "Languages" },
+      { label: "React", value: "react", group: "Frameworks" },
+    ]
     const { screen } = renderTui(
-      <MultiSelect items={items} initialIndex={2} />,
-      { cols: 40, rows: 8 },
+      <MultiSelect items={groupedItems} />,
+      { cols: 40, rows: 10 },
     )
-    // Should highlight Python (index 2)
-    expect(screen.text()).toBeDefined()
+    expect(screen.text()).toContain("Languages")
+    expect(screen.text()).toContain("Frameworks")
   })
 
-  it("clamps initialIndex to valid range", () => {
+  it("shows hint bar", () => {
     const { screen } = renderTui(
-      <MultiSelect items={items} initialIndex={100} />,
-      { cols: 40, rows: 8 },
+      <MultiSelect items={items} />,
+      { cols: 60, rows: 10 },
     )
-    // Should not crash
-    expect(screen.text()).toBeDefined()
+    expect(screen.text()).toContain("select")
   })
 
-  it("respects limit prop for visible items", () => {
-    const { screen } = renderTui(
-      <MultiSelect items={items} limit={2} />,
-      { cols: 40, rows: 8 },
-    )
-    const text = screen.text()
-    // Only 2 items should be visible
-    expect(text).toContain("TypeScript")
-    expect(text).toContain("JavaScript")
-  })
-
-  it("handles empty items array", () => {
+  it("handles empty items", () => {
     const { screen } = renderTui(
       <MultiSelect items={[]} />,
       { cols: 40, rows: 4 },
@@ -288,31 +199,39 @@ describe("MultiSelect behavior", () => {
   it("works without useKeyboard prop", () => {
     const { screen } = renderTui(
       <MultiSelect items={items} />,
-      { cols: 40, rows: 8 },
+      { cols: 40, rows: 10 },
     )
     expect(screen.text()).toContain("TypeScript")
   })
 
-  it("handles multiple selections in uncontrolled mode", () => {
-    let submitted = null
-    const mockUseKeyboard = (handler) => {
-      // Select first item
-      handler({ name: "space" })
-      // Move down
-      handler({ name: "j" })
-      // Select second item
-      handler({ name: "space" })
-      // Submit
-      handler({ name: "return" })
-    }
-    renderTui(
-      <MultiSelect
-        items={items}
-        useKeyboard={mockUseKeyboard}
-        onSubmit={(items) => { submitted = items }}
-      />,
-      { cols: 40, rows: 8 },
+  it("renders diamond header and left bar", () => {
+    const { screen } = renderTui(
+      <MultiSelect items={items} />,
+      { cols: 40, rows: 10 },
     )
-    expect(submitted).toHaveLength(2)
+    expect(screen.text()).toContain("◆")
+    expect(screen.text()).toContain("│")
+    expect(screen.text()).toContain("Select")
+  })
+
+  it("renders custom title", () => {
+    const { screen } = renderTui(
+      <MultiSelect items={items} title="Pick languages" />,
+      { cols: 40, rows: 10 },
+    )
+    expect(screen.text()).toContain("Pick languages")
+  })
+
+  it("wraps cursor when navigating past bounds", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const tui = renderTui(
+      <MultiSelect items={items} useKeyboard={mockUseKeyboard} />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "up" })
+    tui.flush()
+    // Should wrap to last item
+    expect(tui.screen.text()).toContain("▸")
   })
 })

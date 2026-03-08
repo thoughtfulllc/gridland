@@ -163,9 +163,8 @@ export function MultiSelectApp() {
   ]
   return (
     <box flexDirection="column" flexGrow={1}>
-      <box padding={1} flexDirection="column" gap={1} flexGrow={1}>
-        <text fg="#d8dee9" bold>Select languages:</text>
-        <MultiSelect items={items} useKeyboard={useKeyboard} />
+      <box padding={1} flexDirection="column" flexGrow={1}>
+        <MultiSelect items={items} title="Select languages" useKeyboard={useKeyboard} />
       </box>
       <StatusBar items={[{ key: "q", label: "quit" }]} />
     </box>

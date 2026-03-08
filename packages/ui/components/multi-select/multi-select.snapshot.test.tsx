@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { MultiSelect } from "./multi-select"
@@ -16,15 +16,15 @@ describe("MultiSelect snapshots", () => {
   it("renders 4 items", () => {
     const { screen } = renderTui(
       <MultiSelect items={items} />,
-      { cols: 40, rows: 8 },
+      { cols: 40, rows: 10 },
     )
     expect(screen.text()).toMatchSnapshot()
   })
 
   it("renders with defaultSelected", () => {
     const { screen } = renderTui(
-      <MultiSelect items={items} defaultSelected={[items[0]!, items[2]!]} />,
-      { cols: 40, rows: 8 },
+      <MultiSelect items={items} defaultSelected={["ts", "py"]} />,
+      { cols: 40, rows: 10 },
     )
     expect(screen.text()).toMatchSnapshot()
   })

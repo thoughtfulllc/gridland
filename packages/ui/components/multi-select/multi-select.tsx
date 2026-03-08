@@ -1,138 +1,225 @@
-import { useState, useCallback } from "react"
+import { useReducer, useMemo } from "react"
+import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
+import { StatusBar } from "../status-bar/status-bar"
 
 export type MultiSelectItem<V> = {
   key?: string
   label: string
   value: V
+  group?: string
 }
 
 export interface MultiSelectProps<V> {
   items?: MultiSelectItem<V>[]
-  selected?: MultiSelectItem<V>[]
-  defaultSelected?: MultiSelectItem<V>[]
-  focus?: boolean
-  initialIndex?: number
+  defaultSelected?: V[]
+  title?: string
   limit?: number
+  enableSelectAll?: boolean
+  enableClear?: boolean
   highlightColor?: string
   checkboxColor?: string
-  onSelect?: (item: MultiSelectItem<V>) => void
-  onUnselect?: (item: MultiSelectItem<V>) => void
-  onSubmit?: (items: MultiSelectItem<V>[]) => void
-  onHighlight?: (item: MultiSelectItem<V>) => void
-  /** Keyboard handler — pass useKeyboard from @opentui/react */
+  onSubmit?: (values: V[]) => void
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
+type State<V> = {
+  cursor: number
+  selected: Set<V>
+  submitted: boolean
+}
+
+type Action<V> =
+  | { type: "MOVE"; direction: 1 | -1; max: number }
+  | { type: "TOGGLE_ITEM"; value: V }
+  | { type: "SELECT_ALL"; values: V[] }
+  | { type: "CLEAR" }
+  | { type: "SUBMIT" }
+  | { type: "RESET" }
+
+function reducer<V>(state: State<V>, action: Action<V>): State<V> {
+  switch (action.type) {
+    case "MOVE": {
+      let next = state.cursor + action.direction
+      if (next < 0) next = action.max - 1
+      if (next >= action.max) next = 0
+      return { ...state, cursor: next }
+    }
+    case "TOGGLE_ITEM": {
+      const next = new Set(state.selected)
+      if (next.has(action.value)) {
+        next.delete(action.value)
+      } else {
+        next.add(action.value)
+      }
+      return { ...state, selected: next }
+    }
+    case "SELECT_ALL":
+      return { ...state, selected: new Set(action.values) }
+    case "CLEAR":
+      return { ...state, selected: new Set() }
+    case "SUBMIT":
+      return { ...state, submitted: true }
+    case "RESET":
+      return { ...state, selected: new Set(), submitted: false, cursor: 0 }
+    default:
+      return state
+  }
+}
+
+const VISIBLE = 12
+const BAR = "│"
+const CHECKED = "◉"
+const UNCHECKED = "○"
+const CURSOR = "▸"
+
+type Row<V> =
+  | { type: "group"; label: string }
+  | { type: "item"; item: MultiSelectItem<V>; index: number }
+
 export function MultiSelect<V>({
   items = [],
-  selected: controlledSelected,
   defaultSelected = [],
-  focus = true,
-  initialIndex = 0,
+  title = "Select",
   limit,
+  enableSelectAll = true,
+  enableClear = true,
   highlightColor,
   checkboxColor,
-  onSelect,
-  onUnselect,
   onSubmit,
-  onHighlight,
   useKeyboard,
 }: MultiSelectProps<V>) {
   const theme = useTheme()
-  const resolvedHighlightColor = highlightColor ?? theme.primary
-  const resolvedCheckboxColor = checkboxColor ?? theme.secondary
-  const visibleCount = limit && limit < items.length ? limit : items.length
-  const clampedInitial = Math.min(Math.max(0, initialIndex), Math.max(0, items.length - 1))
+  const resolvedHighlight = highlightColor ?? theme.primary
+  const resolvedCheckbox = checkboxColor ?? theme.accent
 
-  const [highlightedIndex, setHighlightedIndex] = useState(clampedInitial)
-  const [scrollOffset, setScrollOffset] = useState(
-    limit ? Math.max(0, clampedInitial - Math.floor(limit / 2)) : 0,
-  )
-  const [internalSelected, setInternalSelected] = useState<MultiSelectItem<V>[]>(defaultSelected)
+  const [state, dispatch] = useReducer(reducer<V>, {
+    cursor: 0,
+    selected: new Set(defaultSelected),
+    submitted: false,
+  })
 
-  const selected = controlledSelected ?? internalSelected
+  const { flatRows, selectableItems } = useMemo(() => {
+    const rows: Row<V>[] = []
+    const selectable: Array<{ item: MultiSelectItem<V>; index: number }> = []
+    let index = 0
+    const grouped = new Map<string, MultiSelectItem<V>[]>()
+    for (const item of items) {
+      const group = item.group ?? ""
+      const list = grouped.get(group) ?? []
+      list.push(item)
+      grouped.set(group, list)
+    }
+    for (const [group, groupItems] of grouped) {
+      if (group) {
+        rows.push({ type: "group", label: group })
+      }
+      for (const item of groupItems) {
+        rows.push({ type: "item", item, index })
+        selectable.push({ item, index })
+        index++
+      }
+    }
+    return { flatRows: rows, selectableItems: selectable }
+  }, [items])
 
-  const isSelected = useCallback(
-    (value: V) => selected.some((item) => item.value === value),
-    [selected],
-  )
+  const visibleCount = limit ?? VISIBLE
+  const scrollOffset = Math.max(0, Math.min(state.cursor - Math.floor(visibleCount / 2), selectableItems.length - visibleCount))
+  const visibleRows = flatRows.slice(Math.max(0, scrollOffset), Math.max(0, scrollOffset) + visibleCount)
 
-  const visibleItems = limit ? items.slice(scrollOffset, scrollOffset + visibleCount) : items
-
-  // Use keyboard hook if provided
   useKeyboard?.((event: any) => {
-    if (!focus) return
-
-    if (event.name === "j" || event.name === "down") {
-      const newIndex = highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0
-      setHighlightedIndex(newIndex)
-
-      if (limit && newIndex >= scrollOffset + visibleCount) {
-        setScrollOffset(newIndex - visibleCount + 1)
-      } else if (limit && newIndex === 0) {
-        setScrollOffset(0)
+    if (state.submitted) {
+      if (event.name === "r") {
+        dispatch({ type: "RESET" })
       }
-
-      onHighlight?.(items[newIndex]!)
+      return
     }
 
-    if (event.name === "k" || event.name === "up") {
-      const newIndex = highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1
-      setHighlightedIndex(newIndex)
-
-      if (limit && newIndex < scrollOffset) {
-        setScrollOffset(newIndex)
-      } else if (limit && newIndex >= items.length - 1 && scrollOffset + visibleCount < items.length) {
-        setScrollOffset(Math.max(0, items.length - visibleCount))
+    if (event.name === "up" || event.name === "k") {
+      dispatch({ type: "MOVE", direction: -1, max: selectableItems.length })
+    } else if (event.name === "down" || event.name === "j") {
+      dispatch({ type: "MOVE", direction: 1, max: selectableItems.length })
+    } else if (event.name === "space") {
+      const current = selectableItems[state.cursor]
+      if (current) {
+        dispatch({ type: "TOGGLE_ITEM", value: current.item.value })
       }
-
-      onHighlight?.(items[newIndex]!)
-    }
-
-    if (event.name === "space") {
-      const item = items[highlightedIndex]
-      if (!item) return
-
-      if (isSelected(item.value)) {
-        onUnselect?.(item)
-        if (!controlledSelected) {
-          setInternalSelected((prev) => prev.filter((s) => s.value !== item.value))
-        }
-      } else {
-        onSelect?.(item)
-        if (!controlledSelected) {
-          setInternalSelected((prev) => [...prev, item])
-        }
-      }
-    }
-
-    if (event.name === "return") {
-      onSubmit?.(selected)
+    } else if (event.name === "a" && enableSelectAll) {
+      dispatch({ type: "SELECT_ALL", values: items.map((i) => i.value) })
+    } else if (event.name === "x" && enableClear) {
+      dispatch({ type: "CLEAR" })
+    } else if (event.name === "return") {
+      dispatch({ type: "SUBMIT" })
+      onSubmit?.(Array.from(state.selected))
     }
   })
 
+  if (state.submitted) {
+    const selectedItems = items.filter((i) => state.selected.has(i.value))
+    return (
+      <box flexDirection="column">
+        <text>
+          <span style={textStyle({ fg: theme.success })}>{"◆ "}</span>
+          <span style={textStyle({ bold: true })}>{title}</span>
+        </text>
+        {selectedItems.map((item) => (
+          <text key={item.key ?? String(item.value)}>
+            <span style={textStyle({ fg: theme.success })}>{BAR} </span>
+            <span style={textStyle({ fg: theme.success })}>{CHECKED} </span>
+            <span>{item.label}</span>
+          </text>
+        ))}
+        <text>{""}</text>
+        <text>
+          <span style={textStyle({ dim: true })}>{selectedItems.length} selected — submitted</span>
+        </text>
+      </box>
+    )
+  }
+
   return (
-    <box>
-      {visibleItems.map((item, index) => {
-        const actualIndex = (limit ? scrollOffset : 0) + index
-        const isHighlighted = actualIndex === highlightedIndex
-        const itemIsSelected = isSelected(item.value)
+    <box flexDirection="column">
+      <text>
+        <span style={textStyle({ fg: theme.accent })}>{"◆ "}</span>
+        <span style={textStyle({ bold: true })}>{title}</span>
+      </text>
+      {visibleRows.map((row, i) => {
+        if (row.type === "group") {
+          return (
+            <text key={`group-${row.label}`}>
+              <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
+              <span style={textStyle({ bold: true, fg: theme.muted })}>{` ${row.label}`}</span>
+            </text>
+          )
+        }
+
+        const { item, index: itemIndex } = row
+        const isHighlighted = itemIndex === state.cursor
+        const isSelected = state.selected.has(item.value)
 
         return (
           <text key={item.key ?? String(item.value)}>
-            <span style={{ fg: isHighlighted ? resolvedHighlightColor : undefined }}>
-              {isHighlighted ? "\u25b6" : " "}{" "}
+            <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
+            <span style={{ fg: isHighlighted ? resolvedHighlight : undefined }}>
+              {isHighlighted ? CURSOR : " "}{" "}
             </span>
-            <span style={{ fg: resolvedCheckboxColor }}>
-              {itemIsSelected ? "\u25c9" : "\u25cb"}{" "}
+            <span style={{ fg: isSelected ? resolvedCheckbox : theme.muted }}>
+              {isSelected ? CHECKED : UNCHECKED}{" "}
             </span>
-            <span style={{ fg: isHighlighted ? resolvedHighlightColor : undefined }}>
+            <span style={{ fg: isHighlighted ? resolvedHighlight : isSelected ? resolvedCheckbox : undefined }}>
               {item.label}
             </span>
           </text>
         )
       })}
+      <text>{""}</text>
+      <StatusBar items={[
+        { key: "↑↓", label: "move" },
+        { key: "space", label: "select" },
+        ...(enableSelectAll ? [{ key: "a", label: "all" }] : []),
+        ...(enableClear ? [{ key: "x", label: "clear" }] : []),
+        { key: "enter", label: "submit" },
+      ]} />
     </box>
   )
 }

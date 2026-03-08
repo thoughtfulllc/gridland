@@ -1,6 +1,6 @@
 ---
 title: MultiSelect
-description: Multi-selection list with checkboxes
+description: Multi-selection list with checkboxes and groups
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
@@ -8,7 +8,7 @@ import { RunDemo } from '@/components/ui/run-demo'
 import MultiSelectDemo from '@/components/demos/multi-select-demo'
 
 The `MultiSelect` component from `@gridland/ui` renders a multi-selection list
-with checkbox indicators, keyboard navigation, and controlled/uncontrolled modes.
+with checkbox indicators, keyboard navigation, group headers, and submit/reset flow.
 
 <div className="my-8">
   <MultiSelectDemo />
@@ -43,7 +43,7 @@ pnpm add @gridland/ui
 
 ## Usage
 
-```tsx title="Example"
+```tsx title="Basic"
 import { MultiSelect } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
@@ -53,8 +53,23 @@ import { useKeyboard } from "@opentui/react"
     { label: "JavaScript", value: "js" },
     { label: "Python", value: "py" },
   ]}
+  title="Select languages"
   useKeyboard={useKeyboard}
-  onSubmit={(selected) => console.log("Selected:", selected)}
+  onSubmit={(values) => console.log("Selected:", values)}
+/>
+```
+
+```tsx title="With groups"
+<MultiSelect
+  items={[
+    { label: "TypeScript", value: "ts", group: "Languages" },
+    { label: "Python", value: "py", group: "Languages" },
+    { label: "React", value: "react", group: "Frameworks" },
+    { label: "Vue", value: "vue", group: "Frameworks" },
+  ]}
+  title="Select tools"
+  useKeyboard={useKeyboard}
+  onSubmit={(values) => console.log(values)}
 />
 ```
 
@@ -63,19 +78,30 @@ import { useKeyboard } from "@opentui/react"
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `items` | `MultiSelectItem<V>[]` | `[]` | Array of selectable items |
-| `selected` | `MultiSelectItem<V>[]` | — | Controlled selected items |
-| `defaultSelected` | `MultiSelectItem<V>[]` | `[]` | Initially selected items |
-| `focus` | `boolean` | `true` | Whether the list is focused |
-| `initialIndex` | `number` | `0` | Initially highlighted index |
-| `limit` | `number` | — | Max visible items (enables scrolling) |
-| `onSelect` | `(item) => void` | — | Called when an item is checked |
-| `onUnselect` | `(item) => void` | — | Called when an item is unchecked |
-| `onSubmit` | `(items) => void` | — | Called on Enter key with all selected items |
-| `onHighlight` | `(item) => void` | — | Called when highlighted item changes |
+| `defaultSelected` | `V[]` | `[]` | Initially selected values |
+| `title` | `string` | `"Select"` | Title shown next to the diamond indicator |
+| `limit` | `number` | `12` | Max visible rows (enables scrolling) |
+| `enableSelectAll` | `boolean` | `true` | Enable select all with `a` key |
+| `enableClear` | `boolean` | `true` | Enable clear all with `x` key |
+| `highlightColor` | `string` | `theme.primary` | Color of the highlighted item |
+| `checkboxColor` | `string` | `theme.accent` | Color of the checkbox indicator |
+| `onSubmit` | `(values: V[]) => void` | — | Called on Enter with selected values |
 | `useKeyboard` | `function` | — | Keyboard hook from `@opentui/react` |
+
+### MultiSelectItem
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `label` | `string` | Display text |
+| `value` | `V` | Item value |
+| `key` | `string?` | Optional React key |
+| `group` | `string?` | Group header label |
 
 ## Controls
 
-- **Up/Down** or **j/k**: Navigate items
-- **Space**: Toggle selection
+- **↑/↓** or **j/k**: Navigate items
+- **Space**: Select item
+- **a**: Select all
+- **x**: Clear all
 - **Enter**: Submit selected items
+- **r**: Reset (from submitted state)
