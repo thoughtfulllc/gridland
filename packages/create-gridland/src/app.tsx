@@ -4,6 +4,7 @@ import { Confirm } from "./components/confirm.js"
 import { Step } from "./components/step.js"
 import { validateProjectName } from "./helpers/validate.js"
 import type { Framework } from "./scaffold.js"
+import { DEFAULT_NAME } from "./constants.js"
 
 export interface WizardResult {
   projectName: string
@@ -16,8 +17,6 @@ interface CreateGridlandAppProps {
   initialName?: string
   onComplete: (result: WizardResult) => void
 }
-
-const DEFAULT_NAME = "my-gridland-app"
 
 const frameworkItems = [
   { label: "Vite", value: "vite" as Framework },

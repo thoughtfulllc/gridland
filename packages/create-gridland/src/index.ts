@@ -1,6 +1,7 @@
 import { Command } from "commander"
 import pc from "picocolors"
 import { scaffold, FRAMEWORKS, type Framework } from "./scaffold.js"
+import { DEFAULT_NAME } from "./constants.js"
 import { detectPackageManager, getDevCommand } from "./helpers/package-manager.js"
 import { installDependencies } from "./helpers/install.js"
 import { gitInit } from "./helpers/git.js"
@@ -31,7 +32,7 @@ program
     const isNonInteractive = options.yes || (projectNameArg && options.framework)
 
     if (isNonInteractive) {
-      const projectName = projectNameArg || "my-gridland-app"
+      const projectName = projectNameArg || DEFAULT_NAME
       const frameworkInput = options.framework || "vite"
 
       if (!(FRAMEWORKS as readonly string[]).includes(frameworkInput)) {

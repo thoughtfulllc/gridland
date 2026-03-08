@@ -23,6 +23,8 @@ function getTemplatesDir(): string {
   throw new Error("Could not find templates directory")
 }
 
+const textExts = new Set([".ts", ".tsx", ".js", ".jsx", ".json", ".html", ".css", ".md", ".txt", ".yaml", ".yml", ".toml", ".env", ".gitignore", ""])
+
 function copyDir(src: string, dest: string, replacements: Record<string, string>) {
   fs.mkdirSync(dest, { recursive: true })
 
@@ -41,7 +43,6 @@ function copyDir(src: string, dest: string, replacements: Record<string, string>
       copyDir(srcPath, destPath, replacements)
     } else {
       const ext = path.extname(entry.name).toLowerCase()
-      const textExts = new Set([".ts", ".tsx", ".js", ".jsx", ".json", ".html", ".css", ".md", ".txt", ".yaml", ".yml", ".toml", ".env", ".gitignore", ""])
 
       if (textExts.has(ext) || entry.name.startsWith("_") || entry.name.startsWith(".")) {
         let content = fs.readFileSync(srcPath, "utf-8")
