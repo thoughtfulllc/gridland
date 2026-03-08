@@ -1,7 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { MultiSelect } from "@gridland/ui"
+import { MultiSelect, StatusBar } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
 const items = [
@@ -13,8 +13,16 @@ const items = [
 
 function MultiSelectApp() {
   return (
-    <box padding={1} flexDirection="column">
+    <box padding={1} flexDirection="column" flexGrow={1}>
       <MultiSelect items={items} title="Select languages" useKeyboard={useKeyboard} />
+      <text>{""}</text>
+      <StatusBar items={[
+        { key: "↑↓", label: "move" },
+        { key: "space", label: "select" },
+        { key: "a", label: "all" },
+        { key: "x", label: "clear" },
+        { key: "enter", label: "submit" },
+      ]} />
     </box>
   )
 }
