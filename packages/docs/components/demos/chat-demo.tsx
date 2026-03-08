@@ -1,8 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVX types
 "use client"
 import { useState, useCallback, useRef } from "react"
-import { TUI } from "@gridland/web"
-import { TerminalWindow } from "@/components/ui/mac-window"
+import { DemoWindow } from "@/components/ui/demo-window"
 import { ChatPanel } from "@gridland/ui"
 import type { ChatMessage, ToolCallInfo } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
@@ -93,10 +92,8 @@ function ChatApp() {
 
 export default function ChatDemo() {
   return (
-    <TerminalWindow title="Chat">
-      <TUI style={{ width: "100%", height: 280 }}>
-        <ChatApp />
-      </TUI>
-    </TerminalWindow>
+    <DemoWindow title="Chat" tuiStyle={{ width: "100%", height: 280 }}>
+      <ChatApp />
+    </DemoWindow>
   )
 }

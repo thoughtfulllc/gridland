@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "fumadocs-mdx && next build",
+    "build": "fumadocs-mdx && next build && bun run scripts/extract-tui-txt.ts",
     "start": "next start",
     "types:check": "fumadocs-mdx && tsc --noEmit"
   },

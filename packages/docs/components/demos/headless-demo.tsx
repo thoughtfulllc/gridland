@@ -9,9 +9,9 @@ const data = [
   { name: "Charlie", role: "PM", status: "Away" },
 ]
 
-export default function TableDemo() {
+export default function HeadlessDemo() {
   return (
-    <DemoWindow title="Table" tuiStyle={{ width: "100%", height: 240 }}>
+    <DemoWindow title="Headless" tuiStyle={{ width: "100%", height: 240, borderRadius: 8 }}>
       <box padding={1}>
         <Table data={data} />
       </box>

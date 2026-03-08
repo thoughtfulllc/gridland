@@ -1,8 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { useState } from "react"
-import { TUI } from "@gridland/web"
-import { TerminalWindow } from "@/components/ui/mac-window"
+import { DemoWindow } from "@/components/ui/demo-window"
 import {
   ThemeProvider,
   darkTheme,
@@ -63,10 +62,8 @@ function ThemingApp() {
 
 export default function ThemingDemo() {
   return (
-    <TerminalWindow title="Theming">
-      <TUI style={{ width: "100%", height: 380 }}>
-        <ThemingApp />
-      </TUI>
-    </TerminalWindow>
+    <DemoWindow title="Theming" tuiStyle={{ width: "100%", height: 380 }}>
+      <ThemingApp />
+    </DemoWindow>
   )
 }

@@ -1,8 +1,7 @@
 // @ts-nocheck — gridland intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { useState } from "react"
-import { TUI } from "@gridland/web"
-import { TerminalWindow } from "@/components/ui/mac-window"
+import { DemoWindow } from "@/components/ui/demo-window"
 import { StatusBar, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 import figlet from "figlet"
@@ -77,10 +76,8 @@ function AsciiApp() {
 
 export default function AsciiDemo() {
   return (
-    <TerminalWindow title="Ascii">
-      <TUI style={{ width: "100%", height: 280 }}>
-        <AsciiApp />
-      </TUI>
-    </TerminalWindow>
+    <DemoWindow title="Ascii" tuiStyle={{ width: "100%", height: 280 }}>
+      <AsciiApp />
+    </DemoWindow>
   )
 }

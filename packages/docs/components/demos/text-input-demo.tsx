@@ -1,7 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
-import { TUI } from "@gridland/web"
-import { TerminalWindow } from "@/components/ui/mac-window"
+import { DemoWindow } from "@/components/ui/demo-window"
 import { TextInput, useTheme } from "@gridland/ui"
 
 function TextInputApp() {
@@ -16,10 +15,8 @@ function TextInputApp() {
 
 export default function TextInputDemo() {
   return (
-    <TerminalWindow title="TextInput">
-      <TUI style={{ width: "100%", height: 80 }}>
-        <TextInputApp />
-      </TUI>
-    </TerminalWindow>
+    <DemoWindow title="TextInput" tuiStyle={{ width: "100%", height: 80 }}>
+      <TextInputApp />
+    </DemoWindow>
   )
 }

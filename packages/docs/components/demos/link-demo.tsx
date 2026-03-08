@@ -1,9 +1,8 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { useState } from "react"
-import { TUI } from "@gridland/web"
 import { useKeyboard } from "@opentui/react"
-import { TerminalWindow } from "@/components/ui/mac-window"
+import { DemoWindow } from "@/components/ui/demo-window"
 import { Link, StatusBar, textStyle, type UnderlineStyle } from "@gridland/ui"
 
 const MODES: UnderlineStyle[] = ["solid", "dashed", "dotted", "none"]
@@ -35,10 +34,8 @@ function LinkApp() {
 
 export default function LinkDemo() {
   return (
-    <TerminalWindow title="Link">
-      <TUI style={{ width: "100%", height: 120 }}>
-        <LinkApp />
-      </TUI>
-    </TerminalWindow>
+    <DemoWindow title="Link" tuiStyle={{ width: "100%", height: 120 }}>
+      <LinkApp />
+    </DemoWindow>
   )
 }

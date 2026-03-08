@@ -6,6 +6,7 @@ export interface TerminalWindowProps {
   title?: string
   minWidth?: number | string
   transparent?: boolean
+  titleBarRight?: ReactNode
   onClose?: () => void
   onMinimize?: () => void
   onMaximize?: () => void
@@ -15,7 +16,7 @@ function cn(...classes: (string | undefined | false)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export const TerminalWindow = ({ children, className, title, minWidth, transparent = false, onClose, onMinimize, onMaximize }: TerminalWindowProps) => {
+export const TerminalWindow = ({ children, className, title, minWidth, transparent = false, titleBarRight, onClose, onMinimize, onMaximize }: TerminalWindowProps) => {
   return (
     <div
       className={cn('rounded-2xl border shadow-lg overflow-hidden', className)}
@@ -37,8 +38,8 @@ export const TerminalWindow = ({ children, className, title, minWidth, transpare
         </div>
         {/* Optional Title - Centered */}
         {title && <div className="text-center text-sm select-none" style={transparent ? {} : { color: '#a6adc8' }}>{title}</div>}
-        {/* Empty right column for balance */}
-        <div />
+        {/* Right column */}
+        {titleBarRight ?? <div />}
       </div>
       {/* Window Content */}
       <div className="overflow-x-auto overscroll-x-none">

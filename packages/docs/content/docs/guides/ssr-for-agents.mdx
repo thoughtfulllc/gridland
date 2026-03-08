@@ -1,0 +1,163 @@
+---
+title: SSR for Agents
+description: Render Gridland components to plain text for AI agents, crawlers, and screen readers
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import HeadlessDemo from '@/components/demos/headless-demo'
+
+Gridland components render to a canvas in the browser, which means crawlers and
+AI agents can't read the content by default. Headless rendering solves this by
+rendering your components to plain text — no browser or canvas required.
+
+The same component produces different output depending on who's looking at it.
+Toggle between Browser and SSR to see the difference:
+
+<div className="my-4">
+  <HeadlessDemo />
+</div>
+
+## How It Works
+
+The `<TUI>` component automatically renders your app to text on the server
+during SSR. This text is embedded in a hidden `<pre>` tag in the HTML, so
+crawlers get readable content while browsers get the full canvas experience.
+
+```tsx title="app/page.tsx"
+import { TUI } from "@gridland/web"
+
+// No extra setup — SSR text rendering is automatic
+export default function Page() {
+  return (
+    <TUI style={{ width: "100vw", height: "100vh" }}>
+      <MyApp />
+    </TUI>
+  )
+}
+```
+
+### Controlling the Fallback Size
+
+The SSR text render uses a virtual terminal size. You can control it with
+`fallbackCols` and `fallbackRows`:
+
+```tsx title="app/page.tsx"
+<TUI fallbackCols={120} fallbackRows={40}>
+  <MyApp />
+</TUI>
+```
+
+The defaults are 80 columns and 24 rows.
+
+## Using the Headless API Directly
+
+For scripts, tests, or build-time rendering, you can use `createHeadlessRoot`
+to render components to text without a browser:
+
+```ts title="render-to-text.ts"
+import {
+  HeadlessRenderer,
+  setHeadlessRootRenderableClass,
+  createHeadlessRoot,
+} from "@gridland/web"
+
+// One-time setup: provide the root renderable class
+import { RootRenderable } from "@opentui/core"
+setHeadlessRootRenderableClass(RootRenderable)
+
+// Create a renderer with a virtual terminal size
+const renderer = new HeadlessRenderer({ cols: 80, rows: 24 })
+const root = createHeadlessRoot(renderer)
+
+// Render a component to text in one call
+const text = root.renderToText(
+  <box border padding={1}>
+    <text>Hello from headless rendering!</text>
+  </box>
+)
+
+console.log(text)
+// ┌──────────────────────────────────┐
+// │                                  │
+// │  Hello from headless rendering!  │
+// │                                  │
+// └──────────────────────────────────┘
+
+root.unmount()
+```
+
+### Step by Step
+
+If you need more control, you can separate the render and text-extraction steps:
+
+```ts title="manual-render.ts"
+const renderer = new HeadlessRenderer({ cols: 80, rows: 24 })
+const root = createHeadlessRoot(renderer)
+
+// 1. Render the component tree
+root.render(<MyApp />)
+
+// 2. Execute the render pipeline
+renderer.renderOnce()
+
+// 3. Extract text from the buffer
+const text = renderer.toText()
+
+// 4. Resize and re-render if needed
+renderer.resize(120, 40)
+renderer.renderOnce()
+const wideText = renderer.toText()
+
+root.unmount()
+```
+
+## Generating a Plain-Text File at Build Time
+
+You can extract the SSR text into a standalone file that crawlers can discover
+via `<link rel="alternate">`. The Gridland docs site does this to produce
+`/tui.txt`:
+
+```ts title="scripts/extract-tui-txt.ts"
+import { readFileSync, writeFileSync } from "fs"
+import { resolve } from "path"
+
+const distDir = resolve(import.meta.dir, "..", "dist")
+const html = readFileSync(resolve(distDir, "index.html"), "utf-8")
+
+// Extract text from the SSR <pre> tag
+const match = html.match(/<pre[^>]*aria-hidden[^>]*>([\s\S]*?)<\/pre>/)
+if (!match) {
+  console.error("Could not find TUI <pre> tag in index.html")
+  process.exit(1)
+}
+
+// Decode HTML entities
+const text = match[1]
+  .replace(/&lt;/g, "<")
+  .replace(/&gt;/g, ">")
+  .replace(/&amp;/g, "&")
+  .replace(/&#x27;/g, "'")
+  .replace(/&quot;/g, '"')
+
+writeFileSync(resolve(distDir, "tui.txt"), text, "utf-8")
+```
+
+Then link to it in your HTML head:
+
+```html
+<link rel="alternate" type="text/plain" href="/tui.txt">
+```
+
+<Callout type="info">
+This runs as a post-build step after `next build`, so the SSR output is already
+generated. Add it to your build script:
+`"build": "next build && bun scripts/extract-tui-txt.ts"`
+</Callout>
+
+## Use Cases
+
+- **SEO and crawlers** — Search engines see real text content instead of an empty canvas
+- **AI agents** — LLMs and AI tools can read your TUI app's content from raw HTML
+- **Accessibility** — Screen readers can access the text fallback
+- **Testing** — Render components to text for snapshot tests without a browser
+- **CLI tools** — Generate text output from the same React components you use in the browser

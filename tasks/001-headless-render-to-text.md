@@ -2,7 +2,7 @@
 
 ## Summary
 
-Enable server-side (or headless client-side) rendering of any Gridland TUI component tree into plain text — the same characters visible on screen (and used for copy/paste). This unlocks SSR fallbacks, `llms.txt` endpoints, and accessible text representations of canvas-rendered TUIs.
+Enable server-side (or headless client-side) rendering of any Gridland TUI component tree into plain text — the same ASCII/Unicode characters visible on screen. The primary goal is embedding this text directly in SSR HTML (inside a `<pre>` tag), so that `curl`/`wget`, search engine crawlers, and LLM agents see the actual TUI output without running JavaScript. A separate `llms.txt` API endpoint is a useful secondary output.
 
 ## Motivation
 
@@ -11,8 +11,9 @@ Gridland renders TUI components to an HTML5 Canvas. For copy/paste, the characte
 1. Get that text output without a browser/canvas
 2. Use it for SSR (the `<TUI>` component returns an empty `<div>` during SSR today — see `TUI.tsx:136-143`)
 3. Serve it from an API route like `llms.txt`
+4. Make the page meaningful to crawlers, `curl`/`wget`, or LLM agents — today they see an empty div with no content, which is terrible for SEO and agent accessibility
 
-The data and pipeline already exist — they just need to be decoupled from the canvas.
+The data and pipeline already exist — they just need to be decoupled from the canvas. By rendering the TUI buffer into a `<pre>` during SSR, the HTML document itself becomes the text representation: `curl https://gridland.dev` will return real ASCII art content, search engines will index it, and LLM agents reading the HTML will see the actual TUI output.
 
 ## Scope
 
@@ -165,28 +166,11 @@ The key addition is a `renderToText()` convenience method:
 
 ### Step 4: Wire into SSR / API routes
 
-#### Option A: `llms.txt` endpoint
+#### Primary: SSR `<pre>` fallback in `<TUI>`
 
-In the docs site, create an endpoint that renders the landing page headlessly:
+This is the core deliverable. Replace the empty SSR placeholder in `TUI.tsx:136-143` with a `<pre>` containing the headless-rendered text. The `<pre>` contains the raw ASCII/Unicode characters from the TUI buffer, so the HTML document itself serves as the text representation.
 
-```ts
-// packages/docs/app/tui.txt/route.ts
-import { HeadlessRenderer } from "@gridland/web"
-import { createHeadlessRoot } from "@gridland/web"
-import { LandingApp } from "@gridland/ui"
-
-export function GET() {
-  const renderer = new HeadlessRenderer({ cols: 80, rows: 24 })
-  const root = createHeadlessRoot(renderer)
-  const text = root.renderToText(<LandingApp />)
-  root.unmount()
-  return new Response(text, { headers: { "Content-Type": "text/plain" } })
-}
-```
-
-#### Option B: SSR fallback in `<TUI>`
-
-Replace the empty SSR placeholder in `TUI.tsx:136-143` with a `<pre>` containing the headless-rendered text:
+This means `curl https://gridland.dev` will output the TUI's initial frame as visible ASCII art in the HTML — which is the correct approach for both SEO and agent consumption. Crawlers, LLM agents, and users without JavaScript all see real content instead of an empty div.
 
 ```tsx
 if (!isClient) {
@@ -204,6 +188,25 @@ if (!isClient) {
 ```
 
 Note: SSR fallback requires choosing fixed `cols`/`rows` since there's no container to measure. Could accept as props (`fallbackCols`, `fallbackRows`) or use sensible defaults (80×24).
+
+#### Secondary: `llms.txt` endpoint (optional)
+
+As a nice-to-have, create a plain-text endpoint that renders the landing page headlessly:
+
+```ts
+// packages/docs/app/tui.txt/route.ts
+import { HeadlessRenderer } from "@gridland/web"
+import { createHeadlessRoot } from "@gridland/web"
+import { LandingApp } from "@gridland/ui"
+
+export function GET() {
+  const renderer = new HeadlessRenderer({ cols: 80, rows: 24 })
+  const root = createHeadlessRoot(renderer)
+  const text = root.renderToText(<LandingApp />)
+  root.unmount()
+  return new Response(text, { headers: { "Content-Type": "text/plain" } })
+}
+```
 
 ## Potential Issues
 
@@ -237,8 +240,8 @@ async renderToText(node: ReactNode): Promise<string> {
 | Create | `packages/web/src/create-headless-root.tsx` |
 | Modify | `packages/web/src/core.ts` — export new modules |
 | Modify | `packages/web/tsup.config.ts` — ensure new files are in the build |
-| Create | `packages/docs/app/tui.txt/route.ts` (or similar endpoint) |
-| Optionally modify | `packages/web/src/TUI.tsx` — SSR fallback with `<pre>` |
+| Modify | `packages/web/src/TUI.tsx` — SSR `<pre>` fallback with headless-rendered text |
+| Optionally create | `packages/docs/app/tui.txt/route.ts` (plain-text endpoint) |
 
 ## Estimated complexity
 

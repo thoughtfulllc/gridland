@@ -1,8 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { useState } from "react"
-import { TUI } from "@gridland/web"
-import { TerminalWindow } from "@/components/ui/mac-window"
+import { DemoWindow } from "@/components/ui/demo-window"
 import { Modal, StatusBar, textStyle } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
@@ -46,10 +45,8 @@ function ModalApp() {
 
 export default function ModalDemo() {
   return (
-    <TerminalWindow title="Modal">
-      <TUI style={{ width: "100%", height: 200 }}>
-        <ModalApp />
-      </TUI>
-    </TerminalWindow>
+    <DemoWindow title="Modal" tuiStyle={{ width: "100%", height: 200 }}>
+      <ModalApp />
+    </DemoWindow>
   )
 }

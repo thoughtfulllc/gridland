@@ -9,6 +9,11 @@ export const metadata = {
     default: "Gridland",
   },
   description: "A framework for building terminal apps, built on OpenTUI + React.",
+  alternates: {
+    types: {
+      "text/plain": "/tui.txt",
+    },
+  },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

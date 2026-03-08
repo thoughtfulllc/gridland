@@ -1,8 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { useState } from "react"
-import { TUI } from "@gridland/web"
-import { TerminalWindow } from "@/components/ui/mac-window"
+import { DemoWindow } from "@/components/ui/demo-window"
 import { StatusBar, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
@@ -51,10 +50,8 @@ function StatusBarApp() {
 
 export default function StatusBarDemo() {
   return (
-    <TerminalWindow title="StatusBar">
-      <TUI style={{ width: "100%", height: 80 }}>
-        <StatusBarApp />
-      </TUI>
-    </TerminalWindow>
+    <DemoWindow title="StatusBar" tuiStyle={{ width: "100%", height: 80 }}>
+      <StatusBarApp />
+    </DemoWindow>
   )
 }

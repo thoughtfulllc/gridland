@@ -3,6 +3,7 @@ import { BrowserRenderContext } from "./browser-render-context"
 import { CanvasPainter } from "./canvas-painter"
 import { SelectionManager } from "./selection-manager"
 import { getLinkId } from "./core-shims/index"
+import { executeRenderPipeline } from "./render-pipeline"
 
 // We import these via the core-shims alias in the Vite build
 // but for the renderer we import directly to avoid circular deps
@@ -240,48 +241,7 @@ export class BrowserRenderer {
     if (!this.needsRender) return
     this.needsRender = false
 
-    // Clear buffer
-    this.buffer.clear()
-
-    // Run lifecycle passes
-    const lifecyclePasses = this.renderContext.getLifecyclePasses()
-    for (const renderable of lifecyclePasses) {
-      if (renderable.onLifecyclePass) {
-        renderable.onLifecyclePass()
-      }
-    }
-
-    // Calculate layout
-    this.root.calculateLayout()
-
-    // Collect render commands
-    const renderList: any[] = []
-    this.root.updateLayout(deltaTime, renderList)
-
-    // Execute render commands
-    for (const cmd of renderList) {
-      switch (cmd.action) {
-        case "pushScissorRect":
-          this.buffer.pushScissorRect(cmd.x, cmd.y, cmd.width, cmd.height)
-          break
-        case "popScissorRect":
-          this.buffer.popScissorRect()
-          break
-        case "pushOpacity":
-          this.buffer.pushOpacity(cmd.opacity)
-          break
-        case "popOpacity":
-          this.buffer.popOpacity()
-          break
-        case "render":
-          cmd.renderable.render(this.buffer, deltaTime)
-          break
-      }
-    }
-
-    // Clear scissor/opacity stacks
-    this.buffer.clearScissorRects()
-    this.buffer.clearOpacity()
+    executeRenderPipeline(this.buffer, this.renderContext, this.root, deltaTime)
 
     // Paint to canvas
     const dpr = window.devicePixelRatio || 1

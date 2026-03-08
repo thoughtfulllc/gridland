@@ -9,6 +9,8 @@ import { BrowserRenderer, setRootRenderableClass } from "./browser-renderer"
 import { createBrowserRoot, type BrowserRoot } from "./create-browser-root"
 import { CanvasPainter } from "./canvas-painter"
 import { RootRenderable } from "@opentui/core"
+import { HeadlessRenderer, setHeadlessRootRenderableClass } from "./headless-renderer"
+import { createHeadlessRoot } from "./create-headless-root"
 
 export interface TUIProps {
   children: ReactNode
@@ -26,6 +28,10 @@ export interface TUIProps {
   backgroundColor?: string
   /** Called when the renderer is ready */
   onReady?: (renderer: BrowserRenderer) => void
+  /** Columns to use for SSR headless render (default: 80) */
+  fallbackCols?: number
+  /** Rows to use for SSR headless render (default: 24) */
+  fallbackRows?: number
 }
 
 /**
@@ -52,6 +58,8 @@ export function TUI({
   autoFocus = true,
   backgroundColor,
   onReady,
+  fallbackCols = 80,
+  fallbackRows = 24,
 }: TUIProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -134,10 +142,38 @@ export function TUI({
   }, [children])
 
   if (!isClient) {
-    // SSR placeholder
+    // Only run the headless render on the actual server.
+    // On the client's initial render (before useEffect sets isClient=true),
+    // we render an empty <pre> and let suppressHydrationWarning preserve
+    // the server-rendered DOM until the canvas takes over.
+    const isServer = typeof window === "undefined"
+    let text = ""
+    if (isServer) {
+      setHeadlessRootRenderableClass(RootRenderable)
+      const renderer = new HeadlessRenderer({ cols: fallbackCols, rows: fallbackRows })
+      const root = createHeadlessRoot(renderer)
+      text = root.renderToText(children)
+      root.unmount()
+    }
     return (
       <div style={style} className={className}>
-        <div style={{ width: "100%", height: "100%" }} />
+        <pre
+          suppressHydrationWarning
+          aria-hidden
+          style={{
+            fontFamily,
+            fontSize,
+            margin: 0,
+            position: "absolute",
+            width: "1px",
+            height: "1px",
+            overflow: "hidden",
+            clip: "rect(0, 0, 0, 0)",
+            whiteSpace: "pre",
+          }}
+        >
+          {text}
+        </pre>
       </div>
     )
   }

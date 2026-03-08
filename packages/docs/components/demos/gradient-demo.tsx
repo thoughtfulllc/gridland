@@ -1,8 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { useState } from "react"
-import { TUI } from "@gridland/web"
-import { TerminalWindow } from "@/components/ui/mac-window"
+import { DemoWindow } from "@/components/ui/demo-window"
 import { Gradient, GRADIENTS, type GradientName, StatusBar, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 import figlet from "figlet"
@@ -44,10 +43,8 @@ function GradientApp() {
 
 export default function GradientDemo() {
   return (
-    <TerminalWindow title="Gradient">
-      <TUI style={{ width: "100%", height: 280 }}>
-        <GradientApp />
-      </TUI>
-    </TerminalWindow>
+    <DemoWindow title="Gradient" tuiStyle={{ width: "100%", height: 280 }}>
+      <GradientApp />
+    </DemoWindow>
   )
 }
