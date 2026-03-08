@@ -6,7 +6,15 @@
   "bin": {
     "gridland-container": "./bin/cli.mjs"
   },
-  "files": ["bin", "Dockerfile", "entrypoint.sh"],
+  "scripts": {
+    "test": "bun test ./test/lib.test.mjs ./test/cli.test.mjs ./test/entrypoint.test.mjs ./test/dockerfile.test.mjs ./test/workflow.test.mjs ./test/snapshots.test.mjs",
+    "test:e2e": "bun test ./test/e2e.test.mjs",
+    "test:all": "bun test ./test/"
+  },
+  "devDependencies": {
+    "yaml": "^2.4.0"
+  },
+  "files": ["bin", "lib.mjs", "Dockerfile", "entrypoint.sh"],
   "keywords": ["gridland", "container", "docker", "sandbox", "isolation"],
   "license": "MIT"
 }

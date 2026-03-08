@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
-import { existsSync, realpathSync } from "node:fs";
+import { realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  detectSourceType,
+  resolveSourceValue,
+  parseArgs,
+  buildDockerArgs,
+} from "../lib.mjs";
 
 const IMAGE_NAME = "ghcr.io/cjroth/gridland-container:latest";
 
@@ -32,86 +38,26 @@ Examples:
 }
 
 // Parse arguments
-const args = process.argv.slice(2);
+let parsed;
+try {
+  parsed = parseArgs(process.argv.slice(2));
+} catch (err) {
+  console.error(`Error: ${err.message}`);
+  process.exit(1);
+}
 
-if (args.length === 0 || args[0] === "-h" || args[0] === "--help") {
+if (parsed.help) {
   usage();
 }
 
-let source = null;
-let noNetwork = false;
-let memory = "512m";
-let forceBuild = false;
-let forwardedArgs = [];
-
-let i = 0;
-while (i < args.length) {
-  const arg = args[i];
-  if (arg === "--") {
-    forwardedArgs = args.slice(i + 1);
-    break;
-  } else if (arg === "--no-network") {
-    noNetwork = true;
-  } else if (arg === "--memory") {
-    i++;
-    memory = args[i];
-    if (!memory) {
-      console.error("Error: --memory requires a value");
-      process.exit(1);
-    }
-  } else if (arg === "--build") {
-    forceBuild = true;
-  } else if (arg.startsWith("-")) {
-    console.error(`Unknown option: ${arg}`);
-    process.exit(1);
-  } else if (!source) {
-    source = arg;
-  } else {
-    console.error(`Unexpected argument: ${arg}`);
-    process.exit(1);
-  }
-  i++;
-}
-
-if (!source) {
-  console.error("Error: <source> is required\n");
-  usage();
-}
-
-// Detect source type
-function detectSourceType(src) {
-  // Local path: starts with . or / or exists on filesystem
-  if (src.startsWith(".") || src.startsWith("/") || existsSync(src)) {
-    return "local";
-  }
-  // Git URL: contains :// or ends with .git or matches owner/repo
-  if (src.includes("://") || src.endsWith(".git")) {
-    return "git";
-  }
-  if (/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(src)) {
-    return "git";
-  }
-  // Otherwise: npm package
-  return "npm";
-}
-
-function resolveSourceValue(src, type) {
-  if (type === "local") {
-    return resolve(src);
-  }
-  if (type === "git") {
-    if (src.includes("://") || src.endsWith(".git")) {
-      return src;
-    }
-    // owner/repo shorthand
-    return `https://github.com/${src}`;
-  }
-  return src;
-}
+const { source, noNetwork, memory, forceBuild, forwardedArgs } = parsed;
 
 // Check Docker is available
 function checkDocker() {
-  const result = spawnSync("docker", ["info"], { stdio: "ignore" });
+  const result = spawnSync("docker", ["version"], {
+    stdio: "ignore",
+    timeout: 5000,
+  });
   if (result.status !== 0) {
     console.error("Error: Docker is not installed or not running.");
     console.error("Install Docker from https://docs.docker.com/get-docker/");
@@ -150,46 +96,24 @@ function buildImage() {
 checkDocker();
 
 const sourceType = detectSourceType(source);
-const sourceValue = resolveSourceValue(source, sourceType);
+let sourceValue = resolveSourceValue(source, sourceType);
+
+// Resolve local paths to real absolute paths for Docker volume mounts
+if (sourceType === "local") {
+  sourceValue = realpathSync(sourceValue);
+}
 
 ensureImage();
 
-// Construct docker run command
-const dockerArgs = [
-  "run", "--rm",
-  "--cap-drop=ALL",
-  "--security-opt=no-new-privileges",
-  "--read-only",
-  "--tmpfs", "/tmp:rw,noexec,nosuid,size=256m",
-  "--memory", memory,
-  "--pids-limit", "256",
-  "-e", `SOURCE_TYPE=${sourceType}`,
-  "-e", `SOURCE_VALUE=${sourceValue}`,
-  "-e", "BUN_INSTALL_CACHE_DIR=/tmp/.bun-cache",
-];
-
-// TTY handling
-if (process.stdin.isTTY) {
-  dockerArgs.push("-it");
-} else {
-  dockerArgs.push("-i");
-}
-
-if (noNetwork) {
-  dockerArgs.push("--network", "none");
-}
-
-if (sourceType === "local") {
-  const absPath = realpathSync(resolve(sourceValue));
-  dockerArgs.push("-v", `${absPath}:/app/source:ro`);
-}
-
-dockerArgs.push(IMAGE_NAME);
-
-// Forward args after --
-if (forwardedArgs.length > 0) {
-  dockerArgs.push(...forwardedArgs);
-}
+const dockerArgs = buildDockerArgs({
+  sourceType,
+  sourceValue,
+  noNetwork,
+  memory,
+  isTTY: process.stdin.isTTY,
+  imageName: IMAGE_NAME,
+  forwardedArgs,
+});
 
 const result = spawnSync("docker", dockerArgs, { stdio: "inherit" });
 process.exit(result.status ?? 1);

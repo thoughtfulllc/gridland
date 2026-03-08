@@ -1,0 +1,267 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Snapshots: CLI help output matches help text snapshot 1`] = `
+"Usage: gridland-container <source> [options] [-- <args...>]
+
+Run CLI/TUI apps inside hardened Docker containers.
+
+Source types:
+  ./path or /path       Local directory (mounted read-only)
+  owner/repo            GitHub shorthand
+  https://...           Git URL
+  package-name          npm package
+
+Options:
+  --no-network          Disable network access inside container
+  --memory <limit>      Memory limit (default: 512m)
+  --build               Force local Docker image build
+  -h, --help            Show this help
+
+Examples:
+  gridland-container chalk-animation
+  gridland-container ./my-app
+  gridland-container cjroth/gridland -- gradient
+  gridland-container some-tui --no-network
+"
+`;
+
+exports[`Snapshots: Docker args for npm source matches docker args snapshot for npm package 1`] = `
+[
+  "run",
+  "--rm",
+  "--cap-drop=ALL",
+  "--security-opt=no-new-privileges",
+  "--read-only",
+  "--tmpfs",
+  "/tmp:rw,nosuid,size=256m",
+  "--memory",
+  "512m",
+  "--pids-limit",
+  "256",
+  "-e",
+  "SOURCE_TYPE=npm",
+  "-e",
+  "SOURCE_VALUE=chalk-animation",
+  "-e",
+  "BUN_INSTALL_CACHE_DIR=/tmp/.bun-cache",
+  "-i",
+  "ghcr.io/cjroth/gridland-container:latest",
+]
+`;
+
+exports[`Snapshots: Docker args for git source matches docker args snapshot for git repo 1`] = `
+[
+  "run",
+  "--rm",
+  "--cap-drop=ALL",
+  "--security-opt=no-new-privileges",
+  "--read-only",
+  "--tmpfs",
+  "/tmp:rw,nosuid,size=256m",
+  "--memory",
+  "512m",
+  "--pids-limit",
+  "256",
+  "-e",
+  "SOURCE_TYPE=git",
+  "-e",
+  "SOURCE_VALUE=https://github.com/cjroth/gridland",
+  "-e",
+  "BUN_INSTALL_CACHE_DIR=/tmp/.bun-cache",
+  "-it",
+  "ghcr.io/cjroth/gridland-container:latest",
+  "--demo",
+  "gradient",
+]
+`;
+
+exports[`Snapshots: Docker args for local source with all flags matches docker args snapshot for locked-down local run 1`] = `
+[
+  "run",
+  "--rm",
+  "--cap-drop=ALL",
+  "--security-opt=no-new-privileges",
+  "--read-only",
+  "--tmpfs",
+  "/tmp:rw,nosuid,size=256m",
+  "--memory",
+  "256m",
+  "--pids-limit",
+  "256",
+  "-e",
+  "SOURCE_TYPE=local",
+  "-e",
+  "SOURCE_VALUE=/home/user/my-app",
+  "-e",
+  "BUN_INSTALL_CACHE_DIR=/tmp/.bun-cache",
+  "-it",
+  "--network",
+  "none",
+  "-v",
+  "/home/user/my-app:/app/source:ro",
+  "ghcr.io/cjroth/gridland-container:latest",
+]
+`;
+
+exports[`Snapshots: source detection matrix matches source detection snapshot 1`] = `
+[
+  {
+    "detected": "npm",
+    "expected": "npm",
+    "input": "chalk",
+  },
+  {
+    "detected": "npm",
+    "expected": "npm",
+    "input": "chalk-animation",
+  },
+  {
+    "detected": "npm",
+    "expected": "npm",
+    "input": "@gridland/demo",
+  },
+  {
+    "detected": "local",
+    "expected": "local",
+    "input": "./my-app",
+  },
+  {
+    "detected": "local",
+    "expected": "local",
+    "input": "../other",
+  },
+  {
+    "detected": "local",
+    "expected": "local",
+    "input": "/usr/local/app",
+  },
+  {
+    "detected": "git",
+    "expected": "git",
+    "input": "cjroth/gridland",
+  },
+  {
+    "detected": "git",
+    "expected": "git",
+    "input": "facebook/react",
+  },
+  {
+    "detected": "git",
+    "expected": "git",
+    "input": "https://github.com/user/repo",
+  },
+  {
+    "detected": "git",
+    "expected": "git",
+    "input": "git://github.com/user/repo",
+  },
+  {
+    "detected": "git",
+    "expected": "git",
+    "input": "user/repo.git",
+  },
+]
+`;
+
+exports[`Snapshots: source resolution matrix matches source resolution snapshot 1`] = `
+[
+  {
+    "input": "chalk",
+    "resolved": "chalk",
+    "type": "npm",
+  },
+  {
+    "input": "cjroth/gridland",
+    "resolved": "https://github.com/cjroth/gridland",
+    "type": "git",
+  },
+  {
+    "input": "https://github.com/user/repo",
+    "resolved": "https://github.com/user/repo",
+    "type": "git",
+  },
+  {
+    "input": "user/repo.git",
+    "resolved": "user/repo.git",
+    "type": "git",
+  },
+]
+`;
+
+exports[`Snapshots: Dockerfile content matches Dockerfile snapshot 1`] = `
+"FROM oven/bun:1-alpine
+
+RUN apk add --no-cache git nodejs
+
+RUN addgroup -S runner && adduser -S runner -G runner
+
+WORKDIR /app
+
+COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
+
+USER runner
+
+ENTRYPOINT ["entrypoint.sh"]
+"
+`;
+
+exports[`Snapshots: entrypoint.sh content matches entrypoint snapshot 1`] = `
+"#!/bin/sh
+set -e
+
+SOURCE_TYPE="\${SOURCE_TYPE:-npm}"
+SOURCE_VALUE="\${SOURCE_VALUE:?SOURCE_VALUE is required}"
+
+# Resolve entry point from package.json (bin → main → index.js) and exec it
+run_package() {
+  if [ ! -f package.json ]; then
+    echo "Error: no package.json found"
+    exit 1
+  fi
+  ENTRY=$(bun -e "
+    const p = JSON.parse(require('fs').readFileSync('package.json','utf8'));
+    const b = p.bin;
+    console.log(typeof b === 'string' ? b : b ? Object.values(b)[0] : p.main || 'index.js');
+  ")
+  exec bun run "$ENTRY" "$@"
+}
+
+case "$SOURCE_TYPE" in
+  npm)
+    echo "Installing $SOURCE_VALUE..."
+    cd /tmp
+    mkdir -p app && cd app
+    echo '{}' > package.json
+    bun add "$SOURCE_VALUE" 2>&1
+    BIN_DIR=$(bun pm bin)
+    EXEC=$(ls "$BIN_DIR" 2>/dev/null | head -1)
+    if [ -n "$EXEC" ]; then
+      exec node "$BIN_DIR/$EXEC" "$@"
+    else
+      exec bun run "$SOURCE_VALUE" "$@"
+    fi
+    ;;
+  git)
+    echo "Cloning $SOURCE_VALUE..."
+    cd /tmp
+    git clone --depth 1 -q "$SOURCE_VALUE" repo
+    cd repo
+    echo "Installing dependencies..."
+    bun install 2>&1
+    run_package "$@"
+    ;;
+  local)
+    echo "Running from mounted source..."
+    cp -r /app/source /tmp/source
+    cd /tmp/source
+    echo "Installing dependencies..."
+    bun install 2>&1
+    run_package "$@"
+    ;;
+  *)
+    echo "Unknown source type: $SOURCE_TYPE"
+    exit 1
+    ;;
+esac
+"
+`;
