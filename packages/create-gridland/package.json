@@ -1,6 +1,6 @@
 {
   "name": "create-gridland",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Create a new Gridland project",
   "type": "module",
   "bin": {
@@ -18,12 +18,12 @@
   "dependencies": {
     "@opentui/core": "^0.1.86",
     "@opentui/react": "^0.1.86",
+    "commander": "^13.0.0",
     "react": "^19.0.0"
   },
   "devDependencies": {
     "@gridland/ui": "workspace:*",
     "@types/react": "^19.0.0",
-    "commander": "^13.0.0",
     "picocolors": "^1.1.0",
     "tsup": "^8.0.0",
     "typescript": "^5.7.0"

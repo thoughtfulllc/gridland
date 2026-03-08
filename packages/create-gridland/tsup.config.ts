@@ -15,5 +15,5 @@ export default defineConfig({
     "@opentui/react",
     "react",
   ],
-  noExternal: ["@gridland/ui", "commander", "picocolors"],
+  noExternal: ["@gridland/ui", "picocolors"],
 })
