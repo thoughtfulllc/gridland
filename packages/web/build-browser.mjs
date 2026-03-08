@@ -9,8 +9,10 @@ import path from "path"
 import { fileURLToPath } from "url"
 
 const pkgRoot = path.dirname(fileURLToPath(import.meta.url))
+const coreRoot = path.resolve(pkgRoot, "../../opentui/packages/core")
 
-const shims = {
+// Bare specifier shims: bun, node built-ins, events
+const bareShims = {
   "bun:ffi": path.resolve(pkgRoot, "src/shims/bun-ffi.ts"),
   "bun-ffi-structs": path.resolve(pkgRoot, "src/shims/bun-ffi-structs.ts"),
   bun: path.resolve(pkgRoot, "src/shims/bun-ffi.ts"),
@@ -32,11 +34,48 @@ const shims = {
   "node:url": path.resolve(pkgRoot, "src/shims/node-url.ts"),
 }
 
+// File-level shims: replace entire opentui core source files with browser stubs
+// (mirrors the coreFileShims in vite-plugin.ts)
+const coreFileShimDefs = {
+  zig: "src/shims/zig-stub.ts",
+  buffer: "src/browser-buffer.ts",
+  "text-buffer": "src/shims/text-buffer-shim.ts",
+  "text-buffer-view": "src/shims/text-buffer-view-shim.ts",
+  "syntax-style": "src/shims/syntax-style-shim.ts",
+  renderer: "src/shims/renderer-stub.ts",
+  console: "src/shims/console-stub.ts",
+  "edit-buffer": "src/shims/edit-buffer-stub.ts",
+  "editor-view": "src/shims/editor-view-stub.ts",
+  NativeSpanFeed: "src/shims/native-span-feed-stub.ts",
+  "post/filters": "src/shims/filters-stub.ts",
+  "animation/Timeline": "src/shims/timeline-stub.ts",
+}
+
+const coreFileShims = new Map()
+for (const [key, shimPath] of Object.entries(coreFileShimDefs)) {
+  coreFileShims.set(
+    path.resolve(coreRoot, "src", key + ".ts"),
+    path.resolve(pkgRoot, shimPath),
+  )
+}
+
 const shimPlugin = {
   name: "browser-shims",
   setup(build) {
     build.onResolve({ filter: /.*/ }, (args) => {
-      if (shims[args.path]) return { path: shims[args.path] }
+      // Bare specifier shims
+      if (bareShims[args.path]) return { path: bareShims[args.path] }
+
+      // File-level shims: intercept relative imports that resolve to shimmed opentui files
+      if (args.path.startsWith(".") && args.resolveDir) {
+        const resolved = path.resolve(args.resolveDir, args.path)
+        const shim =
+          coreFileShims.get(resolved) ||
+          coreFileShims.get(resolved + ".ts") ||
+          coreFileShims.get(resolved + "/index.ts")
+        if (shim) return { path: shim }
+      }
+
       return undefined
     })
     build.onResolve({ filter: /tree-sitter/ }, () => ({

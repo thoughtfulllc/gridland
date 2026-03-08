@@ -271,7 +271,9 @@ export function gridlandWebPlugin(): Plugin[] {
         },
         server: {
           fs: {
-            allow: [pkgRoot, coreRoot, reactRoot, uiRoot, path.resolve(pkgRoot, "../..")],
+            // Allow serving from opentui source dirs (for dev-from-source).
+            // Use strict: false so Vite's default allow list (project root) is preserved.
+            strict: false,
           },
         },
       }
