@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { useMemo } from "react"
 import { useMatrix } from "./use-matrix"
-import { generateGradient, GRADIENTS, hexToRgb, rgbToHex } from "../gradient/gradient"
+import { generateGradient, hexToRgb, rgbToHex } from "../gradient/gradient"
+import { useTheme } from "../theme"
 
 interface ClearRect {
   top: number
@@ -41,11 +42,12 @@ function colorForCell(mutedColors: string[], b: number): string {
 
 export function MatrixBackground({ width, height, clearRect, clearRects }: MatrixBackgroundProps) {
   const { grid, brightness } = useMatrix(width, height)
+  const theme = useTheme()
 
-  // Generate a gradient across the full width matching the logo palette
+  // Generate a gradient across the full width from theme colors
   const columnColors = useMemo(
-    () => (width > 0 ? generateGradient(GRADIENTS.instagram, width) : []),
-    [width],
+    () => (width > 0 ? generateGradient([theme.accent, theme.secondary, theme.primary], width) : []),
+    [width, theme.accent, theme.secondary, theme.primary],
   )
 
   // Precompute muted color variants for each column (width × 5 entries)
