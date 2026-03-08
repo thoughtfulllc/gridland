@@ -12,7 +12,7 @@ running untrusted demos, third-party packages, or student submissions with
 full isolation from your host system.
 
 ```bash title="Terminal"
-bunx @gridland/container cowsay -- "Hello from a container"
+bunx @gridland/container @gridland/demo -- landing
 ```
 
 ## Source Types
@@ -21,7 +21,7 @@ bunx @gridland/container cowsay -- "Hello from a container"
 
 | Source | Example | What happens |
 |--------|---------|-------------|
-| npm package | `cowsay` | Installs and runs the package bin |
+| npm package | `@gridland/demo` | Installs and runs the package bin |
 | GitHub shorthand | `cjroth/my-tui` | Clones the repo and runs it |
 | Git URL | `https://github.com/user/repo` | Clones the repo and runs it |
 | Local directory | `./my-app` | Mounts the directory read-only |
@@ -56,8 +56,10 @@ Run any npm package that exposes a CLI binary. Use `--` to forward
 arguments to the package:
 
 ```bash title="Terminal"
-bunx @gridland/container cowsay -- "Hello from a container"
+bunx @gridland/container @gridland/demo -- landing
 ```
+
+This runs the Gridland landing page demo inside a sandboxed container.
 
 <Callout type="info">
 Arguments after `--` are passed to the container entry point. Without `--`,
@@ -116,14 +118,17 @@ bunx @gridland/container <source> [options] [-- <args...>]
 ### Examples
 
 ```bash title="Terminal"
-# Forward arguments to the package after --
-bunx @gridland/container cowsay -- "Moo from a container"
+# Run the Gridland landing page demo
+bunx @gridland/container @gridland/demo -- landing
 
-# Run chalk-animation with the rainbow effect for 3 seconds
-bunx @gridland/container chalk-animation -- rainbow --duration 3000 "Hello!"
+# Run any other Gridland demo (table, gradient, chat, etc.)
+bunx @gridland/container @gridland/demo -- gradient
+
+# Run a third-party npm package
+bunx @gridland/container cowsay -- "Hello from a container"
 
 # Run with no network access
-bunx @gridland/container cowsay --no-network -- "Isolated moo"
+bunx @gridland/container @gridland/demo --no-network -- landing
 
 # Set a 1GB memory limit
 bunx @gridland/container heavy-app --memory 1g
