@@ -172,12 +172,12 @@ describe("MultiSelect behavior", () => {
     expect(screen.text()).toContain("Frameworks")
   })
 
-  it("shows hint bar", () => {
+  it("renders without hint bar", () => {
     const { screen } = renderTui(
       <MultiSelect items={items} />,
       { cols: 60, rows: 10 },
     )
-    expect(screen.text()).toContain("select")
+    expect(screen.text()).not.toContain("submit")
   })
 
   it("handles empty items", () => {

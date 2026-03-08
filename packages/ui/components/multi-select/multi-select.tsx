@@ -1,7 +1,6 @@
 import { useReducer, useMemo } from "react"
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
-import { StatusBar } from "../status-bar/status-bar"
 
 export type MultiSelectItem<V> = {
   key?: string
@@ -165,6 +164,7 @@ export function MultiSelect<V>({
         {selectedItems.map((item) => (
           <text key={item.key ?? String(item.value)}>
             <span style={textStyle({ fg: theme.success })}>{BAR} </span>
+            <span>{"  "}</span>
             <span style={textStyle({ fg: theme.success })}>{CHECKED} </span>
             <span>{item.label}</span>
           </text>
@@ -212,14 +212,6 @@ export function MultiSelect<V>({
           </text>
         )
       })}
-      <text>{""}</text>
-      <StatusBar items={[
-        { key: "↑↓", label: "move" },
-        { key: "space", label: "select" },
-        ...(enableSelectAll ? [{ key: "a", label: "all" }] : []),
-        ...(enableClear ? [{ key: "x", label: "clear" }] : []),
-        { key: "enter", label: "submit" },
-      ]} />
     </box>
   )
 }
