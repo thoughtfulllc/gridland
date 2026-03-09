@@ -3,8 +3,8 @@
   "private": true,
   "workspaces": ["packages/*", "examples/*"],
   "scripts": {
-    "build": "bun run --cwd packages/web build && bun run --cwd packages/ui build && bun run --cwd packages/testing build && bun run --cwd packages/create-gridland build",
-    "test": "bun run --cwd packages/web test && bun run --cwd packages/ui test && bun run --cwd packages/testing test && bun run --cwd packages/create-gridland test",
+    "build": "bun run --cwd packages/web build && bun run --cwd packages/ui build && bun run --cwd packages/testing build && bun run --cwd packages/create-gridland build && bun run --cwd packages/demo build",
+    "test": "bun run --cwd packages/web test && bun run --cwd packages/ui test && bun run --cwd packages/testing test && bun run --cwd packages/create-gridland test && bun run --cwd packages/demo test",
     "test:ci": "bun run --cwd packages/web test --randomize --rerun-each 3 && bun run --cwd packages/ui test --randomize --rerun-each 3 && bun run --cwd packages/testing test --randomize --rerun-each 3",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",
