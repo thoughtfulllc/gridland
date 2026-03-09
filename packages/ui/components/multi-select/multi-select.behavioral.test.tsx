@@ -48,7 +48,7 @@ describe("MultiSelect behavior", () => {
       <MultiSelect items={items} defaultSelected={["ts"]} />,
       { cols: 40, rows: 10 },
     )
-    expect(screen.text()).toContain("◉")
+    expect(screen.text()).toContain("●")
   })
 
   it("renders diamond header and left bar", () => {
@@ -113,7 +113,7 @@ describe("MultiSelect behavior", () => {
       { cols: 40, rows: 10 },
     )
     const text = screen.text()
-    const checkCount = (text.match(/◉/g) || []).length
+    const checkCount = (text.match(/●/g) || []).length
     expect(checkCount).toBe(2)
   })
 
@@ -133,9 +133,45 @@ describe("MultiSelect behavior", () => {
     expect(screen.text()).not.toContain("▸")
   })
 
+  it("shows required indicator", () => {
+    const { screen } = renderTui(
+      <MultiSelect items={items} required />,
+      { cols: 40, rows: 10 },
+    )
+    expect(screen.text()).toContain("*")
+  })
+
+  it("shows invalid state", () => {
+    const { screen } = renderTui(
+      <MultiSelect items={items} invalid />,
+      { cols: 40, rows: 10 },
+    )
+    expect(screen.text()).toContain("Please select at least one option")
+  })
+
+  it("shows placeholder when no items", () => {
+    const { screen } = renderTui(
+      <MultiSelect items={[]} placeholder="No options available" />,
+      { cols: 40, rows: 4 },
+    )
+    expect(screen.text()).toContain("No options available")
+  })
+
+  it("renders separators between groups", () => {
+    const groupedItems = [
+      { label: "TypeScript", value: "ts", group: "Languages" },
+      { label: "React", value: "react", group: "Frameworks" },
+    ]
+    const { screen } = renderTui(
+      <MultiSelect items={groupedItems} />,
+      { cols: 40, rows: 10 },
+    )
+    expect(screen.text()).toContain("─")
+  })
+
   // ── Keyboard interactions (verified via callbacks) ────────────────────
 
-  it("toggles selection with space", () => {
+  it("toggles selection with enter", () => {
     let changed = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
@@ -148,7 +184,7 @@ describe("MultiSelect behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "space" })
+    savedHandler({ name: "return" })
     expect(changed).toContain("ts")
     expect(changed).toHaveLength(1)
   })
@@ -187,7 +223,7 @@ describe("MultiSelect behavior", () => {
     expect(changed).toHaveLength(0)
   })
 
-  it("submits with enter", () => {
+  it("submits with space", () => {
     let submitted = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
@@ -200,7 +236,7 @@ describe("MultiSelect behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "return" })
+    savedHandler({ name: "space" })
     expect(submitted).toContain("ts")
     expect(submitted).toContain("py")
     expect(submitted).toHaveLength(2)
@@ -219,7 +255,7 @@ describe("MultiSelect behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "return" })
+    savedHandler({ name: "space" })
     expect(submitted).toContain("ts")
     expect(submitted).toContain("py")
     expect(submitted).toHaveLength(2)
@@ -239,7 +275,7 @@ describe("MultiSelect behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "space" })
+    savedHandler({ name: "return" })
     expect(changed).toBeNull()
   })
 
@@ -261,8 +297,8 @@ describe("MultiSelect behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    // Cursor is on first item (disabled), space should do nothing
-    savedHandler({ name: "space" })
+    // Cursor is on first item (disabled), enter should do nothing
+    savedHandler({ name: "return" })
     expect(changed).toBeNull()
   })
 
@@ -305,7 +341,7 @@ describe("MultiSelect behavior", () => {
       { cols: 40, rows: 10 },
     )
     // Cursor is on first item which is already selected — deselect should work
-    savedHandler({ name: "space" })
+    savedHandler({ name: "return" })
     expect(changed).toHaveLength(1)
     expect(changed).not.toContain("ts")
   })
@@ -327,7 +363,7 @@ describe("MultiSelect behavior", () => {
     // Move to third item (unselected) and try to select — should be blocked
     savedHandler({ name: "j" })
     savedHandler({ name: "j" })
-    savedHandler({ name: "space" })
+    savedHandler({ name: "return" })
     expect(changed).toBeNull()
   })
 

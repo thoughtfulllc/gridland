@@ -137,6 +137,7 @@ export function SpinnerApp() {
 }
 
 export function SelectInputApp() {
+  const [submitted, setSubmitted] = useState(false)
   const items = [
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
@@ -145,11 +146,17 @@ export function SelectInputApp() {
   ]
   return (
     <box flexDirection="column" flexGrow={1}>
-      <box padding={1} flexDirection="column" gap={1} flexGrow={1}>
-        <text fg="#d8dee9" bold>Choose a language:</text>
-        <SelectInput items={items} textColor="#d8dee9" selectedTextColor="#88c0d0" />
+      <box padding={1} flexDirection="column" flexGrow={1}>
+        <SelectInput items={items} title="Choose a language" useKeyboard={useKeyboard} onSubmit={() => setSubmitted(true)} />
       </box>
-      <StatusBar items={[{ key: "q", label: "quit" }]} />
+      <StatusBar items={submitted
+        ? [{ key: "q", label: "quit" }]
+        : [
+          { key: "↑↓", label: "select" },
+          { key: "enter", label: "submit" },
+          { key: "q", label: "quit" },
+        ]
+      } />
     </box>
   )
 }
@@ -171,10 +178,10 @@ export function MultiSelectApp() {
         ? [{ key: "q", label: "quit" }]
         : [
           { key: "↑↓", label: "move" },
-          { key: "space", label: "select" },
+          { key: "enter", label: "select" },
           { key: "a", label: "all" },
           { key: "x", label: "clear" },
-          { key: "enter", label: "submit" },
+          { key: "space", label: "submit" },
           { key: "q", label: "quit" },
         ]
       } />

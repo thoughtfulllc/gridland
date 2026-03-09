@@ -6,7 +6,7 @@ import { SelectInput } from "./select-input"
 afterEach(() => cleanup())
 
 describe("SelectInput snapshots", () => {
-  it("renders 4 items with colors", () => {
+  it("renders 4 items with default state", () => {
     const items = [
       { label: "TypeScript", value: "ts" },
       { label: "JavaScript", value: "js" },
@@ -14,7 +14,20 @@ describe("SelectInput snapshots", () => {
       { label: "Rust", value: "rs" },
     ]
     const { screen } = renderTui(
-      <SelectInput items={items} textColor="#d8dee9" selectedTextColor="#88c0d0" />,
+      <SelectInput items={items} />,
+      { cols: 40, rows: 8 },
+    )
+    expect(screen.text()).toMatchSnapshot()
+  })
+
+  it("renders with cursor on default value", () => {
+    const items = [
+      { label: "TypeScript", value: "ts" },
+      { label: "JavaScript", value: "js" },
+      { label: "Python", value: "py" },
+    ]
+    const { screen } = renderTui(
+      <SelectInput items={items} defaultValue="js" />,
       { cols: 40, rows: 8 },
     )
     expect(screen.text()).toMatchSnapshot()

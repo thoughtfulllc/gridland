@@ -1,14 +1,14 @@
 ---
 title: SelectInput
-description: Keyboard-navigable selection list
+description: Single-selection list with radio indicators and groups
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { RunDemo } from '@/components/ui/run-demo'
 import SelectInputDemo from '@/components/demos/select-input-demo'
 
-The `SelectInput` component from `@gridland/ui` renders a keyboard-navigable
-selection list with arrow key support.
+The `SelectInput` component from `@gridland/ui` renders a single-selection list
+with radio indicators, keyboard navigation, group headers, and a submitted state.
 
 <div className="my-8">
   <SelectInputDemo />
@@ -43,16 +43,83 @@ pnpm add @gridland/ui
 
 ## Usage
 
-```tsx title="Example"
+```tsx title="Uncontrolled"
 import { SelectInput } from "@gridland/ui"
+import { useKeyboard } from "@opentui/react"
 
 <SelectInput
   items={[
-    { label: "Option A", value: "a" },
-    { label: "Option B", value: "b" },
-    { label: "Option C", value: "c" },
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+    { label: "Python", value: "py" },
   ]}
-  onSelect={(item) => console.log("Selected:", item.value)}
+  defaultValue="ts"
+  title="Select a language"
+  useKeyboard={useKeyboard}
+  onSubmit={(value) => console.log("Selected:", value)}
+/>
+```
+
+```tsx title="Controlled"
+import { useState } from "react"
+import { SelectInput } from "@gridland/ui"
+import { useKeyboard } from "@opentui/react"
+
+const [value, setValue] = useState<string>("ts")
+
+<SelectInput
+  items={[
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+    { label: "Python", value: "py" },
+  ]}
+  value={value}
+  onChange={setValue}
+  title="Select a language"
+  useKeyboard={useKeyboard}
+  onSubmit={(value) => console.log("Selected:", value)}
+/>
+```
+
+```tsx title="With groups"
+<SelectInput
+  items={[
+    { label: "TypeScript", value: "ts", group: "Languages" },
+    { label: "Python", value: "py", group: "Languages" },
+    { label: "React", value: "react", group: "Frameworks" },
+    { label: "Vue", value: "vue", group: "Frameworks" },
+  ]}
+  title="Select a tool"
+  useKeyboard={useKeyboard}
+  onSubmit={(value) => console.log(value)}
+/>
+```
+
+```tsx title="With disabled items"
+<SelectInput
+  items={[
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js", disabled: true },
+    { label: "Python", value: "py" },
+  ]}
+  title="Select a language"
+  useKeyboard={useKeyboard}
+  onSubmit={(value) => console.log(value)}
+/>
+```
+
+```tsx title="Required with validation"
+<SelectInput
+  items={[
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+    { label: "Python", value: "py" },
+  ]}
+  required
+  invalid={!hasSelected}
+  title="Select a language"
+  useKeyboard={useKeyboard}
+  onSubmit={(value) => console.log(value)}
 />
 ```
 
@@ -61,24 +128,31 @@ import { SelectInput } from "@gridland/ui"
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `items` | `SelectInputItem<V>[]` | `[]` | Array of selectable items |
-| `focus` | `boolean` | `true` | Whether the list is focused for keyboard input |
-| `initialIndex` | `number` | `0` | Initially highlighted index |
-| `limit` | `number` | — | Max visible items (enables scrolling) |
-| `onSelect` | `(item: SelectInputItem<V>) => void` | — | Called when an item is selected (Enter) |
-| `onHighlight` | `(item: SelectInputItem<V>) => void` | — | Called when highlighted item changes |
-| `textColor` | `string` | — | Default text color |
-| `selectedTextColor` | `string` | — | Text color for selected item |
-| `focusedTextColor` | `string` | — | Text color for focused item |
-| `backgroundColor` | `string` | — | Default background color |
-| `selectedBackgroundColor` | `string` | — | Background color for selected item |
-| `focusedBackgroundColor` | `string` | — | Background color for focused item |
+| `defaultValue` | `V` | — | Initially selected value (uncontrolled) |
+| `value` | `V` | — | Selected value (controlled) |
+| `onChange` | `(value: V) => void` | — | Called when selection changes (controlled) |
+| `disabled` | `boolean` | `false` | Disable the entire component |
+| `invalid` | `boolean` | `false` | Show error state with destructive styling |
+| `required` | `boolean` | `false` | Show required indicator (`*`) next to title |
+| `placeholder` | `string` | — | Placeholder text when items list is empty |
+| `title` | `string` | `"Select"` | Title shown next to the diamond indicator |
+| `submittedStatus` | `string` | `"submitted"` | Status text shown after submit |
+| `limit` | `number` | `12` | Max visible rows (enables scrolling) |
+| `highlightColor` | `string` | `theme.primary` | Color of the highlighted item |
+| `onSubmit` | `(value: V) => void` | — | Called on Enter with selected value |
+| `useKeyboard` | `function` | — | Keyboard hook from `@opentui/react` |
 
-## Item Shape
+### SelectInputItem
 
-```tsx
-type SelectInputItem<V> = {
-  key?: string
-  label: string
-  value: V
-}
-```
+| Field | Type | Description |
+|-------|------|-------------|
+| `label` | `string` | Display text |
+| `value` | `V` | Item value |
+| `key` | `string?` | Optional React key |
+| `group` | `string?` | Group header label |
+| `disabled` | `boolean?` | Disable individual item |
+
+## Controls
+
+- **↑/↓** or **j/k**: Navigate and select
+- **Enter**: Submit selected item

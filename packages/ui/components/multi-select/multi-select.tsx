@@ -16,6 +16,9 @@ export interface MultiSelectProps<V> {
   selected?: V[]
   onChange?: (values: V[]) => void
   disabled?: boolean
+  invalid?: boolean
+  required?: boolean
+  placeholder?: string
   maxCount?: number
   title?: string
   submittedStatus?: string
@@ -58,12 +61,14 @@ function reducer<V>(state: State<V>, action: Action<V>): State<V> {
 
 const VISIBLE = 12
 const BAR = "│"
-const CHECKED = "◉"
+const CHECKED = "●"
 const UNCHECKED = "○"
 const CURSOR = "▸"
+const SEPARATOR = "─"
 
 type Row<V> =
   | { type: "group"; label: string }
+  | { type: "separator" }
   | { type: "item"; item: MultiSelectItem<V>; index: number }
 
 export function MultiSelect<V>({
@@ -72,6 +77,9 @@ export function MultiSelect<V>({
   selected: controlledSelected,
   onChange,
   disabled = false,
+  invalid = false,
+  required = false,
+  placeholder,
   maxCount,
   title = "Select",
   submittedStatus = "submitted",
@@ -112,7 +120,11 @@ export function MultiSelect<V>({
       list.push(item)
       grouped.set(group, list)
     }
+    let groupIndex = 0
     for (const [group, groupItems] of grouped) {
+      if (groupIndex > 0) {
+        rows.push({ type: "separator" })
+      }
       if (group) {
         rows.push({ type: "group", label: group })
       }
@@ -121,6 +133,7 @@ export function MultiSelect<V>({
         selectable.push({ item, index })
         index++
       }
+      groupIndex++
     }
     return { flatRows: rows, selectableItems: selectable }
   }, [items])
@@ -138,6 +151,10 @@ export function MultiSelect<V>({
     }
   }
 
+  const diamondColor = invalid ? theme.error
+    : disabled ? theme.muted
+    : theme.accent
+
   useKeyboard?.((event: any) => {
     if (state.submitted || disabled) return
 
@@ -145,7 +162,7 @@ export function MultiSelect<V>({
       dispatch({ type: "MOVE", direction: -1, max: selectableItems.length })
     } else if (event.name === "down" || event.name === "j") {
       dispatch({ type: "MOVE", direction: 1, max: selectableItems.length })
-    } else if (event.name === "space") {
+    } else if (event.name === "return") {
       const current = selectableItems[state.cursor]
       if (current && !current.item.disabled) {
         const isDeselecting = currentSelected.has(current.item.value)
@@ -160,7 +177,7 @@ export function MultiSelect<V>({
       setSelected(maxCount !== undefined ? enabledValues.slice(0, maxCount) : enabledValues)
     } else if (event.name === "x" && enableClear) {
       setSelected([])
-    } else if (event.name === "return") {
+    } else if (event.name === "space" && currentSelected.size > 0) {
       dispatch({ type: "SUBMIT" })
       onSubmit?.(Array.from(currentSelected))
     }
@@ -190,16 +207,40 @@ export function MultiSelect<V>({
     )
   }
 
+  const hasItems = selectableItems.length > 0
+
   return (
     <box flexDirection="column">
       <text>
-        <span style={textStyle({ fg: disabled ? theme.muted : theme.accent, dim: disabled })}>{"◆ "}</span>
+        <span style={textStyle({ fg: diamondColor, dim: disabled })}>{"◆ "}</span>
         <span style={textStyle({ bold: true, dim: disabled })}>{title}</span>
+        {required && <span style={textStyle({ fg: theme.error })}>{" *"}</span>}
         {maxCount !== undefined && (
           <span style={textStyle({ dim: true })}>{` (${currentSelected.size}/${maxCount})`}</span>
         )}
       </text>
+      {invalid && (
+        <text>
+          <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
+          <span style={textStyle({ fg: theme.error })}>{"  Please select at least one option"}</span>
+        </text>
+      )}
+      {!hasItems && placeholder && (
+        <text>
+          <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
+          <span style={textStyle({ dim: true })}>{"  "}{placeholder}</span>
+        </text>
+      )}
       {visibleRows.map((row, i) => {
+        if (row.type === "separator") {
+          return (
+            <text key={`sep-${i}`}>
+              <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
+              <span style={textStyle({ fg: theme.muted })}>{"  "}{SEPARATOR.repeat(20)}</span>
+            </text>
+          )
+        }
+
         if (row.type === "group") {
           return (
             <text key={`group-${row.label}`}>
@@ -233,6 +274,12 @@ export function MultiSelect<V>({
           </text>
         )
       })}
+      {currentSelected.size > 0 && (
+        <text>
+          <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
+          <span style={textStyle({ dim: true })}>{"  space to submit"}</span>
+        </text>
+      )}
     </box>
   )
 }

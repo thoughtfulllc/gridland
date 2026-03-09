@@ -1,6 +1,6 @@
 ---
 title: MultiSelect
-description: Multi-selection list with checkboxes and groups
+description: Multi-selection list with selection indicators and groups
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
@@ -108,6 +108,21 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 />
 ```
 
+```tsx title="Required with validation"
+<MultiSelect
+  items={[
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+    { label: "Python", value: "py" },
+  ]}
+  required
+  invalid={selected.length === 0}
+  title="Select languages"
+  useKeyboard={useKeyboard}
+  onSubmit={(values) => console.log(values)}
+/>
+```
+
 ```tsx title="With max selection"
 <MultiSelect
   items={[
@@ -132,6 +147,9 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 | `selected` | `V[]` | — | Selected values (controlled) |
 | `onChange` | `(values: V[]) => void` | — | Called when selection changes (controlled) |
 | `disabled` | `boolean` | `false` | Disable the entire component |
+| `invalid` | `boolean` | `false` | Show error state with destructive styling |
+| `required` | `boolean` | `false` | Show required indicator (`*`) next to title |
+| `placeholder` | `string` | — | Placeholder text when items list is empty |
 | `maxCount` | `number` | — | Maximum number of selectable items |
 | `title` | `string` | `"Select"` | Title shown next to the diamond indicator |
 | `submittedStatus` | `string` | `"submitted"` | Status text shown after submit |
@@ -139,8 +157,8 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 | `enableSelectAll` | `boolean` | `true` | Enable select all with `a` key |
 | `enableClear` | `boolean` | `true` | Enable clear all with `x` key |
 | `highlightColor` | `string` | `theme.primary` | Color of the highlighted item |
-| `checkboxColor` | `string` | `theme.accent` | Color of the checkbox indicator |
-| `onSubmit` | `(values: V[]) => void` | — | Called on Enter with selected values |
+| `checkboxColor` | `string` | `theme.accent` | Color of the selection indicator |
+| `onSubmit` | `(values: V[]) => void` | — | Called on Space with selected values |
 | `useKeyboard` | `function` | — | Keyboard hook from `@opentui/react` |
 
 ### MultiSelectItem
@@ -156,7 +174,7 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 ## Controls
 
 - **↑/↓** or **j/k**: Navigate items
-- **Space**: Select item
+- **Enter**: Select item
 - **a**: Select all
 - **x**: Clear all
-- **Enter**: Submit selected items
+- **Space**: Submit selected items

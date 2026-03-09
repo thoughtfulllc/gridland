@@ -14,11 +14,20 @@ const items = [
 
 function MultiSelectApp() {
   const [submitted, setSubmitted] = useState(false)
+  const [resetKey, setResetKey] = useState(0)
+
+  useKeyboard((event) => {
+    if (submitted && event.name === "r") {
+      setSubmitted(false)
+      setResetKey((k) => k + 1)
+    }
+  })
 
   return (
     <box flexDirection="column" flexGrow={1} padding={1}>
       <box flexDirection="column" flexGrow={1}>
         <MultiSelect
+          key={resetKey}
           items={items}
           title="Select languages"
           useKeyboard={useKeyboard}
@@ -29,10 +38,10 @@ function MultiSelectApp() {
         ? [{ key: "r", label: "reset demo" }]
         : [
           { key: "↑↓", label: "move" },
-          { key: "space", label: "select" },
+          { key: "enter", label: "select" },
           { key: "a", label: "all" },
           { key: "x", label: "clear" },
-          { key: "enter", label: "submit" },
+          { key: "space", label: "submit" },
         ]
       } />
     </box>
