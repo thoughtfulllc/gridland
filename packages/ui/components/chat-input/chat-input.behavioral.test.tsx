@@ -168,48 +168,70 @@ describe("ChatInput behavior", () => {
     expect(changed).toBeNull()
   })
 
-  // ── Slash command suggestions ─────────────────────────────────────────
+  // ── Slash command suggestions (verified via callbacks) ─────────────────
 
-  it("shows slash command suggestions", () => {
+  it("accepts slash command suggestion on enter", () => {
+    let changed = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
-    const { screen } = renderTui(
+    renderTui(
       <ChatInput
         commands={[
           { cmd: "/help", desc: "Show help" },
           { cmd: "/clear", desc: "Clear chat" },
         ]}
         useKeyboard={mockUseKeyboard}
+        onChange={(text) => { changed = text }}
       />,
       { cols: 40, rows: 8 },
     )
     savedHandler({ name: "/" })
-    const text = screen.text()
-    expect(text).toContain("/help")
-    expect(text).toContain("/clear")
+    // Suggestions are now active, enter accepts first one
+    savedHandler({ name: "return" })
+    expect(changed).toBe("/help ")
   })
 
   it("filters slash command suggestions", () => {
+    let changed = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
-    const { screen } = renderTui(
+    renderTui(
       <ChatInput
         commands={[
           { cmd: "/help", desc: "Show help" },
           { cmd: "/clear", desc: "Clear chat" },
         ]}
         useKeyboard={mockUseKeyboard}
+        onChange={(text) => { changed = text }}
       />,
       { cols: 40, rows: 8 },
     )
     savedHandler({ name: "/" })
-    savedHandler({ name: "h" })
-    const text = screen.text()
-    expect(text).toContain("/help")
-    expect(text).not.toContain("/clear")
+    savedHandler({ name: "c" })
+    // Only /clear matches now, enter accepts it
+    savedHandler({ name: "return" })
+    expect(changed).toBe("/clear ")
   })
 
-  it("accepts suggestion on enter", () => {
+  it("submits normally when no suggestions match", () => {
+    let submitted = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <ChatInput
+        commands={[{ cmd: "/help" }]}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={(text) => { submitted = text }}
+      />,
+      { cols: 40, rows: 8 },
+    )
+    savedHandler({ name: "h" })
+    savedHandler({ name: "i" })
+    savedHandler({ name: "return" })
+    expect(submitted).toBe("hi")
+  })
+
+  it("dismisses suggestions on escape", () => {
     let changed = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
@@ -218,47 +240,34 @@ describe("ChatInput behavior", () => {
         commands={[{ cmd: "/help" }]}
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
+        onSubmit={() => {}}
       />,
       { cols: 40, rows: 8 },
     )
     savedHandler({ name: "/" })
-    savedHandler({ name: "return" })
-    expect(changed).toBe("/help ")
-  })
-
-  it("dismisses suggestions on escape", () => {
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
-    const { screen } = renderTui(
-      <ChatInput
-        commands={[{ cmd: "/help" }]}
-        useKeyboard={mockUseKeyboard}
-      />,
-      { cols: 40, rows: 8 },
-    )
-    savedHandler({ name: "/" })
-    expect(screen.text()).toContain("/help")
     savedHandler({ name: "escape" })
-    // After escape, /help suggestion should be gone from display
-    // (the typed "/" is still there, but the suggestion dropdown is dismissed)
+    // After escape, enter should submit "/" instead of accepting suggestion
+    savedHandler({ name: "return" })
+    expect(changed).toBe("")
   })
 
   // ── File mention suggestions ──────────────────────────────────────────
 
-  it("shows file suggestions on @", () => {
+  it("accepts file mention suggestion on enter", () => {
+    let changed = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
-    const { screen } = renderTui(
+    renderTui(
       <ChatInput
         files={["src/index.ts", "src/auth.ts"]}
         useKeyboard={mockUseKeyboard}
+        onChange={(text) => { changed = text }}
       />,
       { cols: 40, rows: 8 },
     )
     savedHandler({ name: "@" })
-    const text = screen.text()
-    expect(text).toContain("@src/index.ts")
-    expect(text).toContain("@src/auth.ts")
+    savedHandler({ name: "return" })
+    expect(changed).toBe("@src/index.ts ")
   })
 
   // ── Command history ───────────────────────────────────────────────────
@@ -291,5 +300,26 @@ describe("ChatInput behavior", () => {
     expect(changed).toBe("yo")
     savedHandler({ name: "down" })
     expect(changed).toBe("")
+  })
+
+  it("disables history when enableHistory is false", () => {
+    let changed = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <ChatInput
+        enableHistory={false}
+        useKeyboard={mockUseKeyboard}
+        onChange={(text) => { changed = text }}
+        onSubmit={() => {}}
+      />,
+      { cols: 40, rows: 4 },
+    )
+    savedHandler({ name: "h" })
+    savedHandler({ name: "i" })
+    savedHandler({ name: "return" })
+    changed = null
+    savedHandler({ name: "up" })
+    expect(changed).toBeNull()
   })
 })

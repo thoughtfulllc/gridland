@@ -57,113 +57,125 @@ export function ChatInput({
   const resolvedPromptColor = promptColor ?? theme.muted
 
   const [value, setValue] = useState("")
-  const valueRef = useRef("")
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [sugIdx, setSugIdx] = useState(0)
   const [history, setHistory] = useState<string[]>([])
   const [histIdx, setHistIdx] = useState(-1)
 
+  // Refs to avoid stale closures when React batches multiple dispatches
+  const valueRef = useRef("")
+  const suggestionsRef = useRef<Suggestion[]>([])
+  const sugIdxRef = useRef(0)
+  const historyRef = useRef<string[]>([])
+  const histIdxRef = useRef(-1)
+
+  const setSug = (next: Suggestion[]) => {
+    suggestionsRef.current = next
+    setSuggestions(next)
+  }
+
+  const setSugI = (next: number) => {
+    sugIdxRef.current = next
+    setSugIdx(next)
+  }
+
+  const setHist = (next: string[]) => {
+    historyRef.current = next
+    setHistory(next)
+  }
+
+  const setHistI = (next: number) => {
+    histIdxRef.current = next
+    setHistIdx(next)
+  }
+
+  const computeSuggestions = (input: string): Suggestion[] => {
+    if (customGetSuggestions) return customGetSuggestions(input)
+
+    if (input.startsWith("/") && commands.length > 0) {
+      return commands
+        .filter((c) => c.cmd.startsWith(input))
+        .map((c) => ({ text: c.cmd, desc: c.desc }))
+    }
+    if (input.includes("@") && files.length > 0) {
+      const query = input.split("@").pop() ?? ""
+      return files
+        .filter((f) => f.toLowerCase().includes(query.toLowerCase()))
+        .map((f) => ({ text: "@" + f }))
+    }
+    return []
+  }
+
   const updateValue = (next: string) => {
     valueRef.current = next
     setValue(next)
     onChange?.(next)
-    updateSuggestions(next)
-  }
-
-  const updateSuggestions = (input: string) => {
-    if (customGetSuggestions) {
-      const results = customGetSuggestions(input)
-      setSuggestions(results)
-      setSugIdx(0)
-      return
-    }
-
-    if (input.startsWith("/") && commands.length > 0) {
-      const matches = commands
-        .filter((c) => c.cmd.startsWith(input))
-        .map((c) => ({ text: c.cmd, desc: c.desc }))
-      setSuggestions(matches)
-      setSugIdx(0)
-    } else if (input.includes("@") && files.length > 0) {
-      const query = input.split("@").pop() ?? ""
-      const matches = files
-        .filter((f) => f.toLowerCase().includes(query.toLowerCase()))
-        .map((f) => ({ text: "@" + f }))
-      setSuggestions(matches)
-      setSugIdx(0)
-    } else {
-      setSuggestions([])
-    }
-  }
-
-  const submit = () => {
-    const trimmed = valueRef.current.trim()
-    if (!trimmed) return
-    onSubmit?.(trimmed)
-    if (enableHistory) {
-      setHistory((prev) => [trimmed, ...prev])
-    }
-    updateValue("")
-    setHistIdx(-1)
-    setSuggestions([])
-  }
-
-  const acceptSuggestion = () => {
-    const sel = suggestions[sugIdx]
-    if (!sel) return
-    if (valueRef.current.startsWith("/")) {
-      updateValue(sel.text + " ")
-    } else {
-      const base = valueRef.current.slice(0, valueRef.current.lastIndexOf("@"))
-      updateValue(base + sel.text + " ")
-    }
-    setSuggestions([])
+    const sug = computeSuggestions(next)
+    setSug(sug)
+    setSugI(0)
   }
 
   useKeyboard?.((event: any) => {
     if (disabled) return
 
     if (event.name === "return") {
-      if (suggestions.length > 0) {
-        acceptSuggestion()
+      if (suggestionsRef.current.length > 0) {
+        const sel = suggestionsRef.current[sugIdxRef.current]
+        if (sel) {
+          if (valueRef.current.startsWith("/")) {
+            updateValue(sel.text + " ")
+          } else {
+            const base = valueRef.current.slice(0, valueRef.current.lastIndexOf("@"))
+            updateValue(base + sel.text + " ")
+          }
+          setSug([])
+        }
       } else {
-        submit()
+        const trimmed = valueRef.current.trim()
+        if (!trimmed) return
+        onSubmit?.(trimmed)
+        if (enableHistory) {
+          setHist([trimmed, ...historyRef.current])
+        }
+        updateValue("")
+        setHistI(-1)
+        setSug([])
       }
       return
     }
 
-    if (event.name === "tab" && suggestions.length > 0) {
-      setSugIdx((i) => (i + 1) % suggestions.length)
+    if (event.name === "tab" && suggestionsRef.current.length > 0) {
+      setSugI((sugIdxRef.current + 1) % suggestionsRef.current.length)
       return
     }
 
     if (event.name === "up") {
-      if (suggestions.length > 0) {
-        setSugIdx((i) => Math.max(0, i - 1))
-      } else if (enableHistory && history.length > 0) {
-        const idx = Math.min(history.length - 1, histIdx + 1)
-        setHistIdx(idx)
-        updateValue(history[idx]!)
+      if (suggestionsRef.current.length > 0) {
+        setSugI(Math.max(0, sugIdxRef.current - 1))
+      } else if (enableHistory && historyRef.current.length > 0) {
+        const idx = Math.min(historyRef.current.length - 1, histIdxRef.current + 1)
+        setHistI(idx)
+        updateValue(historyRef.current[idx]!)
       }
       return
     }
 
     if (event.name === "down") {
-      if (suggestions.length > 0) {
-        setSugIdx((i) => Math.min(suggestions.length - 1, i + 1))
-      } else if (enableHistory && histIdx > 0) {
-        setHistIdx(histIdx - 1)
-        updateValue(history[histIdx - 1]!)
-      } else if (enableHistory && histIdx === 0) {
-        setHistIdx(-1)
+      if (suggestionsRef.current.length > 0) {
+        setSugI(Math.min(suggestionsRef.current.length - 1, sugIdxRef.current + 1))
+      } else if (enableHistory && histIdxRef.current > 0) {
+        setHistI(histIdxRef.current - 1)
+        updateValue(historyRef.current[histIdxRef.current - 1]!)
+      } else if (enableHistory && histIdxRef.current === 0) {
+        setHistI(-1)
         updateValue("")
       }
       return
     }
 
     if (event.name === "escape") {
-      if (suggestions.length > 0) {
-        setSuggestions([])
+      if (suggestionsRef.current.length > 0) {
+        setSug([])
       }
       return
     }
@@ -189,7 +201,6 @@ export function ChatInput({
 
   return (
     <box flexDirection="column">
-      {/* Suggestions dropdown */}
       {visibleSuggestions.length > 0 && (
         <box flexDirection="column" marginLeft={2}>
           {visibleSuggestions.map((sug, i) => {
@@ -211,7 +222,6 @@ export function ChatInput({
         </box>
       )}
 
-      {/* Input line */}
       <text>
         <span style={textStyle({ fg: resolvedPromptColor })}>{prompt}</span>
         {value.length === 0 ? (
