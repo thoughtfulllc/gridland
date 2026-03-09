@@ -1,0 +1,133 @@
+---
+title: ChatInput
+description: Chat input bar with slash commands, file mentions, and command history
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import { RunDemo } from '@/components/ui/run-demo'
+import ChatInputDemo from '@/components/demos/chat-input-demo'
+
+The `ChatInput` component from `@gridland/ui` renders a chat input bar with
+slash command autocomplete, file mention suggestions, and command history.
+
+<div className="my-8">
+  <ChatInputDemo />
+</div>
+
+<RunDemo name="chat-input" />
+
+## Installation
+
+<Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
+<Tab value="bun">
+```bash title="Terminal"
+bun add @gridland/ui
+```
+</Tab>
+<Tab value="npm">
+```bash title="Terminal"
+npm install @gridland/ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add @gridland/ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add @gridland/ui
+```
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx title="Basic"
+import { ChatInput } from "@gridland/ui"
+import { useKeyboard } from "@opentui/react"
+
+<ChatInput
+  placeholder="Message Claude..."
+  useKeyboard={useKeyboard}
+  onSubmit={(text) => console.log("Sent:", text)}
+/>
+```
+
+```tsx title="With slash commands"
+<ChatInput
+  commands={[
+    { cmd: "/help", desc: "Show commands" },
+    { cmd: "/model", desc: "Switch model" },
+    { cmd: "/clear", desc: "Clear conversation" },
+  ]}
+  useKeyboard={useKeyboard}
+  onSubmit={(text) => console.log(text)}
+/>
+```
+
+```tsx title="With file mentions"
+<ChatInput
+  files={["src/index.ts", "src/routes.ts", "package.json"]}
+  useKeyboard={useKeyboard}
+  onSubmit={(text) => console.log(text)}
+/>
+```
+
+```tsx title="Disabled while streaming"
+<ChatInput
+  disabled
+  disabledText="Generating..."
+  useKeyboard={useKeyboard}
+/>
+```
+
+```tsx title="Custom suggestion provider"
+<ChatInput
+  getSuggestions={(value) => {
+    if (value.startsWith("#")) {
+      return [
+        { text: "#bug", desc: "Bug report" },
+        { text: "#feature", desc: "Feature request" },
+      ].filter((s) => s.text.startsWith(value))
+    }
+    return []
+  }}
+  useKeyboard={useKeyboard}
+  onSubmit={(text) => console.log(text)}
+/>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onSubmit` | `(text: string) => void` | — | Called when user submits a message |
+| `onChange` | `(text: string) => void` | — | Called when input value changes |
+| `placeholder` | `string` | `"Type a message..."` | Placeholder text when empty |
+| `prompt` | `string` | `"❯ "` | Prompt character before input |
+| `promptColor` | `string` | `theme.muted` | Color of the prompt character |
+| `disabled` | `boolean` | `false` | Disable input |
+| `disabledText` | `string` | `"Generating..."` | Text shown when disabled |
+| `commands` | `{ cmd: string; desc?: string }[]` | `[]` | Slash commands for autocomplete |
+| `files` | `string[]` | `[]` | File paths for @ mention autocomplete |
+| `getSuggestions` | `(value: string) => Suggestion[]` | — | Custom suggestion provider |
+| `maxSuggestions` | `number` | `5` | Max visible suggestions |
+| `enableHistory` | `boolean` | `true` | Enable command history |
+| `useKeyboard` | `function` | — | Keyboard hook from `@opentui/react` |
+
+### Suggestion
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `text` | `string` | Suggestion text |
+| `desc` | `string?` | Optional description |
+
+## Controls
+
+- **Enter**: Submit message (or accept suggestion)
+- **Tab**: Cycle through suggestions
+- **↑/↓**: Navigate suggestions or command history
+- **Escape**: Dismiss suggestions
+- **/** : Trigger slash command suggestions
+- **@**: Trigger file mention suggestions

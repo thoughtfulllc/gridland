@@ -37,6 +37,9 @@ export type { StatusBarProps, StatusBarItem } from "./status-bar/status-bar"
 export { Modal } from "./modal/modal"
 export type { ModalProps } from "./modal/modal"
 
+export { ChatInput } from "./chat-input/chat-input"
+export type { ChatInputProps, Suggestion } from "./chat-input/chat-input"
+
 export { ChatPanel } from "./chat/chat"
 export type { ChatPanelProps, ChatMessage, ToolCallInfo } from "./chat/chat"
 

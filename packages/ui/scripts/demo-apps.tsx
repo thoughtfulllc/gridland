@@ -8,6 +8,7 @@ import {
   Spinner, SpinnerPicker, SpinnerShowcase,
   SelectInput,
   MultiSelect,
+  ChatInput,
   TextInput,
   LinkDemo as LinkDemoComponent,
   Link, type UnderlineStyle,
@@ -184,6 +185,47 @@ export function MultiSelectApp() {
           { key: "q", label: "quit" },
         ]
       } />
+    </box>
+  )
+}
+
+export function ChatInputApp() {
+  const [lastMessage, setLastMessage] = useState("")
+  const commands = [
+    { cmd: "/help", desc: "Show commands" },
+    { cmd: "/model", desc: "Switch model" },
+    { cmd: "/clear", desc: "Clear conversation" },
+  ]
+  const files = ["src/index.ts", "src/routes.ts", "src/auth.ts", "package.json"]
+
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <box padding={1} flexDirection="column" flexGrow={1}>
+        {lastMessage ? (
+          <text>
+            <span>{"Sent: "}</span>
+            <span>{lastMessage}</span>
+          </text>
+        ) : (
+          <text style={textStyle({ dim: true })}>Type a message and press enter</text>
+        )}
+      </box>
+      <box paddingX={1}>
+        <ChatInput
+          commands={commands}
+          files={files}
+          placeholder="Message Claude..."
+          useKeyboard={useKeyboard}
+          onSubmit={(text) => setLastMessage(text)}
+        />
+      </box>
+      <StatusBar items={[
+        { key: "⏎", label: "send" },
+        { key: "/", label: "commands" },
+        { key: "@", label: "files" },
+        { key: "↑", label: "history" },
+        { key: "q", label: "quit" },
+      ]} />
     </box>
   )
 }
@@ -430,6 +472,7 @@ export const demos: Demo[] = [
   { name: "spinner", app: () => <SpinnerApp /> },
   { name: "select-input", app: () => <SelectInputApp /> },
   { name: "multi-select", app: () => <MultiSelectApp /> },
+  { name: "chat-input", app: () => <ChatInputApp /> },
   { name: "text-input", app: () => <TextInputApp /> },
   { name: "link", app: () => <LinkApp /> },
   { name: "tab-bar", app: () => <TabBarApp /> },
