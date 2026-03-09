@@ -2,7 +2,7 @@
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { ChatInput, StatusBar } from "@gridland/ui"
+import { ChatInput, StatusBar, textStyle } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
 const commands = [
@@ -39,14 +39,23 @@ function ChatInputApp() {
         commands={commands}
         files={files}
         placeholder="Message Claude..."
+        showDividers
+        width={60}
         useKeyboard={useKeyboard}
         onSubmit={(text) => setLastMessage(text)}
       />
+      <box>
+        <text>
+          <span style={textStyle({ fg: "#C4A8FF" })}>{"[⊡_⊡]"}</span>
+          <span style={textStyle({ dim: true })}>{" opus"}</span>
+        </text>
+      </box>
       <StatusBar items={[
         { key: "⏎", label: "send" },
         { key: "/", label: "commands" },
         { key: "@", label: "files" },
         { key: "↑", label: "history" },
+        { key: "ctrl+k", label: "model" },
       ]} />
     </box>
   )

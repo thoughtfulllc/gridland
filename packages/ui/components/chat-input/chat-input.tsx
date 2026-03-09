@@ -32,6 +32,10 @@ export interface ChatInputProps {
   maxSuggestions?: number
   /** Enable command history with up/down arrows */
   enableHistory?: boolean
+  /** Show horizontal dividers above and below the input */
+  showDividers?: boolean
+  /** Width for dividers (defaults to 80) */
+  width?: number
   /** Keyboard hook from @opentui/react */
   useKeyboard?: (handler: (event: any) => void) => void
 }
@@ -51,6 +55,8 @@ export function ChatInput({
   getSuggestions: customGetSuggestions,
   maxSuggestions = 5,
   enableHistory = true,
+  showDividers = false,
+  width = 80,
   useKeyboard,
 }: ChatInputProps) {
   const theme = useTheme()
@@ -200,8 +206,14 @@ export function ChatInput({
 
   const visibleSuggestions = suggestions.slice(0, maxSuggestions)
 
+  const divider = "─".repeat(width)
+
   return (
     <box flexDirection="column">
+      {showDividers && (
+        <text><span style={textStyle({ dim: true, fg: theme.muted })}>{divider}</span></text>
+      )}
+
       {visibleSuggestions.length > 0 && (
         <box flexDirection="column" marginLeft={2}>
           {visibleSuggestions.map((sug, i) => {
@@ -237,6 +249,10 @@ export function ChatInput({
           </>
         )}
       </text>
+
+      {showDividers && (
+        <text><span style={textStyle({ dim: true, fg: theme.muted })}>{divider}</span></text>
+      )}
     </box>
   )
 }

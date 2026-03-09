@@ -215,15 +215,23 @@ export function ChatInputApp() {
           commands={commands}
           files={files}
           placeholder="Message Claude..."
+          showDividers
           useKeyboard={useKeyboard}
           onSubmit={(text) => setLastMessage(text)}
         />
+      </box>
+      <box paddingX={1}>
+        <text>
+          <span style={textStyle({ fg: "#C4A8FF" })}>{"[⊡_⊡]"}</span>
+          <span style={textStyle({ dim: true })}>{" opus"}</span>
+        </text>
       </box>
       <StatusBar items={[
         { key: "⏎", label: "send" },
         { key: "/", label: "commands" },
         { key: "@", label: "files" },
         { key: "↑", label: "history" },
+        { key: "ctrl+k", label: "model" },
         { key: "q", label: "quit" },
       ]} />
     </box>
