@@ -1,13 +1,13 @@
 {
   "name": "@gridland/web",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "type": "module",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-"./vite-plugin": {
+    "./vite-plugin": {
       "import": "./dist/vite-plugin.js",
       "types": "./dist/vite-plugin.d.ts"
     },
@@ -39,7 +39,7 @@
     "events": "^3.3.0",
     "marked": "^17.0.3",
     "react": "^19.0.0",
-    "react-reconciler": "^0.32.0",
+    "react-reconciler": "0.33.0",
     "yoga-layout": "^3.2.1"
   },
   "devDependencies": {

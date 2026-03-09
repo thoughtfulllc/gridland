@@ -12,7 +12,11 @@ const pkgRoot = path.dirname(fileURLToPath(import.meta.url))
 const coreRoot = path.resolve(pkgRoot, "../../opentui/packages/core")
 
 // Bare specifier shims: bun, node built-ins, events, @opentui packages
+// react-reconciler is pinned to packages/web/node_modules to ensure the
+// version matches the consumer's React (0.33.0 for React 19.2+)
 const bareShims = {
+  "react-reconciler": path.resolve(pkgRoot, "node_modules/react-reconciler/index.js"),
+  "react-reconciler/constants": path.resolve(pkgRoot, "node_modules/react-reconciler/constants.js"),
   // Route @opentui/core to our browser-compatible core-shims barrel
   // (the npm-published @opentui/core is built for Bun/terminal, not browsers)
   "@opentui/core": path.resolve(pkgRoot, "src/core-shims/index.ts"),
@@ -99,6 +103,22 @@ const shimPlugin = {
   },
 }
 
+// Banner: provide a require() shim for CJS packages (react-reconciler) that
+// call require("react") in the ESM bundle. ESM imports are hoisted, so
+// __React/__ReactDOM are available when the var require definition runs.
+const requireShimBanner = [
+  `import * as __REACT$ from "react";`,
+  `import * as __REACTDOM$ from "react-dom";`,
+  `var __EXT$ = { "react": __REACT$, "react-dom": __REACTDOM$ };`,
+  `var require = globalThis.require || ((id) => {`,
+  `  var m = __EXT$[id];`,
+  `  if (m) return m;`,
+  `  throw new Error('Dynamic require of "' + id + '" is not supported');`,
+  `});`,
+  // Provide process.env for CJS packages that check NODE_ENV at runtime.
+  `if (typeof process === "undefined") var process = { env: {} };`,
+].join(" ")
+
 const shared = {
   bundle: true,
   format: "esm",
@@ -110,6 +130,7 @@ const shared = {
   plugins: [shimPlugin],
   sourcemap: true,
   outdir: path.resolve(pkgRoot, "dist"),
+  banner: { js: requireShimBanner },
 }
 
 async function main() {
@@ -128,7 +149,7 @@ async function main() {
     entryPoints: [path.resolve(pkgRoot, "src/next.ts")],
     outfile: path.resolve(pkgRoot, "dist/next.js"),
     outdir: undefined,
-    banner: { js: '"use client";' },
+    banner: { js: '"use client";\n' + requireShimBanner },
   })
   console.log("✓ dist/next.js")
 }
