@@ -27,6 +27,7 @@ export interface MultiSelectProps<V> {
   enableClear?: boolean
   highlightColor?: string
   checkboxColor?: string
+  allowEmpty?: boolean
   onSubmit?: (values: V[]) => void
   useKeyboard?: (handler: (event: any) => void) => void
 }
@@ -88,6 +89,7 @@ export function MultiSelect<V>({
   enableClear = true,
   highlightColor,
   checkboxColor,
+  allowEmpty = false,
   onSubmit,
   useKeyboard,
 }: MultiSelectProps<V>) {
@@ -107,10 +109,7 @@ export function MultiSelect<V>({
     submitted: false,
   })
 
-  const currentSelected = useMemo(
-    () => isControlled ? new Set(controlledSelected) : state.selected,
-    [isControlled, controlledSelected, state.selected],
-  )
+  const currentSelected = isControlled ? new Set(controlledSelected) : state.selected
 
   const { flatRows, selectableItems } = useMemo(() => {
     const rows: Row<V>[] = []
@@ -123,11 +122,10 @@ export function MultiSelect<V>({
       list.push(item)
       grouped.set(group, list)
     }
-    let groupIndex = 0
+    let first = true
     for (const [group, groupItems] of grouped) {
-      if (groupIndex > 0) {
-        rows.push({ type: "separator" })
-      }
+      if (!first) rows.push({ type: "separator" })
+      first = false
       if (group) {
         rows.push({ type: "group", label: group })
       }
@@ -136,10 +134,13 @@ export function MultiSelect<V>({
         selectable.push({ item, index })
         index++
       }
-      groupIndex++
     }
     return { flatRows: rows, selectableItems: selectable }
   }, [items])
+
+  const hasSubmitRow = allowEmpty || currentSelected.size > 0
+  const totalPositions = selectableItems.length + (hasSubmitRow ? 1 : 0)
+  const isOnSubmit = hasSubmitRow && state.cursor === selectableItems.length
 
   const visibleCount = limit ?? VISIBLE
   const cursorRowIndex = flatRows.findIndex((r) => r.type === "item" && r.index === state.cursor)
@@ -162,27 +163,29 @@ export function MultiSelect<V>({
     if (state.submitted || disabled) return
 
     if (event.name === "up" || event.name === "k") {
-      dispatch({ type: "MOVE", direction: -1, max: selectableItems.length })
+      dispatch({ type: "MOVE", direction: -1, max: totalPositions })
     } else if (event.name === "down" || event.name === "j") {
-      dispatch({ type: "MOVE", direction: 1, max: selectableItems.length })
+      dispatch({ type: "MOVE", direction: 1, max: totalPositions })
     } else if (event.name === "return") {
-      const current = selectableItems[state.cursor]
-      if (current && !current.item.disabled) {
-        const isDeselecting = currentSelected.has(current.item.value)
-        if (!isDeselecting && maxCount !== undefined && currentSelected.size >= maxCount) return
-        const next = new Set(currentSelected)
-        if (isDeselecting) next.delete(current.item.value)
-        else next.add(current.item.value)
-        setSelected(Array.from(next))
+      if (isOnSubmit) {
+        dispatch({ type: "SUBMIT" })
+        onSubmit?.(Array.from(currentSelected))
+      } else {
+        const current = selectableItems[state.cursor]
+        if (current && !current.item.disabled) {
+          const isDeselecting = currentSelected.has(current.item.value)
+          if (!isDeselecting && maxCount !== undefined && currentSelected.size >= maxCount) return
+          const next = new Set(currentSelected)
+          if (isDeselecting) next.delete(current.item.value)
+          else next.add(current.item.value)
+          setSelected(Array.from(next))
+        }
       }
     } else if (event.name === "a" && enableSelectAll) {
       const enabledValues = items.filter((i) => !i.disabled).map((i) => i.value)
       setSelected(maxCount !== undefined ? enabledValues.slice(0, maxCount) : enabledValues)
     } else if (event.name === "x" && enableClear) {
       setSelected([])
-    } else if (event.name === "space" && currentSelected.size > 0) {
-      dispatch({ type: "SUBMIT" })
-      onSubmit?.(Array.from(currentSelected))
     }
   })
 
@@ -277,10 +280,15 @@ export function MultiSelect<V>({
           </text>
         )
       })}
-      {currentSelected.size > 0 && (
+      {hasSubmitRow && (
         <text>
           <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
-          <span style={textStyle({ dim: true })}>{"  space to submit"}</span>
+          <span style={textStyle({ fg: isOnSubmit ? resolvedHighlight : undefined })}>
+            {isOnSubmit ? CURSOR : " "}{" "}
+          </span>
+          <span style={textStyle({ fg: isOnSubmit ? resolvedHighlight : theme.text })}>
+            {"Submit"}
+          </span>
         </text>
       )}
     </box>

@@ -29,6 +29,8 @@
     "typescript": "^5.7.0"
   },
   "peerDependencies": {
-    "react": ">=19.0.0"
+    "react": ">=19.0.0",
+    "@opentui/react": ">=0.1.86",
+    "@opentui/core": ">=0.1.86"
   }
 }

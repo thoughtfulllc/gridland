@@ -223,7 +223,7 @@ describe("MultiSelect behavior", () => {
     expect(changed).toHaveLength(0)
   })
 
-  it("submits with space", () => {
+  it("submits via submit row (uncontrolled)", () => {
     let submitted = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
@@ -234,15 +234,20 @@ describe("MultiSelect behavior", () => {
         useKeyboard={mockUseKeyboard}
         onSubmit={(values) => { submitted = values }}
       />,
-      { cols: 40, rows: 10 },
+      { cols: 40, rows: 12 },
     )
-    savedHandler({ name: "space" })
+    // Move cursor past all 4 items to the submit row (index 4)
+    savedHandler({ name: "j" })
+    savedHandler({ name: "j" })
+    savedHandler({ name: "j" })
+    savedHandler({ name: "j" })
+    savedHandler({ name: "return" })
     expect(submitted).toContain("ts")
     expect(submitted).toContain("py")
     expect(submitted).toHaveLength(2)
   })
 
-  it("submits with controlled selected values", () => {
+  it("submits via submit row (controlled)", () => {
     let submitted = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
@@ -253,9 +258,14 @@ describe("MultiSelect behavior", () => {
         useKeyboard={mockUseKeyboard}
         onSubmit={(values) => { submitted = values }}
       />,
-      { cols: 40, rows: 10 },
+      { cols: 40, rows: 12 },
     )
-    savedHandler({ name: "space" })
+    // Move cursor past all 4 items to the submit row (index 4)
+    savedHandler({ name: "j" })
+    savedHandler({ name: "j" })
+    savedHandler({ name: "j" })
+    savedHandler({ name: "j" })
+    savedHandler({ name: "return" })
     expect(submitted).toContain("ts")
     expect(submitted).toContain("py")
     expect(submitted).toHaveLength(2)
@@ -406,6 +416,44 @@ describe("MultiSelect behavior", () => {
     )
     savedHandler({ name: "a" })
     expect(changed).toBeNull()
+  })
+
+  it("shows submit row with no selection when allowEmpty is true", () => {
+    const { screen } = renderTui(
+      <MultiSelect items={items} allowEmpty />,
+      { cols: 40, rows: 10 },
+    )
+    expect(screen.text()).toContain("Submit")
+  })
+
+  it("hides submit row with no selection by default", () => {
+    const { screen } = renderTui(
+      <MultiSelect items={items} />,
+      { cols: 40, rows: 10 },
+    )
+    expect(screen.text()).not.toContain("Submit")
+  })
+
+  it("submits empty selection when allowEmpty is true", () => {
+    let submitted = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <MultiSelect
+        items={items}
+        allowEmpty
+        useKeyboard={mockUseKeyboard}
+        onSubmit={(values) => { submitted = values }}
+      />,
+      { cols: 40, rows: 12 },
+    )
+    // Move cursor past all 4 items to the submit row (index 4)
+    savedHandler({ name: "j" })
+    savedHandler({ name: "j" })
+    savedHandler({ name: "j" })
+    savedHandler({ name: "j" })
+    savedHandler({ name: "return" })
+    expect(submitted).toHaveLength(0)
   })
 
   it("disables clear when enableClear is false", () => {

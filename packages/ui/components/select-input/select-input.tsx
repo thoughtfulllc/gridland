@@ -105,11 +105,10 @@ export function SelectInput<V>({
       list.push(item)
       grouped.set(group, list)
     }
-    let groupIndex = 0
+    let first = true
     for (const [group, groupItems] of grouped) {
-      if (groupIndex > 0) {
-        rows.push({ type: "separator" })
-      }
+      if (!first) rows.push({ type: "separator" })
+      first = false
       if (group) {
         rows.push({ type: "group", label: group })
       }
@@ -118,7 +117,6 @@ export function SelectInput<V>({
         selectable.push({ item, index })
         index++
       }
-      groupIndex++
     }
     return { flatRows: rows, selectableItems: selectable }
   }, [items])

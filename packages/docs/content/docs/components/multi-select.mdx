@@ -158,7 +158,8 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 | `enableClear` | `boolean` | `true` | Enable clear all with `x` key |
 | `highlightColor` | `string` | `theme.primary` | Color of the highlighted item |
 | `checkboxColor` | `string` | `theme.accent` | Color of the selection indicator |
-| `onSubmit` | `(values: V[]) => void` | — | Called on Space with selected values |
+| `allowEmpty` | `boolean` | `false` | Always show Submit row, allowing empty submission |
+| `onSubmit` | `(values: V[]) => void` | — | Called when Submit row is selected |
 | `useKeyboard` | `function` | — | Keyboard hook from `@opentui/react` |
 
 ### MultiSelectItem
@@ -174,7 +175,6 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 ## Controls
 
 - **↑/↓** or **j/k**: Navigate items
-- **Enter**: Select item
+- **Enter**: Select item (or submit when on Submit row)
 - **a**: Select all
 - **x**: Clear all
-- **Space**: Submit selected items

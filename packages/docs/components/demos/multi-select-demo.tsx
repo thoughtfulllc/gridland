@@ -41,7 +41,6 @@ function MultiSelectApp() {
           { key: "enter", label: "select" },
           { key: "a", label: "all" },
           { key: "x", label: "clear" },
-          { key: "space", label: "submit" },
         ]
       } />
     </box>
