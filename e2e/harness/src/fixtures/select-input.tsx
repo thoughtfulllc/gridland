@@ -14,7 +14,7 @@ export function SelectInputFixture() {
     <FixtureWrapper cols={40} rows={10}>
       <box padding={1} flexDirection="column" gap={1}>
         <text fg="#d8dee9" bold>Choose a language:</text>
-        <SelectInput items={selectItems} textColor="#d8dee9" selectedTextColor="#88c0d0" />
+        <SelectInput items={selectItems} title="Select" />
       </box>
     </FixtureWrapper>
   )

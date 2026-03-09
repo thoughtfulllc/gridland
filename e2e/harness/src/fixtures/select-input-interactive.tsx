@@ -1,5 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState } from "react"
+import { useKeyboard } from "@opentui/react"
 import { FixtureWrapper } from "../fixture-wrapper"
 import { SelectInput } from "../../../../packages/ui/components/select-input/select-input"
 
@@ -18,9 +19,9 @@ export function SelectInputInteractiveFixture() {
         <text fg="#d8dee9" bold>Choose a language:</text>
         <SelectInput
           items={selectItems}
-          textColor="#d8dee9"
-          selectedTextColor="#88c0d0"
-          onSelect={(item) => setSelected(item.value)}
+          title="Select"
+          useKeyboard={useKeyboard}
+          onSubmit={(value) => setSelected(value as string)}
         />
         {selected && <text fg="#a3be8c">Selected: {selected}</text>}
       </box>

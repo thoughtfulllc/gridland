@@ -26,7 +26,7 @@ export function AllComponentsFixture() {
 
         <box flexDirection="column" gap={1}>
           <text fg="#d8dee9" bold>Select:</text>
-          <SelectInput items={selectItems} textColor="#d8dee9" selectedTextColor="#88c0d0" />
+          <SelectInput items={selectItems} title="Select" />
         </box>
 
         <box flexDirection="column" gap={1}>

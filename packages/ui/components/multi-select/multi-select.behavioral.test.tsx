@@ -350,9 +350,16 @@ describe("MultiSelect behavior", () => {
     let changed = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
+    // Arrange items so the first (cursor default) is unselected while 2 others are selected
+    const reordered = [
+      { label: "Python", value: "py" },
+      { label: "TypeScript", value: "ts" },
+      { label: "JavaScript", value: "js" },
+      { label: "Rust", value: "rs" },
+    ]
     renderTui(
       <MultiSelect
-        items={items}
+        items={reordered}
         selected={["ts", "js"]}
         onChange={(values) => { changed = values }}
         maxCount={2}
@@ -360,9 +367,7 @@ describe("MultiSelect behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    // Move to third item (unselected) and try to select — should be blocked
-    savedHandler({ name: "j" })
-    savedHandler({ name: "j" })
+    // Cursor starts on "Python" (unselected) — selecting should be blocked at maxCount=2
     savedHandler({ name: "return" })
     expect(changed).toBeNull()
   })
