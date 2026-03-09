@@ -109,6 +109,7 @@ export function MultiSelect<V>({
     submitted: false,
   })
 
+  const cursorRef = useRef(0)
   const currentSelected = isControlled ? new Set(controlledSelected) : state.selected
 
   const { flatRows, selectableItems } = useMemo(() => {
@@ -162,16 +163,25 @@ export function MultiSelect<V>({
   useKeyboard?.((event: any) => {
     if (state.submitted || disabled) return
 
+    const move = (direction: 1 | -1) => {
+      let next = cursorRef.current + direction
+      if (next < 0) next = totalPositions - 1
+      if (next >= totalPositions) next = 0
+      cursorRef.current = next
+      dispatch({ type: "MOVE", direction, max: totalPositions })
+    }
+
     if (event.name === "up" || event.name === "k") {
-      dispatch({ type: "MOVE", direction: -1, max: totalPositions })
+      move(-1)
     } else if (event.name === "down" || event.name === "j") {
-      dispatch({ type: "MOVE", direction: 1, max: totalPositions })
+      move(1)
     } else if (event.name === "return") {
-      if (isOnSubmit) {
+      const onSubmitRow = hasSubmitRow && cursorRef.current === selectableItems.length
+      if (onSubmitRow) {
         dispatch({ type: "SUBMIT" })
         onSubmit?.(Array.from(currentSelected))
       } else {
-        const current = selectableItems[state.cursor]
+        const current = selectableItems[cursorRef.current]
         if (current && !current.item.disabled) {
           const isDeselecting = currentSelected.has(current.item.value)
           if (!isDeselecting && maxCount !== undefined && currentSelected.size >= maxCount) return
