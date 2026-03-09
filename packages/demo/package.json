@@ -1,6 +1,6 @@
 {
   "name": "@gridland/demo",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Run gridland component demos from anywhere",
   "bin": {
     "gridland-demo": "./bin/cli.mjs"

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execSync, spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -60,6 +60,13 @@ try {
   });
 
   const repoDir = join(workDir, "gridland");
+
+  // Trim workspaces to only what demos need — avoids installing heavy deps
+  // like Next.js that fail in Alpine/musl containers (@next/swc-linux-arm64-gnu)
+  const pkgPath = join(repoDir, "package.json");
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+  pkg.workspaces = ["packages/web", "packages/ui", "packages/testing"];
+  writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
 
   if (useBun) {
     execSync("bun install", { cwd: repoDir, stdio: ["ignore", "ignore", "inherit"] });
