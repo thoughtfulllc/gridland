@@ -14,5 +14,5 @@ exports[`MultiSelect snapshots renders with defaultSelected 1`] = `
 │   ○ JavaScript
 │   ● Python
 │   ○ Rust
-│   ↵ Submit"
+│   ↳ Submit"
 `;
