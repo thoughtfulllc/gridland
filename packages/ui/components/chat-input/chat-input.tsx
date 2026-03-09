@@ -164,8 +164,9 @@ export function ChatInput({
       if (suggestionsRef.current.length > 0) {
         setSugI(Math.min(suggestionsRef.current.length - 1, sugIdxRef.current + 1))
       } else if (enableHistory && histIdxRef.current > 0) {
-        setHistI(histIdxRef.current - 1)
-        updateValue(historyRef.current[histIdxRef.current - 1]!)
+        const nextIdx = histIdxRef.current - 1
+        setHistI(nextIdx)
+        updateValue(historyRef.current[nextIdx]!)
       } else if (enableHistory && histIdxRef.current === 0) {
         setHistI(-1)
         updateValue("")
