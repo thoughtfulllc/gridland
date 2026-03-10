@@ -12,13 +12,12 @@ describe("TextInput", () => {
   })
 
   it("accepts all documented props", () => {
-    // Type-level test: verify the component accepts these props
     const props = {
       value: "test",
       onChange: (_v: string) => {},
       onSubmit: (_v: string) => {},
       placeholder: "Type here...",
-      prompt: "$ ",
+      prompt: "> ",
       promptColor: "cyan",
       focus: true,
       maxLength: 100,

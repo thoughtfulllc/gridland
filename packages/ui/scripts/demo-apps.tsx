@@ -293,14 +293,56 @@ export function PromptInputApp() {
   )
 }
 
+const TEXT_INPUT_FIELDS = [
+  { label: "Username", placeholder: "enter your name", maxLength: 30, required: true },
+  { label: "Email", placeholder: "user@example.com", maxLength: 50, required: true, description: "We'll never share your email" },
+  { label: "Password", placeholder: "enter password", maxLength: 40 },
+  { label: "API Key", placeholder: "sk-...", maxLength: 60, disabled: true },
+] as const
+
 export function TextInputApp() {
+  const [activeField, setActiveField] = useState(0)
+  const [values, setValues] = useState(TEXT_INPUT_FIELDS.map(() => ""))
+
+  useKeyboard((event) => {
+    if (event.name === "up") setActiveField((i) => Math.max(0, i - 1))
+    if (event.name === "down" || event.name === "tab") setActiveField((i) => Math.min(TEXT_INPUT_FIELDS.length - 1, i + 1))
+  })
+
   return (
     <box flexDirection="column" flexGrow={1}>
-      <box padding={1} flexDirection="column" gap={1} flexGrow={1}>
-        <text fg="#d8dee9" bold>Enter your name:</text>
-        <TextInput placeholder="Type something..." prompt="> " />
+      <box paddingX={1} paddingTop={1}>
+        <text>
+          <span style={textStyle({ fg: "#FF71CE", bold: true })}>{"TextInput"}</span>
+          <span style={textStyle({ dim: true })}>{"  Form with multiple input types"}</span>
+        </text>
       </box>
-      <StatusBar items={[{ key: "q", label: "quit" }]} />
+
+      <box flexDirection="column" paddingX={1} paddingTop={1} flexGrow={1}>
+        {TEXT_INPUT_FIELDS.map((field, i) => (
+          <box key={field.label} marginBottom={1}>
+            <TextInput
+              label={field.label}
+              placeholder={field.placeholder}
+              prompt="> "
+              focus={i === activeField}
+              maxLength={field.maxLength}
+              value={values[i]}
+              onChange={(v) => setValues((prev) => prev.map((old, j) => j === i ? v : old))}
+              required={"required" in field ? field.required : undefined}
+              disabled={"disabled" in field ? field.disabled : undefined}
+              description={"description" in field ? field.description : undefined}
+            />
+          </box>
+        ))}
+      </box>
+
+      <StatusBar items={[
+        { key: "↑↓", label: "field" },
+        { key: "←→", label: "cursor" },
+        { key: "tab", label: "complete" },
+        { key: "^k/^u", label: "kill" },
+      ]} />
     </box>
   )
 }
