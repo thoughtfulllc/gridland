@@ -224,9 +224,9 @@ export function TextInputApp() {
               maxLength={field.maxLength}
               value={values[i]}
               onChange={(v) => setValues((prev) => prev.map((old, j) => j === i ? v : old))}
-              required={"required" in field ? field.required : undefined}
-              disabled={"disabled" in field ? field.disabled : undefined}
-              description={"description" in field ? field.description : undefined}
+              required={field.required}
+              disabled={field.disabled}
+              description={field.description}
             />
           </box>
         ))}

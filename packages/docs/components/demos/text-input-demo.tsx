@@ -63,13 +63,6 @@ function TextInputFormApp() {
 
   return (
     <box flexDirection="column" flexGrow={1}>
-      <box paddingX={1} paddingTop={1}>
-        <text>
-          <span style={textStyle({ fg: "#FF71CE", bold: true })}>{"TextInput"}</span>
-          <span style={textStyle({ dim: true })}>{"  Form with multiple input types"}</span>
-        </text>
-      </box>
-
       <box flexDirection="column" paddingX={1} paddingTop={1} flexGrow={1}>
         {FIELDS.map((field, i) => (
           <box key={field.label} marginBottom={1}>
@@ -105,7 +98,7 @@ function TextInputFormApp() {
 
 export function TextInputPickerDemo() {
   return (
-    <DemoWindow title="TextInput States" tuiStyle={{ width: "100%", height: 200 }}>
+    <DemoWindow title="TextInput" tuiStyle={{ width: "100%", height: 200 }}>
       <TextInputPickerApp />
     </DemoWindow>
   )
