@@ -13,12 +13,16 @@ describe("TextInput", () => {
 
   it("accepts all documented props", () => {
     const props = {
+      label: "Username",
+      description: "Enter your display name",
+      error: "This field is required",
+      required: true,
+      disabled: false,
       value: "test",
       onChange: (_v: string) => {},
       onSubmit: (_v: string) => {},
       placeholder: "Type here...",
       prompt: "> ",
-      promptColor: "cyan",
       focus: true,
       maxLength: 100,
     }

@@ -2,8 +2,48 @@
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { TextInput, StatusBar, textStyle } from "@gridland/ui"
+import { TextInput, StatusBar, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
+
+// ── State Picker ──────────────────────────────────────────────────────────
+
+const STATES = [
+  { name: "default", props: {} },
+  { name: "focused", props: { focus: true } },
+  { name: "required", props: { required: true } },
+  { name: "error", props: { error: "This field is required" } },
+  { name: "description", props: { description: "Enter your display name" } },
+  { name: "disabled", props: { disabled: true } },
+  { name: "maxLength", props: { focus: true, value: "John Doe", maxLength: 15 } },
+]
+
+function TextInputPickerApp() {
+  const theme = useTheme()
+  const [selected, setSelected] = useState(0)
+
+  useKeyboard((event) => {
+    if (event.name === "left") setSelected((s) => (s > 0 ? s - 1 : STATES.length - 1))
+    if (event.name === "right") setSelected((s) => (s < STATES.length - 1 ? s + 1 : 0))
+  })
+
+  const state = STATES[selected]
+
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <box paddingLeft={1} paddingRight={2} paddingTop={1} paddingBottom={2} flexDirection="column" flexGrow={1}>
+        <TextInput label="Username" placeholder="enter your name" prompt="> " focus={false} {...state.props} />
+      </box>
+      <box paddingX={1} paddingBottom={1}>
+        <StatusBar
+          items={[{ key: "←→", label: "change state" }]}
+          extra={<span style={textStyle({ fg: theme.accent, bold: true })}>{state.name.padEnd(12)}</span>}
+        />
+      </box>
+    </box>
+  )
+}
+
+// ── Form Demo ─────────────────────────────────────────────────────────────
 
 const FIELDS = [
   { label: "Username", placeholder: "enter your name", maxLength: 30, required: true },
@@ -49,13 +89,25 @@ function TextInputFormApp() {
         ))}
       </box>
 
-      <StatusBar items={[
-        { key: "↑↓", label: "field" },
-        { key: "←→", label: "cursor" },
-        { key: "tab", label: "next" },
-        { key: "^k/^u", label: "kill" },
-      ]} />
+      <box paddingX={1} paddingBottom={1}>
+        <StatusBar items={[
+          { key: "↑↓", label: "field" },
+          { key: "←→", label: "cursor" },
+          { key: "tab", label: "next" },
+          { key: "^k/^u", label: "kill" },
+        ]} />
+      </box>
     </box>
+  )
+}
+
+// ── Exports ───────────────────────────────────────────────────────────────
+
+export function TextInputPickerDemo() {
+  return (
+    <DemoWindow title="TextInput States" tuiStyle={{ width: "100%", height: 200 }}>
+      <TextInputPickerApp />
+    </DemoWindow>
   )
 }
 

@@ -1,14 +1,18 @@
 ---
 title: TextInput
-description: Interactive text input field with prompt and placeholder
+description: Interactive text input field with label, prompt, validation, and multiple states
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { RunDemo } from '@/components/ui/run-demo'
-import TextInputDemo from '@/components/demos/text-input-demo'
+import TextInputDemo, { TextInputPickerDemo } from '@/components/demos/text-input-demo'
 
 The `TextInput` component from `@gridland/ui` provides an interactive text input
-with customizable prompt, placeholder, and controlled/uncontrolled modes.
+with label, prompt, placeholder, validation states, and controlled/uncontrolled modes.
+
+<div className="my-8">
+  <TextInputPickerDemo />
+</div>
 
 <div className="my-8">
   <TextInputDemo />
@@ -43,22 +47,30 @@ pnpm add @gridland/ui
 
 ## Usage
 
-```tsx title="Uncontrolled"
+```tsx title="Basic"
 import { TextInput } from "@gridland/ui"
 
 <TextInput
-  placeholder="Type something..."
-  onSubmit={(value) => console.log("Submitted:", value)}
+  label="Username"
+  placeholder="enter your name"
+  prompt="> "
 />
 ```
 
-```tsx title="Controlled"
+```tsx title="Controlled with validation"
 const [value, setValue] = useState("")
 
 <TextInput
+  label="Email"
   value={value}
   onChange={setValue}
   onSubmit={(v) => console.log("Submitted:", v)}
+  placeholder="user@example.com"
+  prompt="> "
+  required
+  maxLength={50}
+  description="We'll never share your email"
+  error={value && !value.includes("@") ? "Invalid email" : undefined}
 />
 ```
 
@@ -66,11 +78,15 @@ const [value, setValue] = useState("")
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `label` | `string` | — | Field label shown above the input |
+| `description` | `string` | — | Helper text shown below the input |
+| `error` | `string` | — | Error message (overrides description) |
+| `required` | `boolean` | `false` | Shows required indicator on label |
+| `disabled` | `boolean` | `false` | Disables the input |
 | `value` | `string` | — | Controlled value |
-| `onChange` | `(value: string) => void` | — | Called when value changes |
+| `onChange` | `(value: string) => void` | — | Called on every keystroke |
 | `onSubmit` | `(value: string) => void` | — | Called on Enter key |
-| `placeholder` | `string` | `""` | Placeholder text |
-| `prompt` | `string` | `"> "` | Prompt string displayed before input |
-| `promptColor` | `string` | `"cyan"` | Color of the prompt text |
+| `placeholder` | `string` | — | Placeholder text |
+| `prompt` | `string` | — | Prompt string before the input |
 | `focus` | `boolean` | `true` | Whether the input is focused |
 | `maxLength` | `number` | — | Maximum input length |

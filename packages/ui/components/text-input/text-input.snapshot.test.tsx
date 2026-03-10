@@ -16,7 +16,7 @@ describe("TextInput snapshots", () => {
 
   it("renders with custom prompt", () => {
     const { screen } = renderTui(
-      <TextInput placeholder="Enter name" prompt="> " promptColor="green" />,
+      <TextInput placeholder="Enter name" prompt="> " />,
       { cols: 80, rows: 4 },
     )
     expect(screen.text()).toMatchSnapshot()

@@ -6,7 +6,7 @@ import { useTheme } from '../theme/index'
 export interface TextInputProps {
   /** Field label shown above the input */
   label?: string
-  /** Helper text shown below the input */
+  /** Helper text shown inline next to the label */
   description?: string
   /** Error message — overrides description when set */
   error?: string
@@ -28,51 +28,34 @@ export interface TextInputProps {
   focus?: boolean
   /** Maximum characters allowed */
   maxLength?: number
-  /** Chevron shown before the input value */
-  chevron?: string
 }
 
-export function TextInput({
-  label,
-  description,
-  error,
-  required = false,
-  disabled = false,
-  value: controlledValue,
-  onChange,
-  onSubmit,
-  placeholder,
-  prompt,
-  focus = true,
-  maxLength,
-  chevron = '›',
-}: TextInputProps) {
+export function TextInput({ label, description, error, required = false, disabled = false, value: controlledValue, onChange, onSubmit, placeholder, prompt, focus = true, maxLength }: TextInputProps) {
   const theme = useTheme()
   const [internalValue, setInternalValue] = useState('')
   const isControlled = controlledValue !== undefined
   const controlledRef = useRef(isControlled)
   if (controlledRef.current !== isControlled) {
     console.warn('TextInput: switching between controlled and uncontrolled is not supported.')
+    controlledRef.current = isControlled
   }
   const current = isControlled ? controlledValue : internalValue
   const isFocused = focus && !disabled
 
   const handleInput = useCallback(
     (v: string) => {
-      if (disabled) return
       if (!isControlled) setInternalValue(v)
       onChange?.(v)
     },
-    [isControlled, onChange, disabled],
+    [isControlled, onChange],
   )
 
   const handleSubmit = useCallback(
     (v: string) => {
-      if (disabled) return
       onSubmit?.(v)
       if (!isControlled) setInternalValue('')
     },
-    [isControlled, onSubmit, disabled],
+    [isControlled, onSubmit],
   )
 
   const empty = !current
@@ -84,7 +67,7 @@ export function TextInput({
       {showLabel && (
         <text>
           <span style={textStyle({ fg: error ? theme.error : isFocused ? theme.primary : disabled ? theme.muted : theme.text, bold: !disabled, dim: disabled })}>
-            {isFocused ? '▸ ' : '  '}
+            {isFocused ? '\u25B8 ' : '  '}
             {label}
           </span>
           {required && <span style={textStyle({ fg: theme.error })}>{' *'}</span>}
@@ -92,6 +75,12 @@ export function TextInput({
             <span style={textStyle({ dim: true })}>
               {' '}
               {current.length}/{maxLength}
+            </span>
+          )}
+          {message != null && (
+            <span style={textStyle({ fg: error ? theme.error : theme.muted, dim: !error })}>
+              {' | '}
+              {message}
             </span>
           )}
         </text>
@@ -111,15 +100,9 @@ export function TextInput({
             textColor={theme.text}
           />
         ) : (
-          <text style={{ fg: empty ? theme.muted : disabled ? theme.muted : theme.text, dim: disabled }}>{empty ? placeholder : current}</text>
+          <text style={{ fg: empty || disabled ? theme.muted : theme.text, dim: disabled }}>{empty ? placeholder : current}</text>
         )}
       </box>
-      {message != null && (
-        <text style={{ fg: error ? theme.error : theme.muted, dim: !error }}>
-          {'  '}
-          {message}
-        </text>
-      )}
     </box>
   )
 }
