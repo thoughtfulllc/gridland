@@ -191,12 +191,63 @@ export function MultiSelectApp() {
 
 export function ChatInputApp() {
   const [lastMessage, setLastMessage] = useState("")
+  const [model, setModel] = useState("opus")
+  const [showModelPicker, setShowModelPicker] = useState(false)
+  const [resetKey, setResetKey] = useState(0)
   const commands = [
     { cmd: "/help", desc: "Show commands" },
     { cmd: "/model", desc: "Switch model" },
     { cmd: "/clear", desc: "Clear conversation" },
   ]
   const files = ["src/index.ts", "src/routes.ts", "src/auth.ts", "package.json"]
+  const models = [
+    { label: "Claude Opus", value: "opus" },
+    { label: "Claude Sonnet", value: "sonnet" },
+    { label: "Claude Haiku", value: "haiku" },
+  ]
+
+  const handleSubmit = (text: string) => {
+    if (text === "/model") {
+      setShowModelPicker(true)
+      setResetKey((k) => k + 1)
+      return
+    }
+    if (text === "/clear") {
+      setLastMessage("")
+      setResetKey((k) => k + 1)
+      return
+    }
+    setLastMessage(text)
+  }
+
+  if (showModelPicker) {
+    return (
+      <box flexDirection="column" flexGrow={1}>
+        <Modal
+          title="Select Model"
+          useKeyboard={useKeyboard}
+          onClose={() => setShowModelPicker(false)}
+        >
+          <box paddingX={1}>
+            <SelectInput
+              items={models}
+              defaultValue={model}
+              useKeyboard={useKeyboard}
+              onSubmit={(value) => {
+                setModel(value)
+                setShowModelPicker(false)
+              }}
+            />
+          </box>
+        </Modal>
+        <StatusBar items={[
+          { key: "⏎", label: "select" },
+          { key: "esc", label: "cancel" },
+          { key: "q", label: "quit" },
+        ]} />
+      </box>
+    )
+  }
 
   return (
     <box flexDirection="column" flexGrow={1}>
@@ -212,18 +263,19 @@ export function ChatInputApp() {
       </box>
       <box paddingX={1}>
         <ChatInput
+          key={resetKey}
           commands={commands}
           files={files}
           placeholder="Message Claude..."
           showDividers
           useKeyboard={useKeyboard}
-          onSubmit={(text) => setLastMessage(text)}
+          onSubmit={handleSubmit}
         />
       </box>
       <box paddingX={1}>
         <text>
           <span style={textStyle({ fg: "#C4A8FF" })}>{"[⊡_⊡]"}</span>
-          <span style={textStyle({ dim: true })}>{" opus"}</span>
+          <span style={textStyle({ dim: true })}>{" " + model}</span>
         </text>
       </box>
       <StatusBar items={[
@@ -231,7 +283,6 @@ export function ChatInputApp() {
         { key: "/", label: "commands" },
         { key: "@", label: "files" },
         { key: "↑", label: "history" },
-        { key: "ctrl+k", label: "model" },
         { key: "q", label: "quit" },
       ]} />
     </box>

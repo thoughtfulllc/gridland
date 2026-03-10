@@ -2,7 +2,7 @@
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { ChatInput, StatusBar, textStyle } from "@gridland/ui"
+import { ChatInput, StatusBar, Modal, SelectInput, textStyle } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
 const commands = [
@@ -18,8 +18,55 @@ const files = [
   "package.json",
 ]
 
+const models = [
+  { label: "Claude Opus", value: "opus" },
+  { label: "Claude Sonnet", value: "sonnet" },
+  { label: "Claude Haiku", value: "haiku" },
+]
+
 function ChatInputApp() {
   const [lastMessage, setLastMessage] = useState("")
+  const [model, setModel] = useState("opus")
+  const [showModelPicker, setShowModelPicker] = useState(false)
+  const [resetKey, setResetKey] = useState(0)
+
+  const handleSubmit = (text: string) => {
+    if (text === "/model") {
+      setShowModelPicker(true)
+      setResetKey((k) => k + 1)
+      return
+    }
+    if (text === "/clear") {
+      setLastMessage("")
+      setResetKey((k) => k + 1)
+      return
+    }
+    setLastMessage(text)
+  }
+
+  if (showModelPicker) {
+    return (
+      <box flexDirection="column" flexGrow={1} padding={1}>
+        <Modal
+          title="Select Model"
+          useKeyboard={useKeyboard}
+          onClose={() => setShowModelPicker(false)}
+        >
+          <box paddingX={1}>
+            <SelectInput
+              items={models}
+              defaultValue={model}
+              useKeyboard={useKeyboard}
+              onSubmit={(value) => {
+                setModel(value)
+                setShowModelPicker(false)
+              }}
+            />
+          </box>
+        </Modal>
+      </box>
+    )
+  }
 
   return (
     <box flexDirection="column" flexGrow={1} padding={1}>
@@ -36,17 +83,18 @@ function ChatInputApp() {
         )}
       </box>
       <ChatInput
+        key={resetKey}
         commands={commands}
         files={files}
         placeholder="Message Claude..."
         showDividers
         useKeyboard={useKeyboard}
-        onSubmit={(text) => setLastMessage(text)}
+        onSubmit={handleSubmit}
       />
       <box>
         <text>
           <span style={textStyle({ fg: "#C4A8FF" })}>{"[⊡_⊡]"}</span>
-          <span style={textStyle({ dim: true })}>{" opus"}</span>
+          <span style={textStyle({ dim: true })}>{" " + model}</span>
         </text>
       </box>
       <StatusBar items={[
@@ -54,7 +102,6 @@ function ChatInputApp() {
         { key: "/", label: "commands" },
         { key: "@", label: "files" },
         { key: "↑", label: "history" },
-        { key: "ctrl+k", label: "model" },
       ]} />
     </box>
   )
