@@ -126,12 +126,19 @@ export function ChatInput({
         const sel = suggestionsRef.current[sugIdxRef.current]
         if (sel) {
           if (valueRef.current.startsWith("/")) {
-            updateValue(sel.text + " ")
+            // Slash commands: submit immediately on selection
+            setSug([])
+            updateValue("")
+            if (enableHistory) {
+              setHist([sel.text, ...historyRef.current])
+            }
+            setHistI(-1)
+            onSubmit?.(sel.text)
           } else {
             const base = valueRef.current.slice(0, valueRef.current.lastIndexOf("@"))
             updateValue(base + sel.text + " ")
+            setSug([])
           }
-          setSug([])
         }
       } else {
         const trimmed = valueRef.current.trim()

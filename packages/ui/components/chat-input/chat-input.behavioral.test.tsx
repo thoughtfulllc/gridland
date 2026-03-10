@@ -170,8 +170,8 @@ describe("ChatInput behavior", () => {
 
   // ── Slash command suggestions (verified via callbacks) ─────────────────
 
-  it("accepts slash command suggestion on enter", () => {
-    let changed = null
+  it("submits slash command suggestion on enter", () => {
+    let submitted = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
@@ -181,18 +181,18 @@ describe("ChatInput behavior", () => {
           { cmd: "/clear", desc: "Clear chat" },
         ]}
         useKeyboard={mockUseKeyboard}
-        onChange={(text) => { changed = text }}
+        onSubmit={(text) => { submitted = text }}
       />,
       { cols: 40, rows: 8 },
     )
     savedHandler({ name: "/" })
-    // Suggestions are now active, enter accepts first one
+    // Suggestions are now active, enter submits first one
     savedHandler({ name: "return" })
-    expect(changed).toBe("/help ")
+    expect(submitted).toBe("/help")
   })
 
-  it("filters slash command suggestions", () => {
-    let changed = null
+  it("submits filtered slash command suggestion", () => {
+    let submitted = null
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
@@ -202,15 +202,15 @@ describe("ChatInput behavior", () => {
           { cmd: "/clear", desc: "Clear chat" },
         ]}
         useKeyboard={mockUseKeyboard}
-        onChange={(text) => { changed = text }}
+        onSubmit={(text) => { submitted = text }}
       />,
       { cols: 40, rows: 8 },
     )
     savedHandler({ name: "/" })
     savedHandler({ name: "c" })
-    // Only /clear matches now, enter accepts it
+    // Only /clear matches now, enter submits it
     savedHandler({ name: "return" })
-    expect(changed).toBe("/clear ")
+    expect(submitted).toBe("/clear")
   })
 
   it("submits normally when no suggestions match", () => {
