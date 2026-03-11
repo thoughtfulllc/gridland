@@ -8,11 +8,11 @@ import { useKeyboard } from "@opentui/react"
 // ── State Picker ──────────────────────────────────────────────────────────
 
 const STATES = [
-  { name: "default", props: {} },
-  { name: "focused", props: { focus: true } },
-  { name: "required", props: { required: true } },
-  { name: "error", props: { error: "This field is required" } },
-  { name: "description", props: { description: "Enter your display name" } },
+  { name: "default", props: { focus: true } },
+  { name: "read only", props: {} },
+  { name: "required", props: { focus: true, required: true } },
+  { name: "error", props: { focus: true, error: "This field is required" } },
+  { name: "description", props: { focus: true, description: "Enter your display name" } },
   { name: "disabled", props: { disabled: true } },
   { name: "maxLength", props: { focus: true, value: "John Doe", maxLength: 15 } },
 ]
@@ -58,7 +58,7 @@ function TextInputFormApp() {
 
   useKeyboard((event) => {
     if (event.name === "up") setActiveField((i) => Math.max(0, i - 1))
-    if (event.name === "down" || event.name === "tab") setActiveField((i) => Math.min(FIELDS.length - 1, i + 1))
+    if (event.name === "down") setActiveField((i) => Math.min(FIELDS.length - 1, i + 1))
   })
 
   return (
@@ -85,9 +85,6 @@ function TextInputFormApp() {
       <box paddingX={1} paddingBottom={1}>
         <StatusBar items={[
           { key: "↑↓", label: "field" },
-          { key: "←→", label: "cursor" },
-          { key: "tab", label: "next" },
-          { key: "^k/^u", label: "kill" },
         ]} />
       </box>
     </box>
