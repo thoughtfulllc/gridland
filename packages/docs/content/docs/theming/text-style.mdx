@@ -1,0 +1,50 @@
+---
+title: Text Style
+description: Helper function for applying colors and text decorations to terminal elements.
+---
+
+import TextStyleDemo from '@/components/demos/text-style-demo'
+
+Terminal elements accept `fg`, `bg`, and a numeric `attributes` bitmask in their `style` prop. The `textStyle()` helper lets you use boolean flags instead.
+
+<div className="my-8">
+  <TextStyleDemo />
+</div>
+
+## Usage
+
+```tsx
+import { textStyle } from "@gridland/ui"
+
+<span style={textStyle({ fg: "#FF71CE", bold: true })}>Bold pink</span>
+```
+
+Combine with `useTheme()` for themed styles:
+
+```tsx
+import { useTheme, textStyle } from "@gridland/ui"
+
+function MyComponent() {
+  const theme = useTheme()
+  return (
+    <text>
+      <span style={textStyle({ fg: theme.primary, bold: true })}>Title </span>
+      <span style={textStyle({ fg: theme.muted, dim: true })}>subtitle</span>
+    </text>
+  )
+}
+```
+
+## Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `fg` | `string` | Foreground (text) color |
+| `bg` | `string` | Background color |
+| `bold` | `boolean` | Bold text |
+| `dim` | `boolean` | Dimmed text (reduced brightness) |
+| `italic` | `boolean` | Italic text |
+| `underline` | `boolean` | Underlined text |
+| `inverse` | `boolean` | Swap foreground and background |
+
+Terminals have three weight levels: `dim`, normal, and `bold`. There is no CSS font-weight scale.

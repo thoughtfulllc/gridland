@@ -3,6 +3,7 @@ const BOLD = 1 << 0 // 1
 const DIM = 1 << 1 // 2
 const ITALIC = 1 << 2 // 4
 const UNDERLINE = 1 << 3 // 8
+// bit 4 (1 << 4) = BLINK — intentionally omitted, not rendered by canvas painter
 const INVERSE = 1 << 5 // 32
 
 /**
@@ -30,9 +31,9 @@ export function textStyle(opts: {
   if (opts.underline) attributes |= UNDERLINE
   if (opts.inverse) attributes |= INVERSE
 
-  return {
-    ...(opts.fg ? { fg: opts.fg } : {}),
-    ...(opts.bg ? { bg: opts.bg } : {}),
-    ...(attributes ? { attributes } : {}),
-  }
+  const result: { fg?: string; bg?: string; attributes?: number } = {}
+  if (opts.fg) result.fg = opts.fg
+  if (opts.bg) result.bg = opts.bg
+  if (attributes) result.attributes = attributes
+  return result
 }

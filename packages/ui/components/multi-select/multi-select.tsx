@@ -299,7 +299,7 @@ export function MultiSelect<V>({
           <span style={textStyle({ fg: isOnSubmit ? resolvedHighlight : theme.muted })}>
             {"↳ "}
           </span>
-          <span style={textStyle({ fg: isOnSubmit ? resolvedHighlight : theme.text })}>
+          <span style={textStyle({ fg: isOnSubmit ? resolvedHighlight : theme.foreground })}>
             {"Submit"}
           </span>
         </text>

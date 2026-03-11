@@ -1,0 +1,114 @@
+---
+title: Colors
+description: Customize colors across your Gridland UI components with built-in themes or your own custom theme.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import ThemingDemo from '@/components/demos/theming-demo'
+import { DarkThemeDisplay, LightThemeDisplay } from '@/components/ui/color-palette'
+
+Gridland UI uses semantic color tokens to theme all components. A `Theme` is a flat object with 10 hex values.
+
+<Callout type="info">
+  Without a `ThemeProvider`, all components fall back to the built-in dark theme.
+</Callout>
+
+<ThemingDemo />
+
+## Quick Start
+
+```tsx title="app.tsx"
+import { ThemeProvider, darkTheme, Spinner, Table } from "@gridland/ui"
+
+function App() {
+  return (
+    <ThemeProvider theme={darkTheme}>
+      <Spinner text="Loading..." />
+      <Table data={[{ name: "Alice", role: "Admin" }]} />
+    </ThemeProvider>
+  )
+}
+```
+
+## Tokens
+
+| Token | Purpose |
+|-------|---------|
+| `primary` | Headers, highlights, active elements |
+| `accent` | Focused/interactive elements |
+| `secondary` | User messages, checkboxes, prompts |
+| `muted` | Disabled states, placeholders |
+| `border` | Borders and dividers |
+| `foreground` | Default text color |
+| `background` | App background color |
+| `success` | Completed states |
+| `error` | Failed states |
+| `warning` | In-progress states |
+
+## Built-in Themes
+
+```tsx
+import { darkTheme, lightTheme } from "@gridland/ui"
+```
+
+### Dark
+
+<div className="my-6">
+  <DarkThemeDisplay />
+</div>
+
+### Light
+
+<div className="my-6">
+  <LightThemeDisplay />
+</div>
+
+## Custom Themes
+
+```tsx title="my-theme.ts"
+import type { Theme } from "@gridland/ui"
+
+export const myTheme: Theme = {
+  primary: "#61afef",
+  accent: "#c678dd",
+  secondary: "#98c379",
+  muted: "#5c6370",
+  border: "#5c6370",
+  foreground: "#abb2bf",
+  background: "#282c34",
+  success: "#98c379",
+  error: "#e06c75",
+  warning: "#e5c07b",
+}
+```
+
+Or extend a built-in theme:
+
+```tsx title="custom-theme.ts"
+import { darkTheme } from "@gridland/ui"
+
+export const customTheme = {
+  ...darkTheme,
+  primary: "#61afef",
+}
+```
+
+## useTheme
+
+Access tokens in your own components:
+
+```tsx
+import { useTheme } from "@gridland/ui"
+
+function MyComponent() {
+  const theme = useTheme()
+  return <text style={{ fg: theme.primary }}>Themed text</text>
+}
+```
+
+Explicit color props always override theme values:
+
+```tsx
+<Spinner text="Default" />           {/* uses theme.accent */}
+<Spinner text="Custom" color="#FF6B6B" />  {/* overrides theme */}
+```

@@ -51,8 +51,8 @@ export type { GridlandCornerRibbonProps, GridlandBadgeButtonProps, GridlandTextB
 
 export { textStyle } from "./text-style"
 
-export { ThemeProvider, useTheme, darkTheme, lightTheme } from "./theme/index"
-export type { Theme, ThemeProviderProps } from "./theme/index"
+export { ThemeProvider, useTheme, darkTheme, lightTheme } from "./theme"
+export type { Theme, ThemeProviderProps } from "./theme"
 
 export { useBreakpoints, BREAKPOINTS } from "./breakpoints/use-breakpoints"
 export type { Breakpoints } from "./breakpoints/use-breakpoints"

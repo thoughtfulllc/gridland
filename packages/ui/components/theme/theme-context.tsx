@@ -1,9 +1,8 @@
-import { createContext, useContext } from "react"
-import type { ReactNode } from "react"
+import { createContext, useContext, type ReactNode } from "react"
 import type { Theme } from "./types"
 import { darkTheme } from "./themes"
 
-const ThemeContext = createContext<Theme | null>(null)
+const ThemeContext = createContext<Theme>(darkTheme)
 
 export interface ThemeProviderProps {
   theme: Theme
@@ -15,5 +14,5 @@ export function ThemeProvider({ theme, children }: ThemeProviderProps) {
 }
 
 export function useTheme(): Theme {
-  return useContext(ThemeContext) ?? darkTheme
+  return useContext(ThemeContext)
 }

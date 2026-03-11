@@ -7,7 +7,7 @@ function TextInputApp() {
   const theme = useTheme()
   return (
     <box padding={1} flexDirection="column" gap={1}>
-      <text style={{ fg: theme.text }} bold>Enter your name:</text>
+      <text style={{ fg: theme.foreground }} bold>Enter your name:</text>
       <TextInput placeholder="Type something..." prompt="> " />
     </box>
   )

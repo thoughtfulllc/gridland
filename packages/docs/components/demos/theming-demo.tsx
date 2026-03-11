@@ -51,10 +51,12 @@ function ThemingApp() {
           <Table data={tableData} />
           <MultiSelect items={selectItems} useKeyboard={useKeyboard} />
         </box>
-        <StatusBar
-          items={[{ key: "←→", label: "theme" }]}
-          extra={<span style={textStyle({ bold: true })}>{currentTheme.name.padEnd(5)}</span>}
-        />
+        <box paddingLeft={1} paddingBottom={1}>
+          <StatusBar
+            items={[{ key: "←→", label: "theme" }]}
+            extra={<span style={textStyle({ bold: true })}>{currentTheme.name.padEnd(5)}</span>}
+          />
+        </box>
       </box>
     </ThemeProvider>
   )
