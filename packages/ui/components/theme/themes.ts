@@ -4,7 +4,7 @@ export const darkTheme: Theme = {
   primary: "#FF71CE",
   accent: "#01CDFE",
   secondary: "#B967FF",
-  muted: "#7B6F8E",
+  muted: "#9D93B1",
   border: "#B967FF",
   foreground: "#F0E6FF",
   background: "#0D0B10",
@@ -14,14 +14,14 @@ export const darkTheme: Theme = {
 }
 
 export const lightTheme: Theme = {
-  primary: "#FF8C42",
-  accent: "#FFD166",
-  secondary: "#F77F00",
-  muted: "#BCAAA4",
-  border: "#F5E6D3",
-  foreground: "#3E2723",
-  background: "#FFFBF5",
-  success: "#4CAF50",
-  error: "#EF5350",
-  warning: "#FFCA28",
+  primary: "#2563EB",
+  accent: "#7C3AED",
+  secondary: "#0369A1",
+  muted: "#64748B",
+  border: "#E2E8F0",
+  foreground: "#1E293B",
+  background: "#FFFFFF",
+  success: "#15803D",
+  error: "#E11D48",
+  warning: "#B45309",
 }

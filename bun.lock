@@ -66,7 +66,7 @@
     },
     "packages/create-gridland": {
       "name": "create-gridland",
-      "version": "0.2.8",
+      "version": "0.2.13",
       "bin": {
         "create-gridland": "./dist/index.js",
       },
@@ -81,7 +81,7 @@
     },
     "packages/demo": {
       "name": "@gridland/demo",
-      "version": "0.2.11",
+      "version": "0.2.13",
       "bin": {
         "gridland-demo": "./bin/cli.mjs",
       },
@@ -104,6 +104,7 @@
         "fumadocs-ui": "15.8.5",
         "lucide-react": "^0.474.0",
         "next": "^15.0.0",
+        "next-themes": "^0.4.6",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
       },
@@ -120,7 +121,7 @@
     },
     "packages/testing": {
       "name": "@gridland/testing",
-      "version": "0.2.11",
+      "version": "0.2.13",
       "dependencies": {
         "events": "^3.3.0",
       },
@@ -150,12 +151,14 @@
         "typescript": "^5.7.0",
       },
       "peerDependencies": {
+        "@opentui/core": ">=0.1.86",
+        "@opentui/react": ">=0.1.86",
         "react": ">=19.0.0",
       },
     },
     "packages/web": {
       "name": "@gridland/web",
-      "version": "0.2.11",
+      "version": "0.2.13",
       "dependencies": {
         "diff": "^8.0.3",
         "events": "^3.3.0",

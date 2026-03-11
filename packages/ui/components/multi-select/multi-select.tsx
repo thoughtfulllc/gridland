@@ -205,19 +205,19 @@ export function MultiSelect<V>({
       <box flexDirection="column">
         <text>
           <span style={textStyle({ fg: theme.success })}>{"◆ "}</span>
-          <span style={textStyle({ bold: true })}>{title}</span>
+          <span style={textStyle({ bold: true, fg: theme.foreground })}>{title}</span>
         </text>
         {selectedItems.map((item) => (
           <text key={item.key ?? String(item.value)}>
             <span style={textStyle({ fg: theme.success })}>{BAR} </span>
             <span>{"  "}</span>
             <span style={textStyle({ fg: theme.success })}>{CHECKED} </span>
-            <span>{item.label}</span>
+            <span style={textStyle({ fg: theme.foreground })}>{item.label}</span>
           </text>
         ))}
         <text> </text>
         <text>
-          <span style={textStyle({ dim: true })}>{selectedItems.length} selected — {submittedStatus}</span>
+          <span style={textStyle({ dim: true, fg: theme.muted })}>{selectedItems.length} selected — {submittedStatus}</span>
         </text>
       </box>
     )
@@ -229,10 +229,10 @@ export function MultiSelect<V>({
     <box flexDirection="column">
       <text>
         <span style={textStyle({ fg: diamondColor, dim: disabled })}>{"◆ "}</span>
-        <span style={textStyle({ bold: true, dim: disabled })}>{title}</span>
+        <span style={textStyle({ bold: true, dim: disabled, fg: theme.foreground })}>{title}</span>
         {required && <span style={textStyle({ fg: theme.error })}>{" *"}</span>}
         {maxCount !== undefined && (
-          <span style={textStyle({ dim: true })}>{` (${currentSelected.size}/${maxCount})`}</span>
+          <span style={textStyle({ dim: true, fg: theme.muted })}>{` (${currentSelected.size}/${maxCount})`}</span>
         )}
       </text>
       {invalid && (
@@ -244,7 +244,7 @@ export function MultiSelect<V>({
       {!hasItems && placeholder && (
         <text>
           <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
-          <span style={textStyle({ dim: true })}>{"  "}{placeholder}</span>
+          <span style={textStyle({ dim: true, fg: theme.muted })}>{"  "}{placeholder}</span>
         </text>
       )}
       {visibleRows.map((row, i) => {
@@ -273,7 +273,7 @@ export function MultiSelect<V>({
         const itemColor = isItemDisabled ? theme.muted
           : isHighlighted ? resolvedHighlight
           : isSelected ? resolvedCheckbox
-          : undefined
+          : theme.foreground
 
         return (
           <text key={item.key ?? String(item.value)}>

@@ -36,7 +36,7 @@ export function Spinner({ variant = "dots", text, color }: SpinnerProps) {
   return (
     <text>
       <span style={{ fg: resolvedColor }}>{frames[frame]}</span>
-      {text ? <span> {text}</span> : null}
+      {text ? <span style={{ fg: theme.foreground }}> {text}</span> : null}
     </text>
   )
 }

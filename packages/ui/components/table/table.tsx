@@ -96,7 +96,11 @@ export function Table<T extends ScalarDict>({
           </span>,
         )
       } else {
-        parts.push(<span key={`cell-${i}`}>{padded}</span>)
+        parts.push(
+          <span key={`cell-${i}`} style={textStyle({ fg: theme.foreground })}>
+            {padded}
+          </span>,
+        )
       }
 
       if (i < colInfo.length - 1) {
