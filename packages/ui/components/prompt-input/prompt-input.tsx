@@ -506,8 +506,8 @@ export function PromptInput({
   // ── Keyboard handler ───────────────────────────────────────────────────
 
   useKeyboard?.((event: any) => {
-    // Escape during streaming calls onStop
-    if (event.name === "escape" && status === "streaming" && onStop) {
+    // Escape during submitted/streaming calls onStop
+    if (event.name === "escape" && (status === "streaming" || status === "submitted") && onStop) {
       onStop()
       return
     }
