@@ -1,16 +1,16 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
-import { ChatInput } from "./chat-input"
+import { PromptInput } from "./prompt-input"
 
 afterEach(() => cleanup())
 
-describe("ChatInput behavior", () => {
+describe("PromptInput behavior", () => {
   // ── Static rendering ──────────────────────────────────────────────────
 
   it("renders prompt and placeholder", () => {
     const { screen } = renderTui(
-      <ChatInput placeholder="Type a message..." />,
+      <PromptInput placeholder="Type a message..." />,
       { cols: 40, rows: 4 },
     )
     const text = screen.text()
@@ -20,7 +20,7 @@ describe("ChatInput behavior", () => {
 
   it("renders custom prompt", () => {
     const { screen } = renderTui(
-      <ChatInput prompt="> " />,
+      <PromptInput prompt="> " />,
       { cols: 40, rows: 4 },
     )
     expect(screen.text()).toContain(">")
@@ -28,7 +28,7 @@ describe("ChatInput behavior", () => {
 
   it("shows cursor when not disabled", () => {
     const { screen } = renderTui(
-      <ChatInput />,
+      <PromptInput />,
       { cols: 40, rows: 4 },
     )
     expect(screen.text()).toContain("▍")
@@ -36,7 +36,7 @@ describe("ChatInput behavior", () => {
 
   it("hides cursor when disabled", () => {
     const { screen } = renderTui(
-      <ChatInput disabled />,
+      <PromptInput disabled />,
       { cols: 40, rows: 4 },
     )
     expect(screen.text()).not.toContain("▍")
@@ -44,7 +44,7 @@ describe("ChatInput behavior", () => {
 
   it("shows disabled text when disabled", () => {
     const { screen } = renderTui(
-      <ChatInput disabled disabledText="Processing..." />,
+      <PromptInput disabled disabledText="Processing..." />,
       { cols: 40, rows: 4 },
     )
     expect(screen.text()).toContain("Processing...")
@@ -57,9 +57,9 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 4 },
     )
@@ -74,9 +74,9 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 4 },
     )
@@ -89,7 +89,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
         onSubmit={() => {}}
@@ -107,7 +107,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
       />,
@@ -124,7 +124,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
       />,
@@ -141,10 +141,10 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         disabled
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 4 },
     )
@@ -158,7 +158,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
       />,
@@ -175,13 +175,13 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         commands={[
           { cmd: "/help", desc: "Show help" },
           { cmd: "/clear", desc: "Clear chat" },
         ]}
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 8 },
     )
@@ -196,13 +196,13 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         commands={[
           { cmd: "/help", desc: "Show help" },
           { cmd: "/clear", desc: "Clear chat" },
         ]}
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 8 },
     )
@@ -218,10 +218,10 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         commands={[{ cmd: "/help" }]}
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 8 },
     )
@@ -236,7 +236,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         commands={[{ cmd: "/help" }]}
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
@@ -258,7 +258,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         files={["src/index.ts", "src/auth.ts"]}
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
@@ -277,7 +277,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
         onSubmit={() => {}}
@@ -307,7 +307,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         enableHistory={false}
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
@@ -330,10 +330,10 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         status="submitted"
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 4 },
     )
@@ -344,7 +344,7 @@ describe("ChatInput behavior", () => {
 
   it("shows submittedText when status is submitted", () => {
     const { screen } = renderTui(
-      <ChatInput status="submitted" submittedText="Processing..." />,
+      <PromptInput status="submitted" submittedText="Processing..." />,
       { cols: 40, rows: 4 },
     )
     expect(screen.text()).toContain("Processing...")
@@ -355,10 +355,10 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         status="streaming"
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 4 },
     )
@@ -369,7 +369,7 @@ describe("ChatInput behavior", () => {
 
   it("shows streamingText when status is streaming", () => {
     const { screen } = renderTui(
-      <ChatInput status="streaming" streamingText="Writing..." />,
+      <PromptInput status="streaming" streamingText="Writing..." />,
       { cols: 40, rows: 4 },
     )
     expect(screen.text()).toContain("Writing...")
@@ -380,7 +380,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         status="streaming"
         onStop={() => { stopped = true }}
         useKeyboard={mockUseKeyboard}
@@ -396,7 +396,7 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         status="ready"
         onStop={() => { stopped = true }}
         useKeyboard={mockUseKeyboard}
@@ -412,10 +412,10 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         status="ready"
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 4 },
     )
@@ -430,10 +430,10 @@ describe("ChatInput behavior", () => {
     let savedHandler = null
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
-      <ChatInput
+      <PromptInput
         status="error"
         useKeyboard={mockUseKeyboard}
-        onSubmit={(text) => { submitted = text }}
+        onSubmit={(msg) => { submitted = msg.text }}
       />,
       { cols: 40, rows: 4 },
     )
@@ -445,9 +445,107 @@ describe("ChatInput behavior", () => {
 
   it("shows error text when status is error", () => {
     const { screen } = renderTui(
-      <ChatInput status="error" errorText="Something went wrong" />,
+      <PromptInput status="error" errorText="Something went wrong" />,
       { cols: 40, rows: 4 },
     )
     expect(screen.text()).toContain("Something went wrong")
+  })
+})
+
+// ── Compound component tests ──────────────────────────────────────────────
+
+describe("PromptInput compound mode", () => {
+  it("renders compound subcomponents when children provided", () => {
+    const { screen } = renderTui(
+      <PromptInput placeholder="Compound..." status="ready">
+        <PromptInput.Divider />
+        <PromptInput.Suggestions />
+        <PromptInput.Textarea />
+        <PromptInput.Submit />
+        <PromptInput.StatusText />
+        <PromptInput.Divider />
+      </PromptInput>,
+      { cols: 40, rows: 6 },
+    )
+    const text = screen.text()
+    expect(text).toContain("❯")
+    expect(text).toContain("Compound...")
+    expect(text).toContain("⏎")
+    expect(text).toContain("─")
+  })
+
+  it("renders submit icon for each status", () => {
+    const statuses = [
+      { status: "ready", icon: "⏎" },
+      { status: "submitted", icon: "◐" },
+      { status: "streaming", icon: "■" },
+      { status: "error", icon: "✕" },
+    ] as const
+    for (const { status, icon } of statuses) {
+      const { screen } = renderTui(
+        <PromptInput status={status}>
+          <PromptInput.Submit />
+        </PromptInput>,
+        { cols: 40, rows: 4 },
+      )
+      expect(screen.text()).toContain(icon)
+      cleanup()
+    }
+  })
+
+  it("shows error text via StatusText subcomponent", () => {
+    const { screen } = renderTui(
+      <PromptInput status="error" errorText="Oops">
+        <PromptInput.StatusText />
+      </PromptInput>,
+      { cols: 40, rows: 4 },
+    )
+    expect(screen.text()).toContain("Oops")
+  })
+
+  it("hides StatusText when not in error", () => {
+    const { screen } = renderTui(
+      <PromptInput status="ready" errorText="Oops">
+        <PromptInput.StatusText />
+      </PromptInput>,
+      { cols: 40, rows: 4 },
+    )
+    expect(screen.text()).not.toContain("Oops")
+  })
+
+  it("keyboard works in compound mode", () => {
+    let submitted = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <PromptInput useKeyboard={mockUseKeyboard} onSubmit={(msg) => { submitted = msg.text }}>
+        <PromptInput.Textarea />
+      </PromptInput>,
+      { cols: 40, rows: 4 },
+    )
+    savedHandler({ name: "h" })
+    savedHandler({ name: "i" })
+    savedHandler({ name: "return" })
+    expect(submitted).toBe("hi")
+  })
+
+  it("suggestions work in compound mode", () => {
+    let submitted = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <PromptInput
+        commands={[{ cmd: "/help", desc: "Show help" }]}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={(msg) => { submitted = msg.text }}
+      >
+        <PromptInput.Suggestions />
+        <PromptInput.Textarea />
+      </PromptInput>,
+      { cols: 40, rows: 8 },
+    )
+    savedHandler({ name: "/" })
+    savedHandler({ name: "return" })
+    expect(submitted).toBe("/help")
   })
 })

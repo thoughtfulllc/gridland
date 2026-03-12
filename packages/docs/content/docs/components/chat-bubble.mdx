@@ -1,0 +1,236 @@
+---
+title: Message
+description: Parts-based chat message with support for text, reasoning, tool calls, and sources
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import { RunDemo } from '@/components/ui/run-demo'
+import ChatBubbleDemo, { ChatBubbleWithInputDemo } from '@/components/demos/chat-bubble-demo'
+
+The `Message` component from `@gridland/ui` renders a single chat message using
+a compound component pattern aligned with the Vercel AI SDK's `UIMessage` format
+and ai-element's architecture. Consumers map over message parts and compose
+sub-components for full control over layout.
+
+<div className="my-8">
+  <ChatBubbleDemo />
+</div>
+
+<RunDemo name="message" />
+
+### With PromptInput
+
+Combine `Message` with `PromptInput` for a complete conversation view. Type a message and press Enter.
+
+<div className="my-8">
+  <ChatBubbleWithInputDemo />
+</div>
+
+## Installation
+
+<Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
+<Tab value="bun">
+```bash title="Terminal"
+bun add @gridland/ui
+```
+</Tab>
+<Tab value="npm">
+```bash title="Terminal"
+npm install @gridland/ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add @gridland/ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add @gridland/ui
+```
+</Tab>
+</Tabs>
+
+## Usage
+
+### Basic message
+
+Compose sub-components inside `Message`. All sub-components read shared state
+(role, streaming, background color) from context via `useMessage()`.
+
+```tsx title="Simple text messages"
+import { Message } from "@gridland/ui"
+
+<Message role="user">
+  <Message.Content>
+    <Message.Text>Hello, can you help me?</Message.Text>
+  </Message.Content>
+</Message>
+
+<Message role="assistant">
+  <Message.Content>
+    <Message.Text>Of course! What do you need?</Message.Text>
+  </Message.Content>
+  <Message.Footer model="claude-opus-4-6" />
+</Message>
+```
+
+```tsx title="Streaming message"
+<Message role="assistant" isStreaming>
+  <Message.Content>
+    <Message.Text isLast>{partialText}</Message.Text>
+  </Message.Content>
+</Message>
+```
+
+### Mapping Vercel AI SDK parts
+
+The consumer maps over `message.parts` and picks which sub-components to render.
+This follows the ai-element pattern for full control over layout.
+
+```tsx title="With useChat"
+import { Message } from "@gridland/ui"
+
+const { messages, status } = useChat({ api: "/api/chat" })
+
+{messages.map((msg, i) => {
+  const isLast = i === messages.length - 1
+  const msgStreaming = isLast && msg.role === "assistant" && status === "streaming"
+
+  return (
+    <Message key={msg.id} role={msg.role} isStreaming={msgStreaming}>
+      <Message.Content>
+        {msg.parts?.map((part, j) => {
+          const isLastPart = j === msg.parts.length - 1
+          switch (part.type) {
+            case "text":
+              return <Message.Text key={j} isLast={isLastPart && msgStreaming}>{part.text}</Message.Text>
+            case "tool-invocation":
+              return <Message.ToolInvocation key={j} part={part} />
+            case "source":
+              return <Message.Source key={j} part={part} index={j} />
+            default:
+              return null
+          }
+        })}
+      </Message.Content>
+    </Message>
+  )
+})}
+```
+
+### With reasoning
+
+Place `Message.Reasoning` outside `Message.Content` so it appears above the bubble.
+
+```tsx title="Reasoning + content"
+<Message role="assistant" isStreaming>
+  <Message.Reasoning part={{ type: "reasoning", duration: "1.2s", collapsed: false }} />
+  <Message.Content>
+    <Message.Text isLast>Here is the answer.</Message.Text>
+  </Message.Content>
+  <Message.Footer model="claude-opus-4-6" timestamp="2m ago" />
+</Message>
+```
+
+### Sub-components
+
+| Component | Description |
+|-----------|-------------|
+| `Message.Content` | Bubble wrapper with role-based background color |
+| `Message.Text` | Text with word wrap and optional streaming cursor (`isLast`) |
+| `Message.Reasoning` | Collapsible Timeline for reasoning steps |
+| `Message.ToolInvocation` | Tool call status with icon and result |
+| `Message.Source` | Numbered source citation |
+| `Message.Footer` | Model attribution and timestamp |
+
+### useMessage hook
+
+For advanced consumers, `useMessage()` exposes the context value
+from within any sub-component:
+
+```tsx title="Custom sub-component"
+import { useMessage } from "@gridland/ui"
+
+function MyCustomStatus() {
+  const { role, isStreaming } = useMessage()
+  return <text>{role}: {isStreaming ? "streaming..." : "done"}</text>
+}
+```
+
+## Part Types
+
+Each assistant message can contain multiple parts rendered in order:
+
+### TextPart
+
+Plain text content with word wrapping. The streaming cursor appears on the last text part.
+
+```tsx
+{ type: "text", text: "Hello world" }
+```
+
+### ReasoningPart
+
+Collapsible thinking block shown as a Timeline.
+
+```tsx
+{ type: "reasoning", reasoning: "Let me analyze...", collapsed: false }
+```
+
+### ToolInvocationPart
+
+Tool call with status icon and optional result. Aligned with Vercel AI SDK's `ToolInvocation` type.
+
+```tsx
+{
+  type: "tool-invocation",
+  toolInvocation: {
+    toolCallId: "tc1",
+    toolName: "readFile",
+    state: "call",        // "partial-call" | "call" | "result"
+    result: "contents",   // shown when state is "result"
+  },
+}
+```
+
+| State | Icon | Color |
+|-------|------|-------|
+| `partial-call` | • | muted |
+| `call` | ⠋ | warning |
+| `result` | ✓ | success |
+
+### SourcePart
+
+Numbered source citation.
+
+```tsx
+{ type: "source", source: { title: "Docs", url: "https://example.com" } }
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `role` | `"user" \| "assistant" \| "system"` | -- | Message role, determines alignment and background |
+| `isStreaming` | `boolean` | `false` | Shows streaming cursor on the last text part |
+| `streamingCursor` | `string` | `"▍"` | Cursor character shown while streaming |
+| `backgroundColor` | `string` | -- | Override the default role-based background color |
+| `children` | `ReactNode` | -- | Compound sub-components |
+
+### MessageContextValue
+
+```tsx
+interface MessageContextValue {
+  role: MessageRole
+  isStreaming: boolean
+  streamingCursor: string
+  backgroundColor: string
+}
+```
+
+### MessagePart
+
+```tsx
+type MessagePart = TextPart | ReasoningPart | ToolInvocationPart | SourcePart
+```

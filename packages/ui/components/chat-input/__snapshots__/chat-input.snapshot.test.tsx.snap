@@ -1,5 +1,0 @@
-// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
-
-exports[`ChatInput snapshots renders default state 1`] = `"❯ ▍ Type a message..."`;
-
-exports[`ChatInput snapshots renders disabled state 1`] = `"❯ Generating..."`;

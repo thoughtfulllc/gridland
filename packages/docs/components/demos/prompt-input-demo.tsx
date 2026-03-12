@@ -2,7 +2,7 @@
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { ChatInput, StatusBar, Modal, SelectInput, textStyle } from "@gridland/ui"
+import { PromptInput, StatusBar, Modal, SelectInput, textStyle } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
 const commands = [
@@ -22,19 +22,19 @@ const models = [
   { label: "Claude Haiku", value: "haiku" },
 ]
 
-function ChatInputApp() {
+function PromptInputApp() {
   const [lastMessage, setLastMessage] = useState("")
   const [model, setModel] = useState("opus")
   const [showModelPicker, setShowModelPicker] = useState(false)
   const [resetKey, setResetKey] = useState(0)
 
-  const handleSubmit = (text: string) => {
-    if (text === "/model") {
+  const handleSubmit = (msg: { text: string }) => {
+    if (msg.text === "/model") {
       setShowModelPicker(true)
       setResetKey((k) => k + 1)
       return
     }
-    setLastMessage(text)
+    setLastMessage(msg.text)
   }
 
   if (showModelPicker) {
@@ -75,7 +75,7 @@ function ChatInputApp() {
           </text>
         )}
       </box>
-      <ChatInput
+      <PromptInput
         key={resetKey}
         commands={commands}
         files={files}
@@ -100,10 +100,10 @@ function ChatInputApp() {
   )
 }
 
-export default function ChatInputDemo() {
+export default function PromptInputDemo() {
   return (
-    <DemoWindow title="ChatInput" tuiStyle={{ width: "100%", height: 300 }}>
-      <ChatInputApp />
+    <DemoWindow title="PromptInput" tuiStyle={{ width: "100%", height: 300 }}>
+      <PromptInputApp />
     </DemoWindow>
   )
 }

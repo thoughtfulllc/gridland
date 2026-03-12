@@ -37,11 +37,38 @@ export type { StatusBarProps, StatusBarItem } from "./status-bar/status-bar"
 export { Modal } from "./modal/modal"
 export type { ModalProps } from "./modal/modal"
 
-export { ChatInput } from "./chat-input/chat-input"
-export type { ChatInputProps, ChatStatus, Suggestion } from "./chat-input/chat-input"
+export { PromptInput, usePromptInput, PromptInputProvider, usePromptInputController } from "./prompt-input/prompt-input"
+export type {
+  PromptInputProps,
+  PromptInputContextValue,
+  PromptInputProviderProps,
+  PromptInputMessage,
+  TextInputContext,
+  SuggestionsContext,
+  ChatStatus,
+  Suggestion,
+} from "./prompt-input/prompt-input"
 
 export { ChatPanel } from "./chat/chat"
 export type { ChatPanelProps, ChatMessage, ToolCallInfo } from "./chat/chat"
+
+export { Timeline } from "./timeline/timeline"
+export type { TimelineProps, Step } from "./timeline/timeline"
+
+export { Message, useMessage } from "./message/message"
+export type {
+  MessageProps,
+  MessageContextValue,
+  MessagePart,
+  TextPart,
+  ReasoningPart,
+  ToolInvocationPart,
+  SourcePart,
+  MessageRole,
+} from "./message/message"
+
+export { AIChat } from "./ai-chat/ai-chat"
+export type { AIChatProps, AIChatModel, AIChatStep, AIChatMessage } from "./ai-chat/ai-chat"
 
 export { TerminalWindow } from "./terminal-window/terminal-window"
 export type { TerminalWindowProps } from "./terminal-window/terminal-window"

@@ -1,20 +1,20 @@
 ---
-title: ChatInput
+title: PromptInput
 description: Chat input bar with slash commands, file mentions, and command history
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { RunDemo } from '@/components/ui/run-demo'
-import ChatInputDemo from '@/components/demos/chat-input-demo'
+import PromptInputDemo from '@/components/demos/prompt-input-demo'
 
-The `ChatInput` component from `@gridland/ui` renders a chat input bar with
+The `PromptInput` component from `@gridland/ui` renders a chat input bar with
 slash command autocomplete, file mention suggestions, and command history.
 
 <div className="my-8">
-  <ChatInputDemo />
+  <PromptInputDemo />
 </div>
 
-<RunDemo name="chat-input" />
+<RunDemo name="prompt-input" />
 
 ## Installation
 
@@ -44,51 +44,51 @@ pnpm add @gridland/ui
 ## Usage
 
 ```tsx title="Basic"
-import { ChatInput } from "@gridland/ui"
+import { PromptInput } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
-<ChatInput
+<PromptInput
   placeholder="Message Claude..."
   useKeyboard={useKeyboard}
-  onSubmit={(text) => console.log("Sent:", text)}
+  onSubmit={(msg) => console.log("Sent:", msg.text)}
 />
 ```
 
 ```tsx title="With slash commands"
-<ChatInput
+<PromptInput
   commands={[
     { cmd: "/help", desc: "Show commands" },
     { cmd: "/model", desc: "Switch model" },
     { cmd: "/clear", desc: "Clear conversation" },
   ]}
   useKeyboard={useKeyboard}
-  onSubmit={(text) => console.log(text)}
+  onSubmit={(msg) => console.log(msg.text)}
 />
 ```
 
 ```tsx title="With file mentions"
-<ChatInput
+<PromptInput
   files={["src/index.ts", "src/routes.ts", "package.json"]}
   useKeyboard={useKeyboard}
-  onSubmit={(text) => console.log(text)}
+  onSubmit={(msg) => console.log(msg.text)}
 />
 ```
 
 ```tsx title="Controlled"
 const [value, setValue] = useState("")
 
-<ChatInput
+<PromptInput
   value={value}
   onChange={setValue}
   useKeyboard={useKeyboard}
-  onSubmit={(text) => console.log(text)}
+  onSubmit={(msg) => console.log(msg.text)}
 />
 ```
 
-```tsx title="With AI SDK status"
+```tsx title="With AI SDK — direct sendMessage pass-through"
 const { status, sendMessage, stop } = useChat({ /* transport config */ })
 
-<ChatInput
+<PromptInput
   status={status}
   onSubmit={sendMessage}
   onStop={stop}
@@ -97,7 +97,7 @@ const { status, sendMessage, stop } = useChat({ /* transport config */ })
 ```
 
 ```tsx title="Disabled (legacy)"
-<ChatInput
+<PromptInput
   disabled
   disabledText="Generating..."
   useKeyboard={useKeyboard}
@@ -105,7 +105,7 @@ const { status, sendMessage, stop } = useChat({ /* transport config */ })
 ```
 
 ```tsx title="Custom suggestion provider"
-<ChatInput
+<PromptInput
   getSuggestions={(value) => {
     if (value.startsWith("#")) {
       return [
@@ -120,13 +120,59 @@ const { status, sendMessage, stop } = useChat({ /* transport config */ })
 />
 ```
 
+## Compound Components
+
+For full control over layout, pass children to use compound mode. The subcomponents
+read state from `PromptInput` via context — no prop drilling needed.
+
+```tsx title="Compound usage"
+import { PromptInput } from "@gridland/ui"
+
+<PromptInput
+  status={status}
+  onSubmit={handleSubmit}
+  onStop={stop}
+  useKeyboard={useKeyboard}
+>
+  <PromptInput.Divider />
+  <PromptInput.Suggestions />
+  <PromptInput.Textarea />
+  <PromptInput.Submit />
+  <PromptInput.Divider />
+</PromptInput>
+```
+
+### Subcomponents
+
+| Component | Description |
+|-----------|-------------|
+| `PromptInput.Textarea` | Prompt character + text with syntax highlighting + cursor |
+| `PromptInput.Suggestions` | Autocomplete dropdown (slash commands, @mentions) |
+| `PromptInput.Submit` | Status indicator: ⏎ ready, ◐ submitted, ■ streaming, ✕ error |
+| `PromptInput.Divider` | Horizontal rule (─) |
+| `PromptInput.StatusText` | Error/hint text below input |
+
+### usePromptInput hook
+
+For advanced consumers, `usePromptInput()` exposes the full context value
+from within any subcomponent:
+
+```tsx title="Custom subcomponent"
+import { usePromptInput } from "@gridland/ui"
+
+function MyCustomStatus() {
+  const { status, value, disabled } = usePromptInput()
+  return <text>{status}: {value.length} chars</text>
+}
+```
+
 ## Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `value` | `string` | — | Controlled input value |
 | `defaultValue` | `string` | `""` | Default value for uncontrolled mode |
-| `onSubmit` | `(text: string) => void` | — | Called when user submits a message |
+| `onSubmit` | `(message: { text: string }) => void \| Promise<void>` | — | Called when user submits. Matches Vercel AI SDK `sendMessage({ text })`. |
 | `onChange` | `(text: string) => void` | — | Called when input value changes |
 | `placeholder` | `string` | `"Type a message..."` | Placeholder text when empty |
 | `prompt` | `string` | `"❯ "` | Prompt character before input |
@@ -145,6 +191,7 @@ const { status, sendMessage, stop } = useChat({ /* transport config */ })
 | `enableHistory` | `boolean` | `true` | Enable command history |
 | `showDividers` | `boolean` | `false` | Show full-width horizontal dividers above and below input |
 | `useKeyboard` | `function` | — | Keyboard hook from `@opentui/react` |
+| `children` | `ReactNode` | — | When provided, enables compound mode — user composes subcomponents |
 
 ### Suggestion
 

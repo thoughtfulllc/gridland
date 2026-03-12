@@ -1,4 +1,4 @@
 {
   "title": "Components",
-  "pages": ["canvas", "primitives", "gradient", "table", "spinner", "text-input", "select-input", "multi-select", "chat-input", "link", "ascii", "tab-bar", "status-bar", "modal", "chat", "terminal-window", "made-with-opentui", "made-with-gridland"]
+  "pages": ["canvas", "primitives", "gradient", "table", "spinner", "text-input", "select-input", "multi-select", "prompt-input", "chat-bubble", "timeline", "ai-chat", "link", "ascii", "tab-bar", "status-bar", "modal", "chat", "terminal-window", "made-with-opentui", "made-with-gridland"]
 }

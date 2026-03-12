@@ -1,9 +1,8 @@
-import { useState, useRef } from "react"
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
 import type { Theme } from "../theme/index"
-import type { ChatStatus } from "../chat-input/chat-input"
-import { useKeyboardContext } from "../provider/provider"
+import { PromptInput } from "../prompt-input/prompt-input"
+import type { ChatStatus } from "../prompt-input/prompt-input"
 
 export interface ChatMessage {
   /** Unique identifier for the message. Used as a list key. */
@@ -140,83 +139,6 @@ function ToolCallCard({ toolCall, statusColors }: { toolCall: ToolCallInfo; stat
   )
 }
 
-function ChatInput({
-  onSubmit,
-  placeholder = "Type a message...",
-  prompt = "> ",
-  promptColor,
-  disabled = false,
-  useKeyboard: useKeyboardProp,
-}: {
-  onSubmit: (text: string) => void
-  placeholder?: string
-  prompt?: string
-  promptColor: string
-  disabled?: boolean
-  useKeyboard?: (handler: (event: any) => void) => void
-}) {
-  const useKeyboard = useKeyboardContext(useKeyboardProp)
-  const [value, setValue] = useState("")
-  const valueRef = useRef("")
-
-  const updateValue = (newValue: string) => {
-    valueRef.current = newValue
-    setValue(newValue)
-  }
-
-  useKeyboard?.((event: any) => {
-    if (disabled) return
-
-    if (event.name === "return") {
-      const trimmed = valueRef.current.trim()
-      if (trimmed) {
-        onSubmit(trimmed)
-        updateValue("")
-      }
-      return
-    }
-
-    if (event.name === "backspace" || event.name === "delete") {
-      updateValue(valueRef.current.slice(0, -1))
-      return
-    }
-
-    // Ignore ctrl/meta modified keys
-    if (event.ctrl || event.meta) return
-
-    // Only append printable characters (single char)
-    if (event.name && event.name.length === 1) {
-      updateValue(valueRef.current + event.name)
-      return
-    }
-
-    // Handle space key
-    if (event.name === "space") {
-      updateValue(valueRef.current + " ")
-      return
-    }
-  })
-
-  const showPlaceholder = value.length === 0
-
-  return (
-    <text>
-      <span style={textStyle({ fg: promptColor })}>{prompt}</span>
-      {showPlaceholder ? (
-        <>
-          <span style={textStyle({ dim: true })}>{placeholder}</span>
-          {!disabled && <span style={textStyle({ inverse: true })}>{" "}</span>}
-        </>
-      ) : (
-        <>
-          <span>{value}</span>
-          {!disabled && <span style={textStyle({ inverse: true })}>{" "}</span>}
-        </>
-      )}
-    </text>
-  )
-}
-
 export function ChatPanel({
   messages,
   streamingText = "",
@@ -235,30 +157,21 @@ export function ChatPanel({
   useKeyboard: useKeyboardProp,
 }: ChatPanelProps) {
   const theme = useTheme()
-  const useKeyboard = useKeyboardContext(useKeyboardProp)
   const resolvedUserColor = userColor ?? theme.secondary
   const resolvedAssistantColor = assistantColor ?? theme.primary
   const resolvedPromptColor = promptColor ?? theme.secondary
   const statusColors = getStatusColors(theme)
 
-  // Derive loading/streaming state from status when provided
-  const isSubmitted = status ? status === "submitted" : isLoading && !streamingText
-  const isStreaming = status ? status === "streaming" : !!streamingText
-  const inputDisabled = isSubmitted || isStreaming
-  const stopHandler = onStop ?? onCancel
-
-  // Wrap useKeyboard to intercept escape for stop/cancel
-  const wrappedUseKeyboard = useKeyboard
-    ? (handler: (event: any) => void) => {
-        useKeyboard((event: any) => {
-          if (event.name === "escape" && inputDisabled && stopHandler) {
-            stopHandler()
-            return
-          }
-          handler(event)
-        })
-      }
+  // Derive chat status from props
+  const chatStatus: ChatStatus | undefined = status
+    ? status
+    : isLoading && !streamingText ? "submitted"
+    : streamingText ? "streaming"
     : undefined
+
+  const isSubmitted = chatStatus === "submitted"
+  const isStreaming = chatStatus === "streaming"
+  const stopHandler = onStop ?? onCancel
 
   return (
     <box flexDirection="column" paddingX={1}>
@@ -287,15 +200,17 @@ export function ChatPanel({
         <text style={textStyle({ dim: true })}>{"  "}{loadingText}</text>
       ) : null}
 
-      {/* Chat input with margin-top 1 */}
+      {/* Input */}
       <box marginTop={1}>
-        <ChatInput
-          onSubmit={onSendMessage}
+        <PromptInput
+          onSubmit={(msg) => onSendMessage(msg.text)}
+          onStop={stopHandler}
+          status={chatStatus}
           placeholder={placeholder}
           prompt={promptChar}
           promptColor={resolvedPromptColor}
-          disabled={inputDisabled}
-          useKeyboard={wrappedUseKeyboard}
+          submittedText={loadingText}
+          useKeyboard={useKeyboardProp}
         />
       </box>
     </box>

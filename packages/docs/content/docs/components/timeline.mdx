@@ -1,0 +1,129 @@
+---
+title: Timeline
+description: Animated step timeline for showing progress through a sequence of operations
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import { RunDemo } from '@/components/ui/run-demo'
+import TimelineDemo, { TimelineCollapsedDemo, TimelineExpandedDemo, TimelineWithOutputDemo } from '@/components/demos/timeline-demo'
+
+The `Timeline` component renders a collapsible list of steps with animated spinners,
+status indicators, and optional output text. Useful for showing AI reasoning chains,
+build pipelines, or any multi-step process.
+
+<div className="my-8">
+  <TimelineDemo />
+</div>
+
+## Installation
+
+<Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
+<Tab value="bun">
+```bash title="Terminal"
+bun add @gridland/ui
+```
+</Tab>
+<Tab value="npm">
+```bash title="Terminal"
+npm install @gridland/ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add @gridland/ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add @gridland/ui
+```
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx title="Basic (collapsed)"
+import { Timeline } from "@gridland/ui"
+
+<Timeline
+  steps={[
+    { tool: "Read", label: "Reading files", status: "done" },
+    { tool: "Edit", label: "Applying changes", status: "done" },
+  ]}
+  duration="3.2s"
+  collapsed
+/>
+```
+
+<div className="my-4">
+  <TimelineCollapsedDemo />
+</div>
+
+```tsx title="Expanded with active step"
+<Timeline
+  steps={[
+    { tool: "Read", label: "Reading codebase — src/", status: "done" },
+    { tool: "Think", label: "Planning changes — auth module", status: "done" },
+    { tool: "Edit", label: "Editing files — 4 files", status: "running" },
+    { tool: "Bash", label: "Running tests — vitest", status: "pending" },
+  ]}
+  duration="4.3s"
+  collapsed={false}
+/>
+```
+
+<div className="my-4">
+  <TimelineExpandedDemo />
+</div>
+
+```tsx title="With step output"
+<Timeline
+  steps={[
+    { tool: "Read", label: "Reading config", status: "done" },
+    { tool: "Bash", label: "Running tests — vitest", status: "error", output: "FAIL src/auth.test.ts — expected 200, got 401" },
+    { tool: "Edit", label: "Fixing auth handler", status: "running" },
+  ]}
+  duration="2.1s"
+  collapsed={false}
+/>
+```
+
+<div className="my-4">
+  <TimelineWithOutputDemo />
+</div>
+
+### Custom header label
+
+```tsx title="Custom label"
+<Timeline
+  steps={[
+    { tool: "Install", label: "Installing dependencies", status: "done" },
+    { tool: "Build", label: "Compiling TypeScript", status: "running" },
+    { tool: "Test", label: "Running test suite", status: "pending" },
+  ]}
+  duration="12s"
+  collapsed={false}
+  headerLabel="Build pipeline"
+/>
+```
+
+## Props
+
+### Timeline
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `steps` | `Step[]` | — | Array of step entries to display |
+| `duration` | `string` | `"0ms"` | Duration string shown in the header |
+| `collapsed` | `boolean` | `true` | Whether the step list is hidden |
+| `headerLabel` | `string` | `"Thought for"` | Label prefix shown before the duration |
+
+### Step
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `tool` | `string` | — | Tool or operation name (e.g. "Read", "Edit") |
+| `label` | `string` | — | Description of the step |
+| `status` | `"done" \| "running" \| "pending" \| "error"` | — | Current step status |
+| `duration` | `string` | — | Optional duration for the individual step |
+| `output` | `string` | — | Output or detail text shown below the step |

@@ -1,0 +1,166 @@
+---
+title: AIChat
+description: Full-featured terminal AI chat interface with streaming, tool use reasoning, viewport management, and slash commands
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import { RunDemo } from '@/components/ui/run-demo'
+import AIChatDemo from '@/components/demos/ai-chat-demo'
+
+The `AIChat` component from `@gridland/ui` renders a complete terminal-style AI chat
+interface. It composes `Message`, `Timeline`, `PromptInput`, and `StatusBar` into
+a ready-to-use chat view. It handles SSE streaming from an LLM API, displays
+reasoning steps via `Timeline`, and includes slash commands and model switching
+via `PromptInput`.
+
+<div className="my-8">
+  <AIChatDemo />
+</div>
+
+<RunDemo name="ai-chat" />
+
+## Installation
+
+<Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
+<Tab value="bun">
+```bash title="Terminal"
+bun add @gridland/ui
+```
+</Tab>
+<Tab value="npm">
+```bash title="Terminal"
+npm install @gridland/ui
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add @gridland/ui
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add @gridland/ui
+```
+</Tab>
+</Tabs>
+
+## Usage
+
+```tsx
+import { AIChat } from "@gridland/ui"
+import { useKeyboard } from "@opentui/react"
+
+function App() {
+  return (
+    <AIChat
+      useKeyboard={useKeyboard}
+      apiUrl="/api/chat"
+    />
+  )
+}
+```
+
+## Architecture
+
+`AIChat` composes these Gridland primitives:
+
+| Component | Role |
+|-----------|------|
+| [`Message`](/docs/components/chat-bubble) | Renders each message with role-based styling, streaming cursor |
+| [`Message.Reasoning`](/docs/components/chat-bubble) | Shows reasoning steps via `Timeline` |
+| [`PromptInput`](/docs/components/prompt-input) | Input with slash commands, history, submit/stop |
+| [`StatusBar`](/docs/components/status-bar) | Bottom bar showing model, keybindings |
+
+## Features
+
+### Streaming
+
+- Connects to an SSE endpoint and parses `step_start`, `step_done`, `text`, `error`, and `done` events
+- Typewriter effect reveals text 3 characters at a time at ~60fps
+- Streaming cursor shown via `Message.Text isLast` during generation
+
+### Reasoning Steps
+
+During streaming, reasoning steps are rendered via `Message.Reasoning` → `Timeline`:
+
+- **Collapsed** (default): Shows header only ("Thought for 1.2s")
+- **Expanded**: Full step timeline with animated spinners, status dots, and detail text
+
+Toggle with `Ctrl+Shift+E`.
+
+### Slash Commands
+
+Handled by `PromptInput`:
+
+- `/help` — Show available commands
+- `/clear` — Clear the conversation
+- `/model` — Switch between models (sonnet, haiku, opus)
+
+### Input History
+
+Handled by `PromptInput` — use up/down arrows to recall previously submitted messages.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `apiUrl` | `string` | `"/api/chat"` | SSE endpoint for chat streaming |
+| `useKeyboard` | `(handler) => void` | — | Keyboard hook from `@opentui/react` |
+| `initialMessages` | `AIChatMessage[]` | `[]` | Pre-populated messages |
+| `initialModel` | `string` | First model label | Starting model label |
+| `models` | `AIChatModel[]` | Claude sonnet/haiku/opus | Available models for `/model` switching |
+| `commands` | `{ cmd: string; desc?: string }[]` | `/help`, `/clear`, `/model` | Slash commands for autocomplete |
+| `placeholder` | `string` | `"Message Claude..."` | Input placeholder text |
+
+## Types
+
+### AIChatModel
+
+```tsx
+interface AIChatModel {
+  id: string
+  label: string
+}
+```
+
+### AIChatMessage
+
+```tsx
+interface AIChatMessage {
+  role: "user" | "assistant"
+  text: string
+  steps?: AIChatStep[]
+}
+```
+
+### AIChatStep
+
+```tsx
+interface AIChatStep {
+  tool: string
+  label: string
+  duration: string
+  status: "done" | "running" | "pending"
+  detail?: string
+}
+```
+
+## SSE Event Format
+
+The API endpoint should stream Server-Sent Events with these event types:
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `step_start` | `{ type, tool, label }` | A reasoning step has started |
+| `step_done` | `{ type, tool, label, duration, detail }` | A step completed |
+| `text` | `{ type, text }` | Append text to the response |
+| `error` | `{ type, error }` | An error occurred |
+| `done` | `{ type }` | Stream complete |
+
+## Keybindings
+
+Most keybindings are handled by `PromptInput`. AIChat adds:
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+Shift+E` | Toggle reasoning step timeline |

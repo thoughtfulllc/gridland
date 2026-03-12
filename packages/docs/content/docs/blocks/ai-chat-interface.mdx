@@ -1,0 +1,227 @@
+---
+title: AI Chat Interface
+description: Complete chat interface combining Message, PromptInput, and Timeline with Vercel AI SDK
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import { Callout } from 'fumadocs-ui/components/callout'
+import AIChatInterfaceDemo from '@/components/demos/ai-chat-interface-demo'
+
+A ready-to-use AI chat interface that combines `Message`, `PromptInput`, and `Timeline`
+into a scrollable conversation view with streaming support. Built on the Vercel AI SDK
+and compatible with any model provider via OpenRouter, OpenAI, Anthropic, or custom endpoints.
+
+<div className="my-8">
+  <AIChatInterfaceDemo />
+</div>
+
+<Callout type="info">
+  This demo connects to a live LLM via a Next.js API route. Set your `OPENROUTER_API_KEY` in `.env` to try it.
+</Callout>
+
+## Installation
+
+<Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
+<Tab value="bun">
+```bash title="Terminal"
+bun add @gridland/ui @ai-sdk/react @openrouter/ai-sdk-provider ai
+```
+</Tab>
+<Tab value="npm">
+```bash title="Terminal"
+npm install @gridland/ui @ai-sdk/react @openrouter/ai-sdk-provider ai
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn add @gridland/ui @ai-sdk/react @openrouter/ai-sdk-provider ai
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm add @gridland/ui @ai-sdk/react @openrouter/ai-sdk-provider ai
+```
+</Tab>
+</Tabs>
+
+## Server Route
+
+Create an API route that streams responses from your model provider.
+
+```ts title="app/api/chat/route.ts"
+import { createOpenRouter } from "@openrouter/ai-sdk-provider"
+import { streamText, convertToModelMessages, type UIMessage } from "ai"
+
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+})
+
+export async function POST(req: Request) {
+  const { messages }: { messages: UIMessage[] } = await req.json()
+
+  const result = streamText({
+    model: openrouter.chat("openai/gpt-4o-mini"),
+    messages: await convertToModelMessages(messages),
+  })
+
+  return result.toUIMessageStreamResponse()
+}
+```
+
+## Client Component
+
+Wire up `useChat` from the Vercel AI SDK with `Message` compound components and `PromptInput`.
+
+```tsx title="chat-interface.tsx"
+import { Message, PromptInput } from "@gridland/ui"
+import type { ChatStatus } from "@gridland/ui"
+import { useChat } from "@ai-sdk/react"
+import { useKeyboard } from "@opentui/react"
+
+function ChatInterface() {
+  const { messages, status, sendMessage, stop } = useChat({
+    api: "/api/chat",
+  })
+
+  const chatStatus: ChatStatus =
+    status === "streaming" ? "streaming"
+    : status === "submitted" ? "submitted"
+    : status === "error" ? "error"
+    : "ready"
+
+  const isStreaming = status === "streaming"
+
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <box
+        flexDirection="column"
+        paddingX={1}
+        gap={1}
+        flexGrow={1}
+        overflow="hidden"
+        justifyContent="flex-end"
+      >
+        {messages.map((msg, i) => {
+          const isLast = i === messages.length - 1
+          const msgStreaming = isLast && msg.role === "assistant" && isStreaming
+
+          return (
+            <Message
+              key={msg.id}
+              role={msg.role as "user" | "assistant"}
+              isStreaming={msgStreaming}
+            >
+              <Message.Content>
+                {msg.parts?.map((part, j) => {
+                  const isLastPart = j === msg.parts.length - 1
+                  switch (part.type) {
+                    case "text":
+                      return (
+                        <Message.Text key={j} isLast={isLastPart && msgStreaming}>
+                          {part.text}
+                        </Message.Text>
+                      )
+                    case "reasoning":
+                      return (
+                        <Message.Reasoning key={j} part={{
+                          type: "reasoning",
+                          reasoning: part.reasoning,
+                        }} />
+                      )
+                    case "tool-invocation":
+                      return (
+                        <Message.ToolInvocation key={j} part={{
+                          type: "tool-invocation",
+                          toolInvocation: {
+                            toolCallId: part.toolInvocation.toolCallId,
+                            toolName: part.toolInvocation.toolName,
+                            args: part.toolInvocation.args,
+                            state: part.toolInvocation.state,
+                            result: part.toolInvocation.result,
+                          },
+                        }} />
+                      )
+                    default:
+                      return null
+                  }
+                }) ?? (
+                  typeof msg.content === "string"
+                    ? <Message.Text isLast={msgStreaming}>{msg.content}</Message.Text>
+                    : null
+                )}
+              </Message.Content>
+            </Message>
+          )
+        })}
+      </box>
+      <box flexShrink={0}>
+        <PromptInput
+          onSubmit={sendMessage}
+          onStop={stop}
+          status={chatStatus}
+          placeholder="Type a message..."
+          useKeyboard={useKeyboard}
+          showDividers
+        />
+      </box>
+    </box>
+  )
+}
+```
+
+## Components Used
+
+This block combines three Gridland components:
+
+| Component | Role |
+|-----------|------|
+| [`Message`](/docs/components/chat-bubble) | Renders individual messages with role-based styling and streaming |
+| [`PromptInput`](/docs/components/prompt-input) | Input field with submit/stop, slash commands, and file mentions |
+| [`Timeline`](/docs/components/timeline) | Animated step timeline for reasoning chains (when model supports it) |
+
+## Customization
+
+### Using a different model
+
+Swap the model ID in the API route to use any provider on OpenRouter:
+
+```ts title="route.ts"
+const result = streamText({
+  model: openrouter.chat("anthropic/claude-sonnet-4"),
+  messages: await convertToModelMessages(messages),
+})
+```
+
+### Direct provider (no OpenRouter)
+
+```ts title="route.ts"
+import { anthropic } from "@ai-sdk/anthropic"
+
+const result = streamText({
+  model: anthropic("claude-sonnet-4-20250514"),
+  messages: await convertToModelMessages(messages),
+})
+```
+
+### Adding Timeline for reasoning models
+
+When using a model that supports extended thinking (e.g. `deepseek-r1`, `o1`),
+reasoning parts appear automatically. Render `Message.Reasoning` outside
+`Message.Content` to show it above the bubble, and control `collapsed` state:
+
+```tsx
+const [expanded, setExpanded] = useState(false)
+
+{msg.parts?.map((part, j) => {
+  if (part.type === "reasoning") {
+    return (
+      <Message.Reasoning key={j} part={{
+        type: "reasoning",
+        reasoning: part.reasoning,
+        collapsed: !expanded,
+      }} />
+    )
+  }
+  // ... other part types inside Message.Content
+})}
+```

@@ -1,5 +1,5 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import { useKeyboard } from "@opentui/react"
 import {
   Gradient, GRADIENTS, type GradientName,
@@ -8,15 +8,19 @@ import {
   Spinner, SpinnerPicker, SpinnerShowcase,
   SelectInput,
   MultiSelect,
-  ChatInput,
+  PromptInput,
   TextInput,
   LinkDemo as LinkDemoComponent,
   Link, type UnderlineStyle,
   TabBar,
   Modal,
   ChatPanel,
+  Message,
+  AIChat,
+  Timeline,
   type ChatMessage,
   type ToolCallInfo,
+  type Step,
 } from "../components/index"
 import { LandingApp } from "../../docs/components/landing"
 import figlet from "figlet"
@@ -189,7 +193,7 @@ export function MultiSelectApp() {
   )
 }
 
-export function ChatInputApp() {
+export function PromptInputApp() {
   const [lastMessage, setLastMessage] = useState("")
   const [model, setModel] = useState("opus")
   const [showModelPicker, setShowModelPicker] = useState(false)
@@ -206,18 +210,18 @@ export function ChatInputApp() {
     { label: "Claude Haiku", value: "haiku" },
   ]
 
-  const handleSubmit = (text: string) => {
-    if (text === "/model") {
+  const handleSubmit = (msg: { text: string }) => {
+    if (msg.text === "/model") {
       setShowModelPicker(true)
       setResetKey((k) => k + 1)
       return
     }
-    if (text === "/clear") {
+    if (msg.text === "/clear") {
       setLastMessage("")
       setResetKey((k) => k + 1)
       return
     }
-    setLastMessage(text)
+    setLastMessage(msg.text)
   }
 
   if (showModelPicker) {
@@ -262,7 +266,7 @@ export function ChatInputApp() {
         )}
       </box>
       <box paddingX={1}>
-        <ChatInput
+        <PromptInput
           key={resetKey}
           commands={commands}
           files={files}
@@ -441,6 +445,197 @@ export function TerminalWindowApp() {
   )
 }
 
+const TIMELINE_STEPS: (Step & { delay: number })[] = [
+  { tool: "Read", label: "Reading codebase \u2014 src/", status: "done", delay: 1800 },
+  { tool: "Think", label: "Planning changes \u2014 auth module", status: "done", delay: 2500 },
+  { tool: "Edit", label: "Editing files \u2014 4 files", status: "done", delay: 3200 },
+  { tool: "Bash", label: "Running tests \u2014 vitest", status: "done", delay: 2000 },
+  { tool: "Edit", label: "Fixing test \u2014 routes.test.ts", status: "done", delay: 1500 },
+]
+
+type TimelinePhase = "running" | "done"
+
+export function TimelineApp() {
+  const [expanded, setExpanded] = useState(true)
+  const [phase, setPhase] = useState<TimelinePhase>("running")
+  const [stepIndex, setStepIndex] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useKeyboard((event) => {
+    if (event.name === "E" && event.ctrl && event.shift) setExpanded((v) => !v)
+    if (event.name === "r") timelineRestart()
+  })
+
+  function timelineRestart() {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    setPhase("running")
+    setStepIndex(0)
+  }
+
+  useEffect(() => {
+    if (phase !== "running") return
+    if (stepIndex < TIMELINE_STEPS.length) {
+      const delay = TIMELINE_STEPS[stepIndex]!.delay
+      timerRef.current = setTimeout(() => setStepIndex((i) => i + 1), delay)
+    } else {
+      timerRef.current = setTimeout(() => setPhase("done"), 500)
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [phase, stepIndex])
+
+  useEffect(() => {
+    if (phase === "done") {
+      timerRef.current = setTimeout(() => timelineRestart(), 3000)
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [phase])
+
+  const steps: Step[] = TIMELINE_STEPS.map((s, i) => {
+    if (i < stepIndex) return { ...s, status: "done" as const }
+    if (i === stepIndex && phase === "running") return { ...s, status: "running" as const }
+    return { ...s, status: phase === "done" ? ("done" as const) : ("pending" as const) }
+  })
+
+  const elapsedMs = TIMELINE_STEPS.slice(0, stepIndex).reduce((sum, s) => sum + s.delay, 0)
+  const totalMs = TIMELINE_STEPS.reduce((sum, s) => sum + s.delay, 0)
+
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <box flexDirection="column" padding={1} flexGrow={1}>
+        <Timeline
+          steps={steps}
+          duration={phase === "done" ? `${(totalMs / 1000).toFixed(1)}s` : `${(elapsedMs / 1000).toFixed(1)}s`}
+          collapsed={!expanded}
+        />
+      </box>
+      <StatusBar items={[
+        { key: "ctrl+shift+e", label: "toggle" },
+        { key: "r", label: "restart" },
+        { key: "q", label: "quit" },
+      ]} />
+    </box>
+  )
+}
+
+const BUBBLE_STEPS: (Step & { delay: number })[] = [
+  { tool: "Read", label: "Reading codebase \u2014 src/", status: "done", delay: 1800 },
+  { tool: "Think", label: "Planning changes \u2014 auth module", status: "done", delay: 2500 },
+  { tool: "Edit", label: "Editing files \u2014 4 files", status: "done", delay: 3200 },
+  { tool: "Bash", label: "Running tests \u2014 vitest", status: "done", delay: 2000 },
+  { tool: "Edit", label: "Fixing test \u2014 routes.test.ts", status: "done", delay: 1500 },
+]
+
+const BUBBLE_RESPONSE = "I've refactored the auth module. The changes include extracting the token validation into a shared helper, consolidating the middleware chain, and updating the test suite to match."
+
+const BUBBLE_TOTAL_MS = BUBBLE_STEPS.reduce((sum, s) => sum + s.delay, 0)
+
+type BubblePhase = "idle" | "thinking" | "streaming" | "done"
+
+export function MessageApp() {
+  const [expanded, setExpanded] = useState(true)
+  const [phase, setPhase] = useState<BubblePhase>("idle")
+  const [stepIndex, setStepIndex] = useState(0)
+  const [streamedText, setStreamedText] = useState("")
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useKeyboard((event) => {
+    if (event.name === "E" && event.ctrl && event.shift) setExpanded((v) => !v)
+    if (event.name === "r") bubbleRestart()
+  })
+
+  function bubbleRestart() {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    setPhase("idle")
+    setStepIndex(0)
+    setStreamedText("")
+  }
+
+  useEffect(() => {
+    if (phase === "idle") {
+      timerRef.current = setTimeout(() => setPhase("thinking"), 800)
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [phase])
+
+  useEffect(() => {
+    if (phase !== "thinking") return
+    if (stepIndex < BUBBLE_STEPS.length) {
+      const delay = BUBBLE_STEPS[stepIndex]!.delay
+      timerRef.current = setTimeout(() => setStepIndex((i) => i + 1), delay)
+    } else {
+      timerRef.current = setTimeout(() => setPhase("streaming"), 500)
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [phase, stepIndex])
+
+  useEffect(() => {
+    if (phase !== "streaming") return
+    if (streamedText.length < BUBBLE_RESPONSE.length) {
+      timerRef.current = setTimeout(() => {
+        setStreamedText(BUBBLE_RESPONSE.slice(0, streamedText.length + 2))
+      }, 25)
+    } else {
+      timerRef.current = setTimeout(() => setPhase("done"), 500)
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [phase, streamedText])
+
+  useEffect(() => {
+    if (phase === "done") {
+      timerRef.current = setTimeout(() => bubbleRestart(), 3000)
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [phase])
+
+  const steps = BUBBLE_STEPS.map((s, i) => {
+    if (i < stepIndex) return { ...s, status: "done" as const }
+    if (i === stepIndex) return { ...s, status: "running" as const }
+    return { ...s, status: "pending" as const }
+  })
+
+  const isThinking = phase === "thinking"
+  const isStreaming = phase === "streaming"
+  const isDone = phase === "done"
+  const showAssistant = phase !== "idle"
+
+  const elapsedMs = BUBBLE_STEPS.slice(0, stepIndex).reduce((sum, s) => sum + s.delay, 0)
+
+  const reasoningDuration = isThinking
+    ? `${(elapsedMs / 1000).toFixed(1)}s`
+    : `${(BUBBLE_TOTAL_MS / 1000).toFixed(1)}s`
+  const reasoningSteps = isThinking
+    ? steps
+    : BUBBLE_STEPS.map((s) => ({ ...s, status: "done" as const }))
+
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <box flexDirection="column" padding={1} gap={1} flexGrow={1}>
+        <Message role="user">
+          <Message.Content>
+            <Message.Text>Can you refactor the auth module?</Message.Text>
+          </Message.Content>
+        </Message>
+        {showAssistant && (
+          <Message role="assistant" isStreaming={isStreaming}>
+            <Message.Reasoning part={{
+              type: "reasoning",
+              duration: reasoningDuration,
+              collapsed: !expanded,
+              steps: reasoningSteps,
+            }} />
+            {(isStreaming || isDone) && (
+              <Message.Content>
+                <Message.Text isLast>{isDone ? BUBBLE_RESPONSE : streamedText}</Message.Text>
+              </Message.Content>
+            )}
+          </Message>
+        )}
+      </box>
+      <StatusBar items={[{ key: "ctrl+shift+e", label: "toggle timeline" }, { key: "r", label: "restart" }, { key: "q", label: "quit" }]} />
+    </box>
+  )
+}
+
 const initialChatMessages: ChatMessage[] = [
   { id: "1", role: "user", content: "Show me my portfolio" },
   { id: "2", role: "assistant", content: "Here's your current portfolio allocation:" },
@@ -531,7 +726,7 @@ export const demos: Demo[] = [
   { name: "spinner", app: () => <SpinnerApp /> },
   { name: "select-input", app: () => <SelectInputApp /> },
   { name: "multi-select", app: () => <MultiSelectApp /> },
-  { name: "chat-input", app: () => <ChatInputApp /> },
+  { name: "prompt-input", app: () => <PromptInputApp /> },
   { name: "text-input", app: () => <TextInputApp /> },
   { name: "link", app: () => <LinkApp /> },
   { name: "tab-bar", app: () => <TabBarApp /> },
@@ -539,6 +734,9 @@ export const demos: Demo[] = [
   { name: "modal", app: () => <ModalApp /> },
   { name: "primitives", app: () => <PrimitivesApp /> },
   { name: "chat", app: () => <ChatApp /> },
+  { name: "timeline", app: () => <TimelineApp /> },
+  { name: "message", app: () => <MessageApp /> },
+  { name: "ai-chat", app: () => <AIChat useKeyboard={useKeyboard} /> },
   { name: "terminal", app: () => <TerminalWindowApp /> },
   { name: "landing", app: () => <LandingApp useKeyboard={useKeyboard} /> },
 ]
