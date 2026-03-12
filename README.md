@@ -58,6 +58,17 @@ bun run test
 bun run build
 ```
 
+### Environment variables
+
+Some docs demos (e.g. the AI chat demo) require an API key. Create a `.env` file in `packages/docs/`:
+
+```bash
+# packages/docs/.env
+OPENROUTER_API_KEY=sk-or-...
+```
+
+You can get an API key from [OpenRouter](https://openrouter.ai/).
+
 ## Project structure
 
 ```
