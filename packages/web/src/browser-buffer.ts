@@ -1,5 +1,5 @@
 import type { RGBA } from "./core-shims/rgba"
-import type { CapturedLine, CapturedSpan } from "./core-shims/types"
+import type { CapturedLine, CapturedSpan, CursorStyle } from "./core-shims/types"
 import { attributesWithLink } from "./core-shims/index"
 
 // Attribute flags matching TextAttributes from opentui core
@@ -49,6 +49,11 @@ export class BrowserBuffer {
   // Link registry for clickable links
   public linkRegistry: Map<number, string> = new Map()
   private nextLinkId: number = 1
+  /** Cursor rendering config -- set by renderer before pipeline, read by drawEditorView */
+  public cursorColor: RGBA | null = null
+  public cursorStyleType: CursorStyle = "block"
+  /** Line cursor position -- set by drawEditorView during pipeline, read by renderer after */
+  public lineCursorPosition: { x: number; y: number } | null = null
 
   constructor(
     width: number,
@@ -630,8 +635,8 @@ export class BrowserBuffer {
     const visibleRows = viewport.height > 0 ? viewport.height : this._height - y
 
     if (text === "" && editorView._placeholderChunks && editorView._placeholderChunks.length > 0) {
-      // Draw placeholder text
-      let curX = x
+      // Draw placeholder text; offset by 1 cell for line cursor so it doesn't overlap
+      let curX = this.cursorStyleType === "line" ? x + 1 : x
       for (const chunk of editorView._placeholderChunks) {
         const chunkFg = chunk.fg ?? dfg
         const chunkBg = chunk.bg ?? dbg
@@ -664,16 +669,30 @@ export class BrowserBuffer {
       }
     }
 
-    // Draw cursor with INVERSE attribute
+    // Draw cursor
     const cursor = editorView.getVisualCursor()
     if (cursor) {
       const cursorX = x + cursor.visualCol
       const cursorY = y + cursor.visualRow
       if (cursorX >= 0 && cursorX < this._width && cursorY >= 0 && cursorY < this._height) {
-        const idx = cursorY * this._width + cursorX
-        const charCode = this.char[idx]
-        const ch = charCode === 0 || charCode === 0x20 ? " " : String.fromCodePoint(charCode)
-        this.setCell(cursorX, cursorY, ch, dfg, dbg, 32) // INVERSE = 1 << 5 = 32
+        const cursorFg = this.cursorColor ?? dfg
+        if (this.cursorStyleType === "line") {
+          // Line cursor: store position for renderer to build cursor overlay
+          this.lineCursorPosition = { x: cursorX, y: cursorY }
+        } else {
+          // Block cursor: overwrite cell with INVERSE
+          const idx = cursorY * this._width + cursorX
+          const charCode = this.char[idx]
+          const ch = charCode === 0 || charCode === 0x20 ? " " : String.fromCodePoint(charCode)
+          const offset = idx * 4
+          const cellBg = {
+            r: this.bg[offset],
+            g: this.bg[offset + 1],
+            b: this.bg[offset + 2],
+            a: this.bg[offset + 3] || 1,
+          } as RGBA
+          this.setCell(cursorX, cursorY, ch, cursorFg, cellBg, 32) // INVERSE = 1 << 5 = 32
+        }
       }
     }
   }

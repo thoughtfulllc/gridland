@@ -7,7 +7,7 @@ import { Callout } from 'fumadocs-ui/components/callout'
 import ThemingDemo from '@/components/demos/theming-demo'
 import { DarkThemeDisplay, LightThemeDisplay } from '@/components/ui/color-palette'
 
-Gridland UI uses semantic color tokens to theme all components. A `Theme` is a flat object with 10 hex values.
+Gridland UI uses semantic color tokens to theme all components. A `Theme` is a flat object with 11 hex values.
 
 <Callout type="info">
   Without a `ThemeProvider`, all components fall back to the built-in dark theme.
@@ -37,7 +37,8 @@ function App() {
 | `primary` | Headers, highlights, active elements |
 | `accent` | Focused/interactive elements |
 | `secondary` | User messages, checkboxes, prompts |
-| `muted` | Disabled states, placeholders |
+| `muted` | Disabled states, cursor, secondary text |
+| `placeholder` | Placeholder text in inputs |
 | `border` | Borders and dividers |
 | `foreground` | Default text color |
 | `background` | App background color |
@@ -73,6 +74,7 @@ export const myTheme: Theme = {
   accent: "#c678dd",
   secondary: "#98c379",
   muted: "#5c6370",
+  placeholder: "#4b5263",
   border: "#5c6370",
   foreground: "#abb2bf",
   background: "#282c34",

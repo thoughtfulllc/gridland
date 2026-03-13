@@ -1,27 +1,27 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { textStyle, darkTheme } from "@gridland/ui"
-
-const desc = textStyle({ fg: darkTheme.muted })
+import { textStyle, useTheme } from "@gridland/ui"
 
 function TextStyleApp() {
+  const theme = useTheme()
+  const desc = textStyle({ fg: theme.muted })
   return (
     <box flexDirection="column" padding={1} gap={0}>
       <text>
-        <span style={textStyle({ bold: true })}>bold          </span>
+        <span style={textStyle({ fg: theme.foreground, bold: true })}>bold          </span>
         <span style={desc}>textStyle({"{"} bold: true {"}"})</span>
       </text>
       <text>
-        <span style={textStyle({ dim: true })}>dim           </span>
+        <span style={textStyle({ fg: theme.foreground, dim: true })}>dim           </span>
         <span style={desc}>textStyle({"{"} dim: true {"}"})</span>
       </text>
       <text>
-        <span style={textStyle({ italic: true })}>italic        </span>
+        <span style={textStyle({ fg: theme.foreground, italic: true })}>italic        </span>
         <span style={desc}>textStyle({"{"} italic: true {"}"})</span>
       </text>
       <text>
-        <span style={textStyle({ underline: true })}>underline     </span>
+        <span style={textStyle({ fg: theme.foreground, underline: true })}>underline     </span>
         <span style={desc}>textStyle({"{"} underline: true {"}"})</span>
       </text>
       <text>
@@ -30,26 +30,27 @@ function TextStyleApp() {
       </text>
       <text> </text>
       <text>
-        <span style={textStyle({ fg: darkTheme.primary })}>fg color      </span>
-        <span style={desc}>textStyle({"{"} fg: "#FF71CE" {"}"})</span>
+        <span style={textStyle({ fg: theme.primary })}>fg color      </span>
+        <span style={desc}>textStyle({"{"} fg: theme.primary {"}"})</span>
       </text>
       <text>
-        <span style={textStyle({ fg: darkTheme.foreground, bg: darkTheme.secondary })}>bg color      </span>
-        <span style={desc}>textStyle({"{"} fg: "#F0E6FF", bg: "#B967FF" {"}"})</span>
+        <span style={textStyle({ fg: theme.foreground, bg: theme.secondary })}>bg color      </span>
+        <span style={desc}>textStyle({"{"} fg: theme.foreground, bg: theme.secondary {"}"})</span>
       </text>
       <text> </text>
       <text>
-        <span style={textStyle({ fg: darkTheme.accent, bold: true, underline: true })}>combined      </span>
-        <span style={desc}>textStyle({"{"} fg: "#01CDFE", bold: true, underline: true {"}"})</span>
+        <span style={textStyle({ fg: theme.accent, bold: true, underline: true })}>combined      </span>
+        <span style={desc}>textStyle({"{"} fg: theme.accent, bold: true, underline: true {"}"})</span>
       </text>
     </box>
   )
 }
 
 function DirectTextStyleApp() {
+  const theme = useTheme()
   return (
     <box flexDirection="column" padding={1} gap={0}>
-      <text style={textStyle({ fg: darkTheme.primary, bold: true })}>
+      <text style={textStyle({ fg: theme.primary, bold: true })}>
         Single style applied to the entire text element
       </text>
     </box>
@@ -57,22 +58,23 @@ function DirectTextStyleApp() {
 }
 
 function MixedSpanStyleApp() {
+  const theme = useTheme()
   return (
     <box flexDirection="column" padding={1} gap={0}>
       <text>
-        <span style={textStyle({ fg: darkTheme.primary, bold: true })}>Server </span>
-        <span style={textStyle({ fg: darkTheme.success })}>running </span>
-        <span style={textStyle({ fg: darkTheme.muted, dim: true })}>on port 3000</span>
+        <span style={textStyle({ fg: theme.primary, bold: true })}>Server </span>
+        <span style={textStyle({ fg: theme.success })}>running </span>
+        <span style={textStyle({ fg: theme.muted, dim: true })}>on port 3000</span>
       </text>
       <text>
-        <span style={textStyle({ fg: darkTheme.error, bold: true })}>Error: </span>
-        <span style={textStyle({ fg: darkTheme.foreground })}>connection refused </span>
-        <span style={textStyle({ fg: darkTheme.muted, dim: true })}>(retry in 5s)</span>
+        <span style={textStyle({ fg: theme.error, bold: true })}>Error: </span>
+        <span style={textStyle({ fg: theme.foreground })}>connection refused </span>
+        <span style={textStyle({ fg: theme.muted, dim: true })}>(retry in 5s)</span>
       </text>
       <text>
-        <span style={textStyle({ fg: darkTheme.secondary, bold: true })}>{"▸ "}</span>
-        <span style={textStyle({ fg: darkTheme.foreground })}>Deploy to </span>
-        <span style={textStyle({ fg: darkTheme.accent, underline: true })}>production</span>
+        <span style={textStyle({ fg: theme.secondary, bold: true })}>{"▸ "}</span>
+        <span style={textStyle({ fg: theme.foreground })}>Deploy to </span>
+        <span style={textStyle({ fg: theme.accent, underline: true })}>production</span>
       </text>
     </box>
   )
