@@ -1,6 +1,6 @@
 import { BrowserBuffer } from "./browser-buffer"
 import { BrowserRenderContext } from "./browser-render-context"
-import { CanvasPainter } from "./canvas-painter"
+import { CanvasPainter, type CursorOverlay } from "./canvas-painter"
 import { SelectionManager } from "./selection-manager"
 import { getLinkId } from "./core-shims/index"
 import { executeRenderPipeline } from "./render-pipeline"
@@ -238,10 +238,24 @@ export class BrowserRenderer {
     const deltaTime = now - this.lastTime
     this.lastTime = now
 
-    if (!this.needsRender) return
-    this.needsRender = false
+    let didRender = false
+    if (this.needsRender) {
+      this.needsRender = false
+      didRender = true
 
-    executeRenderPipeline(this.buffer, this.renderContext, this.root, deltaTime)
+      // Pass cursor config from render context to buffer before rendering
+      this.buffer.cursorColor = this.renderContext.cursorColor
+      this.buffer.cursorStyleType = this.renderContext.cursorStyleType
+      this.buffer.lineCursorPosition = null
+
+      executeRenderPipeline(this.buffer, this.renderContext, this.root, deltaTime)
+    }
+
+    // Build cursor overlay from buffer position + render context config
+    const cursorOverlay = this.buildCursorOverlay()
+
+    // Repaint when render pipeline ran, or every frame when blinking cursor is active
+    if (!didRender && !cursorOverlay?.blinking) return
 
     // Paint to canvas
     const dpr = window.devicePixelRatio || 1
@@ -252,7 +266,18 @@ export class BrowserRenderer {
     } else {
       this.ctx2d.clearRect(0, 0, this.canvas.width, this.canvas.height)
     }
-    this.painter.paint(this.ctx2d, this.buffer, this.selection)
+    this.painter.paint(this.ctx2d, this.buffer, this.selection, cursorOverlay)
+  }
+
+  private buildCursorOverlay(): CursorOverlay | null {
+    const pos = this.buffer.lineCursorPosition
+    if (!pos || !this.renderContext.cursorColor) return null
+    return {
+      x: pos.x,
+      y: pos.y,
+      color: this.renderContext.cursorColor,
+      blinking: this.renderContext.cursorBlinking,
+    }
   }
 
   resize(cols: number, rows: number): void {

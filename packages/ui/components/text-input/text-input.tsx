@@ -96,11 +96,12 @@ export function TextInput({ label, description, error, required = false, disable
             onInput={handleInput}
             onSubmit={handleSubmit}
             cursorColor={theme.muted}
-            placeholderColor={theme.muted}
+            cursorStyle={{ style: "line", blinking: empty }}
+            placeholderColor={theme.placeholder}
             textColor={theme.foreground}
           />
         ) : (
-          <text style={{ fg: empty || disabled ? theme.muted : theme.foreground, dim: disabled }}>{empty ? placeholder : current}</text>
+          <text style={{ fg: empty ? theme.placeholder : disabled ? theme.muted : theme.foreground, dim: disabled }}>{empty ? placeholder : current}</text>
         )}
       </box>
     </box>

@@ -1,5 +1,5 @@
 import { EventEmitter } from "events"
-import type { RenderContext, CursorStyleOptions, MousePointerStyle, WidthMethod } from "./core-shims/types"
+import type { RenderContext, CursorStyle, CursorStyleOptions, MousePointerStyle, WidthMethod } from "./core-shims/types"
 import type { RGBA } from "./core-shims/rgba"
 
 export class BrowserKeyHandler extends EventEmitter {
@@ -60,6 +60,9 @@ export class BrowserRenderContext extends EventEmitter implements RenderContext 
   private _onRenderRequest: (() => void) | null = null
   private _lifecyclePasses: Set<any> = new Set()
   private _focusedRenderable: any | null = null
+  public cursorColor: RGBA | null = null
+  public cursorStyleType: CursorStyle = "block"
+  public cursorBlinking: boolean = false
 
   public keyInput: BrowserKeyHandler
   public _internalKeyInput: BrowserInternalKeyHandler
@@ -125,9 +128,21 @@ export class BrowserRenderContext extends EventEmitter implements RenderContext 
 
   setCursorPosition(_x: number, _y: number, _visible: boolean): void {}
 
-  setCursorStyle(_options: CursorStyleOptions): void {}
+  setCursorStyle(options: CursorStyleOptions): void {
+    if (options.color) {
+      this.cursorColor = options.color
+    }
+    if (options.style) {
+      this.cursorStyleType = options.style
+    }
+    if (options.blinking !== undefined) {
+      this.cursorBlinking = options.blinking
+    }
+  }
 
-  setCursorColor(_color: RGBA): void {}
+  setCursorColor(color: RGBA): void {
+    this.cursorColor = color
+  }
 
   setMousePointer(_shape: MousePointerStyle): void {}
 

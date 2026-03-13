@@ -1,5 +1,14 @@
 import type { BrowserBuffer } from "./browser-buffer"
+import type { RGBA } from "./core-shims/rgba"
 import type { SelectionManager } from "./selection-manager"
+
+/** Cursor overlay info produced by the render pipeline, consumed by the painter */
+export interface CursorOverlay {
+  x: number
+  y: number
+  color: RGBA
+  blinking: boolean
+}
 
 const TextAttributes = {
   BOLD: 1 << 0,
@@ -12,6 +21,8 @@ const TextAttributes = {
 }
 
 const CONTINUATION = 0xc0000000
+const LINE_CURSOR_WIDTH = 8
+const CURSOR_BLINK_INTERVAL_MS = 530
 
 // Box-drawing character definitions (U+2500–U+257F)
 // Each entry defines which directions extend from cell center and the line weight.
@@ -196,7 +207,7 @@ export class CanvasPainter {
     return { width: this.cellWidth, height: this.cellHeight }
   }
 
-  paint(ctx: CanvasRenderingContext2D, buffer: BrowserBuffer, selection?: SelectionManager): void {
+  paint(ctx: CanvasRenderingContext2D, buffer: BrowserBuffer, selection?: SelectionManager, cursor?: CursorOverlay | null): void {
     const { char, fg, bg, attributes } = buffer
     const cols = buffer.width
     const rows = buffer.height
@@ -417,7 +428,16 @@ export class CanvasPainter {
       }
     }
 
-    // Pass 3: Selection overlay
+    // Pass 3: Line cursor overlay
+    if (cursor) {
+      const visible = !cursor.blinking || Math.floor(performance.now() / CURSOR_BLINK_INTERVAL_MS) % 2 === 0
+      if (visible) {
+        ctx.fillStyle = rgbaToCSS(cursor.color.r, cursor.color.g, cursor.color.b, cursor.color.a ?? 1)
+        ctx.fillRect(cursor.x * cw, cursor.y * ch, LINE_CURSOR_WIDTH, ch)
+      }
+    }
+
+    // Pass 4: Selection overlay
     if (selection?.active) {
       ctx.fillStyle = "rgba(51, 153, 255, 0.3)"
       for (let row = 0; row < rows; row++) {

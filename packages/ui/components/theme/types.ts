@@ -5,8 +5,10 @@ export interface Theme {
   accent: string
   /** Tertiary color — user messages, checkboxes, prompts */
   secondary: string
-  /** Subdued color — disabled states, placeholders, secondary text */
+  /** Subdued color — disabled states, secondary text, cursor */
   muted: string
+  /** Placeholder text color */
+  placeholder: string
   /** Border and divider color */
   border: string
   /** Default foreground text color */
