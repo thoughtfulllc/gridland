@@ -3,7 +3,7 @@ title: Text Style
 description: Helper function for applying colors and text decorations to terminal elements.
 ---
 
-import TextStyleDemo from '@/components/demos/text-style-demo'
+import TextStyleDemo, { DirectTextStyleDemo, MixedSpanStyleDemo } from '@/components/demos/text-style-demo'
 
 Terminal elements accept `fg`, `bg`, and a numeric `attributes` bitmask in their `style` prop. The `textStyle()` helper lets you use boolean flags instead.
 
@@ -16,7 +16,7 @@ Terminal elements accept `fg`, `bg`, and a numeric `attributes` bitmask in their
 ```tsx
 import { textStyle } from "@gridland/ui"
 
-<span style={textStyle({ fg: "#FF71CE", bold: true })}>Bold pink</span>
+<text style={textStyle({ fg: "#FF71CE", bold: true })}>Bold pink</text>
 ```
 
 Combine with `useTheme()` for themed styles:
@@ -26,13 +26,38 @@ import { useTheme, textStyle } from "@gridland/ui"
 
 function MyComponent() {
   const theme = useTheme()
-  return (
-    <text>
-      <span style={textStyle({ fg: theme.primary, bold: true })}>Title </span>
-      <span style={textStyle({ fg: theme.muted, dim: true })}>subtitle</span>
-    </text>
-  )
+  return <text style={textStyle({ fg: theme.primary, bold: true })}>Themed text</text>
 }
+```
+
+## Direct Text Styling
+
+Apply `textStyle()` directly on the `<text>` element when the entire line shares one style. No `<span>` wrappers needed — this is the simplest way to style text.
+
+<div className="my-8">
+  <DirectTextStyleDemo />
+</div>
+
+```tsx
+<text style={textStyle({ fg: theme.primary, bold: true })}>
+  Single style applied to the entire text element
+</text>
+```
+
+## Mixed Span Styling
+
+Use `<span>` elements inside `<text>` when different parts of the same line need different styles. Each `<span>` can have its own color, weight, and decoration — but they must always be wrapped in a parent `<text>` element.
+
+<div className="my-8">
+  <MixedSpanStyleDemo />
+</div>
+
+```tsx
+<text>
+  <span style={textStyle({ fg: theme.primary, bold: true })}>Server </span>
+  <span style={textStyle({ fg: theme.success })}>running </span>
+  <span style={textStyle({ fg: theme.muted, dim: true })}>on port 3000</span>
+</text>
 ```
 
 ## Options
