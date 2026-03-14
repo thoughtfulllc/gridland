@@ -138,7 +138,7 @@ function ToolCallCard({ toolCall, statusColors }: { toolCall: ToolCallInfo; stat
       <span style={textStyle({ fg: color })}>{icon}</span>
       <span>{" "}</span>
       <span style={textStyle({ fg: color })}>{toolCall.title}</span>
-      {showEllipsis && <span style={textStyle({ dim: true })}>{" ..."}</span>}
+      {showEllipsis && <span style={textStyle({ dim: true, fg: color })}>{" ..."}</span>}
     </text>
   )
 }

@@ -195,8 +195,6 @@ export interface PromptInputProps {
 // Helpers
 // ============================================================================
 
-const CURSOR_CHAR = "▍"
-
 function computeDefaultSuggestions(
   input: string,
   commands: { cmd: string; desc?: string }[],
@@ -214,24 +212,6 @@ function computeDefaultSuggestions(
       .map((f) => ({ text: "@" + f }))
   }
   return []
-}
-
-/** Highlights slash commands and @mentions inline. */
-function renderInputText(value: string, theme: { secondary: string; accent: string }) {
-  const parts = value.split(/(@\S+|\/\S+)/)
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith("/")) {
-          return <span key={i} style={textStyle({ fg: theme.secondary })}>{part}</span>
-        }
-        if (part.startsWith("@")) {
-          return <span key={i} style={textStyle({ fg: theme.accent })}>{part}</span>
-        }
-        return <span key={i}>{part}</span>
-      })}
-    </>
-  )
 }
 
 function resolveStatusHintText(
@@ -279,7 +259,7 @@ function PromptInputSuggestions() {
               {sug.text}
             </span>
             {sug.desc && (
-              <span style={textStyle({ dim: true })}>{" " + sug.desc}</span>
+              <span style={textStyle({ dim: true, fg: theme.placeholder })}>{" " + sug.desc}</span>
             )}
           </text>
         )
@@ -287,6 +267,8 @@ function PromptInputSuggestions() {
     </box>
   )
 }
+
+const CURSOR_CHAR = "\u258D"
 
 /** Prompt char + text with syntax highlighting + cursor. */
 function PromptInputTextarea() {
@@ -297,11 +279,11 @@ function PromptInputTextarea() {
       {value.length === 0 ? (
         <>
           {!disabled && <span style={textStyle({ fg: theme.muted })}>{CURSOR_CHAR}</span>}
-          <span style={textStyle({ dim: true })}>{disabled ? statusHintText : " " + placeholder}</span>
+          <span style={textStyle({ dim: true, fg: theme.placeholder })}>{disabled ? statusHintText : " " + placeholder}</span>
         </>
       ) : (
         <>
-          {renderInputText(value, theme)}
+          <span style={textStyle({ fg: theme.foreground })}>{value}</span>
           {!disabled && <span style={textStyle({ fg: theme.muted })}>{CURSOR_CHAR}</span>}
         </>
       )}
@@ -588,6 +570,7 @@ export function PromptInput({
       return
     }
 
+    // Character-level input fallback (used when <input> intrinsic is not available, e.g. in tests)
     if (event.name === "backspace" || event.name === "delete") {
       updateValue(valueRef.current.slice(0, -1))
       return

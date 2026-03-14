@@ -322,8 +322,11 @@ export class BrowserRenderer {
   }
 
   handleKeyDown(event: KeyboardEvent): void {
-    // Prevent navigation keys from scrolling the page
-    if (BrowserRenderer.PREVENT_DEFAULT_KEYS.has(event.key)) {
+    // Prevent browser default for navigation keys (scrolling) and printable
+    // characters (e.g. "/" triggers Quick Find in Firefox). Cmd/Ctrl shortcuts
+    // like Cmd+C, Cmd+V are preserved.
+    if (BrowserRenderer.PREVENT_DEFAULT_KEYS.has(event.key) ||
+        (event.key.length === 1 && !event.metaKey && !event.ctrlKey)) {
       event.preventDefault()
     }
 
