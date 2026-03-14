@@ -10,6 +10,7 @@ import { fileURLToPath } from "url"
 
 const pkgRoot = path.dirname(fileURLToPath(import.meta.url))
 const coreRoot = path.resolve(pkgRoot, "../../opentui/packages/core")
+const reactRoot = path.resolve(pkgRoot, "../../opentui/packages/react")
 
 // Bare specifier shims: bun, node built-ins, events, @opentui packages
 // react-reconciler is pinned to packages/web/node_modules to ensure the
@@ -20,6 +21,7 @@ const bareShims = {
   // Route @opentui/core to our browser-compatible core-shims barrel
   // (the npm-published @opentui/core is built for Bun/terminal, not browsers)
   "@opentui/core": path.resolve(pkgRoot, "src/core-shims/index.ts"),
+  "@opentui/react": path.resolve(reactRoot, "src/index.ts"),
   "bun:ffi": path.resolve(pkgRoot, "src/shims/bun-ffi.ts"),
   "bun-ffi-structs": path.resolve(pkgRoot, "src/shims/bun-ffi-structs.ts"),
   bun: path.resolve(pkgRoot, "src/shims/bun-ffi.ts"),

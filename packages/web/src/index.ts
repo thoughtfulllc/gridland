@@ -25,7 +25,9 @@ export { SelectionManager } from "./selection-manager"
 export { createBrowserRoot } from "./create-browser-root"
 export type { BrowserRoot } from "./create-browser-root"
 
-// React hooks
+// React hooks (re-exported from @opentui/react so consumers don't need opentui directly)
+export { useKeyboard } from "@opentui/react"
+export { useTerminalDimensions } from "@opentui/react"
 export { useFileDrop } from "./file-drop"
 export type { DroppedFile } from "./file-drop"
 export { usePaste } from "./paste"
