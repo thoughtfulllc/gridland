@@ -2,7 +2,7 @@
 "use client"
 import { TUI } from "@gridland/web"
 import { LandingApp } from "../../components/landing"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 
 export default function HomePage() {
   return (

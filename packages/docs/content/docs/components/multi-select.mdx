@@ -25,7 +25,7 @@ bunx shadcn@latest add @gridland/multi-select
 
 ```tsx title="Uncontrolled"
 import { MultiSelect } from "@/components/ui/multi-select"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 
 <MultiSelect
   items={[
@@ -43,7 +43,7 @@ import { useKeyboard } from "@opentui/react"
 ```tsx title="Controlled"
 import { useState } from "react"
 import { MultiSelect } from "@/components/ui/multi-select"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 
 const [selected, setSelected] = useState<string[]>(["ts"])
 

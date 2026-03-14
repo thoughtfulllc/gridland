@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { PromptInput, StatusBar, Modal, SelectInput, textStyle, useTheme } from "@gridland/ui"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 
 const commands = [
   { cmd: "/model", desc: "Switch model" },

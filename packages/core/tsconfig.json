@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "paths": {
+      "@opentui/core": ["../web/src/core-shims/index.ts"],
+      "@opentui/core/*": ["../web/src/core-shims/*"],
+      "@opentui/react": ["../../opentui/packages/react/src/index.ts"],
+      "@opentui/ui": ["../../opentui/packages/ui/src/index.ts"]
+    },
+    "baseUrl": "."
+  },
+  "include": ["src"]
+}

@@ -25,7 +25,7 @@ bunx shadcn@latest add @gridland/select-input
 
 ```tsx title="Uncontrolled"
 import { SelectInput } from "@/components/ui/select-input"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 
 <SelectInput
   items={[
@@ -43,7 +43,7 @@ import { useKeyboard } from "@opentui/react"
 ```tsx title="Controlled"
 import { useState } from "react"
 import { SelectInput } from "@/components/ui/select-input"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 
 const [value, setValue] = useState<string>("ts")
 

@@ -7,6 +7,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@gridland/core": "^0.2.19",
     "@gridland/demo": "^0.2.19",
     "@gridland/web": "^0.2.19",
     "next": "^15.0.0",

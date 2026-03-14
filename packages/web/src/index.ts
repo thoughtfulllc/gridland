@@ -1,5 +1,5 @@
 // Main entry point for @gridland/web
-// This is the "bundled" mode — includes all browser runtime components.
+// Browser-specific runtime. Portable hooks/utilities live in @gridland/core.
 
 // React component (the primary API)
 export { TUI } from "./TUI"
@@ -25,21 +25,8 @@ export { SelectionManager } from "./selection-manager"
 export { createBrowserRoot } from "./create-browser-root"
 export type { BrowserRoot } from "./create-browser-root"
 
-// React hooks (re-exported from @opentui/react so consumers don't need opentui directly)
-export { useKeyboard } from "@opentui/react"
-export { useTerminalDimensions } from "@opentui/react"
+// Browser-only hooks
 export { useFileDrop } from "./file-drop"
 export type { DroppedFile } from "./file-drop"
 export { usePaste } from "./paste"
-export { BrowserContext, useBrowserContext } from "./browser-context"
-export type { BrowserContextValue } from "./browser-context"
-
-// Headless rendering
-export { bufferToText } from "./buffer-to-text"
-export { HeadlessRenderer, setHeadlessRootRenderableClass } from "./headless-renderer"
-export type { HeadlessRendererOptions } from "./headless-renderer"
-export { createHeadlessRoot } from "./create-headless-root"
-export type { HeadlessRoot } from "./create-headless-root"
-
-// Utilities
-export { isBrowser, isCanvasSupported, calculateGridSize } from "./utils"
+export { useBrowserContext } from "./browser-context"

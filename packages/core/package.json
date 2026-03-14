@@ -1,0 +1,35 @@
+{
+  "name": "@gridland/core",
+  "version": "0.2.20",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup && node build-core.mjs"
+  },
+  "dependencies": {
+    "diff": "^8.0.3",
+    "events": "^3.3.0",
+    "marked": "^17.0.3",
+    "react": "^19.0.0",
+    "react-reconciler": "0.33.0",
+    "yoga-layout": "^3.2.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.3",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0"
+  },
+  "peerDependencies": {
+    "react": ">=19.0.0"
+  }
+}

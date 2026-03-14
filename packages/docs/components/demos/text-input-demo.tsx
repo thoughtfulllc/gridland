@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { TextInput, StatusBar, textStyle, useTheme } from "@gridland/ui"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 
 // ── State Picker ──────────────────────────────────────────────────────────
 

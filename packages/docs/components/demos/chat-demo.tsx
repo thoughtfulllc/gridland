@@ -4,7 +4,7 @@ import { useState, useCallback, useRef } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { ChatPanel } from "@gridland/ui"
 import type { ChatMessage, ToolCallInfo } from "@gridland/ui"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 
 const initialMessages: ChatMessage[] = [
   { id: "1", role: "user", content: "Show me my portfolio" },

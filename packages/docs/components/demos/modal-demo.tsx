@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { Modal, StatusBar, textStyle, useTheme } from "@gridland/ui"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 
 function ModalApp() {
   const theme = useTheme()

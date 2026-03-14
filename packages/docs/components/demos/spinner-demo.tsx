@@ -1,7 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 import { Spinner, SpinnerPicker, SpinnerShowcase } from "@gridland/ui"
 
 function SpinnerPickerContent() {

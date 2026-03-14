@@ -1,7 +1,8 @@
 // @ts-nocheck
 "use client"
 
-import { TUI, useKeyboard } from "@gridland/web"
+import { TUI } from "@gridland/web"
+import { useKeyboard } from "@gridland/core"
 import { LandingApp } from "@gridland/demo/landing"
 
 export default function Home() {

@@ -27,10 +27,12 @@ Resolves `@opentui/core`, `@opentui/react`, and `@opentui/ui` from peer dependen
 
 ## Hooks
 
-See the [Hooks](/docs/hooks/use-keyboard) section for full documentation.
+Portable hooks (`useKeyboard`, `useTerminalDimensions`) live in [`@gridland/core`](/docs/api/gridland-core).
+
+### Browser-only hooks
 
 ```tsx title="Import"
-import { useKeyboard, useTerminalDimensions, useFileDrop, usePaste } from "@gridland/web"
+import { useFileDrop, usePaste, useBrowserContext } from "@gridland/web"
 ```
 
 ## Internal Modules

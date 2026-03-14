@@ -4,7 +4,7 @@ import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { Message, PromptInput } from "@gridland/ui"
 import type { ChatStatus } from "@gridland/ui"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 import { useChat } from "@ai-sdk/react"
 import { renderPartsWithReasoning } from "./render-message-parts-demo-utils"
 

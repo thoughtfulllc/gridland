@@ -1,7 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { useState } from "react"
-import { useKeyboard } from "@opentui/react"
+import { useKeyboard } from "@gridland/core"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { Link, StatusBar, textStyle, useTheme, type UnderlineStyle } from "@gridland/ui"
 

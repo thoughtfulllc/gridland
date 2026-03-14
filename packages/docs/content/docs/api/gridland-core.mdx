@@ -1,0 +1,87 @@
+---
+title: "@gridland/core"
+description: Portable hooks and utilities — works in browser and CLI
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+`@gridland/core` contains portable hooks and utilities that work in both
+browser and CLI environments. It has no DOM or Canvas dependencies.
+
+## Hooks
+
+### `useKeyboard`
+
+Subscribe to keyboard events. See [useKeyboard](/docs/hooks/use-keyboard).
+
+```tsx title="Import"
+import { useKeyboard } from "@gridland/core"
+```
+
+### `useTerminalDimensions`
+
+Get the current terminal dimensions. See [useTerminalDimensions](/docs/hooks/use-terminal-dimensions).
+
+```tsx title="Import"
+import { useTerminalDimensions } from "@gridland/core"
+```
+
+## Headless Rendering
+
+For scripts, tests, or build-time rendering. See [SSR for Agents](/docs/guides/ssr-for-agents).
+
+```tsx title="Import"
+import {
+  HeadlessRenderer,
+  setHeadlessRootRenderableClass,
+  createHeadlessRoot,
+  bufferToText,
+} from "@gridland/core"
+```
+
+### `HeadlessRenderer`
+
+Manages a virtual buffer and render context for headless rendering.
+
+| Method | Description |
+|--------|-------------|
+| `new HeadlessRenderer({ cols, rows })` | Create with virtual terminal size |
+| `renderOnce()` | Execute one render pass |
+| `toText()` | Extract text from the buffer |
+| `resize(cols, rows)` | Resize the virtual terminal |
+
+### `createHeadlessRoot(renderer)`
+
+Creates a React root for headless rendering.
+
+| Method | Description |
+|--------|-------------|
+| `render(element)` | Render a React element |
+| `renderToText(element)` | Render and extract text in one call |
+| `unmount()` | Clean up |
+
+### `bufferToText(buffer)`
+
+Converts a `ReadableCharBuffer` to a plain text string.
+
+## Utilities
+
+```tsx title="Import"
+import { isBrowser, isCanvasSupported, calculateGridSize } from "@gridland/core"
+```
+
+| Function | Description |
+|----------|-------------|
+| `isBrowser()` | Returns `true` if running in a browser environment |
+| `isCanvasSupported()` | Returns `true` if HTML5 Canvas is available |
+| `calculateGridSize(widthPx, heightPx, cellWidth, cellHeight)` | Convert pixel dimensions to grid columns/rows |
+
+## Context
+
+```tsx title="Import"
+import { BrowserContext } from "@gridland/core"
+```
+
+`BrowserContext` is the React context shared between core hooks and
+`@gridland/web`'s `<TUI>` component. This ensures hooks in `@gridland/core`
+read from the same context that `<TUI>` provides.

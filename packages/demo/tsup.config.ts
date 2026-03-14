@@ -46,8 +46,8 @@ export default defineConfig([
       let code = readFileSync(landingPath, "utf-8")
       // Rewrite @opentui/react → @gridland/web so browser consumers
       // get hooks from the same bundle as TUI (shared React context)
-      code = code.replaceAll('"@opentui/react"', '"@gridland/web"')
-      code = code.replaceAll("'@opentui/react'", "'@gridland/web'")
+      code = code.replaceAll('"@opentui/react"', '"@gridland/core"')
+      code = code.replaceAll("'@opentui/react'", "'@gridland/core'")
       writeFileSync(landingPath, code)
     },
   },
