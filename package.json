@@ -14,7 +14,7 @@
     "docs:build": "bun run --cwd packages/docs build",
     "dev:next": "bun run --cwd examples/next-example dev",
     "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
-    "setup": "git submodule update --init && bun install && cd opentui && bun install && cd .. && bun run build"
+    "setup": "git submodule update --init && bun install && bun install --cwd opentui && bun run build"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"
