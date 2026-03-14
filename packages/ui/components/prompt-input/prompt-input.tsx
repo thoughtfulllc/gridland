@@ -1,3 +1,4 @@
+// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import {
   useState,
   useRef,
@@ -119,6 +120,7 @@ export interface PromptInputContextValue {
   maxSuggestions: number
   errorText: string
   theme: ReturnType<typeof useTheme>
+  onInput: (v: string) => void
 }
 
 const PromptInputContext = createContext<PromptInputContextValue | null>(null)
@@ -195,8 +197,6 @@ export interface PromptInputProps {
 // Helpers
 // ============================================================================
 
-const CURSOR_CHAR = "▍"
-
 function computeDefaultSuggestions(
   input: string,
   commands: { cmd: string; desc?: string }[],
@@ -214,24 +214,6 @@ function computeDefaultSuggestions(
       .map((f) => ({ text: "@" + f }))
   }
   return []
-}
-
-/** Highlights slash commands and @mentions inline. */
-function renderInputText(value: string, theme: { secondary: string; accent: string }) {
-  const parts = value.split(/(@\S+|\/\S+)/)
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith("/")) {
-          return <span key={i} style={textStyle({ fg: theme.secondary })}>{part}</span>
-        }
-        if (part.startsWith("@")) {
-          return <span key={i} style={textStyle({ fg: theme.accent })}>{part}</span>
-        }
-        return <span key={i}>{part}</span>
-      })}
-    </>
-  )
 }
 
 function resolveStatusHintText(
@@ -279,7 +261,7 @@ function PromptInputSuggestions() {
               {sug.text}
             </span>
             {sug.desc && (
-              <span style={textStyle({ dim: true })}>{" " + sug.desc}</span>
+              <span style={textStyle({ dim: true, fg: theme.placeholder })}>{" " + sug.desc}</span>
             )}
           </text>
         )
@@ -288,24 +270,30 @@ function PromptInputSuggestions() {
   )
 }
 
-/** Prompt char + text with syntax highlighting + cursor. */
+/** Prompt char + input with cursor. */
 function PromptInputTextarea() {
-  const { value, disabled, statusHintText, placeholder, prompt, promptColor, theme } = usePromptInput()
+  const { value, disabled, statusHintText, placeholder, prompt, promptColor, theme, onInput } = usePromptInput()
+  const empty = value.length === 0
   return (
-    <text>
-      <span style={textStyle({ fg: promptColor })}>{prompt}</span>
-      {value.length === 0 ? (
-        <>
-          {!disabled && <span style={textStyle({ fg: theme.muted })}>{CURSOR_CHAR}</span>}
-          <span style={textStyle({ dim: true })}>{disabled ? statusHintText : " " + placeholder}</span>
-        </>
+    <box flexDirection="row">
+      <text><span style={textStyle({ fg: promptColor })}>{prompt}</span></text>
+      {disabled ? (
+        <text>
+          <span style={textStyle({ dim: true, fg: theme.placeholder })}>{statusHintText}</span>
+        </text>
       ) : (
-        <>
-          {renderInputText(value, theme)}
-          {!disabled && <span style={textStyle({ fg: theme.muted })}>{CURSOR_CHAR}</span>}
-        </>
+        <input
+          value={value}
+          placeholder={placeholder}
+          focused
+          onInput={onInput}
+          cursorColor={theme.muted}
+          cursorStyle={{ style: "line", blinking: empty }}
+          placeholderColor={theme.placeholder}
+          textColor={theme.foreground}
+        />
       )}
-    </text>
+    </box>
   )
 }
 
@@ -587,27 +575,15 @@ export function PromptInput({
       }
       return
     }
-
-    if (event.name === "backspace" || event.name === "delete") {
-      updateValue(valueRef.current.slice(0, -1))
-      return
-    }
-
-    if (event.ctrl || event.meta) return
-
-    if (event.name === "space") {
-      updateValue(valueRef.current + " ")
-      return
-    }
-
-    if (event.name && event.name.length === 1) {
-      updateValue(valueRef.current + event.name)
-    }
   })
 
   // ── Build context for subcomponents ────────────────────────────────────
 
   const visibleSuggestions = suggestions.slice(0, maxSuggestions)
+
+  const handleInput = useCallback((v: string) => {
+    updateValue(v)
+  }, [updateValue])
 
   const ctxValue: PromptInputContextValue = {
     value,
@@ -623,6 +599,7 @@ export function PromptInput({
     maxSuggestions,
     errorText,
     theme,
+    onInput: handleInput,
   }
 
   // ── Render ─────────────────────────────────────────────────────────────

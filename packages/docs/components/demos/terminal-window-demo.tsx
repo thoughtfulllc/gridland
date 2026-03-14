@@ -8,7 +8,7 @@ function TerminalApp() {
   return (
     <box flexDirection="column" padding={1}>
       <text style={textStyle({ fg: theme.secondary })}>$ echo "Hello from TerminalWindow"</text>
-      <text>Hello from TerminalWindow</text>
+      <text style={textStyle({ fg: theme.foreground })}>Hello from TerminalWindow</text>
       <text style={textStyle({ fg: theme.secondary })}>$ _</text>
     </box>
   )

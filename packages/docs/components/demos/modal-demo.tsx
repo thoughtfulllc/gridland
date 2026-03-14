@@ -2,10 +2,11 @@
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { Modal, StatusBar, textStyle } from "@gridland/ui"
+import { Modal, StatusBar, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
 function ModalApp() {
+  const theme = useTheme()
   const [isOpen, setIsOpen] = useState(false)
 
   useKeyboard((event) => {
@@ -22,9 +23,9 @@ function ModalApp() {
       <box flexDirection="column" flexGrow={1}>
         <Modal title="Example Modal" useKeyboard={useKeyboard} onClose={() => setIsOpen(false)}>
           <box paddingX={1} flexDirection="column">
-            <text>This is a modal overlay component.</text>
+            <text style={textStyle({ fg: theme.foreground })}>This is a modal overlay component.</text>
             <text> </text>
-            <text style={textStyle({ dim: true })}>It stretches to fill the full terminal height.</text>
+            <text style={textStyle({ dim: true, fg: theme.muted })}>It stretches to fill the full terminal height.</text>
           </box>
         </Modal>
         <box paddingX={1} paddingBottom={1}>
@@ -37,9 +38,9 @@ function ModalApp() {
   return (
     <box flexDirection="column" flexGrow={1} alignItems="center" justifyContent="center">
       <text>
-        <span style={textStyle({ dim: true })}>Press </span>
-        <span style={textStyle({ inverse: true, bold: true })}> m </span>
-        <span style={textStyle({ dim: true })}> to open modal</span>
+        <span style={textStyle({ dim: true, fg: theme.muted })}>Press </span>
+        <span style={textStyle({ bold: true, fg: theme.background, bg: theme.muted })}> m </span>
+        <span style={textStyle({ dim: true, fg: theme.muted })}> to open modal</span>
       </text>
     </box>
   )

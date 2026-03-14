@@ -31,7 +31,7 @@ function TextInputPickerApp() {
   return (
     <box flexDirection="column" flexGrow={1}>
       <box paddingLeft={1} paddingRight={2} paddingTop={1} paddingBottom={2} flexDirection="column" flexGrow={1}>
-        <TextInput label="Username" placeholder="enter your name" prompt="> " focus={false} {...state.props} />
+        <TextInput label="Email" placeholder="user@example.com" prompt="> " focus={false} {...state.props} />
       </box>
       <box paddingX={1} paddingBottom={1}>
         <StatusBar

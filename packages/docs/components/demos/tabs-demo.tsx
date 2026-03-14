@@ -85,7 +85,7 @@ function CodeBlock({ lines }: { lines: string[] }) {
           <span style={textStyle({ dim: true, fg: theme.muted })}>
             {(i + 1).toString().padStart(2)} │{" "}
           </span>
-          <span>{line}</span>
+          <span style={textStyle({ fg: theme.foreground })}>{line}</span>
         </text>
       ))}
     </box>

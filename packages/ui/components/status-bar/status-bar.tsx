@@ -31,7 +31,7 @@ export function StatusBar({ items, extra }: StatusBarProps) {
       <span key="extra">{extra}</span>,
     )
     parts.push(
-      <span key="pipe" style={textStyle({ dim: true, fg: theme.muted })}>{"  \u2502  "}</span>,
+      <span key="pipe" style={textStyle({ dim: true, fg: theme.placeholder })}>{"  \u2502  "}</span>,
     )
   }
 
@@ -40,12 +40,12 @@ export function StatusBar({ items, extra }: StatusBarProps) {
       parts.push(<span key={`gap-${i}`}>{" "}</span>)
     }
     parts.push(
-      <span key={`key-${i}`} style={textStyle({ inverse: true, bold: true, fg: theme.foreground })}>
+      <span key={`key-${i}`} style={textStyle({ bold: true, fg: theme.background, bg: theme.muted })}>
         {` ${item.key} `}
       </span>,
     )
     parts.push(
-      <span key={`label-${i}`} style={textStyle({ dim: true, fg: theme.muted })}>
+      <span key={`label-${i}`} style={textStyle({ dim: true, fg: theme.placeholder })}>
         {` ${item.label}`}
       </span>,
     )

@@ -2,7 +2,7 @@
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { PromptInput, StatusBar, Modal, SelectInput, textStyle } from "@gridland/ui"
+import { PromptInput, StatusBar, Modal, SelectInput, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@opentui/react"
 
 const commands = [
@@ -23,6 +23,7 @@ const models = [
 ]
 
 function PromptInputApp() {
+  const theme = useTheme()
   const [lastMessage, setLastMessage] = useState("")
   const [model, setModel] = useState("opus")
   const [showModelPicker, setShowModelPicker] = useState(false)
@@ -66,8 +67,8 @@ function PromptInputApp() {
       <box flexDirection="column" flexGrow={1}>
         {lastMessage ? (
           <text>
-            <span>{"Sent: "}</span>
-            <span>{lastMessage}</span>
+            <span style={textStyle({ fg: theme.muted })}>{"Sent: "}</span>
+            <span style={textStyle({ fg: theme.foreground })}>{lastMessage}</span>
           </text>
         ) : (
           <text>

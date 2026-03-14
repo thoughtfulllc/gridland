@@ -77,9 +77,9 @@ function StepRow({ step, isLast, theme, frame }: {
       {/* Step row: ● Label — detail */}
       <text>
         <span style={textStyle({ fg: color })}>{dot}</span>
-        <span>{" "}</span>
-        <span style={textStyle({ fg: isPending ? undefined : color, dim: isPending, bold: isActive })}>{mainLabel}</span>
-        {detail && <span style={textStyle({ dim: true })}>{detail}</span>}
+        <span style={textStyle({ fg: theme.foreground })}>{" "}</span>
+        <span style={textStyle({ fg: isPending ? theme.muted : color, dim: isPending, bold: isActive })}>{mainLabel}</span>
+        {detail && <span style={textStyle({ dim: true, fg: theme.muted })}>{detail}</span>}
       </text>
       {/* Output line with pipe gutter */}
       {step.output && (
@@ -125,7 +125,7 @@ export function Timeline({
     <box flexDirection="column">
       <text>
         <span style={textStyle({ fg: theme.muted })}>{arrow}</span>
-        <span style={textStyle({ dim: true })}>{" " + headerLabel + " " + durationStr}</span>
+        <span style={textStyle({ dim: true, fg: theme.muted })}>{" " + headerLabel + " " + durationStr}</span>
       </text>
       {!collapsed && steps && steps.map((step, i) => (
         <StepRow

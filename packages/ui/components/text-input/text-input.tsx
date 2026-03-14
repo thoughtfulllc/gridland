@@ -72,7 +72,7 @@ export function TextInput({ label, description, error, required = false, disable
           </span>
           {required && <span style={textStyle({ fg: theme.error })}>{' *'}</span>}
           {current && maxLength != null && (
-            <span style={textStyle({ dim: true })}>
+            <span style={textStyle({ dim: true, fg: theme.muted })}>
               {' '}
               {current.length}/{maxLength}
             </span>
