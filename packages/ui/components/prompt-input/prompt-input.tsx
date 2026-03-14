@@ -118,6 +118,7 @@ export interface PromptInputContextValue {
   sugIdx: number
   maxSuggestions: number
   errorText: string
+  model?: string
   theme: ReturnType<typeof useTheme>
 }
 
@@ -183,6 +184,8 @@ export interface PromptInputProps {
   maxSuggestions?: number
   /** Enable command history with up/down arrows */
   enableHistory?: boolean
+  /** Model name displayed below the input */
+  model?: string
   /** Show horizontal dividers above and below the input */
   showDividers?: boolean
   /** Keyboard hook from @opentui/react */
@@ -334,6 +337,15 @@ function PromptInputStatusText() {
   )
 }
 
+/** Model label shown below the input. */
+function PromptInputModel() {
+  const { model, theme } = usePromptInput()
+  if (!model) return null
+  return (
+    <text dim color={theme.muted}>model: {model}</text>
+  )
+}
+
 // ============================================================================
 // Root component
 // ============================================================================
@@ -358,7 +370,8 @@ export function PromptInput({
   getSuggestions: customGetSuggestions,
   maxSuggestions = 5,
   enableHistory = true,
-  showDividers = false,
+  model,
+  showDividers = true,
   useKeyboard: useKeyboardProp,
   children,
 }: PromptInputProps) {
@@ -605,6 +618,7 @@ export function PromptInput({
     sugIdx,
     maxSuggestions,
     errorText,
+    model,
     theme,
   }
 
@@ -627,6 +641,7 @@ export function PromptInput({
         <PromptInputSuggestions />
         <PromptInputTextarea />
         <PromptInputStatusText />
+        <PromptInputModel />
         {showDividers && <PromptInputDivider />}
       </box>
     </PromptInputContext.Provider>
@@ -640,3 +655,4 @@ PromptInput.Suggestions = PromptInputSuggestions
 PromptInput.Submit = PromptInputSubmit
 PromptInput.Divider = PromptInputDivider
 PromptInput.StatusText = PromptInputStatusText
+PromptInput.Model = PromptInputModel
