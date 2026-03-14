@@ -86,7 +86,7 @@ export function TabsList({
     parts.push(
       <span
         key="label"
-        style={focused ? textStyle({ bold: true }) : textStyle({ dim: true })}
+        style={focused ? textStyle({ bold: true, fg: theme.foreground }) : textStyle({ dim: true, fg: theme.muted })}
       >
         {label}{" "}
       </span>,
@@ -99,11 +99,11 @@ export function TabsList({
 
     const style = isSelected
       ? focused
-        ? textStyle({ inverse: true, bold: true, fg: color })
-        : textStyle({ inverse: true, bold: true, dim: true })
+        ? textStyle({ bold: true, fg: theme.background, bg: color })
+        : textStyle({ bold: true, fg: theme.background, bg: theme.muted, dim: true })
       : focused
-        ? undefined
-        : textStyle({ dim: true })
+        ? textStyle({ fg: theme.foreground })
+        : textStyle({ dim: true, fg: theme.muted })
 
     if (i > 0) {
       parts.push(

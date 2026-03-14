@@ -31,7 +31,7 @@ export function Modal({
 }: ModalProps) {
   const theme = useTheme()
   const useKeyboard = useKeyboardContext(useKeyboardProp)
-  const resolvedBorderColor = borderColor ?? theme.border
+  const resolvedBorderColor = borderColor ?? theme.muted
 
   // Handle Escape key
   useKeyboard?.((event: any) => {
@@ -52,7 +52,7 @@ export function Modal({
         {title ? (
           <>
             <box paddingX={1} marginBottom={1}>
-              <text style={textStyle({ bold: true, fg: resolvedBorderColor })}>{title}</text>
+              <text style={textStyle({ bold: true, fg: theme.primary })}>{title}</text>
             </box>
             {children}
           </>
