@@ -17,7 +17,7 @@ Bun can compile your Gridland CLI app into a single standalone executable — no
 ### Install dependencies
 
 ```bash
-bun add @gridland/core
+bun add @gridland/bun
 ```
 
 </Step>
@@ -27,7 +27,7 @@ bun add @gridland/core
 
 ```tsx title="src/cli.tsx"
 // @ts-nocheck
-import { createCliRenderer, createRoot } from "@gridland/core"
+import { createCliRenderer, createRoot } from "@gridland/bun"
 
 function App() {
   return (
@@ -88,12 +88,12 @@ bun build --compile --minify --sourcemap ./src/cli.tsx --outfile mycli
 | `--sourcemap` | Embeds a zstd-compressed sourcemap so errors point to original source |
 
 <Callout type="warning">
-Bun's `--bytecode` flag is not compatible with Gridland CLIs. The `@opentui/core` package uses top-level `await` internally, which bytecode compilation does not support.
+Bun's `--bytecode` flag is not compatible with Gridland CLIs. The opentui engine uses top-level `await` internally, which bytecode compilation does not support.
 </Callout>
 
 ## Cross-compilation
 
-Bun supports cross-compiling to other platforms with the `--target` flag. However, `@opentui/core` includes platform-specific native bindings that are resolved at build time, so **you must build on the target platform** (or in a CI runner matching the target OS/arch).
+Bun supports cross-compiling to other platforms with the `--target` flag. However, `@gridland/bun` includes platform-specific native bindings that are resolved at build time, so **you must build on the target platform** (or in a CI runner matching the target OS/arch).
 
 For example, build on a macOS ARM64 machine for macOS ARM64, or in a Linux x64 CI job for Linux x64:
 
@@ -104,7 +104,7 @@ bun build --compile --minify --sourcemap ./src/cli.tsx --outfile mycli
 
 ### Supported Bun targets
 
-If your CLI does not depend on `@opentui/core`'s native bindings (e.g. a pure-JS tool using only `@gridland/core` utilities), cross-compilation works with `--target`:
+If your CLI does not depend on `@gridland/bun`'s native bindings (e.g. a pure-JS tool using only `@gridland/utils` utilities), cross-compilation works with `--target`:
 
 | Target | OS | Arch | Notes |
 |--------|----|------|-------|

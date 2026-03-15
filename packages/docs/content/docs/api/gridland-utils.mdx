@@ -1,11 +1,11 @@
 ---
-title: "@gridland/core"
+title: "@gridland/utils"
 description: Portable hooks and utilities — works in browser and CLI
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout'
 
-`@gridland/core` contains portable hooks and utilities that work in both
+`@gridland/utils` contains portable hooks and utilities that work in both
 browser and CLI environments. It has no DOM or Canvas dependencies.
 
 ## Hooks
@@ -15,7 +15,7 @@ browser and CLI environments. It has no DOM or Canvas dependencies.
 Subscribe to keyboard events. See [useKeyboard](/docs/hooks/use-keyboard).
 
 ```tsx title="Import"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 ```
 
 ### `useTerminalDimensions`
@@ -23,7 +23,7 @@ import { useKeyboard } from "@gridland/core"
 Get the current terminal dimensions. See [useTerminalDimensions](/docs/hooks/use-terminal-dimensions).
 
 ```tsx title="Import"
-import { useTerminalDimensions } from "@gridland/core"
+import { useTerminalDimensions } from "@gridland/utils"
 ```
 
 ## Headless Rendering
@@ -36,7 +36,7 @@ import {
   setHeadlessRootRenderableClass,
   createHeadlessRoot,
   bufferToText,
-} from "@gridland/core"
+} from "@gridland/utils"
 ```
 
 ### `HeadlessRenderer`
@@ -67,7 +67,7 @@ Converts a `ReadableCharBuffer` to a plain text string.
 ## Utilities
 
 ```tsx title="Import"
-import { isBrowser, isCanvasSupported, calculateGridSize } from "@gridland/core"
+import { isBrowser, isCanvasSupported, calculateGridSize } from "@gridland/utils"
 ```
 
 | Function | Description |
@@ -79,9 +79,9 @@ import { isBrowser, isCanvasSupported, calculateGridSize } from "@gridland/core"
 ## Context
 
 ```tsx title="Import"
-import { BrowserContext } from "@gridland/core"
+import { BrowserContext } from "@gridland/utils"
 ```
 
 `BrowserContext` is the React context shared between core hooks and
-`@gridland/web`'s `<TUI>` component. This ensures hooks in `@gridland/core`
+`@gridland/web`'s `<TUI>` component. This ensures hooks in `@gridland/utils`
 read from the same context that `<TUI>` provides.

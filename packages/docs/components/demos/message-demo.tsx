@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { Message, PromptInput, StatusBar } from "@gridland/ui"
 import type { ChatStatus } from "@gridland/ui"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 
 const RESPONSE = "I've refactored the auth module. The changes include extracting the token validation into a shared helper, consolidating the middleware chain, and updating the test suite to match."
 

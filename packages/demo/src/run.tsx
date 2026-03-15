@@ -1,6 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { type ReactNode } from "react"
-import { createCliRenderer, type CliRenderer, createRoot, useKeyboard } from "@gridland/core"
+import { createCliRenderer, type CliRenderer, createRoot, useKeyboard } from "@gridland/bun"
 import { demos } from "../../ui/scripts/demo-apps"
 
 let _renderer: CliRenderer

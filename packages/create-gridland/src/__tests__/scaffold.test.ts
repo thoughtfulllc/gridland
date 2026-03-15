@@ -49,7 +49,7 @@ describe("scaffold vite", () => {
 
     const app = fs.readFileSync(path.join(targetDir, "src/App.tsx"), "utf-8")
     expect(app).toContain('from "@gridland/web"')
-    expect(app).toContain('from "@gridland/core"')
+    expect(app).toContain('from "@gridland/utils"')
     expect(app).not.toContain("../../../packages/")
   })
 
@@ -98,7 +98,7 @@ describe("scaffold next", () => {
 
     const app = fs.readFileSync(path.join(targetDir, "app/gridland-app.tsx"), "utf-8")
     expect(app).toContain('"@gridland/web"')
-    expect(app).toContain('"@gridland/core"')
+    expect(app).toContain('"@gridland/utils"')
     expect(app).toContain('"use client"')
   })
 

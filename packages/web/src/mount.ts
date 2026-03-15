@@ -2,7 +2,7 @@ import type { ReactNode } from "react"
 import { BrowserRenderer, setRootRenderableClass } from "./browser-renderer"
 import { createBrowserRoot } from "./create-browser-root"
 import { CanvasPainter } from "./canvas-painter"
-import { RootRenderable } from "@gridland/core"
+import { RootRenderable } from "@gridland/utils"
 
 export interface MountOptions {
   /** Number of columns (auto-calculated from canvas size if omitted) */

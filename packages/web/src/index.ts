@@ -1,5 +1,5 @@
 // Main entry point for @gridland/web
-// Browser-specific runtime. Portable hooks/utilities live in @gridland/core.
+// Browser-specific runtime. Portable hooks/utilities live in @gridland/utils.
 
 // React component (the primary API)
 export { TUI } from "./TUI"
@@ -44,3 +44,20 @@ export { useFileDrop } from "./file-drop"
 export type { DroppedFile } from "./file-drop"
 export { usePaste } from "./paste"
 export { useBrowserContext } from "./browser-context"
+
+// Gridland extension: textAlign property on TextBufferRenderable.
+// Proxies to the BrowserTextBufferView's textAlign property for centered text rendering.
+import { TextBufferRenderable } from "@gridland/utils"
+Object.defineProperty(TextBufferRenderable.prototype, "textAlign", {
+  get(this: any) {
+    return this.textBufferView?.textAlign ?? "left"
+  },
+  set(this: any, value: "left" | "center" | "right") {
+    if (this.textBufferView) {
+      this.textBufferView.textAlign = value
+      this.requestRender()
+    }
+  },
+  enumerable: true,
+  configurable: true,
+})

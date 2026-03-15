@@ -114,17 +114,17 @@ plugin({
       build.onLoad({ filter }, () => ({ contents, loader: "ts" }))
     }
 
-    // Redirect @gridland/core to source so test shims apply.
+    // Redirect @gridland/utils to source so test shims apply.
     // Bun resolves workspace packages before plugins, so onResolve can't
-    // intercept @gridland/core. Instead, intercept the loaded dist/index.js
+    // intercept @gridland/utils. Instead, intercept the loaded dist/index.js
     // and replace it with re-exports from the source tree.
-    const coreShimsIndex = path.resolve(srcDir, "core-shims/index.ts")
+    const opentuiCoreSrc = path.resolve(pkgRoot, "../../opentui/packages/core/src/index.ts")
     const opentuiReactSrc = path.resolve(pkgRoot, "../../opentui/packages/react/src/index.ts")
-    build.onLoad({ filter: /packages\/core\/dist\/index\.js$/ }, () => ({
-      contents: `export * from "${coreShimsIndex}"; export * from "${opentuiReactSrc}";`,
+    build.onLoad({ filter: /packages\/utils\/dist\/index\.js$/ }, () => ({
+      contents: `export * from "${opentuiCoreSrc}"; export * from "${opentuiReactSrc}";`,
       loader: "ts",
     }))
-    build.onResolve({ filter: /^@opentui\/core$/ }, () => ({ path: coreShimsIndex }))
+    build.onResolve({ filter: /^@opentui\/core$/ }, () => ({ path: opentuiCoreSrc }))
     build.onResolve({ filter: /^@opentui\/react$/ }, () => ({ path: opentuiReactSrc }))
 
     // Redirect bare module imports to our local copies (opentui submodule

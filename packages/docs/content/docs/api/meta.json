@@ -1,4 +1,4 @@
 {
   "title": "API Reference",
-  "pages": ["gridland-core", "gridland-web", "gridland-testing", "gridland-ui"]
+  "pages": ["gridland-utils", "gridland-bun", "gridland-web", "gridland-testing", "gridland-ui"]
 }

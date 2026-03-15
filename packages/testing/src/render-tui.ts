@@ -36,7 +36,7 @@ export interface RenderTuiOptions {
 // so require() fails — we use await import() here instead.
 const _webModule = await import("../../web/src/index")
 const _rendererModule = await import("../../web/src/browser-renderer")
-const _coreModule = await import("../../web/src/core-shims/index").catch(() => {
+const _coreModule = await import("@gridland/utils").catch(() => {
   throw new Error(
     "renderTui requires @opentui/core (RootRenderable). " +
     "Make sure the opentui monorepo is available and module resolution is configured.",

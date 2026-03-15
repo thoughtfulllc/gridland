@@ -1,4 +1,4 @@
-import type { RGBA } from "./core-shims/rgba"
+import type { RGBA } from "@gridland/utils"
 import type { WidthMethod } from "./browser-buffer"
 
 export interface TextChunk {

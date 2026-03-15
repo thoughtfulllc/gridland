@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { TUI } from "@gridland/web"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 import { LandingApp } from "@gridland/demo/landing"
 
 export function App() {

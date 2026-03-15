@@ -16,8 +16,9 @@
     "declarationMap": true,
     "sourceMap": true,
     "paths": {
-      "@opentui/core": ["./src/core-shims/index.ts"],
-      "@opentui/core/*": ["./src/core-shims/*"],
+      "@gridland/utils": ["../utils/src/index.ts"],
+      "@opentui/core": ["../../opentui/packages/core/src/index.ts"],
+      "@opentui/core/*": ["../../opentui/packages/core/src/*"],
       "@opentui/react": ["../../opentui/packages/react/src/index.ts"],
       "@opentui/ui": ["../../opentui/packages/ui/src/index.ts"]
     },

@@ -8,7 +8,7 @@ import React, {
 import { BrowserRenderer, setRootRenderableClass } from "./browser-renderer"
 import { createBrowserRoot, type BrowserRoot } from "./create-browser-root"
 import { CanvasPainter } from "./canvas-painter"
-import { RootRenderable } from "@gridland/core"
+import { RootRenderable } from "@gridland/utils"
 import { HeadlessRenderer, setHeadlessRootRenderableClass } from "./headless-renderer"
 import { createHeadlessRoot } from "./create-headless-root"
 

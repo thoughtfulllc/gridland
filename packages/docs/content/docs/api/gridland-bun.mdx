@@ -1,0 +1,52 @@
+---
+title: "@gridland/bun"
+description: Bun-native runtime for Gridland CLI apps
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+`@gridland/bun` is the Bun-native runtime package for building Gridland CLI
+apps. It re-exports everything from [`@gridland/utils`](/docs/api/gridland-utils)
+plus native-only exports that require the Bun runtime.
+
+## Installation
+
+```bash
+bun add @gridland/bun
+```
+
+## Native Exports
+
+These exports are only available in Bun and are not included in `@gridland/utils`:
+
+```tsx title="Import"
+import {
+  createCliRenderer,
+  CliRenderer,
+  TerminalConsole,
+  NativeSpanFeed,
+  setRenderLibPath,
+} from "@gridland/bun"
+```
+
+| Export | Description |
+|--------|-------------|
+| `createCliRenderer(options?)` | Create a CLI renderer that renders to the terminal |
+| `CliRenderer` | The underlying renderer class |
+| `TerminalConsole` | Terminal-aware console implementation |
+| `NativeSpanFeed` | Native span feed for styled text rendering |
+| `setRenderLibPath(path)` | Set the path to the native rendering library |
+
+## Re-exported from @gridland/utils
+
+All exports from `@gridland/utils` are re-exported, including hooks
+(`useKeyboard`, `useTerminalDimensions`), headless rendering utilities
+(`HeadlessRenderer`, `createHeadlessRoot`, `bufferToText`), and helpers
+(`isBrowser`, `calculateGridSize`).
+
+See the [`@gridland/utils` API reference](/docs/api/gridland-utils) for details.
+
+## Usage
+
+See the [Compile to Binary](/docs/guides/compile-binary) guide for a full
+walkthrough of building CLI apps with `@gridland/bun`.

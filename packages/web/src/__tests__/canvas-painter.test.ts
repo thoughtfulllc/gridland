@@ -1,7 +1,7 @@
 import { describe, it, expect, mock } from "bun:test"
 import { CanvasPainter } from "../canvas-painter"
 import { BrowserBuffer } from "../browser-buffer"
-import { RGBA } from "../core-shims/rgba"
+import { RGBA } from "@gridland/utils"
 
 function createMockCtx() {
   const calls: { method: string; args: any[] }[] = []

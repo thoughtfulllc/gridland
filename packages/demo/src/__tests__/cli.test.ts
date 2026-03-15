@@ -110,7 +110,7 @@ describe("bundle", () => {
   test("keeps runtime deps external", () => {
     const source = readDistBundle()
     expect(source).toContain('from "react"')
-    expect(source).toContain('from "@gridland/core"')
+    expect(source).toContain('from "@gridland/bun"')
     expect(source).toContain('from "figlet"')
   })
 

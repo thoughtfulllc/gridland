@@ -1,6 +1,6 @@
 import { EventEmitter } from "events"
-import type { RenderContext, CursorStyle, CursorStyleOptions, MousePointerStyle, WidthMethod } from "./core-shims/types"
-import type { RGBA } from "./core-shims/rgba"
+import type { RenderContext, CursorStyle, CursorStyleOptions, MousePointerStyle, WidthMethod } from "@gridland/utils"
+import type { RGBA } from "@gridland/utils"
 
 export class BrowserKeyHandler extends EventEmitter {
   constructor() {
@@ -10,10 +10,16 @@ export class BrowserKeyHandler extends EventEmitter {
   processInput(_data: string): boolean {
     return false
   }
+
+  useKittyKeyboard(_enable: boolean): void {}
+
+  processPaste(_data: string): void {}
 }
 
 export class BrowserInternalKeyHandler extends BrowserKeyHandler {
   private renderableHandlers: Map<string, Set<Function>> = new Map()
+
+  emitWithPriority(_event: string, ..._args: any[]): void {}
 
   onInternal(event: string, handler: Function): void {
     if (!this.renderableHandlers.has(event)) {
@@ -64,8 +70,10 @@ export class BrowserRenderContext extends EventEmitter implements RenderContext 
   public cursorStyleType: CursorStyle = "block"
   public cursorBlinking: boolean = false
 
-  public keyInput: BrowserKeyHandler
-  public _internalKeyInput: BrowserInternalKeyHandler
+  // Typed as `any` for DTS compatibility — BrowserKeyHandler satisfies KeyHandler
+  // at runtime but uses a different class hierarchy (EventEmitter vs opentui's KeyHandler).
+  public keyInput: any
+  public _internalKeyInput: any
 
   constructor(width: number, height: number, widthMethod: WidthMethod = "wcwidth") {
     super()

@@ -1,6 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState, useCallback, useRef, useEffect } from "react"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 import {
   Gradient, GRADIENTS, type GradientName,
   StatusBar, textStyle,

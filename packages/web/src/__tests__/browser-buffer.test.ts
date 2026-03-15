@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test"
 import { BrowserBuffer } from "../browser-buffer"
-import { RGBA } from "../core-shims/rgba"
+import { RGBA } from "@gridland/utils"
 
 const white = RGBA.fromValues(1, 1, 1, 1)
 const black = RGBA.fromValues(0, 0, 0, 1)

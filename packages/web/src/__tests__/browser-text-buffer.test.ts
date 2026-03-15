@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test"
 import { BrowserTextBuffer } from "../browser-text-buffer"
-import { RGBA } from "../core-shims/rgba"
+import { RGBA } from "@gridland/utils"
 
 describe("BrowserTextBuffer", () => {
   it("creates via factory", () => {

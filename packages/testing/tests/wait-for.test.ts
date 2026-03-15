@@ -2,7 +2,7 @@ import { describe, it, expect } from "bun:test"
 import { waitFor } from "../src/wait-for"
 import { Screen } from "../src/screen"
 import { BrowserBuffer } from "../../web/src/browser-buffer"
-import { RGBA } from "../../web/src/core-shims/rgba"
+import { RGBA } from "@gridland/utils"
 
 const white = RGBA.fromValues(1, 1, 1, 1)
 const black = RGBA.fromValues(0, 0, 0, 1)

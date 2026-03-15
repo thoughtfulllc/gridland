@@ -2,11 +2,10 @@ import { BrowserBuffer } from "./browser-buffer"
 import { BrowserRenderContext } from "./browser-render-context"
 import { CanvasPainter, type CursorOverlay } from "./canvas-painter"
 import { SelectionManager } from "./selection-manager"
-import { getLinkId } from "./core-shims/index"
+import { getLinkId } from "@gridland/utils"
 import { executeRenderPipeline } from "./render-pipeline"
 
-// We import these via the core-shims alias in the Vite build
-// but for the renderer we import directly to avoid circular deps
+// RootRenderable is set externally to avoid circular deps
 let RootRenderableClass: any = null
 
 export function setRootRenderableClass(cls: any): void {

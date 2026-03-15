@@ -77,7 +77,7 @@ import { Message } from "@/components/ui/message"
 import { PromptInput } from "@/components/ui/prompt-input"
 import type { ChatStatus } from "@/components/ui/prompt-input"
 import { useChat } from "@ai-sdk/react"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 
 function ChatInterface() {
   const { messages, status, sendMessage, stop } = useChat({

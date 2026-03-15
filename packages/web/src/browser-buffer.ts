@@ -1,6 +1,6 @@
-import type { RGBA } from "./core-shims/rgba"
-import type { CapturedLine, CapturedSpan, CursorStyle } from "./core-shims/types"
-import { attributesWithLink } from "./core-shims/index"
+import type { RGBA } from "@gridland/utils"
+import type { CapturedLine, CapturedSpan, CursorStyle } from "@gridland/utils"
+import { attributesWithLink } from "@gridland/utils"
 
 // Attribute flags matching TextAttributes from opentui core
 const CONTINUATION = 0xc0000000

@@ -1,4 +1,4 @@
-import type { RGBA } from "./core-shims/rgba"
+import type { RGBA } from "@gridland/utils"
 import type { BrowserTextBuffer, TextChunk } from "./browser-text-buffer"
 
 export interface VisibleLineChunk {

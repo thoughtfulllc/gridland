@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { Gradient, GRADIENTS, type GradientName, StatusBar, textStyle, useTheme } from "@gridland/ui"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 import figlet from "figlet"
 // @ts-ignore — importable-fonts has no type declarations
 import ansiShadow from "figlet/importable-fonts/ANSI Shadow.js"

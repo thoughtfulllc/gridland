@@ -16,7 +16,8 @@ let tarballs: Record<string, string> = {}
 beforeAll(() => {
   const tarballDir = fs.mkdtempSync(path.join(os.tmpdir(), "gridland-tarballs-"))
   const packages: Record<string, string> = {
-    "@gridland/core": path.join(MONOREPO_ROOT, "packages/core"),
+    "@gridland/utils": path.join(MONOREPO_ROOT, "packages/utils"),
+    "@gridland/bun": path.join(MONOREPO_ROOT, "packages/bun"),
     "@gridland/web": path.join(MONOREPO_ROOT, "packages/web"),
     "@gridland/demo": path.join(MONOREPO_ROOT, "packages/demo"),
   }
@@ -73,7 +74,7 @@ function useLocalPackages(projectName: string) {
     }
   }
 
-  // Force nested @gridland/* deps (e.g. @gridland/web's dep on @gridland/core)
+  // Force nested @gridland/* deps (e.g. @gridland/web's dep on @gridland/utils)
   // to use local tarballs instead of pulling from npm registry.
   pkg.overrides = pkg.overrides || {}
   for (const [name, tarball] of Object.entries(tarballs)) {

@@ -11,40 +11,23 @@ function shimPath(p: string) {
   return path.resolve(pkgRoot, p)
 }
 
-// Core shims — same mappings as the Vite/Next.js plugins.
-// No longer needed for: zig (zig-registry.ts is browser-safe),
-// renderer, console, NativeSpanFeed (not in browser barrel).
-const coreFileShims: Record<string, string> = {
-  buffer: "src/browser-buffer.ts",
-  "text-buffer": "src/shims/text-buffer-shim.ts",
-  "text-buffer-view": "src/shims/text-buffer-view-shim.ts",
-  "syntax-style": "src/shims/syntax-style-shim.ts",
-  "edit-buffer": "src/shims/edit-buffer-stub.ts",
-  "editor-view": "src/shims/editor-view-stub.ts",
-  "post/filters": "src/shims/filters-stub.ts",
-  "animation/Timeline": "src/shims/timeline-stub.ts",
-}
-
 const nextConfig: NextConfig = {
   output: "export",
   distDir: "dist",
   reactStrictMode: true,
   images: { unoptimized: true },
   typescript: {
-    // Source imports from @gridland/ui and @gridland/web use custom JSX intrinsics
-    // (box, text, span) that conflict with React's HTML/SVG types.
-    // Type safety is enforced in those packages' own builds.
     ignoreBuildErrors: true,
   },
   webpack: (config, { isServer, webpack }) => {
     const sharedAliases: Record<string, string> = {
-      // @opentui packages
+      // @opentui packages — source mode
       "@opentui/core$": path.resolve(opentui, "packages/core/src/index.ts"),
-      "@opentui/core/native": shimPath("src/shims/renderer-stub.ts"),
+      "@opentui/core/native": shimPath("src/shims/native-stub.ts"),
       "@opentui/react": path.resolve(opentui, "packages/react/src/index.ts"),
-      // Convenience aliases for docs imports
+      // Convenience aliases
       "opentui-web": path.resolve(pkgRoot, "src/index.ts"),
-      "@gridland/core": path.resolve(__dirname, "../core/src/browser.ts"),
+      "@gridland/utils": path.resolve(__dirname, "../utils/src/index.ts"),
       "@gridland/web": path.resolve(pkgRoot, "src/index.ts"),
       "opentui-ui": path.resolve(__dirname, "../ui/components/index.ts"),
       "@gridland/ui": path.resolve(__dirname, "../ui/components/index.ts"),
@@ -68,11 +51,18 @@ const nextConfig: NextConfig = {
       // Devtools polyfill stub
       [path.resolve(opentui, "packages/react/src/reconciler/devtools-polyfill")]:
         shimPath("src/shims/devtools-polyfill-stub.ts"),
-    }
 
-    // Core file shims
-    for (const [key, shimFile] of Object.entries(coreFileShims)) {
-      sharedAliases[path.resolve(opentui, "packages/core/src", key)] = shimPath(shimFile)
+      // File-level shims for modules that call resolveRenderLib()
+      [path.resolve(opentui, "packages/core/src/edit-buffer")]:
+        shimPath("src/shims/edit-buffer-stub.ts"),
+      [path.resolve(opentui, "packages/core/src/editor-view")]:
+        shimPath("src/shims/editor-view-stub.ts"),
+      [path.resolve(opentui, "packages/core/src/text-buffer")]:
+        shimPath("src/shims/text-buffer-shim.ts"),
+      [path.resolve(opentui, "packages/core/src/text-buffer-view")]:
+        shimPath("src/shims/text-buffer-view-shim.ts"),
+      [path.resolve(opentui, "packages/core/src/syntax-style")]:
+        shimPath("src/shims/syntax-style-shim.ts"),
     }
 
     config.resolve = config.resolve || {}
@@ -93,16 +83,7 @@ const nextConfig: NextConfig = {
 
     if (!isServer) {
       const clientAliases: Record<string, string> = {
-        "node:console": shimPath("src/shims/console.ts"),
-        "console$": shimPath("src/shims/console.ts"),
         "events$": shimPath("src/shims/events-shim.ts"),
-        "fs/promises": shimPath("src/shims/node-fs.ts"),
-        "fs$": shimPath("src/shims/node-fs.ts"),
-        "path$": shimPath("src/shims/node-path.ts"),
-        "util$": shimPath("src/shims/node-util.ts"),
-        "os$": shimPath("src/shims/node-os.ts"),
-        "stream$": shimPath("src/shims/node-stream.ts"),
-        "url$": shimPath("src/shims/node-url.ts"),
       }
 
       config.resolve.alias = {

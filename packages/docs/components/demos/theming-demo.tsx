@@ -2,7 +2,7 @@
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { Spinner, Table, MultiSelect } from "@gridland/ui"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 
 const tableData = [
   { name: "Alice", role: "Engineer", status: "Active" },

@@ -59,10 +59,10 @@ import {
   HeadlessRenderer,
   setHeadlessRootRenderableClass,
   createHeadlessRoot,
-} from "@gridland/core"
+} from "@gridland/utils"
 
 // One-time setup: provide the root renderable class
-import { RootRenderable } from "@opentui/core"
+import { RootRenderable } from "@gridland/utils"
 setHeadlessRootRenderableClass(RootRenderable)
 
 // Create a renderer with a virtual terminal size

@@ -1,5 +1,5 @@
 import type { BrowserBuffer } from "./browser-buffer"
-import type { RGBA } from "./core-shims/rgba"
+import type { RGBA } from "@gridland/utils"
 import type { SelectionManager } from "./selection-manager"
 
 /** Cursor overlay info produced by the render pipeline, consumed by the painter */

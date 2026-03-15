@@ -2,7 +2,7 @@ import React, { type ReactNode } from "react"
 import type { HeadlessRenderer } from "./headless-renderer"
 import { BrowserContext } from "./browser-context"
 
-import { _render, reconciler, AppContext, ErrorBoundary as _ErrorBoundary } from "@gridland/core"
+import { _render, reconciler, AppContext, ErrorBoundary as _ErrorBoundary } from "@gridland/utils"
 
 const ErrorBoundary = _ErrorBoundary as unknown as React.ComponentType<{ children: React.ReactNode }>
 

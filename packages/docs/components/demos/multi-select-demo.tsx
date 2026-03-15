@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { MultiSelect, StatusBar } from "@gridland/ui"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 
 const items = [
   { label: "TypeScript", value: "ts" },

@@ -11,11 +11,10 @@ Gridland provides first-party plugins for [Vite](/docs/guides/vite) and [Next.js
 
 ## What the plugins do
 
-The Vite and Next.js plugins handle three things your bundler must also do:
+The Vite and Next.js plugins handle two things your bundler must also do:
 
-1. **Resolve `@opentui/*` packages** — Point `@opentui/core`, `@opentui/react`, and `@opentui/ui` to their source entry points
-2. **Shim Node.js built-ins** — The engine imports `fs`, `path`, `buffer`, `events`, etc. which need browser-safe stubs
-3. **Stub native modules** — Zig FFI, tree-sitter, and other native modules need no-op browser stubs
+1. **Resolve the opentui engine** — Point `@opentui/core`, `@opentui/react`, and `@opentui/ui` to their source entry points (only needed when building from the monorepo with the opentui submodule)
+2. **Stub native modules** — FFI bindings (`bun:ffi`, `bun-ffi-structs`), tree-sitter, and other native modules need no-op browser stubs
 
 ## Webpack example
 
@@ -33,7 +32,7 @@ npm install @gridland/web
 
 ### Configure aliases
 
-Add webpack aliases that point opentui imports to the shims bundled with `@gridland/web`:
+Add webpack aliases for the native module stubs bundled with `@gridland/web`:
 
 ```js title="webpack.config.js"
 const path = require("path")
@@ -44,24 +43,13 @@ const shim = (p) => path.resolve(gridlandWeb, p)
 module.exports = {
   resolve: {
     alias: {
-      // opentui packages
-      "@opentui/core": shim("src/core-shims/index.ts"),
-      "@opentui/react": require.resolve("@opentui/react"),
-      "@opentui/ui": require.resolve("@opentui/ui"),
-
       // FFI stubs
       "bun:ffi": shim("src/shims/bun-ffi.ts"),
+      "bun-ffi-structs": shim("src/shims/bun-ffi-structs.ts"),
       bun: shim("src/shims/bun-ffi.ts"),
 
-      // Node.js built-in stubs
+      // Events shim
       events$: shim("src/shims/events-shim.ts"),
-      fs$: shim("src/shims/node-fs.ts"),
-      "fs/promises": shim("src/shims/node-fs.ts"),
-      path$: shim("src/shims/node-path.ts"),
-      os$: shim("src/shims/node-os.ts"),
-      util$: shim("src/shims/node-util.ts"),
-      stream$: shim("src/shims/node-stream.ts"),
-      url$: shim("src/shims/node-url.ts"),
 
       // Tree-sitter stubs
       "tree-sitter-styled-text": shim("src/shims/tree-sitter-styled-text-stub.ts"),

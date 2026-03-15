@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { Timeline, StatusBar } from "@gridland/ui"
 import type { Step } from "@gridland/ui"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 
 // ── Animated demo ───────────────────────────────────────────────────
 

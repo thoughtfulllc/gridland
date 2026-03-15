@@ -12,7 +12,7 @@ export default defineConfig([
     format: ["esm"],
     dts: false,
     sourcemap: false,
-    external: ["react", "@gridland/core", "figlet"],
+    external: ["react", "@gridland/bun", "figlet"],
     target: "esnext",
     esbuildOptions(options) {
       options.alias = sharedAlias
@@ -35,7 +35,7 @@ export default defineConfig([
     format: ["esm"],
     dts: false,
     sourcemap: false,
-    external: ["react", "@gridland/core", "@gridland/web"],
+    external: ["react", "@gridland/utils", "@gridland/web"],
     target: "esnext",
     esbuildOptions(options) {
       options.alias = sharedAlias

@@ -3,7 +3,7 @@ import { BrowserBuffer } from "../browser-buffer"
 import { BrowserTextBuffer } from "../browser-text-buffer"
 import { BrowserTextBufferView } from "../browser-text-buffer-view"
 import { BrowserSyntaxStyle } from "../browser-syntax-style"
-import { RGBA } from "../core-shims/rgba"
+import { RGBA } from "@gridland/utils"
 
 describe("Integration", () => {
   it("buffer + text buffer + view pipeline works end-to-end", () => {

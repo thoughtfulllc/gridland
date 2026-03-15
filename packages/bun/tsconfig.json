@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "paths": {
+      "@gridland/utils": ["../utils/src/index.ts"],
+      "@opentui/core": ["../../opentui/packages/core/src/index.ts"],
+      "@opentui/core/*": ["../../opentui/packages/core/src/*"],
+      "@opentui/react": ["../../opentui/packages/react/src/index.ts"]
+    },
+    "baseUrl": "."
+  },
+  "include": ["src"]
+}

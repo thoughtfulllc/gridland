@@ -1,4 +1,4 @@
-import { useTerminalDimensions } from "@gridland/core"
+import { useTerminalDimensions } from "@gridland/utils"
 
 export interface Breakpoints {
   /** Width < 40 columns */

@@ -1,6 +1,6 @@
 {
   "name": "@gridland/web",
-  "version": "0.2.33",
+  "version": "0.2.34",
   "type": "module",
   "exports": {
     ".": {
@@ -29,9 +29,7 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src/shims",
-    "src/core-shims",
-    "src/browser-buffer.ts"
+    "src/shims"
   ],
   "scripts": {
     "build": "tsup; node build-browser.mjs",
@@ -40,7 +38,7 @@
     "test:ci": "bun test --preload ./test/preload.ts --randomize --rerun-each 3"
   },
   "dependencies": {
-    "@gridland/core": "^0.2.31",
+    "@gridland/utils": "workspace:*",
     "diff": "^8.0.3",
     "events": "^3.3.0",
     "marked": "^17.0.3",

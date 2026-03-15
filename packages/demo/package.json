@@ -1,6 +1,6 @@
 {
   "name": "@gridland/demo",
-  "version": "0.2.33",
+  "version": "0.2.34",
   "type": "module",
   "description": "Run gridland component demos from anywhere",
   "exports": {
@@ -21,9 +21,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gridland/core": "^0.2.31",
-    "@opentui/core": "^0.1.86",
-    "@opentui/react": "^0.1.86",
+    "@gridland/bun": "workspace:*",
     "figlet": "^1.10.0",
     "react": "^19.0.0"
   },

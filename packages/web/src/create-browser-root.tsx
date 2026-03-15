@@ -2,7 +2,7 @@ import React, { type ReactNode } from "react"
 import type { BrowserRenderer } from "./browser-renderer"
 import { BrowserContext } from "./browser-context"
 
-import { _render, AppContext, ErrorBoundary as _ErrorBoundary } from "@gridland/core"
+import { _render, AppContext, ErrorBoundary as _ErrorBoundary } from "@gridland/utils"
 
 // Cast needed: ErrorBoundary uses opentui's JSX intrinsics internally,
 // which causes a type conflict with React's JSX types during DTS builds.

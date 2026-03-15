@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
 import { Tabs, TabsList, TabsTrigger, TabsContent, TabBar, StatusBar, textStyle, useTheme } from "@gridland/ui"
-import { useKeyboard } from "@gridland/core"
+import { useKeyboard } from "@gridland/utils"
 
 // ── Simple demo (legacy TabBar API) ─────────────────────────────────────
 

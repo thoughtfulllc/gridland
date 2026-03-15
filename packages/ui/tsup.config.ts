@@ -11,6 +11,6 @@ export default defineConfig({
   // isn't needed — consumers get types directly from the .tsx source files.
   dts: false,
   sourcemap: true,
-  external: ["react", "react-dom", "@gridland/core", "@opentui/core", "@opentui/react"],
+  external: ["react", "react-dom", "@gridland/utils"],
   target: "esnext",
 })

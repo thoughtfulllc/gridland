@@ -10,7 +10,7 @@ export default defineConfig([
     dts: { only: true },
     external: [
       "react", "react-dom", "react-devtools-core",
-      /^@opentui\//, /^@gridland\/core/, /^bun/, "events",
+      /^@opentui\//, /^@gridland\/utils/, /^bun/, "events",
       "fs", "fs/promises", "path", "os", "stream", "url", "util",
       /^node:/, /tree-sitter/, /hast-styled-text/, /bun-ffi-structs/,
     ],

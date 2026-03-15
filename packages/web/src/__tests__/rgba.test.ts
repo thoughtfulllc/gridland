@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test"
-import { RGBA, parseColor, hexToRgb, rgbToHex, hsvToRgb } from "../core-shims/rgba"
+import { RGBA, parseColor, hexToRgb, rgbToHex, hsvToRgb } from "@gridland/utils"
 
 describe("RGBA", () => {
   it("creates from values", () => {
@@ -36,7 +36,7 @@ describe("RGBA", () => {
 
   it("toString returns CSS rgba", () => {
     const c = RGBA.fromValues(1, 0, 0, 1)
-    expect(c.toString()).toBe("rgba(255, 0, 0, 1)")
+    expect(c.toString()).toBe("rgba(1.00, 0.00, 0.00, 1.00)")
   })
 
   it("equals compares correctly", () => {
@@ -125,12 +125,12 @@ describe("parseColor", () => {
     expect(c.b).toBe(0)
   })
 
-  it("parses rgba() string", () => {
-    const c = parseColor("rgba(255, 128, 0, 0.5)")
+  it("parses named color", () => {
+    const c = parseColor("red")
     expect(c.r).toBe(1)
-    expect(c.g).toBeCloseTo(128 / 255)
+    expect(c.g).toBe(0)
     expect(c.b).toBe(0)
-    expect(c.a).toBeCloseTo(0.5)
+    expect(c.a).toBe(1)
   })
 
   it("passes through RGBA instances", () => {
@@ -139,10 +139,10 @@ describe("parseColor", () => {
     expect(result).toBe(original)
   })
 
-  it("returns white for unknown input", () => {
+  it("returns magenta for unknown input", () => {
     const c = parseColor("nonsense")
     expect(c.r).toBe(1)
-    expect(c.g).toBe(1)
+    expect(c.g).toBe(0)
     expect(c.b).toBe(1)
   })
 })
