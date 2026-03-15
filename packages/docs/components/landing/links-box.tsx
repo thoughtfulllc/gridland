@@ -22,7 +22,7 @@ export function LinksBox() {
         </a>
         <span>{"  "}</span>
         <span>📖</span>
-        <a href="/docs" style={{ attributes: UNDERLINE, fg: theme.accent }}>
+        <a href="https://gridland.io/docs" style={{ attributes: UNDERLINE, fg: theme.accent }}>
           {" Docs"}
         </a>
       </text>
