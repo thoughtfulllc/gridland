@@ -282,6 +282,11 @@ export function gridlandWebPlugin(): Plugin[] {
     config() {
       const aliases: Record<string, string> = {}
 
+      // @opentui/core → browser shims (prevents esbuild dep optimizer from
+      // trying to pre-bundle the real @opentui/core which uses unsupported
+      // import attributes like `with { type: "file" }`)
+      aliases["@opentui/core"] = coreShims
+
       // FFI shims
       aliases["bun:ffi"] = path.resolve(pkgRoot, "src/shims/bun-ffi.ts")
       aliases["bun-ffi-structs"] = path.resolve(pkgRoot, "src/shims/bun-ffi-structs.ts")
