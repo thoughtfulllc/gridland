@@ -3,7 +3,7 @@ import { defineConfig } from "tsup"
 export default defineConfig({
   entry: { index: "src/index.ts" },
   format: ["esm"],
-  dts: { only: true },
+  dts: true,
   external: [
     "react", "react-dom", "react-devtools-core",
     /^@opentui\//, /^bun/, "events",
