@@ -71,7 +71,7 @@ This follows the ai-element pattern for full control over layout.
 ```tsx title="With useChat"
 import { Message } from "@/components/ui/message"
 
-const { messages, status } = useChat({ api: "/api/chat" })
+const { messages, status } = useChat({ api: process.env.NEXT_PUBLIC_CHAT_API_URL! })
 
 {messages.map((msg, i) => {
   const isLast = i === messages.length - 1

@@ -12,7 +12,7 @@ function AIChatInterfaceApp() {
   const [expanded, setExpanded] = useState(true)
 
   const { messages, status, sendMessage, stop } = useChat({
-    api: "/api/chat",
+    api: process.env.NEXT_PUBLIC_CHAT_API_URL!,
   })
 
   useKeyboard((event) => {

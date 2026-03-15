@@ -1,0 +1,16 @@
+{
+  "name": "gridland-chat-proxy",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "rate_limits": [
+    {
+      "binding": "CHAT_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 20,
+        "period": 60
+      }
+    }
+  ]
+}

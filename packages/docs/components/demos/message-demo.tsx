@@ -97,7 +97,7 @@ import { renderContentParts } from "./render-message-parts-demo-utils"
 
 function MessageWithInputApp() {
   const { messages, status, sendMessage, stop } = useChat({
-    api: "/api/chat",
+    api: process.env.NEXT_PUBLIC_CHAT_API_URL!,
   })
 
   const chatStatus: ChatStatus =

@@ -13,6 +13,8 @@
     "dev": "bun run --cwd packages/docs dev",
     "docs:build": "bun run --cwd packages/docs build",
     "dev:next": "bun run --cwd examples/next-example dev",
+    "worker:dev": "bun run --cwd packages/worker dev",
+    "worker:deploy": "bun run --cwd packages/worker deploy",
     "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
     "setup": "git submodule update --init && bun install && bun install --cwd opentui && bun run build"
   },

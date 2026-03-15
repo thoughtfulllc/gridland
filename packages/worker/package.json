@@ -1,0 +1,18 @@
+{
+  "name": "@gridland/worker",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "types:check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@openrouter/ai-sdk-provider": "^2.1.1",
+    "ai": "^6.0.116"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250620.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.22.0"
+  }
+}

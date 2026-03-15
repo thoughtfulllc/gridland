@@ -16,7 +16,7 @@ and compatible with any model provider via OpenRouter, OpenAI, Anthropic, or cus
 </div>
 
 <Callout type="info">
-  This demo connects to a live LLM via a Next.js API route. Set your `OPENROUTER_API_KEY` in `.env` to try it.
+  This demo connects to a live LLM via a Cloudflare Worker proxy. Set `NEXT_PUBLIC_CHAT_API_URL` to your deployed worker URL.
 </Callout>
 
 ## Installation
@@ -24,48 +24,85 @@ and compatible with any model provider via OpenRouter, OpenAI, Anthropic, or cus
 <Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
 <Tab value="bun">
 ```bash title="Terminal"
-bun add @gridland/ui @ai-sdk/react @openrouter/ai-sdk-provider ai
+bun add @gridland/ui @ai-sdk/react ai
 ```
 </Tab>
 <Tab value="npm">
 ```bash title="Terminal"
-npm install @gridland/ui @ai-sdk/react @openrouter/ai-sdk-provider ai
+npm install @gridland/ui @ai-sdk/react ai
 ```
 </Tab>
 <Tab value="yarn">
 ```bash title="Terminal"
-yarn add @gridland/ui @ai-sdk/react @openrouter/ai-sdk-provider ai
+yarn add @gridland/ui @ai-sdk/react ai
 ```
 </Tab>
 <Tab value="pnpm">
 ```bash title="Terminal"
-pnpm add @gridland/ui @ai-sdk/react @openrouter/ai-sdk-provider ai
+pnpm add @gridland/ui @ai-sdk/react ai
 ```
 </Tab>
 </Tabs>
 
-## Server Route
+## Cloudflare Worker
 
-Create an API route that streams responses from your model provider.
+The chat backend runs as a Cloudflare Worker that proxies requests through
+[Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/) to OpenRouter.
+This keeps your API key secure, adds rate limiting, and gives you built-in
+caching, logging, and analytics — all while working with any static frontend (Vercel, etc.).
 
-```ts title="app/api/chat/route.ts"
+```ts title="packages/worker/src/index.ts"
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { streamText, convertToModelMessages, type UIMessage } from "ai"
 
-const openrouter = createOpenRouter({
-  apiKey: process.env.OPENROUTER_API_KEY,
-})
-
-export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json()
-
-  const result = streamText({
-    model: openrouter.chat("openai/gpt-4o-mini"),
-    messages: await convertToModelMessages(messages),
-  })
-
-  return result.toUIMessageStreamResponse()
+interface Env {
+  OPENROUTER_API_KEY: string
+  ALLOWED_ORIGIN: string
+  CF_AIG_ACCOUNT_ID?: string
+  CF_AIG_GATEWAY_ID?: string
+  CHAT_RATE_LIMITER: RateLimit
 }
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    // Rate limiting (keyed by client IP)
+    const clientIP = request.headers.get("CF-Connecting-IP") ?? "unknown"
+    const { success } = await env.CHAT_RATE_LIMITER.limit({ key: clientIP })
+    if (!success) {
+      return new Response("Rate limit exceeded", { status: 429 })
+    }
+
+    const { messages }: { messages: UIMessage[] } = await request.json()
+
+    // Route through AI Gateway when configured, otherwise direct to OpenRouter
+    const baseURL = env.CF_AIG_ACCOUNT_ID && env.CF_AIG_GATEWAY_ID
+      ? `https://gateway.ai.cloudflare.com/v1/${env.CF_AIG_ACCOUNT_ID}/${env.CF_AIG_GATEWAY_ID}/openrouter`
+      : undefined
+
+    const openrouter = createOpenRouter({
+      apiKey: env.OPENROUTER_API_KEY,
+      baseURL,
+    })
+
+    const result = streamText({
+      model: openrouter.chat("openai/gpt-4o-mini"),
+      messages: await convertToModelMessages(messages),
+    })
+
+    return result.toUIMessageStreamResponse()
+  },
+}
+```
+
+Deploy and configure secrets:
+
+```bash title="Terminal"
+cd packages/worker
+npx wrangler deploy
+npx wrangler secret put OPENROUTER_API_KEY
+npx wrangler secret put ALLOWED_ORIGIN        # e.g. https://your-site.vercel.app
+npx wrangler secret put CF_AIG_ACCOUNT_ID     # optional — enables AI Gateway
+npx wrangler secret put CF_AIG_GATEWAY_ID     # optional — enables AI Gateway
 ```
 
 ## Client Component
@@ -81,7 +118,7 @@ import { useKeyboard } from "@gridland/core"
 
 function ChatInterface() {
   const { messages, status, sendMessage, stop } = useChat({
-    api: "/api/chat",
+    api: process.env.NEXT_PUBLIC_CHAT_API_URL!,
   })
 
   const chatStatus: ChatStatus =
@@ -184,22 +221,11 @@ This block combines three Gridland components:
 
 ### Using a different model
 
-Swap the model ID in the API route to use any provider on OpenRouter:
+Swap the model ID in the worker to use any provider on OpenRouter:
 
-```ts title="route.ts"
+```ts title="packages/worker/src/index.ts"
 const result = streamText({
   model: openrouter.chat("anthropic/claude-sonnet-4"),
-  messages: await convertToModelMessages(messages),
-})
-```
-
-### Direct provider (no OpenRouter)
-
-```ts title="route.ts"
-import { anthropic } from "@ai-sdk/anthropic"
-
-const result = streamText({
-  model: anthropic("claude-sonnet-4-20250514"),
   messages: await convertToModelMessages(messages),
 })
 ```

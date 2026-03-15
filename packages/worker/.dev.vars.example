@@ -1,0 +1,8 @@
+# Wrangler local dev secrets (copy to .dev.vars)
+# https://developers.cloudflare.com/workers/configuration/secrets/#local-development-with-secrets
+OPENROUTER_API_KEY=sk-or-...
+ALLOWED_ORIGIN=http://localhost:3000
+
+# Optional — enable Cloudflare AI Gateway
+# CF_AIG_ACCOUNT_ID=
+# CF_AIG_GATEWAY_ID=

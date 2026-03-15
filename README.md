@@ -55,16 +55,54 @@ bun run test
 bun run build
 ```
 
-### Environment variables
+### AI Chat Demo Setup
 
-Some docs demos (e.g. the AI chat demo) require an API key. Create a `.env` file in `packages/docs/`:
+The AI chat demo uses a Cloudflare Worker as a proxy to OpenRouter. The worker keeps your API key secure and handles rate limiting. You need an [OpenRouter](https://openrouter.ai/) API key for both local and production.
+
+#### Local development
 
 ```bash
-# packages/docs/.env
-OPENROUTER_API_KEY=sk-or-...
+# 1. Set up worker secrets
+cp packages/worker/.dev.vars.example packages/worker/.dev.vars
+# Edit packages/worker/.dev.vars and add your OpenRouter API key:
+#   OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxx
+#   ALLOWED_ORIGIN=http://localhost:3000
+
+# 2. Set up docs env
+cp packages/docs/.env.example packages/docs/.env
+# The default points to localhost:8787 (the local worker)
+
+# 3. Start the worker (runs locally on localhost:8787)
+bun run worker:dev
+
+# 4. In a separate terminal, start the docs site
+bun run dev
 ```
 
-You can get an API key from [OpenRouter](https://openrouter.ai/).
+The worker runs entirely on your machine via `wrangler dev`. No Cloudflare account needed. It still calls OpenRouter over the internet, so requests use your API key credits.
+
+#### Production deployment
+
+Requires a [Cloudflare account](https://dash.cloudflare.com/sign-up) (free tier works).
+
+```bash
+# 1. Deploy the worker to Cloudflare
+bun run worker:deploy
+
+# 2. Set required secrets
+cd packages/worker
+npx wrangler secret put OPENROUTER_API_KEY    # your OpenRouter API key
+npx wrangler secret put ALLOWED_ORIGIN        # your site URL, e.g. https://your-site.vercel.app
+
+# 3. (Optional) Enable Cloudflare AI Gateway for caching, logging, and analytics
+npx wrangler secret put CF_AIG_ACCOUNT_ID
+npx wrangler secret put CF_AIG_GATEWAY_ID
+
+# 4. In the Vercel dashboard, add this environment variable:
+#    NEXT_PUBLIC_CHAT_API_URL = https://gridland-chat-proxy.<your-account>.workers.dev
+```
+
+No secrets are stored in the repo. The OpenRouter API key lives in Cloudflare's secret store, and the worker URL is set in Vercel's dashboard.
 
 ## Project structure
 
