@@ -169,10 +169,19 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
         )
       }
 
-      // Enable top-level await (used by opentui source code)
+      // Enable top-level await (used by yoga-layout WASM compilation).
+      // All ESM-capable browsers support top-level await, so we declare
+      // asyncFunction support to suppress webpack's false-positive warning.
       config.experiments = {
         ...config.experiments,
         topLevelAwait: true,
+      }
+      config.output = {
+        ...config.output,
+        environment: {
+          ...config.output?.environment,
+          asyncFunction: true,
+        },
       }
 
       return config

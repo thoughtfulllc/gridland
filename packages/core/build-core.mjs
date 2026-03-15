@@ -236,6 +236,22 @@ async function main() {
       console.log(`  Hoisted Renderable class definition (${section.length} lines) before first subclass`)
     }
   }
+  // Remove duplicate Yoga WASM + init code.
+  // esbuild may emit two copies of yoga-layout due to circular imports.
+  // The second copy (loadYoga2, Yoga2, etc.) is dead code that adds ~20K lines
+  // and an unnecessary top-level await for WASM compilation.
+  {
+    let updated = fs.readFileSync(path.resolve(pkgRoot, "dist/browser.js"), "utf-8")
+    const beforeLen = updated.length
+    // Remove the second loadYoga IIFE, its wrapAssembly2, enums, and top-level await
+    updated = updated.replace(/var loadYoga2 = \(\(\) => \{[\s\S]*?var Yoga2 = wrapAssembly2\(await yoga_wasm_base64_esm_default2\(\)\);\n?/m, "")
+    if (updated.length < beforeLen) {
+      fs.writeFileSync(path.resolve(pkgRoot, "dist/browser.js"), updated)
+      const removedKB = Math.round((beforeLen - updated.length) / 1024)
+      console.log(`  Removed duplicate Yoga WASM code (${removedKB}KB)`)
+    }
+  }
+
   console.log("✓ @gridland/core dist/index.js (bun) + dist/browser.js (browser)")
 }
 
