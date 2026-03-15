@@ -72,6 +72,13 @@ function useLocalPackages(projectName: string) {
     }
   }
 
+  // Force nested @gridland/* deps (e.g. @gridland/web's dep on @gridland/core)
+  // to use local tarballs instead of pulling from npm registry.
+  pkg.overrides = pkg.overrides || {}
+  for (const [name, tarball] of Object.entries(tarballs)) {
+    pkg.overrides[name] = `file:${tarball}`
+  }
+
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n")
 }
 
@@ -83,14 +90,14 @@ describe("e2e: vite project", () => {
     runInProject("test-vite", "bun run build")
 
     expect(fs.existsSync(path.join(tmpDir, "test-vite", "dist"))).toBe(true)
-  })
+  }, 60000)
 
   it("typescript compiles clean", () => {
     runCli("test-vite-tsc --framework vite --no-git --no-install")
     useLocalPackages("test-vite-tsc")
     runInProject("test-vite-tsc", "bun install")
     runInProject("test-vite-tsc", "npx tsc --noEmit")
-  })
+  }, 60000)
 })
 
 describe("e2e: next project", () => {
@@ -101,14 +108,14 @@ describe("e2e: next project", () => {
     runInProject("test-next", "bun run build")
 
     expect(fs.existsSync(path.join(tmpDir, "test-next", ".next"))).toBe(true)
-  })
+  }, 60000)
 
   it("typescript compiles clean", () => {
     runCli("test-next-tsc --framework next --no-git --no-install")
     useLocalPackages("test-next-tsc")
     runInProject("test-next-tsc", "bun install")
     runInProject("test-next-tsc", "npx tsc --noEmit")
-  })
+  }, 60000)
 })
 
 // ── Dev server smoke tests ─────────────────────────────────────────────

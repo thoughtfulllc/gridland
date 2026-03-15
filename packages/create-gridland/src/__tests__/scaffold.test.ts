@@ -96,10 +96,10 @@ describe("scaffold next", () => {
     const nextConfig = fs.readFileSync(path.join(targetDir, "next.config.ts"), "utf-8")
     expect(nextConfig).toContain('from "@gridland/web/next-plugin"')
 
-    const page = fs.readFileSync(path.join(targetDir, "app/page.tsx"), "utf-8")
-    expect(page).toContain('from "@gridland/web"')
-    expect(page).toContain('from "@gridland/core"')
-    expect(page).toContain('"use client"')
+    const app = fs.readFileSync(path.join(targetDir, "app/gridland-app.tsx"), "utf-8")
+    expect(app).toContain('"@gridland/web"')
+    expect(app).toContain('"@gridland/core"')
+    expect(app).toContain('"use client"')
   })
 
   it("has correct dependencies", () => {

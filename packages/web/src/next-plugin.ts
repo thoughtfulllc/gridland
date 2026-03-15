@@ -56,6 +56,11 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
 
   return {
     ...nextConfig,
+    // Ensure Next.js compiles .ts shim files from @gridland/web with SWC
+    transpilePackages: [
+      ...(nextConfig.transpilePackages || []),
+      "@gridland/web",
+    ],
     webpack: (config: WebpackConfig, context: { isServer: boolean; webpack: WebpackInstance }) => {
       const { isServer, webpack } = context
 
@@ -133,8 +138,11 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
 
       if (!isServer) {
         // Client-only: Node.js built-in stubs, events shim, console shim.
+        // Both node:-prefixed and bare forms are needed because
+        // NormalModuleReplacementPlugin strips the node: prefix.
         const clientAliases: Record<string, string> = {
           "node:console": shimPath("src/shims/console.ts"),
+          "console$": shimPath("src/shims/console.ts"),
           "events$": shimPath("src/shims/events-shim.ts"),
           "fs/promises": shimPath("src/shims/node-fs.ts"),
           "fs$": shimPath("src/shims/node-fs.ts"),

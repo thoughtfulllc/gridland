@@ -119,73 +119,118 @@ const sharedExternal = [
   "ws",
 ]
 
+// Browser bundle only externalizes react — Node.js builtins get shimmed.
+const browserExternal = ["react", "react-dom"]
+
+// Node.js shims for the browser build — redirect builtins to @gridland/web stubs
+const nodeShimMap = {
+  "node:buffer": "src/shims/node-buffer.ts",
+  "node:path": "src/shims/node-path.ts",
+  "path": "src/shims/node-path.ts",
+  "node:fs": "src/shims/node-fs.ts",
+  "fs": "src/shims/node-fs.ts",
+  "fs/promises": "src/shims/node-fs.ts",
+  "node:util": "src/shims/node-util.ts",
+  "util": "src/shims/node-util.ts",
+  "os": "src/shims/node-os.ts",
+  "node:os": "src/shims/node-os.ts",
+  "stream": "src/shims/node-stream.ts",
+  "node:stream": "src/shims/node-stream.ts",
+  "url": "src/shims/node-url.ts",
+  "node:url": "src/shims/node-url.ts",
+  "node:console": "src/shims/console.ts",
+  "console": "src/shims/console.ts",
+  "bun": "src/shims/bun-ffi.ts",
+  "bun:ffi": "src/shims/bun-ffi.ts",
+  "events": "src/shims/events-shim.ts",
+}
+
 async function main() {
-  const shared = { bundle: true, format: "esm", platform: "neutral", target: "esnext", external: sharedExternal, sourcemap: true, banner: { js: requireShimBanner } }
+  const shared = { bundle: true, format: "esm", platform: "neutral", target: "esnext", sourcemap: true, banner: { js: requireShimBanner } }
 
   // Bun bundle: single file, no splitting needed (Bun handles circular deps)
-  await esbuild.build({ ...shared, entryPoints: [path.resolve(pkgRoot, "src/index.ts")], outfile: path.resolve(pkgRoot, "dist/index.js"), plugins: [createBasePlugin()] })
+  await esbuild.build({ ...shared, external: sharedExternal, entryPoints: [path.resolve(pkgRoot, "src/index.ts")], outfile: path.resolve(pkgRoot, "dist/index.js"), plugins: [createBasePlugin()] })
 
-  // Browser bundle: single-file bundle.
+  // Browser bundle: Node.js builtins shimmed, only react externalized.
+  const browserPlugin = createBasePlugin({ stubNative: true })
+  const origSetup = browserPlugin.setup
+  browserPlugin.setup = (build) => {
+    origSetup(build)
+    // Shim Node.js built-ins for browser
+    for (const [mod, shimPath] of Object.entries(nodeShimMap)) {
+      build.onResolve({ filter: new RegExp(`^${mod.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")}$`) }, () => ({
+        path: path.resolve(webRoot, shimPath),
+      }))
+    }
+    // Stub remaining node: prefixed modules
+    build.onResolve({ filter: /^node:/ }, () => ({
+      path: "node-stub",
+      namespace: "stub",
+    }))
+  }
   await esbuild.build({
     ...shared,
+    external: browserExternal,
     entryPoints: [path.resolve(pkgRoot, "src/browser.ts")],
     outfile: path.resolve(pkgRoot, "dist/browser.js"),
-    plugins: [createBasePlugin({ stubNative: true })],
+    plugins: [browserPlugin],
   })
 
   // Post-process: fix circular dependency ordering.
   // esbuild may place Renderable's class definition AFTER classes that extend it
-  // due to circular imports in the opentui source. We find the deferred Renderable
+  // due to circular imports in the opentui source. We find the Renderable.ts
   // section and hoist it before the first class that needs it.
   const fs = await import("fs")
   let code = fs.readFileSync(path.resolve(pkgRoot, "dist/browser.js"), "utf-8")
   const lines = code.split("\n")
 
-  // Find the SECOND occurrence of the Renderable.ts section marker (the deferred part)
   const marker = "// ../../opentui/packages/core/src/Renderable.ts"
-  let firstIdx = -1, secondIdx = -1
+
+  // Find the first class that extends BaseRenderable or Renderable3
+  let firstUsageIdx = -1
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trim() === marker) {
-      if (firstIdx === -1) firstIdx = i
-      else { secondIdx = i; break }
+    if (/class\s.*extends\s+(Renderable3|BaseRenderable)\b/.test(lines[i])) {
+      firstUsageIdx = i
+      break
     }
   }
 
-  if (secondIdx !== -1) {
-    // Find the end of the deferred section (next section marker or end of file)
-    let endIdx = lines.length
-    for (let i = secondIdx + 1; i < lines.length; i++) {
-      if (lines[i].trim().startsWith("// ../../opentui/packages/")) {
-        endIdx = i
-        break
-      }
-    }
+  // Find the Renderable.ts section (may appear once or twice due to circular deps)
+  const markerPositions = []
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === marker) markerPositions.push(i)
+  }
 
-    // Extract the deferred section
-    const deferredSection = lines.splice(secondIdx, endIdx - secondIdx)
+  if (firstUsageIdx !== -1 && markerPositions.length > 0) {
+    // Use the LAST occurrence (which contains the actual class definition)
+    const sectionIdx = markerPositions[markerPositions.length - 1]
 
-    // Find the first "extends Renderable" or "extends BaseRenderable" class
-    let insertBefore = -1
-    for (let i = 0; i < lines.length; i++) {
-      if (/class\s.*extends\s+(Renderable3|BaseRenderable)\b/.test(lines[i])) {
-        insertBefore = i
-        break
-      }
-    }
-
-    if (insertBefore !== -1) {
-      // Find the section start (previous section marker) to insert cleanly
-      let sectionStart = insertBefore
-      for (let i = insertBefore - 1; i >= 0; i--) {
+    // Only hoist if the definition comes AFTER the first usage
+    if (sectionIdx > firstUsageIdx) {
+      // Find the end of the section (next section marker or end of file)
+      let endIdx = lines.length
+      for (let i = sectionIdx + 1; i < lines.length; i++) {
         if (lines[i].trim().startsWith("// ../../opentui/packages/")) {
-          sectionStart = i
+          endIdx = i
           break
         }
       }
 
-      lines.splice(sectionStart, 0, ...deferredSection)
+      // Extract the section
+      const section = lines.splice(sectionIdx, endIdx - sectionIdx)
+
+      // Find the section start before the first usage to insert cleanly
+      let insertAt = firstUsageIdx
+      for (let i = firstUsageIdx - 1; i >= 0; i--) {
+        if (lines[i].trim().startsWith("// ../../opentui/packages/")) {
+          insertAt = i
+          break
+        }
+      }
+
+      lines.splice(insertAt, 0, ...section)
       fs.writeFileSync(path.resolve(pkgRoot, "dist/browser.js"), lines.join("\n"))
-      console.log(`  Hoisted Renderable class definition (${deferredSection.length} lines) before first subclass`)
+      console.log(`  Hoisted Renderable class definition (${section.length} lines) before first subclass`)
     }
   }
   console.log("✓ @gridland/core dist/index.js (bun) + dist/browser.js (browser)")

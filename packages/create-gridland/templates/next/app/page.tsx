@@ -1,14 +1,12 @@
 // @ts-nocheck
 "use client"
 
-import { TUI } from "@gridland/web"
-import { useKeyboard } from "@gridland/core"
-import { LandingApp } from "@gridland/demo/landing"
+import dynamic from "next/dynamic"
+
+// Dynamic import with SSR disabled — @gridland/core uses top-level await
+// (Yoga WASM) which is not supported during Next.js server-side rendering.
+const GridlandApp = dynamic(() => import("./gridland-app"), { ssr: false })
 
 export default function Home() {
-  return (
-    <TUI style={{ width: "100vw", height: "100vh" }} backgroundColor="#1a1a2e">
-      <LandingApp useKeyboard={useKeyboard} />
-    </TUI>
-  )
+  return <GridlandApp />
 }

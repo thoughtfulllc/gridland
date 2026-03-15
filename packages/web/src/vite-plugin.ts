@@ -113,6 +113,16 @@ export function gridlandWebPlugin(): Plugin[] {
       if (!importer) return null
       if (importer.startsWith(NPM_REDIRECT)) return null
 
+      // ── Node.js built-in shims (both source and npm mode) ────────
+      // Needed even in npm mode because older @gridland/core versions
+      // or transitive deps may import these bare modules.
+      if (nodeShims[source]) {
+        return path.resolve(pkgRoot, nodeShims[source])
+      }
+      if (source === "events") {
+        return path.resolve(pkgRoot, "src/shims/events-shim.ts")
+      }
+
       // ── Source mode only ──────────────────────────────────────────
       if (!hasSource) return null
 
@@ -177,16 +187,6 @@ export function gridlandWebPlugin(): Plugin[] {
         if (source.includes("hast-styled-text")) {
           return path.resolve(pkgRoot, "src/shims/hast-stub.ts")
         }
-      }
-
-      // Events shim
-      if (source === "events") {
-        return path.resolve(pkgRoot, "src/shims/events-shim.ts")
-      }
-
-      // Node.js built-in stubs
-      if (nodeShims[source] && isExternalOpentui) {
-        return path.resolve(pkgRoot, nodeShims[source])
       }
 
       // Redirect bare npm imports from external opentui to virtual modules

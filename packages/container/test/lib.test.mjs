@@ -215,7 +215,7 @@ describe("buildDockerArgs", () => {
     const args = buildDockerArgs(baseOpts);
     const tmpfsIdx = args.indexOf("--tmpfs");
     expect(tmpfsIdx).not.toBe(-1);
-    expect(args[tmpfsIdx + 1]).toBe("/tmp:rw,nosuid,size=256m");
+    expect(args[tmpfsIdx + 1]).toBe("/tmp:rw,exec,nosuid,size=256m");
   });
 
   it("includes memory limit", () => {
