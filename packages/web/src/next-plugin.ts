@@ -76,6 +76,7 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
 
         // @opentui packages — source mode only (monorepo dev)
         ...(hasSource ? {
+          "@gridland/core": shimPath("src/core-shims-entry.ts"),
           "@opentui/core": shimPath("src/core-shims/index.ts"),
           "@opentui/react": path.resolve(reactRoot, "src/index.ts"),
           "@opentui/ui": path.resolve(uiRoot, "src/index.ts"),
@@ -118,6 +119,15 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
         ...sharedAliases,
       }
 
+      // Allow webpack to resolve workspace packages (e.g. @gridland/core)
+      // from the consuming project's and monorepo root node_modules
+      config.resolve.modules = [
+        ...(config.resolve.modules || []),
+        path.resolve(process.cwd(), "node_modules"),
+        path.resolve(pkgRoot, "node_modules"),
+        path.resolve(pkgRoot, "../../node_modules"),
+      ]
+
       // Slider circular dependency fix — source mode only
       if (hasSource) {
         const renderablesDir = path.resolve(coreRoot, "src/renderables")
@@ -149,13 +159,6 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
           ...config.resolve.alias,
           ...clientAliases,
         }
-
-        // Allow webpack to resolve modules from our workspace node_modules
-        config.resolve.modules = [
-          ...(config.resolve.modules || []),
-          path.resolve(pkgRoot, "node_modules"),
-          path.resolve(pkgRoot, "../../node_modules"),
-        ]
 
         // Strip `node:` and `bun:` prefixes from imports so they resolve
         // through aliases. Webpack 5 treats these as unhandled URL schemes.

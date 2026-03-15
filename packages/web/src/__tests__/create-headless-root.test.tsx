@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "bun:test"
 import React from "react"
 import { HeadlessRenderer, setHeadlessRootRenderableClass } from "../headless-renderer"
 import { createHeadlessRoot } from "../create-headless-root"
-import { RootRenderable } from "@opentui/core"
+import { RootRenderable } from "@gridland/core"
 
 describe("createHeadlessRoot", () => {
   beforeEach(() => {

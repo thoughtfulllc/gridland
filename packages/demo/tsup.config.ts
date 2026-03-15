@@ -12,7 +12,7 @@ export default defineConfig([
     format: ["esm"],
     dts: false,
     sourcemap: false,
-    external: ["react", "@opentui/core", "@opentui/react", "figlet"],
+    external: ["react", "@gridland/core", "figlet"],
     target: "esnext",
     esbuildOptions(options) {
       options.alias = sharedAlias
@@ -35,20 +35,10 @@ export default defineConfig([
     format: ["esm"],
     dts: false,
     sourcemap: false,
-    external: ["react", "@opentui/core", "@opentui/react", "@gridland/web"],
+    external: ["react", "@gridland/core", "@gridland/web"],
     target: "esnext",
     esbuildOptions(options) {
       options.alias = sharedAlias
-    },
-    async onSuccess() {
-      const { readFileSync, writeFileSync } = await import("fs")
-      const landingPath = resolve(__dirname, "dist/landing.js")
-      let code = readFileSync(landingPath, "utf-8")
-      // Rewrite @opentui/react → @gridland/web so browser consumers
-      // get hooks from the same bundle as TUI (shared React context)
-      code = code.replaceAll('"@opentui/react"', '"@gridland/core"')
-      code = code.replaceAll("'@opentui/react'", "'@gridland/core'")
-      writeFileSync(landingPath, code)
     },
   },
 ])

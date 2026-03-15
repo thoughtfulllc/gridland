@@ -37,6 +37,16 @@ const resolvePlugin = {
     build.onResolve({ filter: /^@opentui\/react$/ }, () => ({
       path: path.resolve(opentuiRoot, "react/src/index.ts"),
     }))
+    // Stub zig native FFI loader (loads platform-specific .dylib/.so binaries)
+    build.onResolve({ filter: /\/zig$/ }, (args) => {
+      if (args.resolveDir.includes("opentui")) {
+        return { path: path.resolve(pkgRoot, "../web/src/shims/zig-stub.ts") }
+      }
+    })
+    // Stub bun-ffi-structs (not available outside Bun's native FFI)
+    build.onResolve({ filter: /bun-ffi-structs/ }, () => ({
+      path: path.resolve(pkgRoot, "../web/src/shims/bun-ffi-structs.ts"),
+    }))
     // Stub tree-sitter (uses `import with { type: "file" }` which esbuild
     // can't handle). Tree-sitter is for syntax highlighting, not core rendering.
     build.onResolve({ filter: /tree-sitter/ }, () => ({
@@ -68,7 +78,7 @@ async function main() {
     target: "esnext",
     external: [
       "react", "react-dom",
-      "bun:ffi", "bun", "bun-ffi-structs",
+      "bun:ffi", "bun",
       "events",
       "fs", "fs/promises", "path", "os", "stream", "url", "util",
       "node:fs", "node:path", "node:os", "node:stream", "node:url",

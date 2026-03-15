@@ -41,6 +41,7 @@ const nextConfig: NextConfig = {
   webpack: (config, { isServer, webpack }) => {
     const sharedAliases: Record<string, string> = {
       // @opentui packages
+      "@gridland/core": shimPath("src/core-shims-entry.ts"),
       "@opentui/core": shimPath("src/core-shims/index.ts"),
       "@opentui/react": path.resolve(opentui, "packages/react/src/index.ts"),
       // Convenience aliases for docs imports

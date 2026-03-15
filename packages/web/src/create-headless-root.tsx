@@ -2,11 +2,7 @@ import React, { type ReactNode } from "react"
 import type { HeadlessRenderer } from "./headless-renderer"
 import { BrowserContext } from "./browser-context"
 
-// Import from opentui react through Vite aliases
-import { _render, reconciler } from "../../../opentui/packages/react/src/reconciler/reconciler"
-import { AppContext } from "../../../opentui/packages/react/src/components/app"
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-import { ErrorBoundary as _ErrorBoundary } from "../../../opentui/packages/react/src/components/error-boundary"
+import { _render, reconciler, AppContext, ErrorBoundary as _ErrorBoundary } from "@gridland/core"
 
 const ErrorBoundary = _ErrorBoundary as unknown as React.ComponentType<{ children: React.ReactNode }>
 
