@@ -25,6 +25,20 @@ export { SelectionManager } from "./selection-manager"
 export { createBrowserRoot } from "./create-browser-root"
 export type { BrowserRoot } from "./create-browser-root"
 
+// Headless rendering
+export { bufferToText } from "./buffer-to-text"
+export { HeadlessRenderer, setHeadlessRootRenderableClass } from "./headless-renderer"
+export type { HeadlessRendererOptions } from "./headless-renderer"
+export { createHeadlessRoot } from "./create-headless-root"
+export type { HeadlessRoot } from "./create-headless-root"
+
+// Browser context
+export { BrowserContext } from "./browser-context"
+export type { BrowserContextValue } from "./browser-context"
+
+// Utilities
+export { isBrowser, isCanvasSupported, calculateGridSize } from "./utils"
+
 // Browser-only hooks
 export { useFileDrop } from "./file-drop"
 export type { DroppedFile } from "./file-drop"

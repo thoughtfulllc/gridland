@@ -1,6 +1,6 @@
 {
   "name": "@gridland/testing",
-  "version": "0.2.24",
+  "version": "0.2.27",
   "type": "module",
   "exports": {
     ".": {

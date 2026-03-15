@@ -1,4 +1,4 @@
-import { useTerminalDimensions } from "@opentui/react"
+import { useTerminalDimensions } from "@gridland/core"
 
 export interface Breakpoints {
   /** Width < 40 columns */

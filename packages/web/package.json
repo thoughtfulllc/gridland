@@ -1,6 +1,6 @@
 {
   "name": "@gridland/web",
-  "version": "0.2.24",
+  "version": "0.2.27",
   "type": "module",
   "exports": {
     ".": {
@@ -40,7 +40,7 @@
     "test:ci": "bun test --preload ./test/preload.ts --randomize --rerun-each 3"
   },
   "dependencies": {
-    "@gridland/core": "^0.2.24",
+    "@gridland/core": "^0.2.27",
     "diff": "^8.0.3",
     "events": "^3.3.0",
     "marked": "^17.0.3",

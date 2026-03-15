@@ -1,5 +1,5 @@
 /**
- * Shared esbuild shim configuration for @gridland/web and @gridland/core.
+ * Shared esbuild shim configuration for @gridland/web's browser builds.
  * Provides browser-compatible shims for bun, node built-ins, and opentui packages.
  */
 import path from "path"
@@ -75,39 +75,23 @@ export function createCoreFileShims(pkgRoot) {
 
 /**
  * Creates the esbuild shim plugin.
+ * Applies browser-compatible stubs for native modules when bundling
+ * opentui source (core-shims entry, etc.).
  * @param {string} pkgRoot - The root directory of the package being built
- * @param {Object} [options]
- * @param {Record<string, string>} [options.externalRewrites] - Map of bare specifiers
- *   to rewrite as external imports (e.g. { "@opentui/react": "@gridland/core" })
- * @param {string} [options.externalizeOpentuiTo] - If set, any relative import that
- *   resolves into the opentui/react or opentui/core source tree is rewritten as an
- *   external import from this package (e.g. "@gridland/core").
  */
-export function createShimPlugin(pkgRoot, { externalRewrites = {}, externalizeOpentuiTo } = {}) {
+export function createShimPlugin(pkgRoot) {
   const webRoot = path.resolve(pkgRoot, pkgRoot.endsWith("web") ? "." : "../web")
   const bareShims = createBareShims(pkgRoot)
   const coreFileShims = createCoreFileShims(pkgRoot)
-  const opentuiReactSrc = path.resolve(webRoot, "../../opentui/packages/react/src")
 
   return {
     name: "browser-shims",
     setup(build) {
       build.onResolve({ filter: /.*/ }, (args) => {
-        // External rewrites take priority — redirect to a different package
-        if (externalRewrites[args.path]) {
-          return { path: externalRewrites[args.path], external: true }
-        }
         if (bareShims[args.path]) return { path: bareShims[args.path] }
 
         if (args.path.startsWith(".") && args.resolveDir) {
           const resolved = path.resolve(args.resolveDir, args.path)
-
-          // Externalize opentui/react source paths to @gridland/core so
-          // web shares the same React contexts and yoga instance at runtime.
-          if (externalizeOpentuiTo && resolved.startsWith(opentuiReactSrc)) {
-            return { path: externalizeOpentuiTo, external: true }
-          }
-
           const shim =
             coreFileShims.get(resolved) ||
             coreFileShims.get(resolved + ".ts") ||

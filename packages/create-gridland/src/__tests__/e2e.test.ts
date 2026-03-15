@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach } from "bun:test"
-import { execSync } from "node:child_process"
+import { execSync, spawn, type ChildProcess } from "node:child_process"
 import fs from "node:fs"
+import net from "node:net"
 import path from "node:path"
 import os from "node:os"
 
@@ -14,6 +15,7 @@ let tarballs: Record<string, string> = {}
 beforeAll(() => {
   const tarballDir = fs.mkdtempSync(path.join(os.tmpdir(), "gridland-tarballs-"))
   const packages: Record<string, string> = {
+    "@gridland/core": path.join(MONOREPO_ROOT, "packages/core"),
     "@gridland/web": path.join(MONOREPO_ROOT, "packages/web"),
     "@gridland/demo": path.join(MONOREPO_ROOT, "packages/demo"),
   }
@@ -107,4 +109,100 @@ describe("e2e: next project", () => {
     runInProject("test-next-tsc", "bun install")
     runInProject("test-next-tsc", "npx tsc --noEmit")
   })
+})
+
+// ── Dev server smoke tests ─────────────────────────────────────────────
+
+function findFreePort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer()
+    server.listen(0, "127.0.0.1", () => {
+      const port = (server.address() as net.AddressInfo).port
+      server.close(() => resolve(port))
+    })
+    server.on("error", reject)
+  })
+}
+
+async function waitForServer(url: string, timeoutMs = 60000): Promise<void> {
+  const start = Date.now()
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const res = await fetch(url)
+      if (res.ok) return
+    } catch {
+      // server not ready yet
+    }
+    await Bun.sleep(500)
+  }
+  throw new Error(`Server at ${url} did not become ready within ${timeoutMs}ms`)
+}
+
+function scaffoldAndInstall(projectName: string, framework: string) {
+  runCli(`${projectName} --framework ${framework} --no-git --no-install`)
+  useLocalPackages(projectName)
+  runInProject(projectName, "bun install")
+}
+
+describe("e2e: vite dev server", () => {
+  it("starts and serves the page without errors", async () => {
+    const port = await findFreePort()
+    const projectName = "test-vite-dev"
+    scaffoldAndInstall(projectName, "vite")
+
+    const projectDir = path.join(tmpDir, projectName)
+    const child = spawn("npx", ["vite", "--port", String(port)], {
+      cwd: projectDir,
+      stdio: ["ignore", "pipe", "pipe"],
+    })
+
+    let stderr = ""
+    child.stderr?.on("data", (chunk: Buffer) => { stderr += chunk.toString() })
+
+    try {
+      const url = `http://localhost:${port}`
+      await waitForServer(url)
+
+      const response = await fetch(url)
+      expect(response.ok).toBe(true)
+
+      const html = await response.text()
+      expect(html).toContain('<div id="root">')
+      expect(html).not.toContain("Internal Server Error")
+    } finally {
+      child.kill("SIGTERM")
+    }
+  }, 90000)
+})
+
+describe("e2e: next dev server", () => {
+  it("starts and serves the page without errors", async () => {
+    const port = await findFreePort()
+    const projectName = "test-next-dev"
+    scaffoldAndInstall(projectName, "next")
+
+    const projectDir = path.join(tmpDir, projectName)
+    const child = spawn("npx", ["next", "dev", "--port", String(port)], {
+      cwd: projectDir,
+      stdio: ["ignore", "pipe", "pipe"],
+    })
+
+    let stderr = ""
+    child.stderr?.on("data", (chunk: Buffer) => { stderr += chunk.toString() })
+
+    try {
+      const url = `http://localhost:${port}`
+      await waitForServer(url, 90000)
+
+      const response = await fetch(url)
+      expect(response.ok).toBe(true)
+
+      const html = await response.text()
+      expect(html).toContain("<html")
+      expect(html).not.toContain("Internal Server Error")
+      expect(html).not.toContain("Application error")
+    } finally {
+      child.kill("SIGTERM")
+    }
+  }, 120000)
 })

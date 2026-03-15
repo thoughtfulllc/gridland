@@ -1,4 +1,5 @@
 import path from "path"
+import { existsSync } from "fs"
 
 type WebpackConfig = any
 type WebpackInstance = any
@@ -27,6 +28,11 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
   const coreRoot = path.resolve(opentuiRoot, "packages/core")
   const reactRoot = path.resolve(opentuiRoot, "packages/react")
   const uiRoot = path.resolve(opentuiRoot, "packages/ui")
+
+  // Detect whether opentui source is available (monorepo/submodule)
+  const hasSource = existsSync(path.resolve(reactRoot, "src/index.ts"))
+  // Pre-compiled core-shims for npm mode (no monorepo-relative paths)
+  const compiledCoreShims = path.resolve(pkgRoot, "dist/core-shims.js")
 
   function shimPath(p: string) {
     return path.resolve(pkgRoot, p)
@@ -64,37 +70,47 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
       // tree-sitter stubs, core file shims). The server doesn't actually render
       // the TUI but still walks the module graph for "use client" components.
       const sharedAliases: Record<string, string> = {
-        // @opentui packages — core-shims includes all exports @opentui/react needs
-        "@opentui/core": shimPath("src/core-shims/index.ts"),
-        "@opentui/react": path.resolve(reactRoot, "src/index.ts"),
-        "@opentui/ui": path.resolve(uiRoot, "src/index.ts"),
+        // In npm mode, @gridland/core bundles real opentui with native deps
+        // that browsers can't handle. Alias it to the core-shims bundle instead.
+        ...(!hasSource ? { "@gridland/core": compiledCoreShims } : {}),
+
+        // @opentui packages — source mode only (monorepo dev)
+        ...(hasSource ? {
+          "@gridland/core": shimPath("src/core-shims-entry.ts"),
+          "@opentui/core": shimPath("src/core-shims/index.ts"),
+          "@opentui/react": path.resolve(reactRoot, "src/index.ts"),
+          "@opentui/ui": path.resolve(uiRoot, "src/index.ts"),
+        } : {}),
 
         // FFI shims (no Zig/Bun on server or client in browser context)
         "bun:ffi": shimPath("src/shims/bun-ffi.ts"),
         "bun-ffi-structs": shimPath("src/shims/bun-ffi-structs.ts"),
         bun: shimPath("src/shims/bun-ffi.ts"),
 
-        // Tree-sitter stubs — IMPORTANT: longer prefix must come first to avoid
-        // "tree-sitter" matching "tree-sitter-styled-text" (webpack prefix match)
+        // Tree-sitter stubs
         "tree-sitter-styled-text": shimPath("src/shims/tree-sitter-styled-text-stub.ts"),
         "web-tree-sitter": shimPath("src/shims/tree-sitter-stub.ts"),
         "hast-styled-text": shimPath("src/shims/hast-stub.ts"),
-        // Internal tree-sitter source directories (pulled in via renderable imports)
-        [path.resolve(coreRoot, "src/lib/tree-sitter-styled-text")]:
-          shimPath("src/shims/tree-sitter-styled-text-stub.ts"),
-        [path.resolve(coreRoot, "src/lib/tree-sitter")]:
-          shimPath("src/shims/tree-sitter-stub.ts"),
-        [path.resolve(coreRoot, "src/lib/hast-styled-text")]:
-          shimPath("src/shims/hast-stub.ts"),
 
-        // Devtools polyfill stub (original uses top-level await for ws import)
-        [path.resolve(reactRoot, "src/reconciler/devtools-polyfill")]:
-          shimPath("src/shims/devtools-polyfill-stub.ts"),
+        // Source-mode-only aliases: opentui source directories and file shims.
+        // In npm mode, these are already compiled into the core-shims bundle.
+        ...(hasSource ? {
+          [path.resolve(coreRoot, "src/lib/tree-sitter-styled-text")]:
+            shimPath("src/shims/tree-sitter-styled-text-stub.ts"),
+          [path.resolve(coreRoot, "src/lib/tree-sitter")]:
+            shimPath("src/shims/tree-sitter-stub.ts"),
+          [path.resolve(coreRoot, "src/lib/hast-styled-text")]:
+            shimPath("src/shims/hast-stub.ts"),
+          [path.resolve(reactRoot, "src/reconciler/devtools-polyfill")]:
+            shimPath("src/shims/devtools-polyfill-stub.ts"),
+        } : {}),
       }
 
-      // Core file shims (opentui source → browser shim)
-      for (const [key, shimFile] of Object.entries(coreFileShims)) {
-        sharedAliases[path.resolve(coreRoot, "src", key)] = shimPath(shimFile)
+      // Core file shims (opentui source → browser shim) — source mode only
+      if (hasSource) {
+        for (const [key, shimFile] of Object.entries(coreFileShims)) {
+          sharedAliases[path.resolve(coreRoot, "src", key)] = shimPath(shimFile)
+        }
       }
 
       config.resolve = config.resolve || {}
@@ -103,17 +119,26 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
         ...sharedAliases,
       }
 
-      // Slider circular dependency fix: Slider.ts imports from "../index" which
-      // creates barrel → renderables → Slider → barrel cycle. Redirect to a
-      // minimal deps file that provides only what Slider needs.
-      const renderablesDir = path.resolve(coreRoot, "src/renderables")
-      config.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(/^\.\.\/index$/, (resource: any) => {
-          if (resource.context === renderablesDir) {
-            resource.request = shimPath("src/shims/slider-deps.ts")
-          }
-        }),
-      )
+      // Allow webpack to resolve workspace packages (e.g. @gridland/core)
+      // from the consuming project's and monorepo root node_modules
+      config.resolve.modules = [
+        ...(config.resolve.modules || []),
+        path.resolve(process.cwd(), "node_modules"),
+        path.resolve(pkgRoot, "node_modules"),
+        path.resolve(pkgRoot, "../../node_modules"),
+      ]
+
+      // Slider circular dependency fix — source mode only
+      if (hasSource) {
+        const renderablesDir = path.resolve(coreRoot, "src/renderables")
+        config.plugins.push(
+          new webpack.NormalModuleReplacementPlugin(/^\.\.\/index$/, (resource: any) => {
+            if (resource.context === renderablesDir) {
+              resource.request = shimPath("src/shims/slider-deps.ts")
+            }
+          }),
+        )
+      }
 
       if (!isServer) {
         // Client-only: Node.js built-in stubs, events shim, console shim.
@@ -134,13 +159,6 @@ export function withGridland(nextConfig: NextConfig = {}): NextConfig {
           ...config.resolve.alias,
           ...clientAliases,
         }
-
-        // Allow webpack to resolve modules from our workspace node_modules
-        config.resolve.modules = [
-          ...(config.resolve.modules || []),
-          path.resolve(pkgRoot, "node_modules"),
-          path.resolve(pkgRoot, "../../node_modules"),
-        ]
 
         // Strip `node:` and `bun:` prefixes from imports so they resolve
         // through aliases. Webpack 5 treats these as unhandled URL schemes.

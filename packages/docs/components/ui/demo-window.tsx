@@ -7,9 +7,9 @@ import {
   HeadlessRenderer,
   setHeadlessRootRenderableClass,
   createHeadlessRoot,
-} from "@gridland/core"
+} from "@gridland/web"
 import { ThemeProvider, darkTheme, lightTheme } from "@gridland/ui"
-import { RootRenderable } from "@opentui/core"
+import { RootRenderable } from "@gridland/core"
 import { TerminalWindow } from "@/components/ui/mac-window"
 
 // One-time global setup

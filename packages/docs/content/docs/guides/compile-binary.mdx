@@ -1,0 +1,222 @@
+---
+title: Compile to Binary
+description: Distribute your Gridland CLI as a standalone executable with Bun
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+
+Bun can compile your Gridland CLI app into a single standalone executable — no runtime required for your users.
+
+## Quick start
+
+<Steps>
+<Step>
+
+### Install dependencies
+
+```bash
+bun add @gridland/core
+```
+
+</Step>
+<Step>
+
+### Create your CLI entrypoint
+
+```tsx title="src/cli.tsx"
+// @ts-nocheck
+import { createCliRenderer, createRoot } from "@gridland/core"
+
+function App() {
+  return (
+    <box border borderStyle="rounded" padding={1}>
+      <text bold fg="#a3be8c">Hello from my CLI!</text>
+    </box>
+  )
+}
+
+async function main() {
+  const renderer = await createCliRenderer({ exitOnCtrlC: true })
+  createRoot(renderer).render(<App />)
+}
+
+main()
+```
+
+</Step>
+<Step>
+
+### Compile it
+
+```bash
+bun build --compile ./src/cli.tsx --outfile mycli
+```
+
+This bundles your code, all dependencies, and the Bun runtime into a single binary.
+
+</Step>
+<Step>
+
+### Run it
+
+```bash
+./mycli
+```
+
+No Bun, Node, or npm install needed on the target machine.
+
+</Step>
+</Steps>
+
+<Callout type="info">
+Wrap your startup code in an `async function` instead of using top-level `await` to ensure compatibility with all bundler configurations.
+</Callout>
+
+## Production builds
+
+For distribution, add `--minify` to reduce size and `--sourcemap` to preserve readable stack traces:
+
+```bash
+bun build --compile --minify --sourcemap ./src/cli.tsx --outfile mycli
+```
+
+| Flag | What it does |
+|------|-------------|
+| `--minify` | Reduces transpiled output size |
+| `--sourcemap` | Embeds a zstd-compressed sourcemap so errors point to original source |
+
+<Callout type="warning">
+Bun's `--bytecode` flag is not compatible with Gridland CLIs. The `@opentui/core` package uses top-level `await` internally, which bytecode compilation does not support.
+</Callout>
+
+## Cross-compilation
+
+Bun supports cross-compiling to other platforms with the `--target` flag. However, `@opentui/core` includes platform-specific native bindings that are resolved at build time, so **you must build on the target platform** (or in a CI runner matching the target OS/arch).
+
+For example, build on a macOS ARM64 machine for macOS ARM64, or in a Linux x64 CI job for Linux x64:
+
+```bash
+# On the target machine (or matching CI runner):
+bun build --compile --minify --sourcemap ./src/cli.tsx --outfile mycli
+```
+
+### Supported Bun targets
+
+If your CLI does not depend on `@opentui/core`'s native bindings (e.g. a pure-JS tool using only `@gridland/core` utilities), cross-compilation works with `--target`:
+
+| Target | OS | Arch | Notes |
+|--------|----|------|-------|
+| `bun-darwin-arm64` | macOS | ARM64 | Apple Silicon |
+| `bun-darwin-x64` | macOS | x64 | Intel Macs |
+| `bun-linux-x64` | Linux | x64 | glibc |
+| `bun-linux-arm64` | Linux | ARM64 | glibc |
+| `bun-linux-x64-musl` | Linux | x64 | Alpine/musl |
+| `bun-linux-arm64-musl` | Linux | ARM64 | Alpine/musl |
+| `bun-windows-x64` | Windows | x64 | |
+| `bun-windows-arm64` | Windows | ARM64 | |
+
+<Callout type="info">
+Append `-baseline` to x64 targets for CPUs before 2013 (no AVX2). If users see "Illegal instruction" errors, they need the baseline build.
+</Callout>
+
+## Embedding assets
+
+Embed files directly into the binary using the `{ type: "file" }` import attribute:
+
+```tsx title="src/cli.tsx"
+import configPath from "./default-config.json" with { type: "file" }
+import { file } from "bun"
+
+const config = await file(configPath).json()
+```
+
+Embed entire directories by passing glob patterns:
+
+```bash
+bun build --compile ./src/cli.tsx ./assets/**/*.json --outfile mycli
+```
+
+List all embedded files at runtime:
+
+```ts
+import { embeddedFiles } from "bun"
+
+for (const blob of embeddedFiles) {
+  console.log(`${blob.name} - ${blob.size} bytes`)
+}
+```
+
+## Build-time constants
+
+Inject version numbers or other constants with `--define`:
+
+```bash
+bun build --compile \
+  --define BUILD_VERSION='"1.0.0"' \
+  --define BUILD_TIME='"2025-01-15T10:30:00Z"' \
+  ./src/cli.tsx --outfile mycli
+```
+
+```tsx title="src/cli.tsx"
+declare const BUILD_VERSION: string
+declare const BUILD_TIME: string
+
+console.log(`v${BUILD_VERSION} (built ${BUILD_TIME})`)
+```
+
+## macOS code signing
+
+If distributing outside the App Store, sign your binary to avoid Gatekeeper warnings:
+
+```bash
+codesign --deep --force --sign "Your Identity" ./mycli
+```
+
+For full JIT support (recommended), create an entitlements file:
+
+```xml title="entitlements.plist"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+</dict>
+</plist>
+```
+
+```bash
+codesign --deep --force --sign "Your Identity" --entitlements entitlements.plist ./mycli
+```
+
+## CI build script example
+
+Since Gridland CLIs need platform-specific native bindings, use a matrix strategy in CI to build on each target platform:
+
+```yaml title=".github/workflows/build.yml"
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            name: darwin-arm64
+          - os: macos-13
+            name: darwin-x64
+          - os: ubuntu-latest
+            name: linux-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun build --compile --minify --sourcemap ./src/cli.tsx --outfile dist/mycli-${{ matrix.name }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mycli-${{ matrix.name }}
+          path: dist/mycli-${{ matrix.name }}
+```
