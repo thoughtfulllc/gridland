@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "test": "bun test src/index.test.ts",
+    "test:integration": "bun test src/integration.test.ts"
   },
   "dependencies": {
     "ai": "^6.0.116",

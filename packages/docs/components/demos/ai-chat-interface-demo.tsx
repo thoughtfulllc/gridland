@@ -6,13 +6,14 @@ import { Message, PromptInput } from "@gridland/ui"
 import type { ChatStatus } from "@gridland/ui"
 import { useKeyboard } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
+import { chatTransport } from "@/lib/chat"
 import { renderPartsWithReasoning } from "./render-message-parts-demo-utils"
 
 function AIChatInterfaceApp() {
   const [expanded, setExpanded] = useState(true)
 
   const { messages, status, sendMessage, stop } = useChat({
-    api: process.env.NEXT_PUBLIC_CHAT_API_URL ?? "/api/chat",
+    transport: chatTransport,
   })
 
   useKeyboard((event) => {
