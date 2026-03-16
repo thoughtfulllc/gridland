@@ -27,7 +27,7 @@ jobs:
         run: bun run build
 
       - name: Run unit tests
-        run: bun run test
+        run: bun run test:ci
 
   e2e-tests:
     runs-on: ubuntu-latest
