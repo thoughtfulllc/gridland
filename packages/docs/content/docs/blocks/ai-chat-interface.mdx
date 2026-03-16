@@ -1,13 +1,13 @@
 ---
 title: AI Chat Interface
-description: Complete chat interface combining Message, PromptInput, and Timeline with Vercel AI SDK
+description: Complete chat interface combining Message, PromptInput, and ChainOfThought with Vercel AI SDK
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { Callout } from 'fumadocs-ui/components/callout'
 import AIChatInterfaceDemo from '@/components/demos/ai-chat-interface-demo'
 
-A ready-to-use AI chat interface that combines `Message`, `PromptInput`, and `Timeline`
+A ready-to-use AI chat interface that combines `Message`, `PromptInput`, and `ChainOfThought`
 into a scrollable conversation view with streaming support. Built on the Vercel AI SDK
 and compatible with any model provider via OpenRouter, OpenAI, Anthropic, or custom endpoints.
 
@@ -178,7 +178,7 @@ This block combines three Gridland components:
 |-----------|------|
 | [`Message`](/docs/components/message) | Renders individual messages with role-based styling and streaming |
 | [`PromptInput`](/docs/components/prompt-input) | Input field with submit/stop, slash commands, and file mentions |
-| [`Timeline`](/docs/components/timeline) | Animated step timeline for reasoning chains (when model supports it) |
+| [`ChainOfThought`](/docs/components/chain-of-thought) | Animated step chain of thought for reasoning chains (when model supports it) |
 
 ## Customization
 
@@ -204,7 +204,7 @@ const result = streamText({
 })
 ```
 
-### Adding Timeline for reasoning models
+### Adding ChainOfThought for reasoning models
 
 When using a model that supports extended thinking (e.g. `deepseek-r1`, `o1`),
 reasoning parts appear automatically. Render `Message.Reasoning` outside

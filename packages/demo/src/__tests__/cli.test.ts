@@ -21,7 +21,7 @@ function readDistBundle(): string {
 const AVAILABLE_DEMOS = [
   "gradient", "ascii", "table", "spinner", "select-input",
   "multi-select", "prompt-input", "text-input", "link", "tabs", "status-bar",
-  "modal", "primitives", "chat", "timeline", "message", "terminal-window", "landing",
+  "modal", "primitives", "chat", "chain-of-thought", "message", "terminal-window", "landing",
 ]
 
 function run(...args: string[]) {

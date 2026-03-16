@@ -36,7 +36,7 @@ const IMPORT_REWRITES: [RegExp, string][] = [
   [/(from\s+["'])\.\.\/breakpoints\/use-breakpoints(["'])/g, "$1./breakpoints$2"],
   // Cross-component
   [/(from\s+["'])\.\.\/prompt-input\/prompt-input(["'])/g, "$1./prompt-input$2"],
-  [/(from\s+["'])\.\.\/timeline\/timeline(["'])/g, "$1./timeline$2"],
+  [/(from\s+["'])\.\.\/chain-of-thought\/chain-of-thought(["'])/g, "$1./chain-of-thought$2"],
 ]
 
 function rewriteImports(source: string): string {
@@ -160,7 +160,7 @@ const ITEMS: ItemConfig[] = [
     type: "registry:ui",
     title: "Message",
     description: "AI chat message with text, reasoning, tool invocations, and sources",
-    registryDependencies: ["theme", "text-style", "timeline"],
+    registryDependencies: ["theme", "text-style", "chain-of-thought"],
     srcPath: "message/message.tsx",
     ext: ".tsx",
   },
@@ -255,12 +255,12 @@ const ITEMS: ItemConfig[] = [
     ext: ".tsx",
   },
   {
-    name: "timeline",
+    name: "chain-of-thought",
     type: "registry:ui",
-    title: "Timeline",
-    description: "Step-by-step progress timeline with animated status indicators",
+    title: "Chain of Thought",
+    description: "Step-by-step progress chain of thought with animated status indicators",
     registryDependencies: ["theme", "text-style"],
-    srcPath: "timeline/timeline.tsx",
+    srcPath: "chain-of-thought/chain-of-thought.tsx",
     ext: ".tsx",
   },
 ]

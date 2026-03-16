@@ -1,0 +1,134 @@
+---
+title: Chain of Thought
+description: A collapsible component that visualizes AI reasoning steps with animated progress indicators, descriptions, and output content.
+---
+
+import { RunDemo } from '@/components/ui/run-demo'
+import ChainOfThoughtDemo, { ChainOfThoughtCollapsedDemo, ChainOfThoughtExpandedDemo, ChainOfThoughtWithOutputDemo } from '@/components/demos/chain-of-thought-demo'
+
+The `ChainOfThought` component provides a visual representation of an AI's reasoning process, showing step-by-step thinking with animated circle-filling spinners, status indicators, and optional output content. It helps users understand how AI arrives at conclusions.
+
+<div className="my-8">
+  <ChainOfThoughtDemo />
+</div>
+
+<RunDemo name="chain-of-thought" />
+
+## Installation
+
+```bash
+bunx shadcn@latest add @gridland/chain-of-thought
+```
+
+## Features
+
+- Collapsible interface with expand/collapse arrow indicator
+- Step-by-step visualization of AI reasoning process
+- Animated circle-filling spinner for active steps (○ ◔ ◑ ◕ ●)
+- Support for four step statuses: done, running, pending, error
+- Description text for secondary detail on each step
+- Output content rendered below steps with pipe gutter
+- Controlled and uncontrolled open state
+- Context-aware sub-components using React Context API
+- Composable compound component architecture
+- Self-contained animation per step (no unnecessary re-renders)
+- Fully typed with TypeScript
+- Compatible with Vercel AI SDK `ReasoningPart` via the `Step` data type
+
+## Usage
+
+### Collapsed
+
+```tsx
+import {
+  ChainOfThought,
+  ChainOfThoughtHeader,
+  ChainOfThoughtContent,
+  ChainOfThoughtStep,
+} from "@/components/ui/chain-of-thought"
+
+<ChainOfThought>
+  <ChainOfThoughtHeader duration="3.2s" />
+  <ChainOfThoughtContent>
+    <ChainOfThoughtStep label="Reading files" isLast />
+  </ChainOfThoughtContent>
+</ChainOfThought>
+```
+
+<div className="my-4">
+  <ChainOfThoughtCollapsedDemo />
+</div>
+
+### Expanded
+
+```tsx
+<ChainOfThought defaultOpen>
+  <ChainOfThoughtHeader duration="4.3s">Build pipeline</ChainOfThoughtHeader>
+  <ChainOfThoughtContent>
+    <ChainOfThoughtStep label="Reading codebase" description="src/" status="done" />
+    <ChainOfThoughtStep label="Planning changes" description="auth module" status="done" />
+    <ChainOfThoughtStep label="Editing files" description="4 files" status="running" />
+    <ChainOfThoughtStep label="Running tests" description="vitest" status="pending" isLast />
+  </ChainOfThoughtContent>
+</ChainOfThought>
+```
+
+<div className="my-4">
+  <ChainOfThoughtExpandedDemo />
+</div>
+
+### Step output
+
+```tsx
+<ChainOfThought defaultOpen>
+  <ChainOfThoughtHeader duration="2.1s" />
+  <ChainOfThoughtContent>
+    <ChainOfThoughtStep label="Reading config" status="done" />
+    <ChainOfThoughtStep label="Running tests" description="vitest" status="error">
+      FAIL src/auth.test.ts — expected 200, got 401
+    </ChainOfThoughtStep>
+    <ChainOfThoughtStep label="Fixing auth handler" status="running" isLast />
+  </ChainOfThoughtContent>
+</ChainOfThought>
+```
+
+<div className="my-4">
+  <ChainOfThoughtWithOutputDemo />
+</div>
+
+## Props
+
+### `<ChainOfThought />`
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `open` | `boolean` | - | Controlled open state of the collapsible |
+| `defaultOpen` | `boolean` | `false` | Default open state when uncontrolled |
+| `onOpenChange` | `(open: boolean) => void` | - | Callback when the open state changes |
+| `children` | `ReactNode` | - | Compose sub-components inside |
+
+### `<ChainOfThoughtHeader />`
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `duration` | `string` | - | Duration string shown after the label (e.g. `"3.2s"`) |
+| `children` | `ReactNode` | `"Thought for"` | Custom header text |
+
+### `<ChainOfThoughtStep />`
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `label` | `string` | - | The main text label for the step |
+| `description` | `string` | - | Optional description text shown dimmed after the label |
+| `status` | `"done" \| "running" \| "pending" \| "error"` | `"done"` | Visual status of the step |
+| `isLast` | `boolean` | `false` | Hides the vertical pipe connector below |
+| `children` | `ReactNode` | - | Output content rendered below the step with a pipe gutter |
+
+#### Status indicators
+
+| Status | Dot | Color | Style |
+|--------|-----|-------|-------|
+| `done` | ● | `theme.success` | Normal |
+| `running` | ○◔◑◕● | `theme.primary` | Bold, animated |
+| `pending` | ○ | `theme.muted` | Dim |
+| `error` | ● | `theme.error` | Normal |

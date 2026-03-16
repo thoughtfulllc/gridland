@@ -16,7 +16,7 @@ import {
   Modal,
   ChatPanel,
   Message,
-  Timeline,
+  ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep,
   type ChatMessage,
   type ToolCallInfo,
   type Step,
@@ -516,28 +516,28 @@ export function TerminalWindowApp() {
   )
 }
 
-const TIMELINE_STEPS: (Step & { delay: number })[] = [
-  { tool: "Read", label: "Reading codebase \u2014 src/", status: "done", delay: 1800 },
-  { tool: "Think", label: "Planning changes \u2014 auth module", status: "done", delay: 2500 },
-  { tool: "Edit", label: "Editing files \u2014 4 files", status: "done", delay: 3200 },
-  { tool: "Bash", label: "Running tests \u2014 vitest", status: "done", delay: 2000 },
-  { tool: "Edit", label: "Fixing test \u2014 routes.test.ts", status: "done", delay: 1500 },
+const COT_STEPS: (Step & { delay: number })[] = [
+  { tool: "Read", label: "Reading codebase", description: "src/", status: "done", delay: 1800 },
+  { tool: "Think", label: "Planning changes", description: "auth module", status: "done", delay: 2500 },
+  { tool: "Edit", label: "Editing files", description: "4 files", status: "done", delay: 3200 },
+  { tool: "Bash", label: "Running tests", description: "vitest", status: "done", delay: 2000 },
+  { tool: "Edit", label: "Fixing test", description: "routes.test.ts", status: "done", delay: 1500 },
 ]
 
-type TimelinePhase = "running" | "done"
+type ChainOfThoughtPhase = "running" | "done"
 
-export function TimelineApp() {
+export function ChainOfThoughtApp() {
   const [expanded, setExpanded] = useState(true)
-  const [phase, setPhase] = useState<TimelinePhase>("running")
+  const [phase, setPhase] = useState<ChainOfThoughtPhase>("running")
   const [stepIndex, setStepIndex] = useState(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useKeyboard((event) => {
     if (event.name === "E" && event.ctrl && event.shift) setExpanded((v) => !v)
-    if (event.name === "r") timelineRestart()
+    if (event.name === "r") cotRestart()
   })
 
-  function timelineRestart() {
+  function cotRestart() {
     if (timerRef.current) clearTimeout(timerRef.current)
     setPhase("running")
     setStepIndex(0)
@@ -545,8 +545,8 @@ export function TimelineApp() {
 
   useEffect(() => {
     if (phase !== "running") return
-    if (stepIndex < TIMELINE_STEPS.length) {
-      const delay = TIMELINE_STEPS[stepIndex]!.delay
+    if (stepIndex < COT_STEPS.length) {
+      const delay = COT_STEPS[stepIndex]!.delay
       timerRef.current = setTimeout(() => setStepIndex((i) => i + 1), delay)
     } else {
       timerRef.current = setTimeout(() => setPhase("done"), 500)
@@ -556,28 +556,42 @@ export function TimelineApp() {
 
   useEffect(() => {
     if (phase === "done") {
-      timerRef.current = setTimeout(() => timelineRestart(), 3000)
+      timerRef.current = setTimeout(() => cotRestart(), 3000)
     }
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [phase])
 
-  const steps: Step[] = TIMELINE_STEPS.map((s, i) => {
+  const steps: Step[] = COT_STEPS.map((s, i) => {
     if (i < stepIndex) return { ...s, status: "done" as const }
     if (i === stepIndex && phase === "running") return { ...s, status: "running" as const }
     return { ...s, status: phase === "done" ? ("done" as const) : ("pending" as const) }
   })
 
-  const elapsedMs = TIMELINE_STEPS.slice(0, stepIndex).reduce((sum, s) => sum + s.delay, 0)
-  const totalMs = TIMELINE_STEPS.reduce((sum, s) => sum + s.delay, 0)
+  const elapsedMs = COT_STEPS.slice(0, stepIndex).reduce((sum, s) => sum + s.delay, 0)
+  const totalMs = COT_STEPS.reduce((sum, s) => sum + s.delay, 0)
+  const durationStr = phase === "done"
+    ? `${(totalMs / 1000).toFixed(1)}s`
+    : `${(elapsedMs / 1000).toFixed(1)}s`
 
   return (
     <box flexDirection="column" flexGrow={1}>
       <box flexDirection="column" padding={1} flexGrow={1}>
-        <Timeline
-          steps={steps}
-          duration={phase === "done" ? `${(totalMs / 1000).toFixed(1)}s` : `${(elapsedMs / 1000).toFixed(1)}s`}
-          collapsed={!expanded}
-        />
+        <ChainOfThought open={expanded} onOpenChange={setExpanded}>
+          <ChainOfThoughtHeader duration={durationStr} />
+          <ChainOfThoughtContent>
+            {steps.map((step, i) => (
+              <ChainOfThoughtStep
+                key={i}
+                label={step.label}
+                description={step.description}
+                status={step.status}
+                isLast={i === steps.length - 1}
+              >
+                {step.output}
+              </ChainOfThoughtStep>
+            ))}
+          </ChainOfThoughtContent>
+        </ChainOfThought>
       </box>
       <box paddingX={1} paddingBottom={1}>
         <StatusBar items={[
@@ -591,11 +605,11 @@ export function TimelineApp() {
 }
 
 const BUBBLE_STEPS: (Step & { delay: number })[] = [
-  { tool: "Read", label: "Reading codebase \u2014 src/", status: "done", delay: 1800 },
-  { tool: "Think", label: "Planning changes \u2014 auth module", status: "done", delay: 2500 },
-  { tool: "Edit", label: "Editing files \u2014 4 files", status: "done", delay: 3200 },
-  { tool: "Bash", label: "Running tests \u2014 vitest", status: "done", delay: 2000 },
-  { tool: "Edit", label: "Fixing test \u2014 routes.test.ts", status: "done", delay: 1500 },
+  { tool: "Read", label: "Reading codebase", description: "src/", status: "done", delay: 1800 },
+  { tool: "Think", label: "Planning changes", description: "auth module", status: "done", delay: 2500 },
+  { tool: "Edit", label: "Editing files", description: "4 files", status: "done", delay: 3200 },
+  { tool: "Bash", label: "Running tests", description: "vitest", status: "done", delay: 2000 },
+  { tool: "Edit", label: "Fixing test", description: "routes.test.ts", status: "done", delay: 1500 },
 ]
 
 const BUBBLE_RESPONSE = "I've refactored the auth module. The changes include extracting the token validation into a shared helper, consolidating the middleware chain, and updating the test suite to match."
@@ -705,7 +719,7 @@ export function MessageApp() {
         )}
       </box>
       <box paddingX={1} paddingBottom={1}>
-        <StatusBar items={[{ key: "ctrl+shift+e", label: "toggle timeline" }, { key: "r", label: "restart" }, { key: "q", label: "quit" }]} />
+        <StatusBar items={[{ key: "ctrl+shift+e", label: "toggle chain of thought" }, { key: "r", label: "restart" }, { key: "q", label: "quit" }]} />
       </box>
     </box>
   )
@@ -811,7 +825,7 @@ export const demos: Demo[] = [
   { name: "modal", app: () => <ModalApp /> },
   { name: "primitives", app: () => <PrimitivesApp /> },
   { name: "chat", app: () => <ChatApp /> },
-  { name: "timeline", app: () => <TimelineApp /> },
+  { name: "chain-of-thought", app: () => <ChainOfThoughtApp /> },
   { name: "message", app: () => <MessageApp /> },
   { name: "terminal-window", app: () => <TerminalWindowApp /> },
   { name: "landing", app: () => <LandingApp useKeyboard={useKeyboard} /> },

@@ -52,8 +52,8 @@ export type {
 export { ChatPanel } from "./chat/chat"
 export type { ChatPanelProps, ChatMessage, ToolCallInfo } from "./chat/chat"
 
-export { Timeline } from "./timeline/timeline"
-export type { TimelineProps, Step } from "./timeline/timeline"
+export { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep } from "./chain-of-thought/chain-of-thought"
+export type { ChainOfThoughtProps, ChainOfThoughtHeaderProps, ChainOfThoughtContentProps, ChainOfThoughtStepProps, Step } from "./chain-of-thought/chain-of-thought"
 
 export { Message, useMessage } from "./message/message"
 export type {

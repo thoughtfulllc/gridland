@@ -3,8 +3,8 @@ import type { ReactNode } from "react"
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
 import type { Theme } from "../theme/index"
-import { Timeline, type Step } from "../timeline/timeline"
-export type { Step } from "../timeline/timeline"
+import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep, type Step } from "../chain-of-thought/chain-of-thought"
+export type { Step } from "../chain-of-thought/chain-of-thought"
 
 // ── Part types (aligned with Vercel AI SDK UIMessage.parts) ─────────
 
@@ -125,14 +125,25 @@ function MessageText({ children, isLast = false }: {
   )
 }
 
-/** Renders a reasoning part as a collapsible Timeline. */
+/** Renders a reasoning part as a collapsible ChainOfThought. */
 function MessageReasoning({ part }: { part: ReasoningPart }) {
   return (
-    <Timeline
-      steps={part.steps}
-      duration={part.duration}
-      collapsed={part.collapsed}
-    />
+    <ChainOfThought defaultOpen={part.collapsed === false}>
+      <ChainOfThoughtHeader duration={part.duration} />
+      <ChainOfThoughtContent>
+        {part.steps?.map((step, i) => (
+          <ChainOfThoughtStep
+            key={i}
+            label={step.label}
+            description={step.description}
+            status={step.status}
+            isLast={i === (part.steps?.length ?? 0) - 1}
+          >
+            {step.output}
+          </ChainOfThoughtStep>
+        ))}
+      </ChainOfThoughtContent>
+    </ChainOfThought>
   )
 }
 
