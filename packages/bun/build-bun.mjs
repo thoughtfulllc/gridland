@@ -24,6 +24,7 @@ const nativeFiles = new Set([
   "renderer.ts",
   "console.ts",
   "NativeSpanFeed.ts",
+  "lib/singleton.ts",
   "lib/stdin-buffer.ts",
   "lib/bunfs.ts",
   "lib/output.capture.ts",
