@@ -10,8 +10,6 @@
   "dependencies": {
     "@gridland/utils": "workspace:*",
     "@ai-sdk/react": "^3.0.118",
-    "@openrouter/ai-sdk-provider": "^2.1.1",
-    "ai": "^6.0.116",
     "fumadocs-core": "^16.6.10",
     "fumadocs-mdx": "14.1.0",
     "fumadocs-ui": "15.8.5",

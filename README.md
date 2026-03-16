@@ -28,18 +28,12 @@ The key insight: OpenTUI renderables never call Zig directly. They call `Optimiz
 ## Getting started
 
 ```bash
-git clone --recurse-submodules https://github.com/<org>/gridland.git
+git clone https://github.com/<org>/gridland.git
 cd gridland
 bun setup
 ```
 
-If you already cloned without `--recurse-submodules`:
-
-```bash
-bun setup
-```
-
-This initializes the [opentui](https://github.com/anomalyco/opentui) submodule, installs all dependencies, and builds the packages.
+This installs all dependencies and builds the packages.
 
 ## Running
 
@@ -55,21 +49,40 @@ bun run test
 bun run build
 ```
 
-### Environment variables
+### AI chat demo (Cloudflare Worker)
 
-Some docs demos (e.g. the AI chat demo) require an API key. Create a `.env` file in `packages/docs/`:
+The docs site AI chat demo connects to a Cloudflare Worker that proxies requests to [OpenRouter](https://openrouter.ai/). The API key never lives in the repo — it's stored as a Cloudflare Workers secret.
+
+**Local development:**
 
 ```bash
-# packages/docs/.env
-OPENROUTER_API_KEY=sk-or-...
+# 1. Create a local secrets file (gitignored)
+echo "OPENROUTER_API_KEY=sk-or-..." > packages/chat-worker/.dev.vars
+
+# 2. Start the Worker (localhost:8787)
+bun run chat:dev
+
+# 3. In another terminal, start the docs site
+bun run dev
 ```
 
-You can get an API key from [OpenRouter](https://openrouter.ai/).
+The `.env` at the repo root sets `NEXT_PUBLIC_CHAT_API_URL=http://localhost:8787/chat` so the docs site points at the local Worker.
+
+**Production deployment:**
+
+```bash
+# Set the secret in Cloudflare (one-time, encrypted at rest)
+cd packages/chat-worker && npx wrangler secret put OPENROUTER_API_KEY
+
+# Deploy the Worker
+bun run chat:deploy
+```
+
+Then set `NEXT_PUBLIC_CHAT_API_URL` to the deployed Worker URL in your static hosting environment (e.g. Render dashboard). This env var is baked into the static bundle at build time.
 
 ## Project structure
 
 ```
-opentui/                     # Git submodule — opentui engine source
 packages/
   web/              # Core browser runtime (npm: @gridland/web)
     src/
@@ -92,23 +105,37 @@ packages/
       shims/                 # Node.js built-in stubs
     __tests__/               # Unit + integration tests
 
+  core/             # Hard-forked opentui engine (private)
+
   ui/               # UI component library (npm: @gridland/ui)
     components/              # Components with tests
 
   testing/           # Testing utilities (npm: @gridland/testing)
     src/
 
+  utils/            # Portable hooks & utilities (npm: @gridland/utils)
+
+  chat-worker/      # Cloudflare Worker — AI chat proxy
+    src/index.ts             # CORS + streaming via OpenRouter
+    wrangler.toml            # Worker configuration
+
+  bun/              # Native Bun runtime for CLI (npm: @gridland/bun)
+  demo/             # CLI demo runner (npm: @gridland/demo)
+  create-gridland/  # Project scaffolder CLI
+  container/        # Docker sandbox runner
+  docs/             # Fumadocs documentation site (static export)
+
 examples/
   vite-example/              # Minimal Vite example
   next-example/              # Next.js example
+  container-demo/            # Docker container demo
 
-packages/docs/               # Fumadocs documentation site
 e2e/                         # Playwright E2E tests
 ```
 
 ## How the Vite plugin works
 
-The opentui source tree (`opentui/` submodule) is loaded directly — Vite serves it via `/@fs/` URLs. A custom plugin intercepts imports at resolution time:
+The opentui source tree (`packages/core/`) is loaded directly. A custom plugin intercepts imports at resolution time:
 
 1. **File-level redirects** — Relative imports that resolve to zig-dependent files (buffer, text-buffer, text-buffer-view, syntax-style, renderer, etc.) are redirected to browser shims.
 2. **Pattern-based interception** — tree-sitter, hast, and Node.js builtin imports are caught by string matching and redirected to stubs.

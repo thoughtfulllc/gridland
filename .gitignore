@@ -13,3 +13,4 @@ playwright-report/
 test-results/
 .claude/worktrees/
 *.tgz
+.dev.vars
