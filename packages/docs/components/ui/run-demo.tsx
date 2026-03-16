@@ -10,7 +10,7 @@ export function RunDemo({ name }: { name: string }) {
           <DynamicCodeBlock lang="bash" code={`bunx @gridland/demo ${name}`} codeblock={{ title: "Terminal" }} />
         </Tab>
         <Tab value="curl">
-          <DynamicCodeBlock lang="bash" code={`curl -fsSL https://raw.githubusercontent.com/cjroth/gridland/main/scripts/run-demo.sh | bash -s ${name}`} codeblock={{ title: "Terminal" }} />
+          <DynamicCodeBlock lang="bash" code={`curl -fsSL https://raw.githubusercontent.com/thoughtfulllc/gridland/main/scripts/run-demo.sh | bash -s ${name}`} codeblock={{ title: "Terminal" }} />
         </Tab>
       </Tabs>
     </>

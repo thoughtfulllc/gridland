@@ -17,7 +17,7 @@ export function LinksBox() {
     >
       <text>
         <span>🐱</span>
-        <a href="https://github.com/cjroth/gridland" style={{ attributes: UNDERLINE, fg: theme.accent }}>
+        <a href="https://github.com/thoughtfulllc/gridland" style={{ attributes: UNDERLINE, fg: theme.accent }}>
           {" GitHub"}
         </a>
         <span>{"  "}</span>
