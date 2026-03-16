@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.1.1",
+    "@gridland/utils": "file:../../packages/utils",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
