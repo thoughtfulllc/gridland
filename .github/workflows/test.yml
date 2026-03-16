@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -21,9 +19,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-
-      - name: Install opentui dependencies
-        run: bun install --cwd opentui
 
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
@@ -38,8 +33,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -48,9 +41,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-
-      - name: Install opentui dependencies
-        run: bun install --cwd opentui
 
       - name: Install harness dependencies
         run: bun install --cwd e2e/harness
