@@ -27,6 +27,9 @@ const requireShimBanner = [
   `  if (m) return m;`,
   `  throw new Error('Dynamic require of "' + id + '" is not supported');`,
   `});`,
+  // Force production mode for react-reconciler — the development build's user timing
+  // code writes errors to stderr that get captured by TerminalConsole.
+  `if (typeof process !== "undefined" && !process.env.NODE_ENV) process.env.NODE_ENV = "production";`,
 ].join(" ")
 
 function createPlugin() {
@@ -91,7 +94,7 @@ async function main() {
     external: [
       // React — peer dep, must be singleton
       "react", "react-dom",
-      // react-reconciler — CJS, needs require() shim
+      // react-reconciler — CJS, resolved at runtime via Bun's require()
       "react-reconciler", "react-reconciler/constants",
       // Bun native FFI — resolved at runtime
       "bun:ffi",
