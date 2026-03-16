@@ -1,6 +1,6 @@
 {
   "name": "@gridland/demo",
-  "version": "0.2.41",
+  "version": "0.2.42",
   "type": "module",
   "description": "Run gridland component demos from anywhere",
   "exports": {
