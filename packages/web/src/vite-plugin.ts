@@ -42,8 +42,8 @@ export function gridlandWebPlugin(): Plugin[] {
     }
     return path.resolve(pkgRoot, fallbackRelative)
   }
-  const coreRoot = resolvePackageRoot("@opentui/core", "../../core")
-  const reactRoot = resolvePackageRoot("@opentui/react", "../../core")
+  const coreRoot = resolvePackageRoot("@opentui/core", "../core")
+  const reactRoot = resolvePackageRoot("@opentui/react", "../core")
 
   // Detect whether opentui TypeScript source is available (monorepo)
   const hasSource = existsSync(path.resolve(coreRoot, "src/react/index.ts"))
@@ -82,6 +82,14 @@ export function gridlandWebPlugin(): Plugin[] {
       // ── Events shim (both source and npm mode) ────────────────
       if (source === "events") {
         return path.resolve(pkgRoot, "src/shims/events-shim.ts")
+      }
+
+      // ── Node built-in stubs (both source and npm mode) ──────
+      if (source === "node:buffer") {
+        return "\0node-buffer-stub"
+      }
+      if (source.startsWith("node:")) {
+        return "\0node-stub"
       }
 
       // ── Source mode only ──────────────────────────────────────
@@ -153,6 +161,12 @@ export function gridlandWebPlugin(): Plugin[] {
       }
       if (id === "\0opentui-core-native-stub") {
         return "export const CliRenderer = null; export const CliRenderEvents = null; export const createCliRenderer = null; export const NativeSpanFeed = null; export const setRenderLibPath = () => {};"
+      }
+      if (id === "\0node-buffer-stub") {
+        return "export const Buffer = { from: (s) => s, isBuffer: () => false, alloc: (n) => new Uint8Array(n) };"
+      }
+      if (id === "\0node-stub") {
+        return "export default {}; export const inspect = (v) => String(v);"
       }
     },
   }
