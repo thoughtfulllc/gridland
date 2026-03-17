@@ -176,12 +176,22 @@ export function gridlandWebPlugin(): Plugin[] {
       aliases["react-devtools-core"] = devtoolsStub
       aliases["ws"] = devtoolsStub
 
-      // Tree-sitter stubs — same reason: esbuild needs aliases, not just
-      // resolveId hooks, to avoid following these into missing packages.
+      // Tree-sitter and related stubs — esbuild needs aliases, not just
+      // resolveId hooks, to avoid following these into missing packages
+      // or WASM imports that vite-plugin-wasm can't handle.
       if (hasSource) {
+        // npm package aliases
         aliases["web-tree-sitter"] = treeStub
         aliases["tree-sitter-styled-text"] = styledTextStub
         aliases["hast-styled-text"] = hastStub
+
+        // Local file aliases — prevent esbuild from entering these files
+        // and following their relative .wasm/.scm imports
+        aliases[path.resolve(coreRoot, "src/lib/tree-sitter")] = treeStub
+        aliases[path.resolve(coreRoot, "src/lib/tree-sitter-styled-text")] = styledTextStub
+        aliases[path.resolve(coreRoot, "src/lib/hast-styled-text")] = hastStub
+        aliases[path.resolve(coreRoot, "src/react/reconciler/devtools-polyfill")] = devtoolsStub
+        aliases[path.resolve(coreRoot, "src/react/reconciler/devtools")] = devtoolsStub
       }
 
       // Resolve npm packages from @gridland/web's dependency tree
