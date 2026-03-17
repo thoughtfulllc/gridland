@@ -15,11 +15,4 @@ export default defineConfig({
   esbuild: {
     target: "esnext",
   },
-  optimizeDeps: {
-    exclude: ["yoga-layout", "react-devtools-core", "ws"],
-    esbuildOptions: {
-      target: "esnext",
-    },
-  },
-  assetsInclude: ["**/*.scm", "**/*.wasm"],
 })

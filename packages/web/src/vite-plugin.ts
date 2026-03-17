@@ -157,6 +157,9 @@ export function gridlandWebPlugin(): Plugin[] {
     },
   }
 
+  const devtoolsStub = path.resolve(pkgRoot, "src/shims/devtools-polyfill-stub.ts")
+  const hastStub = path.resolve(pkgRoot, "src/shims/hast-stub.ts")
+
   const aliasPlugin: Plugin = {
     name: "gridland-web-aliases",
     config() {
@@ -166,6 +169,20 @@ export function gridlandWebPlugin(): Plugin[] {
       aliases["bun:ffi"] = path.resolve(pkgRoot, "src/shims/bun-ffi.ts")
       aliases["bun-ffi-structs"] = path.resolve(pkgRoot, "src/shims/bun-ffi-structs.ts")
       aliases["bun"] = path.resolve(pkgRoot, "src/shims/bun-ffi.ts")
+
+      // Devtools stubs — these are imported by devtools-polyfill.ts which
+      // is itself shimmed, but esbuild dep scanning follows imports before
+      // the shim plugin can intercept them.
+      aliases["react-devtools-core"] = devtoolsStub
+      aliases["ws"] = devtoolsStub
+
+      // Tree-sitter stubs — same reason: esbuild needs aliases, not just
+      // resolveId hooks, to avoid following these into missing packages.
+      if (hasSource) {
+        aliases["web-tree-sitter"] = treeStub
+        aliases["tree-sitter-styled-text"] = styledTextStub
+        aliases["hast-styled-text"] = hastStub
+      }
 
       // Resolve npm packages from @gridland/web's dependency tree
       for (const pkg of ["react-reconciler", "yoga-layout", "diff", "marked"]) {
@@ -186,13 +203,15 @@ export function gridlandWebPlugin(): Plugin[] {
           dedupe: ["react", "react-dom", "react-reconciler", "yoga-layout", "events"],
         },
         optimizeDeps: {
+          // yoga-layout uses WASM which esbuild can't handle; exclude from
+          // dep scanning and let the browser load it at runtime.
+          exclude: ["yoga-layout"],
           include: hasSource ? [
             "react",
             "react-dom",
             "react-reconciler",
             "react-reconciler/constants",
             "diff",
-            "yoga-layout",
             "marked",
           ] : [
             "react",
@@ -204,6 +223,7 @@ export function gridlandWebPlugin(): Plugin[] {
             strict: false,
           },
         },
+        assetsInclude: ["**/*.scm", "**/*.wasm"],
       }
     },
   }
