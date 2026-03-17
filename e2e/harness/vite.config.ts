@@ -6,9 +6,9 @@ import { gridlandWebPlugin } from "../../packages/web/src/vite-plugin"
 
 export default defineConfig({
   plugins: [
+    ...gridlandWebPlugin(),
     wasm(),
     topLevelAwait(),
-    ...gridlandWebPlugin(),
     react(),
   ],
   build: {
@@ -18,8 +18,10 @@ export default defineConfig({
     target: "esnext",
   },
   optimizeDeps: {
+    exclude: ["yoga-layout"],
     esbuildOptions: {
       target: "esnext",
     },
   },
+  assetsInclude: ["**/*.scm"],
 })
