@@ -234,7 +234,7 @@ describe("Message", () => {
     expect(screen.text()).toContain("\u25BC")
   })
 
-  it("shows step timeline when expanded", () => {
+  it("shows step chain of thought when expanded", () => {
     const { screen } = renderTui(
       <Message role="assistant">
         <Message.Reasoning part={{

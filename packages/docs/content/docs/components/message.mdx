@@ -119,7 +119,7 @@ Place `Message.Reasoning` outside `Message.Content` so it appears above the bubb
 |-----------|-------------|
 | `Message.Content` | Bubble wrapper with role-based background color |
 | `Message.Text` | Text with word wrap and optional streaming cursor (`isLast`) |
-| `Message.Reasoning` | Collapsible Timeline for reasoning steps |
+| `Message.Reasoning` | Collapsible Chain of Thought for reasoning steps |
 | `Message.ToolInvocation` | Tool call status with icon and result |
 | `Message.Source` | Numbered source citation |
 | `Message.Footer` | Model attribution and timestamp |
@@ -152,7 +152,7 @@ Plain text content with word wrapping. The streaming cursor appears on the last 
 
 ### ReasoningPart
 
-Collapsible thinking block shown as a Timeline.
+Collapsible thinking block shown as a Chain of Thought.
 
 ```tsx
 { type: "reasoning", reasoning: "Let me analyze...", collapsed: false }
