@@ -7,7 +7,6 @@ export default defineConfig({
     ...gridlandWebPlugin(),
     react(),
   ],
-  assetsInclude: ["**/*.wasm", "**/*.scm"],
   build: {
     target: "esnext",
   },
