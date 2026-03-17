@@ -42,8 +42,8 @@ export function gridlandWebPlugin(): Plugin[] {
     }
     return path.resolve(pkgRoot, fallbackRelative)
   }
-  const coreRoot = resolvePackageRoot("@opentui/core", "../../core")
-  const reactRoot = resolvePackageRoot("@opentui/react", "../../core")
+  const coreRoot = resolvePackageRoot("@opentui/core", "../core")
+  const reactRoot = resolvePackageRoot("@opentui/react", "../core")
 
   // Detect whether opentui TypeScript source is available (monorepo)
   const hasSource = existsSync(path.resolve(coreRoot, "src/react/index.ts"))
@@ -165,10 +165,11 @@ export function gridlandWebPlugin(): Plugin[] {
     config() {
       const aliases: Record<string, string> = {}
 
-      // FFI shims — still needed for lazy require("bun:ffi") in buffer.ts
+      // Node/Bun built-in shims for browser compatibility
       aliases["bun:ffi"] = path.resolve(pkgRoot, "src/shims/bun-ffi.ts")
       aliases["bun-ffi-structs"] = path.resolve(pkgRoot, "src/shims/bun-ffi-structs.ts")
       aliases["bun"] = path.resolve(pkgRoot, "src/shims/bun-ffi.ts")
+      aliases["node:buffer"] = path.resolve(pkgRoot, "src/shims/buffer-stub.ts")
 
       // Devtools stubs — these are imported by devtools-polyfill.ts which
       // is itself shimmed, but esbuild dep scanning follows imports before
