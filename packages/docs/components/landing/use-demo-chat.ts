@@ -3,7 +3,7 @@ import { chatTransport } from '@/lib/chat'
 import { useChat } from '@ai-sdk/react'
 import type { ChatStatus } from '@gridland/ui'
 import { usePromptInputController } from '@gridland/ui'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface ChatMessage {
   id: string
@@ -45,7 +45,7 @@ export function useDemoChat() {
   const [demoMessages, setDemoMessages] = useState<ChatMessage[]>([])
   const [streamingText, setStreamingText] = useState('')
   const [streamingMsgId, setStreamingMsgId] = useState<string | null>(null)
-  const [isYourTurn, setIsYourTurn] = useState(false)
+  const isYourTurn = phase === 'YOUR_TURN'
 
   const phaseRef = useRef<DemoPhase>(phase)
   phaseRef.current = phase
@@ -135,7 +135,6 @@ export function useDemoChat() {
           const isLastRound = round >= DEMO_SCRIPT.length - 1
           if (isLastRound) {
             doneTimer = setTimeout(() => {
-              setIsYourTurn(true)
               setPhase('YOUR_TURN')
             }, YOUR_TURN_DELAY)
           } else {
@@ -166,7 +165,6 @@ export function useDemoChat() {
     setPhase('LIVE')
     setStreamingText('')
     setStreamingMsgId(null)
-    setIsYourTurn(false)
   }, [])
 
   // ── Handlers for PromptInput ────────────────────────────────────────────
@@ -179,8 +177,7 @@ export function useDemoChat() {
         setPhase('LIVE')
         setStreamingText('')
         setStreamingMsgId(null)
-        setIsYourTurn(false)
-
+    
         // Strip any demo-typed prefix so only the user's character remains
         const demoText = demoInputRef.current
         demoInputRef.current = ''
@@ -203,10 +200,6 @@ export function useDemoChat() {
     [abortDemo, sendMessage],
   )
 
-  const handleStop = useCallback(() => {
-    stop()
-  }, [stop])
-
   // ── Derived state ───────────────────────────────────────────────────────
 
   const chatStatus: ChatStatus = (() => {
@@ -220,7 +213,7 @@ export function useDemoChat() {
     return 'ready'
   })()
 
-  const messages: ChatMessage[] = [
+  const messages: ChatMessage[] = useMemo(() => [
     ...demoMessages,
     ...liveMessages.map((m) => {
       let text = typeof m.content === 'string' ? m.content : ''
@@ -232,7 +225,7 @@ export function useDemoChat() {
       }
       return { id: m.id, role: m.role as 'user' | 'assistant', content: text }
     }),
-  ]
+  ], [demoMessages, liveMessages])
 
   return {
     messages,
@@ -242,6 +235,6 @@ export function useDemoChat() {
     isYourTurn,
     handleSubmit,
     handleChange,
-    handleStop,
+    handleStop: stop,
   }
 }

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Message, Modal, PromptInput, PromptInputProvider, StatusBar, textStyle, useBreakpoints, useTheme } from '@gridland/ui'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { InstallBox } from './install-box'
 import { LinksBox } from './links-box'
 import { Logo } from './logo'
@@ -19,21 +19,25 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
   const { width, height, isNarrow, isTiny, isMobile } = useBreakpoints()
   const [showChatModal, setShowChatModal] = useState(false)
 
-  // Ready for future click-to-open — just call openChatDemo()
   const openChatDemo = useCallback(() => setShowChatModal(true), [])
   const closeChatDemo = useCallback(() => setShowChatModal(false), [])
 
   // Approximate the bordered box position for matrix background clear rect
   const isBrowser = typeof document !== 'undefined'
-  const logoHeight = isTiny ? 2 : isNarrow ? 13 : 7
-  const logoExtra = isBrowser ? 1 : 0
-  const gap = isMobile ? 0 : 1
-  const installLinksTop = 3 + logoHeight + logoExtra + gap
-  const installLinksHeight = 3
-  const boxTop = installLinksTop + installLinksHeight + gap + 1
-  const boxHeight = height - boxTop - 1
-  const clearRect = { top: boxTop, left: 1, width: width - 2, height: boxHeight }
-  const installLinksClearRect = { top: installLinksTop, left: 1, width: width - 2, height: installLinksHeight }
+  const { clearRect, installLinksClearRect, boxHeight } = useMemo(() => {
+    const logoHeight = isTiny ? 2 : isNarrow ? 13 : 7
+    const logoExtra = isBrowser ? 1 : 0
+    const gap = isMobile ? 0 : 1
+    const installLinksTop = 3 + logoHeight + logoExtra + gap
+    const installLinksHeight = 3
+    const boxTop = installLinksTop + installLinksHeight + gap + 1
+    const bh = height - boxTop - 1
+    return {
+      clearRect: { top: boxTop, left: 1, width: width - 2, height: bh },
+      installLinksClearRect: { top: installLinksTop, left: 1, width: width - 2, height: installLinksHeight },
+      boxHeight: bh,
+    }
+  }, [width, height, isTiny, isNarrow, isMobile, isBrowser])
 
   const chatTooSmall = boxHeight < MIN_CHAT_HEIGHT
 
@@ -108,7 +112,7 @@ function ChatArea({ useKeyboard }: { useKeyboard: any }) {
       <box flexGrow={1} flexDirection="column" paddingX={1} overflow="hidden" justifyContent="flex-end" gap={1}>
         {demo.messages.map((msg) => {
           const isDemoStreaming = msg.id === demo.streamingMsgId
-          const isLiveStreaming = !demo.streamingMsgId && demo.chatStatus === 'streaming' && msg.role === 'assistant' && msg === demo.messages[demo.messages.length - 1]
+          const isLiveStreaming = !demo.streamingMsgId && demo.chatStatus === 'streaming' && msg.role === 'assistant' && msg.id === demo.messages[demo.messages.length - 1]?.id
           const msgStreaming = isDemoStreaming || isLiveStreaming
           const displayText = isDemoStreaming ? demo.streamingText : msg.content
 

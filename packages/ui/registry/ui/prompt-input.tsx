@@ -237,12 +237,14 @@ function resolveStatusHintText(
 // Subcomponents
 // ============================================================================
 
+const DIVIDER_LINE = "├" + "─".repeat(499)
+
 /** Horizontal divider line with T-junction edges to connect with parent borders. */
 function PromptInputDivider() {
   const { theme } = usePromptInput()
   return (
     <text wrapMode="none" marginLeft={-1}>
-      <span style={textStyle({ dim: true, fg: theme.muted })}>{"├" + "─".repeat(499)}</span>
+      <span style={textStyle({ dim: true, fg: theme.muted })}>{DIVIDER_LINE}</span>
     </text>
   )
 }
