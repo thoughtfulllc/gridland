@@ -61,7 +61,7 @@ function PointerDemoApp() {
             flexGrow={1}
             height={3}
             border
-            borderStyle={i === selected ? "heavy" : "single"}
+            borderStyle="rounded"
             borderColor={i === selected ? color : "#555"}
             onMouseDown={(e: any) => {
               clickCountRef.current++

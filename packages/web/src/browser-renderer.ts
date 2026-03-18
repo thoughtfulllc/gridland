@@ -180,7 +180,16 @@ export class BrowserRenderer {
       } else {
         const idx = row * this.buffer.width + col
         const hasLink = idx >= 0 && idx < this.buffer.attributes.length && getLinkId(this.buffer.attributes[idx]) > 0
-        const hasMouseHandler = hitRenderable && (hitRenderable._clickHandler || hitRenderable._mouseListeners?.["down"])
+        // Walk up parent chain to find any interactive ancestor
+        let hasMouseHandler = false
+        let walk: any = hitRenderable
+        while (walk) {
+          if (walk._clickHandler || walk._mouseListeners?.["down"]) {
+            hasMouseHandler = true
+            break
+          }
+          walk = walk.parent
+        }
         this.canvas.style.cursor = hasLink || hasMouseHandler ? "pointer" : "text"
       }
 
