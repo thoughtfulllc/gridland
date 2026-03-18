@@ -45,7 +45,8 @@ describe("useFocus", () => {
       </TestApp>,
       { cols: 40, rows: 4 },
     )
-    // autoFocus dispatch happens in useEffect, need extra flush to settle
+    // autoFocus dispatch happens in useEffect, need extra flushes to settle
+    flush()
     flush()
     expect(screen.text()).toContain("[b:FOCUSED]")
     expect(screen.text()).not.toContain("[a:FOCUSED]")

@@ -1,7 +1,12 @@
-import { useMemo, useSyncExternalStore, createElement, type ReactNode } from "react"
+import { useMemo, useState, useEffect, useCallback, createElement, type ReactNode } from "react"
 import { FocusContext, ShortcutsContext } from "./focus-context"
 import { createFocusStore } from "./focus-store"
+import type { FocusAction } from "./types"
 import { useKeyboard } from "../hooks/use-keyboard"
+import { useAppContext } from "../components/app"
+import { reconciler } from "../reconciler/reconciler"
+
+const _flushSync = (reconciler as any).flushSyncFromReconciler ?? (reconciler as any).flushSync
 
 export interface FocusProviderProps {
   children: ReactNode
@@ -9,14 +14,27 @@ export interface FocusProviderProps {
 
 export function FocusProvider({ children }: FocusProviderProps) {
   const store = useMemo(() => createFocusStore(), [])
+  const { renderer } = useAppContext()
+  const [, setTick] = useState(0)
 
-  const state = useSyncExternalStore(
-    store.subscribe,
-    store.getState,
-    store.getState,
-  )
+  // Subscribe to store changes for TUI canvas repaint
+  useEffect(() => {
+    return store.subscribe(() => {
+      ;(renderer as any)?.requestRender?.()
+    })
+  }, [store, renderer])
 
-  const dispatch = store.dispatch
+  // Wrapped dispatch: update store then flush React synchronously
+  const dispatch = useCallback((action: FocusAction) => {
+    store.dispatch(action)
+    // Force React to process the state update synchronously
+    _flushSync(() => {
+      setTick((n) => n + 1)
+    })
+  }, [store])
+
+  // Read state directly from store — always up to date after flushSync
+  const state = store.getState()
 
   // Handle navigation keys at the provider level
   useKeyboard((event) => {
