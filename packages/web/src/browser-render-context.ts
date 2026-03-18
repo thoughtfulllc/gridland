@@ -92,7 +92,7 @@ export class BrowserRenderContext extends EventEmitter implements RenderContext 
   // Cursor highlight configuration
   public cursorHighlight: boolean = false
   public cursorHighlightColor: string | null = null
-  public cursorHighlightOpacity: number = 0.3
+  public cursorHighlightOpacity: number = 0.5
 
   // Typed as `any` for DTS compatibility — BrowserKeyHandler satisfies KeyHandler
   // at runtime but uses a different class hierarchy (EventEmitter vs opentui's KeyHandler).
