@@ -22,22 +22,47 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
   const openChatDemo = useCallback(() => setShowChatModal(true), [])
   const closeChatDemo = useCallback(() => setShowChatModal(false), [])
 
-  // Approximate the bordered box position for matrix background clear rect
-  const isBrowser = typeof document !== 'undefined'
-  const { clearRect, installLinksClearRect, boxHeight } = useMemo(() => {
-    const logoHeight = isTiny ? 2 : isNarrow ? 13 : 7
-    const logoExtra = isBrowser ? 1 : 0
+  // Compute clearRects for matrix background: prevent matrix behind bordered boxes and chat area.
+  // On CLI, transparent fills don't overwrite existing characters (Zig alpha-blending preserves them),
+  // so the matrix would bleed through bordered boxes without these rects. On web, transparent fills
+  // do clear characters, so clearRects are redundant but harmless — no platform branching needed.
+  const { clearRects, boxHeight } = useMemo(() => {
+    const logoHeight = isTiny ? 4 : isNarrow ? 15 : 9
     const gap = isMobile ? 0 : 1
-    const installLinksTop = 3 + logoHeight + logoExtra + gap
-    const installLinksHeight = 3
-    const boxTop = installLinksTop + installLinksHeight + gap + 1
-    const bh = height - boxTop - 1
-    return {
-      clearRect: { top: boxTop, left: 1, width: width - 2, height: bh },
-      installLinksClearRect: { top: installLinksTop, left: 1, width: width - 2, height: installLinksHeight },
-      boxHeight: bh,
+    const boxRowTop = 3 + logoHeight + gap
+    const boxRowHeight = 3 // bordered box: 1 content + 2 border
+    const chatTop = boxRowTop + boxRowHeight + gap
+    const bh = height - chatTop - 1
+
+    // Per-box clearRects: sized to each box, not full width, so matrix shows in gaps
+    const box1W = 33 // "$ bunx @gridland/demo landing" + paddingX + border
+    const box2W = 25 // "$ bun create gridland" + paddingX + border
+    const box3W = 22 // "🐱 GitHub  📖 Docs" + paddingX + border
+    const totalRowW = box1W + box2W + box3W + 2 * gap
+    const availW = width - 2
+    const rects: { top: number; left: number; width: number; height: number }[] = []
+
+    if (totalRowW <= availW) {
+      // All 3 fit on one row — clear interior only (border chars overwrite matrix on both platforms)
+      const startLeft = 1 + Math.floor((availW - totalRowW) / 2)
+      const interiorTop = boxRowTop + 1
+      const interiorH = boxRowHeight - 2
+      rects.push({ top: interiorTop, left: startLeft + 1, width: box1W - 2, height: interiorH })
+      rects.push({ top: interiorTop, left: startLeft + box1W + gap + 1, width: box2W - 2, height: interiorH })
+      rects.push({ top: interiorTop, left: startLeft + box1W + gap + box2W + gap + 1, width: box3W - 2, height: interiorH })
+    } else {
+      // Boxes wrap — clear the full row area (approximate wrapping height)
+      const wrappedHeight = boxRowHeight * 2 + gap
+      rects.push({ top: boxRowTop, left: 1, width: availW, height: wrappedHeight })
     }
-  }, [width, height, isTiny, isNarrow, isMobile, isBrowser])
+
+    // Chat area clearRect
+    if (bh >= MIN_CHAT_HEIGHT) {
+      rects.push({ top: chatTop, left: 1, width: availW, height: bh })
+    }
+
+    return { clearRects: rects, boxHeight: bh }
+  }, [width, height, isTiny, isNarrow, isMobile])
 
   const chatTooSmall = boxHeight < MIN_CHAT_HEIGHT
 
@@ -65,7 +90,7 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
 
   return (
     <box width="100%" height="100%" position="relative">
-      <MatrixBackground width={width} height={height} clearRect={chatTooSmall ? undefined : clearRect} clearRects={isBrowser ? undefined : [installLinksClearRect]} />
+      <MatrixBackground width={width} height={height} clearRects={clearRects} />
       <box position="absolute" top={0} left={0} width={width} height={height} zIndex={1} flexDirection="column" shouldFill={false}>
         <box flexGrow={1} flexDirection="column" paddingTop={3} paddingLeft={1} paddingRight={1} paddingBottom={1} gap={isMobile ? 0 : 1} shouldFill={false}>
           <box flexShrink={0} shouldFill={false}>
