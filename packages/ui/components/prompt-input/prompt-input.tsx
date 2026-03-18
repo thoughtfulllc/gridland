@@ -234,12 +234,12 @@ function resolveStatusHintText(
 // Subcomponents
 // ============================================================================
 
-/** Horizontal divider line. */
+/** Horizontal divider line with T-junction edges to connect with parent borders. */
 function PromptInputDivider() {
   const { theme } = usePromptInput()
   return (
-    <text wrapMode="none">
-      <span style={textStyle({ dim: true, fg: theme.muted })}>{"─".repeat(500)}</span>
+    <text wrapMode="none" marginLeft={-1}>
+      <span style={textStyle({ dim: true, fg: theme.muted })}>{"├" + "─".repeat(499)}</span>
     </text>
   )
 }
@@ -627,7 +627,7 @@ export function PromptInput({
   if (children) {
     return (
       <PromptInputContext.Provider value={ctxValue}>
-        <box flexDirection="column">
+        <box flexDirection="column" flexShrink={0}>
           {children}
         </box>
       </PromptInputContext.Provider>
@@ -636,12 +636,14 @@ export function PromptInput({
 
   return (
     <PromptInputContext.Provider value={ctxValue}>
-      <box flexDirection="column">
+      <box flexDirection="column" flexShrink={0}>
         {showDividers && <PromptInputDivider />}
-        <PromptInputSuggestions />
-        <PromptInputTextarea />
-        <PromptInputStatusText />
-        <PromptInputModel />
+        <box flexDirection="column" paddingX={1}>
+          <PromptInputSuggestions />
+          <PromptInputTextarea />
+          <PromptInputStatusText />
+          <PromptInputModel />
+        </box>
         {showDividers && <PromptInputDivider />}
       </box>
     </PromptInputContext.Provider>

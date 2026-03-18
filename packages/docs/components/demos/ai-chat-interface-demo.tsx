@@ -64,16 +64,14 @@ function AIChatInterfaceApp() {
           )
         })}
       </box>
-      <box flexShrink={0}>
-        <PromptInput
-          onSubmit={sendMessage}
-          onStop={stop}
-          status={chatStatus}
-          placeholder="Type a message..."
-          useKeyboard={useKeyboard}
-          showDividers
-        />
-      </box>
+      <PromptInput
+        onSubmit={sendMessage}
+        onStop={stop}
+        status={chatStatus}
+        placeholder="Type a message..."
+        useKeyboard={useKeyboard}
+        showDividers
+      />
     </box>
   )
 }

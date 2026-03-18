@@ -1,0 +1,7 @@
+name = "gridland-chat"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:5173"
