@@ -456,8 +456,8 @@ export class CanvasPainter {
 
     // Pass 5: Mouse cursor cell highlight
     if (mouseHighlight) {
-      const opacity = mouseHighlight.opacity ?? 0.15
-      const color = mouseHighlight.color ?? `rgba(128, 128, 128, ${opacity})`
+      const opacity = mouseHighlight.opacity ?? 0.3
+      const color = mouseHighlight.color ?? `rgba(255, 255, 255, ${opacity})`
       ctx.fillStyle = color
       ctx.fillRect(mouseHighlight.col * cw, mouseHighlight.row * ch, cw, ch)
     }
