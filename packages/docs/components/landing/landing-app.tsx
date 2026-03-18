@@ -126,7 +126,7 @@ function ChatArea({ useKeyboard }: { useKeyboard: any }) {
           </text>
         )}
       </box>
-      <PromptInput placeholder="Ask about Gridland..." status={demo.chatStatus} onSubmit={demo.handleSubmit} onChange={demo.handleChange} onStop={demo.handleStop} useKeyboard={useKeyboard} />
+      <PromptInput autoFocus placeholder="Ask about Gridland..." status={demo.chatStatus} onSubmit={demo.handleSubmit} onChange={demo.handleChange} onStop={demo.handleStop} useKeyboard={useKeyboard} />
     </box>
   )
 }

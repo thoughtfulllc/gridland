@@ -2,6 +2,7 @@ import {
   useState,
   useRef,
   useCallback,
+  useEffect,
   useMemo,
   createContext,
   useContext,
@@ -188,6 +189,8 @@ export interface PromptInputProps {
   model?: string
   /** Show horizontal dividers above and below the input */
   showDividers?: boolean
+  /** Auto-focus the input on mount (ensures canvas has keyboard focus in the browser) */
+  autoFocus?: boolean
   /** Keyboard hook from @opentui/react */
   useKeyboard?: (handler: (event: any) => void) => void
   /** Compound mode: provide subcomponents as children */
@@ -372,11 +375,22 @@ export function PromptInput({
   enableHistory = true,
   model,
   showDividers = true,
+  autoFocus = false,
   useKeyboard: useKeyboardProp,
   children,
 }: PromptInputProps) {
   const theme = useTheme()
   const useKeyboard = useKeyboardContext(useKeyboardProp)
+
+  // Auto-focus: ensure the canvas has DOM focus so keyboard events reach useKeyboard
+  useEffect(() => {
+    if (!autoFocus) return
+    if (typeof document === "undefined") return
+    const canvas = document.querySelector("canvas")
+    if (canvas && document.activeElement !== canvas) {
+      canvas.focus()
+    }
+  }, [autoFocus])
   const resolvedPromptColor = promptColor ?? theme.muted
 
   // Status-driven state
