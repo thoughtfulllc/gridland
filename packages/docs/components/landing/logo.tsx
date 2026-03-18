@@ -133,7 +133,7 @@ export function Logo({ compact, narrow, mobile }: { compact?: boolean; narrow?: 
   if (!isBrowser) {
     const art = compact ? "gridland" : narrow ? gridArt + "\n" + landArt : fullArt
     return (
-      <box flexDirection="column" flexShrink={0} width="100%" alignItems="center">
+      <box flexDirection="column" flexShrink={0} width="100%" alignItems="center" shouldFill={false}>
         <Gradient name="instagram">{art}</Gradient>
         <text>{" "}</text>
         <box flexDirection="column" alignItems="center" width="100%" shouldFill={false}>

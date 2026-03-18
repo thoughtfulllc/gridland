@@ -65,7 +65,7 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
 
   return (
     <box width="100%" height="100%" position="relative">
-      <MatrixBackground width={width} height={height} clearRect={chatTooSmall ? undefined : clearRect} clearRects={[installLinksClearRect]} />
+      <MatrixBackground width={width} height={height} clearRect={chatTooSmall ? undefined : clearRect} clearRects={isBrowser ? undefined : [installLinksClearRect]} />
       <box position="absolute" top={0} left={0} width={width} height={height} zIndex={1} flexDirection="column" shouldFill={false}>
         <box flexGrow={1} flexDirection="column" paddingTop={3} paddingLeft={1} paddingRight={1} paddingBottom={1} gap={isMobile ? 0 : 1} shouldFill={false}>
           <box flexShrink={0} shouldFill={false}>
@@ -83,8 +83,8 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
             <LinksBox />
           </box>
           {chatTooSmall ? (
-            <box flexGrow={1} justifyContent="center" alignItems="center">
-              <text>
+            <box flexGrow={1} justifyContent="center" alignItems="center" shouldFill={false}>
+              <text shouldFill={false}>
                 <span style={textStyle({ fg: theme.muted })}>Press </span>
                 <span style={textStyle({ bold: true, fg: theme.accent })}>o</span>
                 <span style={textStyle({ fg: theme.muted })}> to open chat demo</span>
