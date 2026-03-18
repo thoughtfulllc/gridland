@@ -3,6 +3,7 @@ import { resolve } from "path"
 
 const sharedAlias = {
   "@gridland/ui": resolve(__dirname, "../ui/components/index.ts"),
+  "@/lib/chat": resolve(__dirname, "../docs/lib/chat.ts"),
 }
 
 export default defineConfig([
@@ -37,7 +38,7 @@ export default defineConfig([
     format: ["esm"],
     dts: false,
     sourcemap: false,
-    external: ["react", "@gridland/utils", "@gridland/web"],
+    external: ["react", "@gridland/utils", "@gridland/web", "ai", "@ai-sdk/react"],
     target: "esnext",
     esbuildOptions(options) {
       options.alias = sharedAlias
