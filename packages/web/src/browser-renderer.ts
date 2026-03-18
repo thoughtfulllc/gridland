@@ -63,7 +63,7 @@ export class BrowserRenderer {
 
     this.backgroundColor = options?.backgroundColor ?? null
 
-    // Text cursor for the canvas
+    // Default cursor — hidden when cursorHighlight is enabled
     canvas.style.cursor = "text"
 
     // Create buffer
@@ -165,20 +165,26 @@ export class BrowserRenderer {
       const { col, row } = this.pixelToCell(e.clientX, e.clientY)
       this.mouseCell = { col, row }
 
-      // Cursor highlight: trigger repaint when enabled
+      // Cursor highlight: trigger repaint and hide OS cursor
       if (this.renderContext.cursorHighlight) {
         this.needsRender = true
       }
 
-      // Update cursor style based on link hover
-      const idx = row * this.buffer.width + col
-      if (idx >= 0 && idx < this.buffer.attributes.length) {
-        const linkId = getLinkId(this.buffer.attributes[idx])
-        this.canvas.style.cursor = linkId > 0 ? "pointer" : "text"
+      // Hit-test for cursor style and over/out events
+      const hitId = this.renderContext.hitTest(col, row)
+      const hitRenderable = hitId !== null ? Renderable.renderablesByNumber.get(hitId) : undefined
+
+      // Determine cursor style: hidden (cursorHighlight) > pointer (link/interactive) > text
+      if (this.renderContext.cursorHighlight) {
+        this.canvas.style.cursor = "none"
+      } else {
+        const idx = row * this.buffer.width + col
+        const hasLink = idx >= 0 && idx < this.buffer.attributes.length && getLinkId(this.buffer.attributes[idx]) > 0
+        const hasMouseHandler = hitRenderable && (hitRenderable._clickHandler || hitRenderable._mouseListeners?.["down"])
+        this.canvas.style.cursor = hasLink || hasMouseHandler ? "pointer" : "text"
       }
 
-      // Hit-test for over/out events
-      const hitId = this.renderContext.hitTest(col, row)
+      // Over/out events
       if (hitId !== this.lastHoverRenderableId) {
         // Fire mouseout on previous
         if (this.lastHoverRenderableId !== null) {
