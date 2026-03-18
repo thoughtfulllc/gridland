@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useCallback, useRef } from "react"
+import { useEffect, useId, useMemo, useCallback, useRef, useSyncExternalStore } from "react"
 import { useFocusContext } from "./focus-context"
 
 export interface UseFocusOptions {
@@ -26,13 +26,20 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
     scopeId = null,
   } = options
 
-  const { state, dispatch } = useFocusContext()
+  const { dispatch, store } = useFocusContext()
   const mountedRef = useRef(false)
+
+  // Subscribe to store for reactivity — this is what drives re-renders
+  const noopSubscribe = useCallback((cb: () => void) => () => {}, [])
+  const focusedId = useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    () => store?.getState().focusedId ?? null,
+    () => store?.getState().focusedId ?? null,
+  )
 
   // Register on mount and update on prop changes
   useEffect(() => {
     if (mountedRef.current) {
-      // Re-register with updated properties
       dispatch({ type: "UNREGISTER", id })
     }
     mountedRef.current = true
@@ -52,7 +59,7 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
     }
   }, [id, tabIndex, disabled, scopeId])
 
-  const isFocused = state.focusedId === id
+  const isFocused = focusedId === id
 
   const focus = useCallback(() => {
     dispatch({ type: "FOCUS", id })

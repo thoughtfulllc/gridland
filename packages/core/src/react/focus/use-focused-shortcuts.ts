@@ -1,5 +1,5 @@
-import { useContext, useMemo } from "react"
-import { ShortcutsContext } from "./focus-context"
+import { useCallback, useMemo, useSyncExternalStore } from "react"
+import { useFocusContext } from "./focus-context"
 import type { ShortcutEntry } from "./types"
 
 /**
@@ -7,10 +7,17 @@ import type { ShortcutEntry } from "./types"
  * Use in StatusBar to show context-sensitive keyboard hints.
  */
 export function useFocusedShortcuts(): ShortcutEntry[] {
-  const { shortcuts, focusedId } = useContext(ShortcutsContext)
+  const { store } = useFocusContext()
+
+  const noopSubscribe = useCallback((cb: () => void) => () => {}, [])
+  const state = useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    () => store?.getState() ?? null,
+    () => store?.getState() ?? null,
+  )
 
   return useMemo(() => {
-    if (!focusedId) return []
-    return shortcuts.get(focusedId) ?? []
-  }, [shortcuts, focusedId])
+    if (!state?.focusedId) return []
+    return state.shortcuts.get(state.focusedId) ?? []
+  }, [state?.focusedId, state?.shortcuts])
 }
