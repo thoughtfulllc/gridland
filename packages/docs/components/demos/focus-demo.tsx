@@ -59,7 +59,6 @@ function FocusDemoApp() {
   const [cursors, setCursors] = useState([0, 0, 0])
   const [selections, setSelections] = useState<(string | null)[]>([null, null, null])
 
-  // Refs for values accessed inside keyboard handler
   const panelRef = useRef(0)
   const enteredRef = useRef(false)
   const cursorsRef = useRef([0, 0, 0])
@@ -70,6 +69,7 @@ function FocusDemoApp() {
   useKeyboard((event) => {
     const pi = panelRef.current
     if (enteredRef.current) {
+      // Inside a panel — up/down navigate the select
       const items = panelData[pi].items
       const cur = cursorsRef.current[pi]
       if (event.name === "down" || event.name === "j") {
@@ -92,11 +92,12 @@ function FocusDemoApp() {
         setEntered(false)
       }
     } else {
-      if (event.name === "down" || event.name === "tab") {
+      // Navigating between panels — left/right and tab
+      if (event.name === "right" || event.name === "tab") {
         const next = (pi + 1) % panelData.length
         panelRef.current = next
         setPanelIndex(next)
-      } else if (event.name === "up") {
+      } else if (event.name === "left") {
         const next = (pi - 1 + panelData.length) % panelData.length
         panelRef.current = next
         setPanelIndex(next)
@@ -110,11 +111,7 @@ function FocusDemoApp() {
 
   return (
     <box flexDirection="column" flexGrow={1} padding={1}>
-      <text style={{ dim: true, fg: "#888" }}>
-        {entered ? "↑↓ select  enter confirm  esc back" : "↑↓ navigate  enter select  tab next"}
-      </text>
-      <box height={1} />
-      <box flexDirection="row" gap={1} flexGrow={1}>
+      <box flexDirection="row" gap={1} height={9}>
         {panelData.map((panel, i) => {
           const focused = i === panelIndex
           const active = focused && entered
@@ -146,13 +143,16 @@ function FocusDemoApp() {
           )
         })}
       </box>
+      <text style={{ dim: true, fg: "#888" }}>
+        {entered ? "↑↓ select  enter confirm  esc back" : "←→ navigate  enter select  tab next"}
+      </text>
     </box>
   )
 }
 
 export default function FocusDemo() {
   return (
-    <DemoWindow title="Focus & Navigation" tuiStyle={{ width: "100%", height: 340 }}>
+    <DemoWindow title="Focus & Navigation" tuiStyle={{ width: "100%", height: 220 }}>
       <FocusDemoApp />
     </DemoWindow>
   )
