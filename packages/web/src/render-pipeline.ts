@@ -11,8 +11,9 @@ export function executeRenderPipeline(
   root: any,
   deltaTime: number,
 ): void {
-  // Clear buffer
+  // Clear buffer and hit-grid
   buffer.clear()
+  renderContext.clearHitGrid?.()
 
   // Run lifecycle passes
   const lifecyclePasses = renderContext.getLifecyclePasses()

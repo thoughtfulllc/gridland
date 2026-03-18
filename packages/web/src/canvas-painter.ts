@@ -207,7 +207,7 @@ export class CanvasPainter {
     return { width: this.cellWidth, height: this.cellHeight }
   }
 
-  paint(ctx: CanvasRenderingContext2D, buffer: BrowserBuffer, selection?: SelectionManager, cursor?: CursorOverlay | null): void {
+  paint(ctx: CanvasRenderingContext2D, buffer: BrowserBuffer, selection?: SelectionManager, cursor?: CursorOverlay | null, mouseHighlight?: { col: number; row: number; color?: string; opacity?: number } | null): void {
     const { char, fg, bg, attributes } = buffer
     const cols = buffer.width
     const rows = buffer.height
@@ -452,6 +452,14 @@ export class CanvasPainter {
           }
         }
       }
+    }
+
+    // Pass 5: Mouse cursor cell highlight
+    if (mouseHighlight) {
+      const opacity = mouseHighlight.opacity ?? 0.15
+      const color = mouseHighlight.color ?? `rgba(128, 128, 128, ${opacity})`
+      ctx.fillStyle = color
+      ctx.fillRect(mouseHighlight.col * cw, mouseHighlight.row * ch, cw, ch)
     }
   }
 }

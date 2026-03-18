@@ -1,11 +1,16 @@
 import type { KeyEvent } from "../../lib/KeyEvent"
-import { useEffect } from "react"
+import { useEffect, useContext } from "react"
 import { useAppContext } from "../components/app"
 import { useEffectEvent } from "./use-event"
+import { FocusContext } from "../focus/focus-context"
 
 export interface UseKeyboardOptions {
   /** Include release events - callback receives events with eventType: "release" */
   release?: boolean
+  /** Only fire when this focus ID is focused. Obtain from useFocus(). */
+  focusId?: string
+  /** Always fire regardless of focus state. */
+  global?: boolean
 }
 
 /**
@@ -14,30 +19,45 @@ export interface UseKeyboardOptions {
  * By default, only receives press events (including key repeats with `repeated: true`).
  * Use `options.release` to also receive release events.
  *
- * @example
- * // Basic press handling (includes repeats)
- * useKeyboard((e) => console.log(e.name, e.repeated ? "(repeat)" : ""))
+ * Focus-aware routing:
+ * - `{ focusId }` — fires only when that component is focused
+ * - `{ global: true }` — fires always regardless of focus
+ * - Neither — fires always (backward-compatible)
  *
- * // With release events
- * useKeyboard((e) => {
- *   if (e.eventType === "release") keys.delete(e.name)
- *   else keys.add(e.name)
- * }, { release: true })
+ * @example
+ * // Focus-scoped: only fires when this component is focused
+ * const { focusId } = useFocus()
+ * useKeyboard((e) => { ... }, { focusId })
+ *
+ * // Global: always fires regardless of focus
+ * useKeyboard((e) => { if (e.ctrl && e.name === 'q') quit() }, { global: true })
  */
 export const useKeyboard = (handler: (key: KeyEvent) => void, options: UseKeyboardOptions = { release: false }) => {
   const { keyHandler } = useAppContext()
+  const focusContext = useContext(FocusContext)
   const stableHandler = useEffectEvent(handler)
 
+  const focusId = options.focusId
+  const isGlobal = options.global
+
   useEffect(() => {
-    keyHandler?.on("keypress", stableHandler)
+    const wrappedHandler = (key: KeyEvent) => {
+      // If focusId is specified, only fire when that ID is focused
+      if (focusId && !isGlobal) {
+        if (focusContext.state.focusedId !== focusId) return
+      }
+      stableHandler(key)
+    }
+
+    keyHandler?.on("keypress", wrappedHandler)
     if (options?.release) {
-      keyHandler?.on("keyrelease", stableHandler)
+      keyHandler?.on("keyrelease", wrappedHandler)
     }
     return () => {
-      keyHandler?.off("keypress", stableHandler)
+      keyHandler?.off("keypress", wrappedHandler)
       if (options?.release) {
-        keyHandler?.off("keyrelease", stableHandler)
+        keyHandler?.off("keyrelease", wrappedHandler)
       }
     }
-  }, [keyHandler, options.release])
+  }, [keyHandler, options.release, focusId, isGlobal])
 }

@@ -73,6 +73,11 @@ function setProperty(instance: Instance, type: Type, propKey: string, propValue:
         initEventListeners(instance, TabSelectRenderableEvents.ITEM_SELECTED, propValue, oldPropValue)
       }
       break
+    case "onClick":
+      if (isRenderable(instance)) {
+        instance.onClick = propValue ?? undefined
+      }
+      break
     case "focused":
       if (isRenderable(instance)) {
         if (!!propValue) {

@@ -37,12 +37,29 @@ useKeyboard((event) => {
 }, { release: true })
 ```
 
+## Focus-aware routing
+
+```tsx title="Focus-scoped: only fires when this component is focused"
+const { focusId } = useFocus()
+useKeyboard((e) => {
+  if (e.name === "return") submit()
+}, { focusId })
+```
+
+```tsx title="Global: always fires regardless of focus"
+useKeyboard((e) => {
+  if (e.ctrl && e.name === "q") quit()
+}, { global: true })
+```
+
 ## Parameters
 
 | Param | Type | Default | Description |
 |-------|------|---------|-------------|
 | `handler` | `(key: KeyEvent) => void` | -- | Called on each keypress |
 | `options.release` | `boolean` | `false` | Also receive key release events |
+| `options.focusId` | `string` | -- | Only fire when this ID is focused (from `useFocus()`) |
+| `options.global` | `boolean` | -- | Always fire regardless of focus state |
 
 ## KeyEvent
 

@@ -4,6 +4,8 @@ import { CanvasPainter, type CursorOverlay } from "./canvas-painter"
 import { SelectionManager } from "./selection-manager"
 import { getLinkId } from "../../core/src/utils"
 import { executeRenderPipeline } from "./render-pipeline"
+import { Renderable } from "../../core/src/Renderable"
+import type { MouseEventType } from "../../core/src/lib/parse.mouse"
 
 // RootRenderable is set externally to avoid circular deps
 let RootRenderableClass: any = null
@@ -31,6 +33,9 @@ export class BrowserRenderer {
   private isDragOver: boolean = false
   private cleanupListeners: (() => void)[] = []
   private mouseDownCell: { col: number; row: number } | null = null
+  private mouseDownRenderableId: number | null = null
+  private lastHoverRenderableId: number | null = null
+  public mouseCell: { col: number; row: number } | null = null
   private backgroundColor: string | null = null
 
   constructor(canvas: HTMLCanvasElement, cols: number, rows: number, options?: { backgroundColor?: string }) {
@@ -122,13 +127,34 @@ export class BrowserRenderer {
     this.canvas.addEventListener("drop", onDrop)
     this.cleanupListeners.push(() => this.canvas.removeEventListener("drop", onDrop))
 
-    // --- Mouse selection ---
+    // --- Mouse events (selection + component dispatch via hit-test) ---
     const onMouseDown = (e: MouseEvent) => {
       // Only left button
       if (e.button !== 0) return
       this.canvas.focus()
       const { col, row } = this.pixelToCell(e.clientX, e.clientY)
       this.mouseDownCell = { col, row }
+
+      // Hit-test for component dispatch
+      const hitId = this.renderContext.hitTest(col, row)
+      this.mouseDownRenderableId = hitId
+      const renderable = hitId !== null ? Renderable.renderablesByNumber.get(hitId) : undefined
+
+      if (renderable) {
+        this.dispatchTuiMouseEvent(renderable, "down", col, row, e)
+        // Click-to-focus: walk up parent chain to find first focusable renderable
+        let current: any = renderable
+        while (current) {
+          if (current.focusable) {
+            current.focus()
+            this.renderContext.emit("renderable-focused", current)
+            break
+          }
+          current = current.parent
+        }
+      }
+
+      // Only start text selection if no renderable has a mousedown handler
       this.selection.startSelection(col, row)
       this.needsRender = true
     }
@@ -136,12 +162,47 @@ export class BrowserRenderer {
     this.cleanupListeners.push(() => this.canvas.removeEventListener("mousedown", onMouseDown))
 
     const onMouseMove = (e: MouseEvent) => {
-      // Update cursor style based on whether we're hovering a link
       const { col, row } = this.pixelToCell(e.clientX, e.clientY)
+      this.mouseCell = { col, row }
+
+      // Cursor highlight: trigger repaint when enabled
+      if (this.renderContext.cursorHighlight) {
+        this.needsRender = true
+      }
+
+      // Update cursor style based on link hover
       const idx = row * this.buffer.width + col
       if (idx >= 0 && idx < this.buffer.attributes.length) {
         const linkId = getLinkId(this.buffer.attributes[idx])
         this.canvas.style.cursor = linkId > 0 ? "pointer" : "text"
+      }
+
+      // Hit-test for over/out events
+      const hitId = this.renderContext.hitTest(col, row)
+      if (hitId !== this.lastHoverRenderableId) {
+        // Fire mouseout on previous
+        if (this.lastHoverRenderableId !== null) {
+          const prev = Renderable.renderablesByNumber.get(this.lastHoverRenderableId)
+          if (prev) {
+            this.dispatchTuiMouseEvent(prev, "out", col, row, e)
+          }
+        }
+        // Fire mouseover on new
+        if (hitId !== null) {
+          const next = Renderable.renderablesByNumber.get(hitId)
+          if (next) {
+            this.dispatchTuiMouseEvent(next, "over", col, row, e)
+          }
+        }
+        this.lastHoverRenderableId = hitId
+      }
+
+      // Move event to current hover target
+      if (hitId !== null) {
+        const target = Renderable.renderablesByNumber.get(hitId)
+        if (target) {
+          this.dispatchTuiMouseEvent(target, "move", col, row, e)
+        }
       }
 
       if (!this.selection.selecting) return
@@ -158,13 +219,30 @@ export class BrowserRenderer {
         this.needsRender = true
       }
 
+      const { col, row } = this.pixelToCell(e.clientX, e.clientY)
+
+      // Dispatch mouseUp to hit renderable
+      const hitId = this.renderContext.hitTest(col, row)
+      if (hitId !== null) {
+        const renderable = Renderable.renderablesByNumber.get(hitId)
+        if (renderable) {
+          this.dispatchTuiMouseEvent(renderable, "up", col, row, e)
+
+          // Synthesize onClick: same renderable as mouseDown
+          if (e.button === 0 && this.mouseDownRenderableId === hitId) {
+            if (renderable._clickHandler) {
+              renderable._clickHandler(this.createTuiMouseEvent(renderable, "down", col, row, e))
+            }
+          }
+        }
+      }
+
       // Check for link click: same cell as mousedown (no drag)
       if (e.button === 0 && this.mouseDownCell) {
-        const { col, row } = this.pixelToCell(e.clientX, e.clientY)
         if (col === this.mouseDownCell.col && row === this.mouseDownCell.row) {
-          const idx = row * this.buffer.width + col
-          if (idx >= 0 && idx < this.buffer.attributes.length) {
-            const attr = this.buffer.attributes[idx]
+          const bufIdx = row * this.buffer.width + col
+          if (bufIdx >= 0 && bufIdx < this.buffer.attributes.length) {
+            const attr = this.buffer.attributes[bufIdx]
             const linkId = getLinkId(attr)
             if (linkId > 0) {
               const url = this.buffer.getLinkUrl(linkId)
@@ -175,10 +253,26 @@ export class BrowserRenderer {
           }
         }
         this.mouseDownCell = null
+        this.mouseDownRenderableId = null
       }
     }
     window.addEventListener("mouseup", onMouseUp)
     this.cleanupListeners.push(() => window.removeEventListener("mouseup", onMouseUp))
+
+    // --- Scroll events ---
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const { col, row } = this.pixelToCell(e.clientX, e.clientY)
+      const hitId = this.renderContext.hitTest(col, row)
+      if (hitId !== null) {
+        const renderable = Renderable.renderablesByNumber.get(hitId)
+        if (renderable) {
+          this.dispatchTuiMouseEvent(renderable, "scroll", col, row, e)
+        }
+      }
+    }
+    this.canvas.addEventListener("wheel", onWheel, { passive: false })
+    this.cleanupListeners.push(() => this.canvas.removeEventListener("wheel", onWheel))
 
     // --- Drag enter/leave for visual feedback ---
     const onDragEnter = (e: DragEvent) => {
@@ -212,6 +306,32 @@ export class BrowserRenderer {
     }
     document.addEventListener("paste", onPaste)
     this.cleanupListeners.push(() => document.removeEventListener("paste", onPaste))
+  }
+
+  private createTuiMouseEvent(target: any, type: MouseEventType, col: number, row: number, domEvent: MouseEvent | WheelEvent): any {
+    return {
+      type,
+      button: (domEvent as MouseEvent).button ?? 0,
+      x: col,
+      y: row,
+      target,
+      modifiers: {
+        shift: domEvent.shiftKey,
+        alt: domEvent.altKey,
+        ctrl: domEvent.ctrlKey,
+      },
+      _propagationStopped: false,
+      _defaultPrevented: false,
+      get propagationStopped() { return this._propagationStopped },
+      get defaultPrevented() { return this._defaultPrevented },
+      stopPropagation() { this._propagationStopped = true },
+      preventDefault() { this._defaultPrevented = true },
+    }
+  }
+
+  private dispatchTuiMouseEvent(target: any, type: MouseEventType, col: number, row: number, domEvent: MouseEvent | WheelEvent): void {
+    const event = this.createTuiMouseEvent(target, type, col, row, domEvent)
+    target.processMouseEvent(event)
   }
 
   start(): void {
@@ -265,7 +385,17 @@ export class BrowserRenderer {
     } else {
       this.ctx2d.clearRect(0, 0, this.canvas.width, this.canvas.height)
     }
-    this.painter.paint(this.ctx2d, this.buffer, this.selection, cursorOverlay)
+    // Build mouse highlight if enabled
+    const mouseHighlight = this.renderContext.cursorHighlight && this.mouseCell
+      ? {
+          col: this.mouseCell.col,
+          row: this.mouseCell.row,
+          color: this.renderContext.cursorHighlightColor ?? undefined,
+          opacity: this.renderContext.cursorHighlightOpacity,
+        }
+      : null
+
+    this.painter.paint(this.ctx2d, this.buffer, this.selection, cursorOverlay, mouseHighlight)
   }
 
   private buildCursorOverlay(): CursorOverlay | null {
