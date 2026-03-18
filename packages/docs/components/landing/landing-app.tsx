@@ -8,7 +8,7 @@ import { MatrixBackground } from './matrix-background'
 import { useDemoChat } from './use-demo-chat'
 
 // Minimum rows needed to fit 2 chat bubbles + prompt input + border
-const MIN_CHAT_HEIGHT = 10
+const MIN_CHAT_HEIGHT = 13
 
 interface LandingAppProps {
   useKeyboard: any

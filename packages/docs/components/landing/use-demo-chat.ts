@@ -50,6 +50,12 @@ export function useDemoChat() {
   const phaseRef = useRef<DemoPhase>(phase)
   phaseRef.current = phase
 
+  // Tracks whether the demo was aborted so intervals stop immediately
+  // (without waiting for React effect cleanup on next render)
+  const abortedRef = useRef(false)
+  // Tracks what the demo typed into the input so handleChange can strip it
+  const demoInputRef = useRef('')
+
   const {
     messages: liveMessages,
     status: liveStatus,
@@ -71,18 +77,25 @@ export function useDemoChat() {
     }
 
     if (phase === 'TYPING') {
+      abortedRef.current = false
+      demoInputRef.current = ''
       const script = DEMO_SCRIPT[round]!
       let charIdx = 0
       let pauseTimer: ReturnType<typeof setTimeout> | null = null
 
       const interval = setInterval(() => {
+        if (abortedRef.current) return
         charIdx++
         if (charIdx <= script.prompt.length) {
-          controllerRef.current.textInput.setValue(script.prompt.slice(0, charIdx))
+          const partial = script.prompt.slice(0, charIdx)
+          controllerRef.current.textInput.setValue(partial)
+          demoInputRef.current = partial
         } else {
           clearInterval(interval)
           pauseTimer = setTimeout(() => {
+            if (abortedRef.current) return
             controllerRef.current.textInput.clear()
+            demoInputRef.current = ''
             setDemoMessages((prev) => [...prev, { id: `demo-u-${round}`, role: 'user', content: script.prompt }])
             setPhase('STREAMING')
           }, TYPING_PAUSE)
@@ -92,10 +105,12 @@ export function useDemoChat() {
       return () => {
         clearInterval(interval)
         if (pauseTimer) clearTimeout(pauseTimer)
+        demoInputRef.current = ''
       }
     }
 
     if (phase === 'STREAMING') {
+      abortedRef.current = false
       const script = DEMO_SCRIPT[round]!
       const msgId = `demo-a-${round}`
       let charIdx = 0
@@ -107,6 +122,7 @@ export function useDemoChat() {
       let doneTimer: ReturnType<typeof setTimeout> | null = null
 
       const interval = setInterval(() => {
+        if (abortedRef.current) return
         charIdx++
         if (charIdx <= script.response.length) {
           setStreamingText(script.response.slice(0, charIdx))
@@ -156,16 +172,24 @@ export function useDemoChat() {
   // ── Handlers for PromptInput ────────────────────────────────────────────
 
   const handleChange = useCallback(
-    (_text: string) => {
+    (text: string) => {
       const p = phaseRef.current
-      if (p === 'YOUR_TURN') {
-        setIsYourTurn(false)
+      if (p !== 'LIVE') {
+        abortedRef.current = true
         setPhase('LIVE')
-      } else if (p !== 'LIVE') {
-        abortDemo()
+        setStreamingText('')
+        setStreamingMsgId(null)
+        setIsYourTurn(false)
+
+        // Strip any demo-typed prefix so only the user's character remains
+        const demoText = demoInputRef.current
+        demoInputRef.current = ''
+        if (demoText && text.startsWith(demoText)) {
+          controllerRef.current.textInput.setValue(text.slice(demoText.length))
+        }
       }
     },
-    [abortDemo],
+    [],
   )
 
   const handleSubmit = useCallback(
