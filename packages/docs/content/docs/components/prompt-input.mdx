@@ -1,13 +1,14 @@
 ---
 title: PromptInput
-description: Chat input bar with slash commands, file mentions, and command history
+description: A chat input bar with slash commands, file mentions, and AI SDK integration
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import PromptInputDemo from '@/components/demos/prompt-input-demo'
 
-The `PromptInput` component from `@gridland/ui` renders a chat input bar with
-slash command autocomplete, file mention suggestions, and command history.
+A chat input bar with slash command autocomplete, file mention suggestions,
+command history, and direct Vercel AI SDK integration. Supports both a
+self-contained default layout and a fully composable compound mode.
 
 <div className="my-8">
   <PromptInputDemo />
@@ -23,10 +24,12 @@ bunx shadcn@latest add @gridland/prompt-input
 
 ## Usage
 
-```tsx title="Basic"
+```tsx
 import { PromptInput } from "@/components/ui/prompt-input"
 import { useKeyboard } from "@gridland/utils"
+```
 
+```tsx
 <PromptInput
   placeholder="Message Claude..."
   useKeyboard={useKeyboard}
@@ -34,7 +37,33 @@ import { useKeyboard } from "@gridland/utils"
 />
 ```
 
-```tsx title="With slash commands"
+## Usage with AI SDK
+
+The `onSubmit` signature matches Vercel AI SDK's `sendMessage({ text })`, so you
+can pass it through directly.
+
+```tsx title="AI SDK integration"
+import { useChat } from "@ai-sdk/react"
+import { PromptInput } from "@/components/ui/prompt-input"
+import { useKeyboard } from "@gridland/utils"
+
+const { status, sendMessage, stop } = useChat({ /* transport config */ })
+
+<PromptInput
+  status={status}
+  onSubmit={sendMessage}
+  onStop={stop}
+  useKeyboard={useKeyboard}
+/>
+```
+
+## Examples
+
+### Slash Commands
+
+Provide a `commands` array for `/` autocomplete.
+
+```tsx title="Slash commands"
 <PromptInput
   commands={[
     { cmd: "/help", desc: "Show commands" },
@@ -46,13 +75,41 @@ import { useKeyboard } from "@gridland/utils"
 />
 ```
 
-```tsx title="With file mentions"
+### File Mentions
+
+Provide a `files` array for `@` mention autocomplete.
+
+```tsx title="File mentions"
 <PromptInput
   files={["src/index.ts", "src/routes.ts", "package.json"]}
   useKeyboard={useKeyboard}
   onSubmit={(msg) => console.log(msg.text)}
 />
 ```
+
+### Custom Suggestion Provider
+
+Override the built-in `/` and `@` suggestions with your own logic.
+
+```tsx title="Custom suggestions"
+<PromptInput
+  getSuggestions={(value) => {
+    if (value.startsWith("#")) {
+      return [
+        { text: "#bug", desc: "Bug report" },
+        { text: "#feature", desc: "Feature request" },
+      ].filter((s) => s.text.startsWith(value))
+    }
+    return []
+  }}
+  useKeyboard={useKeyboard}
+  onSubmit={(msg) => console.log(msg.text)}
+/>
+```
+
+### Controlled
+
+Use `value` and `onChange` to control the input externally.
 
 ```tsx title="Controlled"
 const [value, setValue] = useState("")
@@ -65,18 +122,23 @@ const [value, setValue] = useState("")
 />
 ```
 
-```tsx title="With AI SDK - direct sendMessage pass-through"
-const { status, sendMessage, stop } = useChat({ /* transport config */ })
+### Model Label
 
+Display the active model name below the input.
+
+```tsx title="With model"
 <PromptInput
-  status={status}
-  onSubmit={sendMessage}
-  onStop={stop}
+  model="claude-sonnet-4-20250514"
   useKeyboard={useKeyboard}
+  onSubmit={(msg) => console.log(msg.text)}
 />
 ```
 
-```tsx title="Disabled (legacy)"
+### Disabled (legacy)
+
+When not using `status`, use `disabled` and `disabledText` directly.
+
+```tsx title="Disabled"
 <PromptInput
   disabled
   disabledText="Generating..."
@@ -84,26 +146,10 @@ const { status, sendMessage, stop } = useChat({ /* transport config */ })
 />
 ```
 
-```tsx title="Custom suggestion provider"
-<PromptInput
-  getSuggestions={(value) => {
-    if (value.startsWith("#")) {
-      return [
-        { text: "#bug", desc: "Bug report" },
-        { text: "#feature", desc: "Feature request" },
-      ].filter((s) => s.text.startsWith(value))
-    }
-    return []
-  }}
-  useKeyboard={useKeyboard}
-  onSubmit={(text) => console.log(text)}
-/>
-```
-
 ## Compound Components
 
-For full control over layout, pass children to use compound mode. The subcomponents
-read state from `PromptInput` via context, no prop drilling needed.
+For full control over layout, pass children to enter compound mode. Subcomponents
+read state from `PromptInput` via context — no prop drilling needed.
 
 ```tsx title="Compound usage"
 import { PromptInput } from "@/components/ui/prompt-input"
@@ -117,6 +163,8 @@ import { PromptInput } from "@/components/ui/prompt-input"
   <PromptInput.Divider />
   <PromptInput.Suggestions />
   <PromptInput.Textarea />
+  <PromptInput.Model />
+  <PromptInput.StatusText />
   <PromptInput.Submit />
   <PromptInput.Divider />
 </PromptInput>
@@ -126,16 +174,49 @@ import { PromptInput } from "@/components/ui/prompt-input"
 
 | Component | Description |
 |-----------|-------------|
-| `PromptInput.Textarea` | Prompt character + text with syntax highlighting + cursor |
+| `PromptInput.Textarea` | Prompt character + text with cursor |
 | `PromptInput.Suggestions` | Autocomplete dropdown (slash commands, @mentions) |
 | `PromptInput.Submit` | Status indicator: ⏎ ready, ◐ submitted, ■ streaming, ✕ error |
-| `PromptInput.Divider` | Horizontal rule (─) |
-| `PromptInput.StatusText` | Error/hint text below input |
+| `PromptInput.Divider` | Horizontal rule (`─`) |
+| `PromptInput.StatusText` | Error text shown when `status` is `"error"` |
+| `PromptInput.Model` | Muted model label shown below the input |
 
-### usePromptInput hook
+## Provider
 
-For advanced consumers, `usePromptInput()` exposes the full context value
-from within any subcomponent:
+Wrap your app in `PromptInputProvider` to lift input state outside of
+`PromptInput`. This lets you read or modify the input value and suggestions from
+sibling components.
+
+```tsx title="Provider usage"
+import { PromptInputProvider, usePromptInputController } from "@/components/ui/prompt-input"
+
+<PromptInputProvider initialInput="">
+  <Sidebar />
+  <PromptInput useKeyboard={useKeyboard} onSubmit={handleSubmit} />
+</PromptInputProvider>
+```
+
+### usePromptInputController
+
+Access lifted state from anywhere inside the provider tree.
+
+```tsx title="Controller hook"
+const controller = usePromptInputController()
+
+controller.textInput.value       // current text
+controller.textInput.setValue(v)  // set text
+controller.textInput.clear()      // clear text
+
+controller.suggestions.suggestions      // current suggestions
+controller.suggestions.selectedIndex    // selected index
+controller.suggestions.setSuggestions(s) // set suggestions
+controller.suggestions.setSelectedIndex(i)
+controller.suggestions.clear()
+```
+
+### usePromptInput
+
+Access rendering state from within any compound subcomponent.
 
 ```tsx title="Custom subcomponent"
 import { usePromptInput } from "@/components/ui/prompt-input"
@@ -146,32 +227,52 @@ function MyCustomStatus() {
 }
 ```
 
-## Props
+## Controls
+
+- **Enter**: Submit message (or accept suggestion)
+- **Tab**: Cycle through suggestions
+- **↑/↓**: Navigate suggestions or command history
+- **Escape**: Dismiss suggestions, or stop generation when streaming
+- **/**: Trigger slash command suggestions
+- **@**: Trigger file mention suggestions
+
+## API Reference
+
+### PromptInput
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `value` | `string` | - | Controlled input value |
 | `defaultValue` | `string` | `""` | Default value for uncontrolled mode |
-| `onSubmit` | `(message: { text: string }) => void \| Promise<void>` | - | Called when user submits. Matches Vercel AI SDK `sendMessage({ text })`. |
+| `onSubmit` | `(message: { text: string }) => void \| Promise<void>` | - | Called on submit. Matches AI SDK `sendMessage({ text })`. |
 | `onChange` | `(text: string) => void` | - | Called when input value changes |
 | `placeholder` | `string` | `"Type a message..."` | Placeholder text when empty |
 | `prompt` | `string` | `"❯ "` | Prompt character before input |
 | `promptColor` | `string` | `theme.muted` | Color of the prompt character |
-| `status` | `ChatStatus` | - | AI chat status: `"ready"` \| `"submitted"` \| `"streaming"` \| `"error"`. Drives disabled state and hint text. |
-| `onStop` | `() => void` | - | Called when Escape is pressed during `"streaming"` status |
-| `submittedText` | `string` | `"Thinking..."` | Text shown when status is `"submitted"` |
-| `streamingText` | `string` | `"Generating..."` | Text shown when status is `"streaming"` |
+| `status` | `ChatStatus` | - | AI chat status. Drives disabled state and hint text. |
+| `onStop` | `() => void` | - | Called when Escape is pressed during streaming |
+| `submittedText` | `string` | `"Thinking..."` | Hint text when status is `"submitted"` |
+| `streamingText` | `string` | `"Generating..."` | Hint text when status is `"streaming"` |
 | `errorText` | `string` | `"An error occurred. Try again."` | Text shown when status is `"error"` |
 | `disabled` | `boolean` | `false` | Disable input. Ignored when `status` is provided. |
 | `disabledText` | `string` | `"Generating..."` | Text shown when disabled. Ignored when `status` is provided. |
 | `commands` | `{ cmd: string; desc?: string }[]` | `[]` | Slash commands for autocomplete |
-| `files` | `string[]` | `[]` | File paths for @ mention autocomplete |
-| `getSuggestions` | `(value: string) => Suggestion[]` | - | Custom suggestion provider |
+| `files` | `string[]` | `[]` | File paths for `@` mention autocomplete |
+| `getSuggestions` | `(value: string) => Suggestion[]` | - | Custom suggestion provider — overrides commands/files |
 | `maxSuggestions` | `number` | `5` | Max visible suggestions |
-| `enableHistory` | `boolean` | `true` | Enable command history |
-| `showDividers` | `boolean` | `false` | Show full-width horizontal dividers above and below input |
-| `useKeyboard` | `function` | - | Keyboard hook from `@opentui/react` |
-| `children` | `ReactNode` | - | When provided, enables compound mode. User composes subcomponents. |
+| `enableHistory` | `boolean` | `true` | Enable command history with ↑/↓ |
+| `model` | `string` | - | Model name displayed below the input |
+| `showDividers` | `boolean` | `true` | Show horizontal dividers above and below input |
+| `autoFocus` | `boolean` | `false` | Auto-focus the canvas on mount for keyboard events |
+| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@opentui/react` |
+| `children` | `ReactNode` | - | When provided, enables compound mode |
+
+### PromptInputProvider
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `initialInput` | `string` | `""` | Initial text input value |
+| `children` | `ReactNode` | - | Components that can access the provider context |
 
 ### Suggestion
 
@@ -188,12 +289,3 @@ function MyCustomStatus() {
 | `"submitted"` | Input disabled, shows submitted text |
 | `"streaming"` | Input disabled, shows streaming text, Escape calls `onStop` |
 | `"error"` | Input enabled, shows error indicator |
-
-## Controls
-
-- **Enter**: Submit message (or accept suggestion)
-- **Tab**: Cycle through suggestions
-- **↑/↓**: Navigate suggestions or command history
-- **Escape**: Dismiss suggestions, or stop generation when streaming
-- **/**: Trigger slash command suggestions
-- **@**: Trigger file mention suggestions
