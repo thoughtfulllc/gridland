@@ -85,7 +85,8 @@ export type {
   MessagePart,
   TextPart,
   ReasoningPart,
-  ToolInvocationPart,
+  ToolCallPart,
+  ToolCallState,
   SourcePart,
   MessageRole,
 } from "./message/message"
