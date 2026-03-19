@@ -22,8 +22,31 @@ export type { SelectInputProps, SelectInputItem } from "./select-input/select-in
 export { MultiSelect } from "./multi-select/multi-select"
 export type { MultiSelectProps, MultiSelectItem } from "./multi-select/multi-select"
 
-export { Table, getColumns, calculateColumnWidths, padCell } from "./table/table"
-export type { TableProps } from "./table/table"
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+  SimpleTable,
+  getColumns,
+  calculateColumnWidths,
+  padCell,
+} from "./table/table"
+export type {
+  TableProps,
+  TableHeaderProps,
+  TableBodyProps,
+  TableFooterProps,
+  TableRowProps,
+  TableHeadProps,
+  TableCellProps,
+  TableCaptionProps,
+  SimpleTableProps,
+} from "./table/table"
 
 export { Gradient, GRADIENTS, generateGradient, hexToRgb, rgbToHex } from "./gradient/gradient"
 export type { GradientProps, GradientName } from "./gradient/gradient"

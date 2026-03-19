@@ -1,6 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
-import { Table } from "../../../../packages/ui/components/table/table"
+import { SimpleTable } from "../../../../packages/ui/components/table/table"
 import { SelectInput } from "../../../../packages/ui/components/select-input/select-input"
 import { TextInput } from "../../../../packages/ui/components/text-input/text-input"
 import { Link } from "../../../../packages/ui/components/link/link"
@@ -22,7 +22,7 @@ export function AllComponentsFixture() {
       <box padding={1} flexDirection="column" gap={1}>
         <text fg="#88c0d0" bold>All Components</text>
 
-        <Table data={tableData} headerColor="cyan" borderColor="#5e81ac" />
+        <SimpleTable data={tableData} headerColor="cyan" borderColor="#5e81ac" />
 
         <box flexDirection="column" gap={1}>
           <text fg="#d8dee9" bold>Select:</text>

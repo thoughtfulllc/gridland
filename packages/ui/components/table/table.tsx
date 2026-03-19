@@ -1,22 +1,32 @@
-import { Fragment } from "react"
+import { createContext, useContext, Children, isValidElement, Fragment } from "react"
+import type { ReactNode } from "react"
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
+
+// ── Types ────────────────────────────────────────────────────────────────
 
 type Scalar = string | number | boolean | null | undefined
 type ScalarDict = { [key: string]: Scalar }
 
-export interface TableProps<T extends ScalarDict> {
-  data: T[]
-  columns?: (keyof T)[]
-  padding?: number
-  headerColor?: string
-  borderColor?: string
+// ── Context ──────────────────────────────────────────────────────────────
+
+interface TableContextValue {
+  columnWidths: number[]
+  padding: number
+  headerColor: string
+  borderColor: string
+  foregroundColor: string
 }
 
-interface ColumnInfo<T> {
-  field: keyof T
-  width: number
+const TableContext = createContext<TableContextValue | null>(null)
+
+function useTableContext() {
+  const ctx = useContext(TableContext)
+  if (!ctx) throw new Error("Table compound components must be used within <Table>")
+  return ctx
 }
+
+// ── Utility functions ────────────────────────────────────────────────────
 
 export function getColumns<T extends ScalarDict>(
   data: T[],
@@ -28,6 +38,11 @@ export function getColumns<T extends ScalarDict>(
     for (const key in row) keys.add(key)
   }
   return Array.from(keys)
+}
+
+interface ColumnInfo<T> {
+  field: keyof T
+  width: number
 }
 
 export function calculateColumnWidths<T extends ScalarDict>(
@@ -50,92 +65,280 @@ export function padCell(value: string, width: number, padding: number): string {
   return " ".repeat(padding) + value + " ".repeat(Math.max(0, rightPad))
 }
 
-export function Table<T extends ScalarDict>({
+// ── Helpers: extract cell text from React tree ───────────────────────────
+
+function extractCellText(node: ReactNode): string {
+  if (node == null) return ""
+  if (typeof node === "string") return node
+  if (typeof node === "number" || typeof node === "boolean") return String(node)
+  if (Array.isArray(node)) return node.map(extractCellText).join("")
+  return ""
+}
+
+function collectColumnWidths(children: ReactNode, padding: number): number[] {
+  const columnMaxWidths: number[] = []
+
+  Children.forEach(children, (section) => {
+    if (!isValidElement(section)) return
+    if (section.type === TableCaption) return
+
+    Children.forEach(section.props.children, (row: ReactNode) => {
+      if (!isValidElement(row)) return
+
+      let colIdx = 0
+      Children.forEach(row.props.children, (cell: ReactNode) => {
+        if (!isValidElement(cell)) return
+        const text = extractCellText(cell.props.children)
+        const width = text.length + padding * 2
+        if (colIdx >= columnMaxWidths.length) {
+          columnMaxWidths.push(width)
+        } else {
+          columnMaxWidths[colIdx] = Math.max(columnMaxWidths[colIdx], width)
+        }
+        colIdx++
+      })
+    })
+  })
+
+  return columnMaxWidths
+}
+
+function getTotalWidth(columnWidths: number[]): number {
+  if (columnWidths.length === 0) return 0
+  return columnWidths.reduce((sum, w) => sum + w, 0) + (columnWidths.length - 1)
+}
+
+// ── Table (root) ─────────────────────────────────────────────────────────
+
+export interface TableProps {
+  children: ReactNode
+  padding?: number
+  headerColor?: string
+  borderColor?: string
+}
+
+export function Table({ children, padding = 1, headerColor, borderColor }: TableProps) {
+  const theme = useTheme()
+  const resolvedHeaderColor = headerColor ?? theme.foreground
+  const resolvedBorderColor = borderColor ?? theme.muted
+
+  const columnWidths = collectColumnWidths(children, padding)
+
+  return (
+    <TableContext.Provider
+      value={{
+        columnWidths,
+        padding,
+        headerColor: resolvedHeaderColor,
+        borderColor: resolvedBorderColor,
+        foregroundColor: theme.foreground,
+      }}
+    >
+      <box>{children}</box>
+    </TableContext.Provider>
+  )
+}
+
+// ── TableHeader ──────────────────────────────────────────────────────────
+
+export interface TableHeaderProps {
+  children: ReactNode
+}
+
+export function TableHeader({ children }: TableHeaderProps) {
+  const ctx = useTableContext()
+  const totalWidth = getTotalWidth(ctx.columnWidths)
+
+  return (
+    <box>
+      {children}
+      <text>
+        <span style={textStyle({ fg: ctx.borderColor })}>{"\u2500".repeat(totalWidth)}</span>
+      </text>
+    </box>
+  )
+}
+
+// ── TableBody ────────────────────────────────────────────────────────────
+
+export interface TableBodyProps {
+  children: ReactNode
+}
+
+export function TableBody({ children }: TableBodyProps) {
+  const ctx = useTableContext()
+  const totalWidth = getTotalWidth(ctx.columnWidths)
+  const rows = Children.toArray(children)
+
+  return (
+    <box>
+      {rows.map((row, index) => (
+        <Fragment key={index}>
+          {row}
+          {index < rows.length - 1 && (
+            <text>
+              <span style={textStyle({ fg: ctx.borderColor, dim: true })}>
+                {"\u2500".repeat(totalWidth)}
+              </span>
+            </text>
+          )}
+        </Fragment>
+      ))}
+    </box>
+  )
+}
+
+// ── TableFooter ──────────────────────────────────────────────────────────
+
+export interface TableFooterProps {
+  children: ReactNode
+}
+
+export function TableFooter({ children }: TableFooterProps) {
+  const ctx = useTableContext()
+  const totalWidth = getTotalWidth(ctx.columnWidths)
+
+  return (
+    <box>
+      <text>
+        <span style={textStyle({ fg: ctx.borderColor })}>{"\u2500".repeat(totalWidth)}</span>
+      </text>
+      {children}
+    </box>
+  )
+}
+
+// ── TableRow ─────────────────────────────────────────────────────────────
+
+export interface TableRowProps {
+  children: ReactNode
+}
+
+export function TableRow({ children }: TableRowProps) {
+  const ctx = useTableContext()
+  const parts: any[] = []
+  let colIdx = 0
+
+  Children.forEach(children, (child) => {
+    if (!isValidElement(child)) return
+
+    const text = extractCellText(child.props.children)
+    const width = ctx.columnWidths[colIdx] ?? text.length + ctx.padding * 2
+    const padded = padCell(text, width, ctx.padding)
+    const isHead = child.type === TableHead
+
+    if (colIdx > 0) {
+      parts.push(
+        <span key={`sep-${colIdx}`} style={textStyle({ fg: ctx.borderColor, dim: true })}>
+          {" "}
+        </span>,
+      )
+    }
+
+    if (isHead) {
+      parts.push(
+        <span key={`cell-${colIdx}`} style={textStyle({ fg: ctx.headerColor })}>
+          {padded}
+        </span>,
+      )
+    } else {
+      parts.push(
+        <span key={`cell-${colIdx}`} style={textStyle({ fg: ctx.foregroundColor, dim: true })}>
+          {padded}
+        </span>,
+      )
+    }
+
+    colIdx++
+  })
+
+  return <text>{parts}</text>
+}
+
+// ── TableHead ────────────────────────────────────────────────────────────
+
+export interface TableHeadProps {
+  children: ReactNode
+}
+
+/**
+ * Declares a header cell. Does not render itself —
+ * TableRow reads the children prop to build the styled row.
+ */
+export function TableHead(_props: TableHeadProps) {
+  return null
+}
+
+// ── TableCell ────────────────────────────────────────────────────────────
+
+export interface TableCellProps {
+  children: ReactNode
+}
+
+/**
+ * Declares a body cell. Does not render itself —
+ * TableRow reads the children prop to build the styled row.
+ */
+export function TableCell(_props: TableCellProps) {
+  return null
+}
+
+// ── TableCaption ─────────────────────────────────────────────────────────
+
+export interface TableCaptionProps {
+  children: ReactNode
+}
+
+export function TableCaption({ children }: TableCaptionProps) {
+  const ctx = useTableContext()
+  return (
+    <text>
+      <span style={textStyle({ fg: ctx.borderColor, dim: true })}>
+        {extractCellText(children)}
+      </span>
+    </text>
+  )
+}
+
+// ── SimpleTable (data-driven convenience wrapper) ────────────────────────
+
+export interface SimpleTableProps<T extends ScalarDict> {
+  data: T[]
+  columns?: (keyof T)[]
+  padding?: number
+  headerColor?: string
+  borderColor?: string
+}
+
+export function SimpleTable<T extends ScalarDict>({
   data,
   columns: columnsProp,
   padding = 1,
   headerColor,
   borderColor,
-}: TableProps<T>) {
-  const theme = useTheme()
-  const resolvedHeaderColor = headerColor ?? theme.primary
-  const resolvedBorderColor = borderColor ?? theme.border
-  const columns = getColumns(data, columnsProp)
-  const colInfo = calculateColumnWidths(columns, data, padding)
-
-  const borderLine = (left: string, mid: string, right: string) => {
-    const inner = colInfo.map((c) => "\u2500".repeat(c.width)).join(mid)
-    return (
-      <text>
-        <span style={textStyle({ fg: resolvedBorderColor, bold: true })}>
-          {left}
-          {inner}
-          {right}
-        </span>
-      </text>
-    )
-  }
-
-  const contentRow = (rowData: Partial<T>, isHeader: boolean) => {
-    const parts: any[] = []
-    parts.push(
-      <span key="left-border" style={textStyle({ fg: resolvedBorderColor, bold: true })}>
-        {"\u2502"}
-      </span>,
-    )
-
-    colInfo.forEach((col, i) => {
-      const val = rowData[col.field]
-      const str = val == null ? "" : String(val)
-      const padded = padCell(str, col.width, padding)
-
-      if (isHeader) {
-        parts.push(
-          <span key={`cell-${i}`} style={textStyle({ fg: resolvedHeaderColor, bold: true })}>
-            {padded}
-          </span>,
-        )
-      } else {
-        parts.push(
-          <span key={`cell-${i}`} style={textStyle({ fg: theme.foreground })}>
-            {padded}
-          </span>,
-        )
-      }
-
-      if (i < colInfo.length - 1) {
-        parts.push(
-          <span key={`sep-${i}`} style={textStyle({ fg: resolvedBorderColor, bold: true })}>
-            {"\u2502"}
-          </span>,
-        )
-      }
-    })
-
-    parts.push(
-      <span key="right-border" style={textStyle({ fg: resolvedBorderColor, bold: true })}>
-        {"\u2502"}
-      </span>,
-    )
-    return <text>{parts}</text>
-  }
-
-  const headerData = columns.reduce(
-    (acc, col) => ({ ...acc, [col]: col }),
-    {} as Partial<T>,
-  )
+}: SimpleTableProps<T>) {
+  const cols = getColumns(data, columnsProp)
 
   return (
-    <box>
-      {borderLine("\u250c", "\u252c", "\u2510")}
-      {contentRow(headerData, true)}
-      {data.map((row, index) => (
-        <Fragment key={index}>
-          {borderLine("\u251c", "\u253c", "\u2524")}
-          {contentRow(row, false)}
-        </Fragment>
-      ))}
-      {borderLine("\u2514", "\u2534", "\u2518")}
-    </box>
+    <Table padding={padding} headerColor={headerColor} borderColor={borderColor}>
+      <TableHeader>
+        <TableRow>
+          {cols.map((col) => (
+            <TableHead key={String(col)}>{String(col)}</TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data.map((row, index) => (
+          <TableRow key={index}>
+            {cols.map((col) => (
+              <TableCell key={String(col)}>
+                {row[col] == null ? "" : String(row[col])}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }

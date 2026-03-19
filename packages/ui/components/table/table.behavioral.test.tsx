@@ -1,11 +1,137 @@
 // @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
-import { Table } from "./table"
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+  SimpleTable,
+} from "./table"
 
 afterEach(() => cleanup())
 
-describe("Table behavior", () => {
+describe("Table compound components", () => {
+  it("renders header and body rows", () => {
+    const { screen } = renderTui(
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>name</TableHead>
+            <TableHead>role</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Alice</TableCell>
+            <TableCell>Engineer</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Bob</TableCell>
+            <TableCell>Designer</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>,
+      { cols: 40, rows: 10 },
+    )
+    const text = screen.text()
+    expect(text).toContain("name")
+    expect(text).toContain("role")
+    expect(text).toContain("Alice")
+    expect(text).toContain("Bob")
+    expect(text).toContain("Engineer")
+    expect(text).toContain("Designer")
+  })
+
+  it("renders horizontal separator", () => {
+    const { screen } = renderTui(
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>a</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>1</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>,
+      { cols: 20, rows: 8 },
+    )
+    expect(screen.text()).toContain("\u2500") // ─
+  })
+
+  it("renders caption", () => {
+    const { screen } = renderTui(
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>x</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>1</TableCell>
+          </TableRow>
+        </TableBody>
+        <TableCaption>A caption</TableCaption>
+      </Table>,
+      { cols: 30, rows: 8 },
+    )
+    expect(screen.text()).toContain("A caption")
+  })
+
+  it("renders footer with separator", () => {
+    const { screen } = renderTui(
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>item</TableHead>
+            <TableHead>price</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Widget</TableCell>
+            <TableCell>$10</TableCell>
+          </TableRow>
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell>Total</TableCell>
+            <TableCell>$10</TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>,
+      { cols: 40, rows: 10 },
+    )
+    const text = screen.text()
+    expect(text).toContain("Total")
+    expect(text).toContain("$10")
+  })
+
+  it("handles empty body", () => {
+    const { screen } = renderTui(
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>name</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>{[]}</TableBody>
+      </Table>,
+      { cols: 30, rows: 6 },
+    )
+    expect(screen.text()).toContain("name")
+  })
+})
+
+describe("SimpleTable (data-driven)", () => {
   const data = [
     { name: "Alice", age: 30, role: "Engineer" },
     { name: "Bob", age: 25, role: "Designer" },
@@ -13,7 +139,7 @@ describe("Table behavior", () => {
 
   it("renders header row", () => {
     const { screen } = renderTui(
-      <Table data={data} />,
+      <SimpleTable data={data} />,
       { cols: 60, rows: 10 },
     )
     const text = screen.text()
@@ -24,7 +150,7 @@ describe("Table behavior", () => {
 
   it("renders data rows", () => {
     const { screen } = renderTui(
-      <Table data={data} />,
+      <SimpleTable data={data} />,
       { cols: 60, rows: 10 },
     )
     const text = screen.text()
@@ -34,35 +160,20 @@ describe("Table behavior", () => {
     expect(text).toContain("25")
   })
 
-  it("renders border characters", () => {
-    const { screen } = renderTui(
-      <Table data={data} />,
-      { cols: 60, rows: 10 },
-    )
-    const text = screen.text()
-    expect(text).toContain("\u250c") // ┌
-    expect(text).toContain("\u2510") // ┐
-    expect(text).toContain("\u2514") // └
-    expect(text).toContain("\u2518") // ┘
-    expect(text).toContain("\u2502") // │
-    expect(text).toContain("\u2500") // ─
-  })
-
   it("respects custom columns ordering", () => {
     const { screen } = renderTui(
-      <Table data={data} columns={["role", "name"]} />,
+      <SimpleTable data={data} columns={["role", "name"]} />,
       { cols: 60, rows: 10 },
     )
     const text = screen.text()
     expect(text).toContain("role")
     expect(text).toContain("name")
-    // age should not appear
     expect(text).not.toContain("age")
   })
 
   it("handles empty data array", () => {
     const { screen } = renderTui(
-      <Table data={[]} />,
+      <SimpleTable data={[]} />,
       { cols: 40, rows: 6 },
     )
     expect(screen.text()).toBeDefined()
@@ -70,7 +181,7 @@ describe("Table behavior", () => {
 
   it("handles null/undefined values", () => {
     const { screen } = renderTui(
-      <Table data={[{ name: "Alice", value: null }, { name: "Bob", value: undefined }]} />,
+      <SimpleTable data={[{ name: "Alice", value: null }, { name: "Bob", value: undefined }]} />,
       { cols: 40, rows: 10 },
     )
     const text = screen.text()
@@ -80,7 +191,7 @@ describe("Table behavior", () => {
 
   it("handles single column", () => {
     const { screen } = renderTui(
-      <Table data={[{ name: "Alice" }, { name: "Bob" }]} />,
+      <SimpleTable data={[{ name: "Alice" }, { name: "Bob" }]} />,
       { cols: 30, rows: 8 },
     )
     const text = screen.text()
@@ -90,7 +201,7 @@ describe("Table behavior", () => {
 
   it("handles single row", () => {
     const { screen } = renderTui(
-      <Table data={[{ x: 1, y: 2 }]} />,
+      <SimpleTable data={[{ x: 1, y: 2 }]} />,
       { cols: 30, rows: 8 },
     )
     expect(screen.text()).toContain("1")
@@ -99,24 +210,23 @@ describe("Table behavior", () => {
 
   it("renders with custom headerColor", () => {
     const { screen } = renderTui(
-      <Table data={data} headerColor="cyan" />,
+      <SimpleTable data={data} headerColor="cyan" />,
       { cols: 60, rows: 10 },
     )
-    // Should render without errors
     expect(screen.text()).toContain("name")
   })
 
   it("renders with custom borderColor", () => {
     const { screen } = renderTui(
-      <Table data={data} borderColor="red" />,
+      <SimpleTable data={data} borderColor="red" />,
       { cols: 60, rows: 10 },
     )
-    expect(screen.text()).toContain("\u2502")
+    expect(screen.text()).toContain("\u2500") // ─
   })
 
   it("handles sparse data (different keys per row)", () => {
     const { screen } = renderTui(
-      <Table data={[{ a: 1 }, { b: 2 }, { c: 3 }]} />,
+      <SimpleTable data={[{ a: 1 }, { b: 2 }, { c: 3 }]} />,
       { cols: 40, rows: 10 },
     )
     const text = screen.text()
@@ -127,7 +237,7 @@ describe("Table behavior", () => {
 
   it("renders with custom padding", () => {
     const { screen } = renderTui(
-      <Table data={data} padding={2} />,
+      <SimpleTable data={data} padding={2} />,
       { cols: 80, rows: 10 },
     )
     expect(screen.text()).toContain("Alice")
@@ -135,7 +245,7 @@ describe("Table behavior", () => {
 
   it("handles boolean values", () => {
     const { screen } = renderTui(
-      <Table data={[{ name: "test", active: true }]} />,
+      <SimpleTable data={[{ name: "test", active: true }]} />,
       { cols: 40, rows: 8 },
     )
     expect(screen.text()).toContain("true")
@@ -143,7 +253,7 @@ describe("Table behavior", () => {
 
   it("handles numeric values", () => {
     const { screen } = renderTui(
-      <Table data={[{ id: 42, score: 99.5 }]} />,
+      <SimpleTable data={[{ id: 42, score: 99.5 }]} />,
       { cols: 30, rows: 8 },
     )
     const text = screen.text()

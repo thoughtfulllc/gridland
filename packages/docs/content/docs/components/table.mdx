@@ -1,13 +1,14 @@
 ---
 title: Table
-description: Tabular data rendering with automatic column detection
+description: A compound table component with automatic column sizing
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import TableDemo from '@/components/demos/table-demo'
 
-The `Table` component from `@gridland/ui` renders structured data in a bordered table
-with automatic column detection and box-drawing characters.
+A compound table component built from semantic sub-components. Column widths are
+computed automatically from cell content. Horizontal-only separators keep the
+look clean and modern.
 
 <div className="my-8">
   <TableDemo />
@@ -23,10 +24,130 @@ bunx shadcn@latest add @gridland/table
 
 ## Usage
 
-```tsx title="Basic usage"
-import { Table } from "@/components/ui/table"
+```tsx
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+```
 
-<Table
+```tsx
+<Table>
+  <TableCaption>A list of your recent invoices.</TableCaption>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Invoice</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Method</TableHead>
+      <TableHead>Amount</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>INV001</TableCell>
+      <TableCell>Paid</TableCell>
+      <TableCell>Credit Card</TableCell>
+      <TableCell>$250.00</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+## Examples
+
+### Footer
+
+Use the `<TableFooter />` component to add a footer row with a solid separator above it.
+
+```tsx title="With footer"
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Item</TableHead>
+      <TableHead>Qty</TableHead>
+      <TableHead>Amount</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Widget</TableCell>
+      <TableCell>4</TableCell>
+      <TableCell>$40.00</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell>Gadget</TableCell>
+      <TableCell>1</TableCell>
+      <TableCell>$25.00</TableCell>
+    </TableRow>
+  </TableBody>
+  <TableFooter>
+    <TableRow>
+      <TableCell>Total</TableCell>
+      <TableCell>5</TableCell>
+      <TableCell>$65.00</TableCell>
+    </TableRow>
+  </TableFooter>
+</Table>
+```
+
+### Caption
+
+Use `<TableCaption />` to display a muted description below the table.
+
+```tsx title="With caption"
+<Table>
+  <TableCaption>Team members and their current status.</TableCaption>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Name</TableHead>
+      <TableHead>Status</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Alice</TableCell>
+      <TableCell>Active</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+### Custom Colors
+
+Pass `headerColor` and `borderColor` to override the default theme colors.
+
+```tsx title="Custom colors"
+<Table headerColor="cyan" borderColor="#5e81ac">
+  <TableHeader>
+    <TableRow>
+      <TableHead>Name</TableHead>
+      <TableHead>Role</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Alice</TableCell>
+      <TableCell>Engineer</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+### SimpleTable
+
+For quick tables from data arrays, use `SimpleTable` — a convenience wrapper
+around the compound components with automatic column detection.
+
+```tsx title="SimpleTable"
+import { SimpleTable } from "@/components/ui/table"
+
+<SimpleTable
   data={[
     { name: "Alice", age: 30, role: "Engineer" },
     { name: "Bob", age: 25, role: "Designer" },
@@ -34,24 +155,94 @@ import { Table } from "@/components/ui/table"
 />
 ```
 
-```tsx title="Custom columns and colors"
-<Table
+```tsx title="Custom columns"
+<SimpleTable
   data={[
     { name: "Alice", age: 30, role: "Engineer" },
     { name: "Bob", age: 25, role: "Designer" },
   ]}
   columns={["name", "role"]}
   headerColor="cyan"
-  borderColor="#5e81ac"
 />
 ```
 
-## Props
+## Components
+
+### Table
+
+Root component that computes column widths from the component tree and provides layout context.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Table sub-components |
+| `padding` | `number` | `1` | Cell padding in characters |
+| `headerColor` | `string` | `theme.foreground` | Header text color |
+| `borderColor` | `string` | `theme.muted` | Separator line color |
+
+### TableHeader
+
+Wraps header rows. Renders a solid separator line below.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | One or more `TableRow` components |
+
+### TableBody
+
+Wraps body rows. Renders dimmed separator lines between rows. No separator after the last row.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | One or more `TableRow` components |
+
+### TableFooter
+
+Wraps footer rows. Renders a solid separator line above.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | One or more `TableRow` components |
+
+### TableRow
+
+Reads its `TableHead` / `TableCell` children and renders a styled line of padded text.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | `TableHead` or `TableCell` components |
+
+### TableHead
+
+Declares a header cell. Does not render on its own — `TableRow` reads its props.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Cell content (typically a string) |
+
+### TableCell
+
+Declares a body cell. Does not render on its own — `TableRow` reads its props.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Cell content (typically a string) |
+
+### TableCaption
+
+Displays muted text below the table.
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Caption text |
+
+### SimpleTable
+
+Data-driven convenience wrapper that auto-generates the compound structure from an array of objects.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `data` | `T[]` | - | Array of data objects to display |
-| `columns` | `(keyof T)[]` | - | Keys to display as columns (auto-detected from data if omitted) |
+| `columns` | `(keyof T)[]` | - | Keys to display as columns (auto-detected if omitted) |
 | `padding` | `number` | `1` | Cell padding in characters |
-| `headerColor` | `string` | `"blue"` | Foreground color for header text |
-| `borderColor` | `string` | - | Color for border characters |
+| `headerColor` | `string` | `theme.foreground` | Header text color |
+| `borderColor` | `string` | `theme.muted` | Separator line color |
