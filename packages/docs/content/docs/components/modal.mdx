@@ -1,13 +1,13 @@
 ---
 title: Modal
-description: Bordered overlay container with optional title and Escape key handling
+description: A bordered overlay container with title and Escape key handling
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import ModalDemo from '@/components/demos/modal-demo'
 
-The `Modal` component from `@gridland/ui` renders a bordered container that overlays
-content, optionally displays a title, and listens for the Escape key to trigger a close callback.
+A bordered container that overlays content, optionally displays a title, and
+listens for the Escape key to trigger a close callback.
 
 <div className="my-8">
   <ModalDemo />
@@ -23,21 +23,79 @@ bunx shadcn@latest add @gridland/modal
 
 ## Usage
 
-```tsx title="Example"
+```tsx
 import { Modal } from "@/components/ui/modal"
+```
 
-<Modal title="Settings" borderColor="blue" onClose={() => setOpen(false)}>
+```tsx
+<Modal title="Settings" onClose={() => setOpen(false)}>
   <text>Modal content here</text>
 </Modal>
 ```
 
-## Props
+## Examples
+
+### With Title
+
+Display a bold title at the top of the bordered container.
+
+```tsx title="With title"
+<Modal title="Preferences" onClose={() => setOpen(false)}>
+  <text>Your settings</text>
+</Modal>
+```
+
+### Border Styles
+
+Use the `borderStyle` prop to change the border character set.
+
+```tsx title="Border styles"
+<Modal title="Single" borderStyle="single">
+  <text>Content</text>
+</Modal>
+
+<Modal title="Double" borderStyle="double">
+  <text>Content</text>
+</Modal>
+
+<Modal title="Heavy" borderStyle="heavy">
+  <text>Content</text>
+</Modal>
+```
+
+### Custom Border Color
+
+Override the default border color.
+
+```tsx title="Custom color"
+<Modal title="Alert" borderColor="#FF6B6B" onClose={() => setOpen(false)}>
+  <text>Something went wrong</text>
+</Modal>
+```
+
+### Without Title
+
+Omit the `title` prop for a plain bordered container.
+
+```tsx title="No title"
+<Modal onClose={() => setOpen(false)}>
+  <text>Plain modal content</text>
+</Modal>
+```
+
+## Controls
+
+- **Escape**: Calls `onClose` when provided
+
+## API Reference
+
+### Modal
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | -- | Content rendered inside the modal |
-| `title` | `string` | `undefined` | Optional title at the top of the border |
-| `borderColor` | `string` | `"blue"` | Color of the border and title text |
+| `children` | `ReactNode` | - | Content rendered inside the modal |
+| `title` | `string` | - | Title displayed at the top inside the border |
+| `borderColor` | `string` | `theme.muted` | Color of the border |
 | `borderStyle` | `"single" \| "double" \| "rounded" \| "heavy"` | `"rounded"` | Border character set |
-| `onClose` | `() => void` | `undefined` | Callback invoked on Escape key press |
-| `useKeyboard` | `(handler) => void` | `undefined` | Keyboard handler hook |
+| `onClose` | `() => void` | - | Called when Escape is pressed |
+| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@opentui/react` |
