@@ -1,22 +1,16 @@
 ---
 title: Tabs
-description: Compound tab component with triggers and content panels
+description: A compound tab component with triggers and content panels
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import TabsDemo, { TabsSimpleDemo } from '@/components/demos/tabs-demo'
 
-A compound tab component inspired by shadcn/ui. Declare triggers and content panels
-side by side. The active panel renders automatically.
+A compound tab component. Declare triggers and content panels side by side —
+the active panel renders automatically.
 
 <div className="my-8">
   <TabsSimpleDemo />
-</div>
-
-## Example
-
-<div className="my-8">
-  <TabsDemo />
 </div>
 
 <RunDemo name="tabs" />
@@ -29,9 +23,11 @@ bunx shadcn@latest add @gridland/tab-bar
 
 ## Usage
 
-```tsx title="Compound API"
+```tsx
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tab-bar"
+```
 
+```tsx
 <Tabs defaultValue="files">
   <TabsList>
     <TabsTrigger value="files">Files</TabsTrigger>
@@ -50,27 +46,112 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tab-ba
 </Tabs>
 ```
 
+## Examples
+
+### Full Example
+
+<div className="my-8">
+  <TabsDemo />
+</div>
+
+### Simple API
+
+For cases where you don't need content panels, use the `TabBar` convenience wrapper.
+
 ```tsx title="Simple API"
 import { TabBar } from "@/components/ui/tab-bar"
 
 <TabBar label="View" options={["Files", "Search", "Git"]} selectedIndex={0} />
 ```
 
-## Components
+### With Label
+
+Show a text label before the triggers.
+
+```tsx title="With label"
+<Tabs defaultValue="code">
+  <TabsList label="Language">
+    <TabsTrigger value="code">Code</TabsTrigger>
+    <TabsTrigger value="preview">Preview</TabsTrigger>
+  </TabsList>
+  <TabsContent value="code">
+    <text>Source code</text>
+  </TabsContent>
+  <TabsContent value="preview">
+    <text>Live preview</text>
+  </TabsContent>
+</Tabs>
+```
+
+### Controlled
+
+Use `value` and `onValueChange` to control the active tab externally.
+
+```tsx title="Controlled"
+const [tab, setTab] = useState("files")
+
+<Tabs value={tab} onValueChange={setTab}>
+  <TabsList>
+    <TabsTrigger value="files">Files</TabsTrigger>
+    <TabsTrigger value="search">Search</TabsTrigger>
+  </TabsList>
+  <TabsContent value="files">
+    <text>Files panel</text>
+  </TabsContent>
+  <TabsContent value="search">
+    <text>Search panel</text>
+  </TabsContent>
+</Tabs>
+```
+
+### Unfocused
+
+Set `focused={false}` on `TabsList` to render in a dimmed, unfocused style.
+
+```tsx title="Unfocused"
+<Tabs defaultValue="a">
+  <TabsList focused={false}>
+    <TabsTrigger value="a">Tab A</TabsTrigger>
+    <TabsTrigger value="b">Tab B</TabsTrigger>
+  </TabsList>
+</Tabs>
+```
+
+### No Separator
+
+Hide the horizontal separator line below the tab bar.
+
+```tsx title="No separator"
+<Tabs defaultValue="a">
+  <TabsList separator={false}>
+    <TabsTrigger value="a">Tab A</TabsTrigger>
+    <TabsTrigger value="b">Tab B</TabsTrigger>
+  </TabsList>
+</Tabs>
+```
+
+## Compound Components
+
+| Component | Description |
+|-----------|-------------|
+| `Tabs` | Root container with active tab state |
+| `TabsList` | Horizontal tab bar built from `TabsTrigger` children |
+| `TabsTrigger` | Declares a tab option. Does not render on its own — `TabsList` reads its props. |
+| `TabsContent` | Renders its children only when its value matches the active tab |
+| `TabBar` | Simple convenience wrapper (no content panels) |
+
+## API Reference
 
 ### Tabs
-
-Root component that manages the active tab state.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `value` | `string` | - | Controlled active tab value |
 | `defaultValue` | `string` | `""` | Default active tab (uncontrolled) |
 | `onValueChange` | `(value: string) => void` | - | Called when the active tab changes |
+| `children` | `ReactNode` | - | Sub-components |
 
 ### TabsList
-
-Renders the horizontal tab bar from its `TabsTrigger` children.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -78,10 +159,9 @@ Renders the horizontal tab bar from its `TabsTrigger` children.
 | `focused` | `boolean` | `true` | Whether the tab bar appears focused |
 | `activeColor` | `string` | `theme.accent` | Foreground color of the active trigger |
 | `separator` | `boolean` | `true` | Show horizontal separator below triggers |
+| `children` | `ReactNode` | - | `TabsTrigger` components |
 
 ### TabsTrigger
-
-Declares a tab option. Does not render on its own. `TabsList` reads its props.
 
 | Prop | Type | Description |
 |------|------|-------------|
@@ -90,16 +170,12 @@ Declares a tab option. Does not render on its own. `TabsList` reads its props.
 
 ### TabsContent
 
-Renders its children only when its `value` matches the active tab.
-
 | Prop | Type | Description |
 |------|------|-------------|
 | `value` | `string` | Must match the active tab value to render |
 | `children` | `ReactNode` | Content shown when this tab is active |
 
-### TabBar (simple API)
-
-A convenience wrapper for cases where you don't need content panels.
+### TabBar
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
