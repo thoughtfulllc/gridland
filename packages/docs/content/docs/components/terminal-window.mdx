@@ -1,13 +1,13 @@
 ---
 title: TerminalWindow
-description: Decorative terminal-style window chrome container
+description: A decorative terminal-style window chrome container
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import TerminalWindowDemo from '@/components/demos/terminal-window-demo'
 
-The `TerminalWindow` component from `@gridland/ui` renders a decorative container that mimics
-a terminal window, with traffic light buttons and an optional centered title. By default it has a dark gray background to look like a real terminal.
+A decorative container that mimics a terminal window with traffic light buttons
+and an optional centered title. Defaults to a dark gray background.
 
 <div className="my-8">
   <TerminalWindowDemo />
@@ -23,23 +23,76 @@ bunx shadcn@latest add @gridland/terminal-window
 
 ## Usage
 
-```tsx title="Example"
+```tsx
 import { TerminalWindow } from "@/components/ui/terminal-window"
+```
 
+```tsx
 <TerminalWindow title="my-terminal">
   <div>Window content here</div>
 </TerminalWindow>
 ```
 
-## Props
+## Examples
+
+### With Title
+
+Display a centered title in the title bar.
+
+```tsx title="With title"
+<TerminalWindow title="~/projects/my-app">
+  <div>Terminal content</div>
+</TerminalWindow>
+```
+
+### Transparent Background
+
+Use `transparent` to remove the default dark gray background and inherit
+from the parent.
+
+```tsx title="Transparent"
+<TerminalWindow title="Preview" transparent>
+  <div>Content on transparent background</div>
+</TerminalWindow>
+```
+
+### Window Controls
+
+Pass `onClose`, `onMinimize`, and `onMaximize` callbacks to make the
+traffic light buttons interactive.
+
+```tsx title="With callbacks"
+<TerminalWindow
+  title="Editor"
+  onClose={() => console.log("close")}
+  onMinimize={() => console.log("minimize")}
+  onMaximize={() => console.log("maximize")}
+>
+  <div>Window content</div>
+</TerminalWindow>
+```
+
+### Min Width
+
+Set a minimum width for the window container.
+
+```tsx title="Min width"
+<TerminalWindow title="Wide" minWidth={600}>
+  <div>Content</div>
+</TerminalWindow>
+```
+
+## API Reference
+
+### TerminalWindow
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | -- | Content below the title bar |
-| `className` | `string` | `undefined` | Additional CSS classes |
-| `title` | `string` | `undefined` | Centered title bar text |
-| `minWidth` | `number \| string` | `undefined` | Minimum width of the window |
-| `transparent` | `boolean` | `false` | When true, the window background is transparent instead of dark gray |
-| `onClose` | `() => void` | `undefined` | Close button callback |
-| `onMinimize` | `() => void` | `undefined` | Minimize button callback |
-| `onMaximize` | `() => void` | `undefined` | Maximize button callback |
+| `children` | `ReactNode` | - | Content below the title bar |
+| `className` | `string` | - | Additional CSS classes |
+| `title` | `string` | - | Centered title bar text |
+| `minWidth` | `number \| string` | - | Minimum width of the window |
+| `transparent` | `boolean` | `false` | Remove the dark gray background |
+| `onClose` | `() => void` | - | Close button callback |
+| `onMinimize` | `() => void` | - | Minimize button callback |
+| `onMaximize` | `() => void` | - | Maximize button callback |
