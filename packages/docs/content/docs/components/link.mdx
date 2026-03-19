@@ -1,13 +1,13 @@
 ---
 title: Link
-description: Clickable hyperlink component
+description: A clickable hyperlink with configurable underline style
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import LinkDemo from '@/components/demos/link-demo'
 
-The `Link` component from `@gridland/ui` renders a clickable hyperlink in the
-terminal UI.
+A clickable hyperlink for terminal UIs with configurable underline style and
+color.
 
 <div className="my-8">
   <LinkDemo />
@@ -23,16 +23,43 @@ bunx shadcn@latest add @gridland/link
 
 ## Usage
 
-```tsx title="Example"
+```tsx
 import { Link } from "@/components/ui/link"
+```
 
+```tsx
 <Link url="https://opentui.com">Visit opentui.com</Link>
 ```
 
-## Props
+## Examples
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | Link text content |
-| `url` | `string` | Target URL |
-| `underline` | `"solid" \| "dashed" \| "dotted" \| "none"` | Underline style (default `"solid"`) |
+### Underline Styles
+
+Use the `underline` prop to change the underline rendering.
+
+```tsx title="Underline styles"
+<Link url="https://example.com" underline="solid">Solid underline</Link>
+<Link url="https://example.com" underline="dashed">Dashed underline</Link>
+<Link url="https://example.com" underline="dotted">Dotted underline</Link>
+<Link url="https://example.com" underline="none">No underline</Link>
+```
+
+### Custom Color
+
+Override the default theme color.
+
+```tsx title="Custom color"
+<Link url="https://example.com" color="#05FFA1">Green link</Link>
+<Link url="https://example.com" color="cyan">Cyan link</Link>
+```
+
+## API Reference
+
+### Link
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Link text content |
+| `url` | `string` | - | Target URL |
+| `underline` | `"solid" \| "dashed" \| "dotted" \| "none"` | `"solid"` | Underline style |
+| `color` | `string` | `theme.accent` | Link text color |
