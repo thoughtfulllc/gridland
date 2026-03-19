@@ -1,22 +1,16 @@
 ---
 title: TextInput
-description: Interactive text input field with label, prompt, validation, and multiple states
+description: A single-line text input with label, prompt, and validation
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import TextInputDemo, { TextInputPickerDemo } from '@/components/demos/text-input-demo'
 
-The `TextInput` component from `@gridland/ui` provides an interactive text input
-with label, prompt, placeholder, validation states, and controlled/uncontrolled modes.
+A single-line text input field with label, prompt prefix, placeholder, character
+count, validation states, and controlled/uncontrolled modes.
 
 <div className="my-8">
   <TextInputPickerDemo />
-</div>
-
-## Examples
-
-<div className="my-8">
-  <TextInputDemo />
 </div>
 
 <RunDemo name="text-input" />
@@ -29,9 +23,11 @@ bunx shadcn@latest add @gridland/text-input
 
 ## Usage
 
-```tsx title="Basic"
+```tsx
 import { TextInput } from "@/components/ui/text-input"
+```
 
+```tsx
 <TextInput
   label="Username"
   placeholder="enter your name"
@@ -39,7 +35,21 @@ import { TextInput } from "@/components/ui/text-input"
 />
 ```
 
-```tsx title="Controlled with validation"
+## Examples
+
+### Form
+
+Multiple inputs composed into a form with keyboard navigation.
+
+<div className="my-8">
+  <TextInputDemo />
+</div>
+
+### Controlled
+
+Use `value` and `onChange` to control the input externally.
+
+```tsx title="Controlled"
 const [value, setValue] = useState("")
 
 <TextInput
@@ -49,26 +59,94 @@ const [value, setValue] = useState("")
   onSubmit={(v) => console.log("Submitted:", v)}
   placeholder="user@example.com"
   prompt="> "
-  required
-  maxLength={50}
-  description="We'll never share your email"
-  error={value && !value.includes("@") ? "Invalid email" : undefined}
 />
 ```
 
-## Props
+### Required
+
+Show a required indicator (`*`) next to the label.
+
+```tsx title="Required"
+<TextInput
+  label="Name"
+  placeholder="enter your name"
+  prompt="> "
+  required
+/>
+```
+
+### Description
+
+Display helper text inline next to the label.
+
+```tsx title="With description"
+<TextInput
+  label="Email"
+  placeholder="user@example.com"
+  prompt="> "
+  description="We'll never share your email"
+/>
+```
+
+### Error
+
+Pass an `error` string to show a validation message. It replaces the description.
+
+```tsx title="With error"
+<TextInput
+  label="Email"
+  placeholder="user@example.com"
+  prompt="> "
+  error="This field is required"
+/>
+```
+
+### Max Length
+
+Limit input length and show a character counter when the user starts typing.
+
+```tsx title="Max length"
+<TextInput
+  label="Bio"
+  placeholder="tell us about yourself"
+  prompt="> "
+  maxLength={100}
+/>
+```
+
+### Disabled
+
+A disabled input ignores focus and keystrokes.
+
+```tsx title="Disabled"
+<TextInput
+  label="API Key"
+  placeholder="sk-..."
+  prompt="> "
+  disabled
+/>
+```
+
+## Controls
+
+- **Enter**: Submit the current value
+- **↑/↓**: Navigate between fields (when composed in a form)
+
+## API Reference
+
+### TextInput
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `label` | `string` | - | Field label shown above the input |
 | `description` | `string` | - | Helper text shown inline next to the label |
-| `error` | `string` | - | Error message (overrides description) |
-| `required` | `boolean` | `false` | Shows required indicator on label |
-| `disabled` | `boolean` | `false` | Disables the input |
+| `error` | `string` | - | Error message — overrides description when set |
+| `required` | `boolean` | `false` | Show required indicator (`*`) on the label |
+| `disabled` | `boolean` | `false` | Disable the input |
 | `value` | `string` | - | Controlled value |
 | `onChange` | `(value: string) => void` | - | Called on every keystroke |
-| `onSubmit` | `(value: string) => void` | - | Called on Enter key |
-| `placeholder` | `string` | - | Placeholder text |
-| `prompt` | `string` | - | Prompt string before the input |
-| `focus` | `boolean` | `true` | Whether the input is focused |
-| `maxLength` | `number` | - | Maximum input length |
+| `onSubmit` | `(value: string) => void` | - | Called when Enter is pressed |
+| `placeholder` | `string` | - | Hint text shown when the input is empty |
+| `prompt` | `string` | - | Prompt string before the input (e.g. `"> "`) |
+| `focus` | `boolean` | `true` | Whether the input is focused and accepting keystrokes |
+| `maxLength` | `number` | - | Maximum characters allowed (shows counter when typing) |
