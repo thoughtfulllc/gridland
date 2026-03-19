@@ -1,12 +1,15 @@
 ---
 title: Chain of Thought
-description: A collapsible component that visualizes AI reasoning steps with animated progress indicators, descriptions, and output content.
+description: A collapsible component that visualizes AI reasoning steps with animated progress indicators
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import ChainOfThoughtDemo, { ChainOfThoughtCollapsedDemo, ChainOfThoughtExpandedDemo, ChainOfThoughtWithOutputDemo } from '@/components/demos/chain-of-thought-demo'
 
-The `ChainOfThought` component provides a visual representation of an AI's reasoning process, showing step-by-step thinking with animated circle-filling spinners, status indicators, and optional output content. It helps users understand how AI arrives at conclusions.
+A collapsible compound component that visualizes AI reasoning steps with
+animated circle-filling spinners, status indicators, and optional output
+content. SDK-agnostic — works with any provider that exposes thinking/reasoning
+data.
 
 <div className="my-8">
   <ChainOfThoughtDemo />
@@ -20,24 +23,7 @@ The `ChainOfThought` component provides a visual representation of an AI's reaso
 bunx shadcn@latest add @gridland/chain-of-thought
 ```
 
-## Features
-
-- Collapsible interface with expand/collapse arrow indicator
-- Step-by-step visualization of AI reasoning process
-- Animated circle-filling spinner for active steps (○ ◔ ◑ ◕ ●)
-- Support for four step statuses: done, running, pending, error
-- Description text for secondary detail on each step
-- Output content rendered below steps with pipe gutter
-- Controlled and uncontrolled open state
-- Context-aware sub-components using React Context API
-- Composable compound component architecture
-- Self-contained animation per step (no unnecessary re-renders)
-- Fully typed with TypeScript
-- Compatible with Vercel AI SDK `ReasoningPart` via the `Step` data type
-
 ## Usage
-
-### Collapsed
 
 ```tsx
 import {
@@ -46,7 +32,25 @@ import {
   ChainOfThoughtContent,
   ChainOfThoughtStep,
 } from "@/components/ui/chain-of-thought"
+```
 
+```tsx
+<ChainOfThought defaultOpen>
+  <ChainOfThoughtHeader duration="3.2s" />
+  <ChainOfThoughtContent>
+    <ChainOfThoughtStep label="Reading files" status="done" />
+    <ChainOfThoughtStep label="Planning changes" status="running" isLast />
+  </ChainOfThoughtContent>
+</ChainOfThought>
+```
+
+## Examples
+
+### Collapsed
+
+The default state is collapsed — only the header is visible.
+
+```tsx title="Collapsed"
 <ChainOfThought>
   <ChainOfThoughtHeader duration="3.2s" />
   <ChainOfThoughtContent>
@@ -61,7 +65,9 @@ import {
 
 ### Expanded
 
-```tsx
+Pass `defaultOpen` to start expanded. Steps show their status indicators.
+
+```tsx title="Expanded"
 <ChainOfThought defaultOpen>
   <ChainOfThoughtHeader duration="4.3s">Build pipeline</ChainOfThoughtHeader>
   <ChainOfThoughtContent>
@@ -77,9 +83,11 @@ import {
   <ChainOfThoughtExpandedDemo />
 </div>
 
-### Step output
+### Step Output
 
-```tsx
+Pass children to a step to render output content below it with a pipe gutter.
+
+```tsx title="With output"
 <ChainOfThought defaultOpen>
   <ChainOfThoughtHeader duration="2.1s" />
   <ChainOfThoughtContent>
@@ -96,35 +104,78 @@ import {
   <ChainOfThoughtWithOutputDemo />
 </div>
 
-## Props
+### Custom Header
 
-### `<ChainOfThought />`
+Pass children to the header to replace the default "Thought for" label.
+
+```tsx title="Custom header"
+<ChainOfThought defaultOpen>
+  <ChainOfThoughtHeader duration="1.8s">Analyzing code</ChainOfThoughtHeader>
+  <ChainOfThoughtContent>
+    <ChainOfThoughtStep label="Parsing AST" status="done" isLast />
+  </ChainOfThoughtContent>
+</ChainOfThought>
+```
+
+### Controlled
+
+Use `open` and `onOpenChange` to control the collapsed state externally.
+
+```tsx title="Controlled"
+const [open, setOpen] = useState(false)
+
+<ChainOfThought open={open} onOpenChange={setOpen}>
+  <ChainOfThoughtHeader duration="3.2s" />
+  <ChainOfThoughtContent>
+    <ChainOfThoughtStep label="Thinking" status="done" isLast />
+  </ChainOfThoughtContent>
+</ChainOfThought>
+```
+
+## Compound Components
+
+| Component | Description |
+|-----------|-------------|
+| `ChainOfThought` | Root container with collapsible state |
+| `ChainOfThoughtHeader` | Expand/collapse arrow with label and duration |
+| `ChainOfThoughtContent` | Content wrapper — renders `null` when collapsed |
+| `ChainOfThoughtStep` | Individual step with status dot, label, and optional output |
+
+## API Reference
+
+### ChainOfThought
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `open` | `boolean` | - | Controlled open state of the collapsible |
-| `defaultOpen` | `boolean` | `false` | Default open state when uncontrolled |
-| `onOpenChange` | `(open: boolean) => void` | - | Callback when the open state changes |
-| `children` | `ReactNode` | - | Compose sub-components inside |
+| `open` | `boolean` | - | Controlled open state |
+| `defaultOpen` | `boolean` | `false` | Default open state (uncontrolled) |
+| `onOpenChange` | `(open: boolean) => void` | - | Called when the open state changes |
+| `children` | `ReactNode` | - | Sub-components |
 
-### `<ChainOfThoughtHeader />`
+### ChainOfThoughtHeader
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `duration` | `string` | - | Duration string shown after the label (e.g. `"3.2s"`) |
 | `children` | `ReactNode` | `"Thought for"` | Custom header text |
 
-### `<ChainOfThoughtStep />`
+### ChainOfThoughtContent
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Steps to render when open |
+
+### ChainOfThoughtStep
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `label` | `string` | - | The main text label for the step |
-| `description` | `string` | - | Optional description text shown dimmed after the label |
-| `status` | `"done" \| "running" \| "pending" \| "error"` | `"done"` | Visual status of the step |
-| `isLast` | `boolean` | `false` | Hides the vertical pipe connector below |
-| `children` | `ReactNode` | - | Output content rendered below the step with a pipe gutter |
+| `label` | `string` | - | Primary label for the step |
+| `description` | `string` | - | Secondary detail shown dimmed after the label |
+| `status` | `"done" \| "running" \| "pending" \| "error"` | `"done"` | Step status |
+| `isLast` | `boolean` | `false` | Hide the vertical pipe connector below |
+| `children` | `ReactNode` | - | Output content rendered below the step |
 
-#### Status indicators
+### Status Indicators
 
 | Status | Dot | Color | Style |
 |--------|-----|-------|-------|
