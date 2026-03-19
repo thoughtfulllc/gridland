@@ -1,13 +1,13 @@
 ---
 title: StatusBar
-description: Horizontal bar displaying keybinding hints
+description: A horizontal bar displaying keybinding hints
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import StatusBarDemo from '@/components/demos/status-bar-demo'
 
-The `StatusBar` component from `@gridland/ui` renders a horizontal bar that
-displays keybinding hints showing key combinations and their associated actions.
+A horizontal bar that displays keybinding hints with key labels and
+descriptions. Commonly placed at the bottom of a view.
 
 <div className="my-8">
   <StatusBarDemo />
@@ -23,9 +23,11 @@ bunx shadcn@latest add @gridland/status-bar
 
 ## Usage
 
-```tsx title="Example"
+```tsx
 import { StatusBar } from "@/components/ui/status-bar"
+```
 
+```tsx
 <StatusBar
   items={[
     { key: "Tab", label: "switch focus" },
@@ -34,16 +36,45 @@ import { StatusBar } from "@/components/ui/status-bar"
 />
 ```
 
-## Props
+## Examples
+
+### Multiple Items
+
+```tsx title="Multiple keybindings"
+<StatusBar
+  items={[
+    { key: "↑↓", label: "navigate" },
+    { key: "Enter", label: "select" },
+    { key: "Esc", label: "cancel" },
+    { key: "q", label: "quit" },
+  ]}
+/>
+```
+
+### With Extra Content
+
+Render custom inline content to the left of the hints. A dim `│` separator
+appears between the extra content and the keybinding items.
+
+```tsx title="With extra"
+<StatusBar
+  items={[{ key: "←→", label: "change type" }]}
+  extra={<span style={textStyle({ fg: theme.accent, bold: true })}>dots</span>}
+/>
+```
+
+## API Reference
+
+### StatusBar
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `items` | `StatusBarItem[]` | -- | Array of keybinding hints to display |
-| `extra` | `ReactNode` | `undefined` | Optional inline content rendered left of the hints (must be `<span>` or string) |
+| `items` | `StatusBarItem[]` | - | Array of keybinding hints to display |
+| `extra` | `ReactNode` | - | Inline content rendered left of the hints (must be `<span>` or string) |
 
 ### StatusBarItem
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `key` | `string` | Key or key combination text |
+| `key` | `string` | Key or key combination text (e.g. `"Tab"`, `"←→"`) |
 | `label` | `string` | Description of what the key does |
