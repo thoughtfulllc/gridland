@@ -8,7 +8,7 @@ export { Ascii } from "./ascii/ascii"
 export type { AsciiProps } from "./ascii/ascii"
 
 export { Spinner } from "./spinner/spinner"
-export type { SpinnerProps, SpinnerVariant } from "./spinner/spinner"
+export type { SpinnerProps, SpinnerVariant, SpinnerStatus } from "./spinner/spinner"
 
 export { SpinnerPicker, SpinnerShowcase } from "./spinner/spinner-showcase"
 export type { SpinnerPickerProps } from "./spinner/spinner-showcase"
