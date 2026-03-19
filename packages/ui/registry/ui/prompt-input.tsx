@@ -13,7 +13,7 @@ import { textStyle } from "./text-style"
 import { useTheme } from "./theme"
 import { useKeyboardContext } from "./provider"
 
-/** Chat status matching Vercel AI SDK's useChat status pattern. */
+/** Chat lifecycle status. Compatible with any AI SDK. */
 export type ChatStatus = "ready" | "submitted" | "streaming" | "error"
 
 export interface Suggestion {
@@ -21,13 +21,13 @@ export interface Suggestion {
   desc?: string
 }
 
-/** Message shape passed to onSubmit — mirrors `sendMessage({ text })` from Vercel AI SDK. */
+/** Message shape passed to onSubmit. */
 export interface PromptInputMessage {
   text: string
 }
 
 // ============================================================================
-// Provider (lifted state — mirrors ai-element PromptInputProvider)
+// Provider (lifted state)
 // ============================================================================
 
 export interface TextInputContext {
@@ -145,9 +145,9 @@ export interface PromptInputProps {
   defaultValue?: string
   /**
    * Called when user submits a message.
-   * Receives `{ text }` to match Vercel AI SDK's `sendMessage({ text })`.
-   * If the handler returns a Promise, input is cleared on resolve and
-   * preserved on reject so the user can retry.
+   * Receives `{ text }`. Compatible with Vercel AI SDK's `sendMessage` and
+   * easily mapped to any other SDK. If the handler returns a Promise, input
+   * is cleared on resolve and preserved on reject so the user can retry.
    */
   onSubmit?: (message: PromptInputMessage) => void | Promise<void>
   /** Callback when input value changes */

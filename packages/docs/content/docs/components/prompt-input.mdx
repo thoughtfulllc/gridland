@@ -37,15 +37,16 @@ import { useKeyboard } from "@gridland/utils"
 />
 ```
 
-## Usage with AI SDK
+## Usage with AI SDKs
 
-The `onSubmit` signature matches Vercel AI SDK's `sendMessage({ text })`, so you
-can pass it through directly.
+`onSubmit` receives `{ text: string }`. Map it to your SDK of choice.
 
-```tsx title="AI SDK integration"
+### Vercel AI SDK
+
+Direct pass-through — `sendMessage` accepts `{ text }` natively.
+
+```tsx title="Vercel AI SDK"
 import { useChat } from "@ai-sdk/react"
-import { PromptInput } from "@/components/ui/prompt-input"
-import { useKeyboard } from "@gridland/utils"
 
 const { status, sendMessage, stop } = useChat({ /* transport config */ })
 
@@ -53,6 +54,48 @@ const { status, sendMessage, stop } = useChat({ /* transport config */ })
   status={status}
   onSubmit={sendMessage}
   onStop={stop}
+  useKeyboard={useKeyboard}
+/>
+```
+
+### Anthropic SDK
+
+```tsx title="Anthropic SDK"
+const [status, setStatus] = useState<ChatStatus>("ready")
+
+<PromptInput
+  status={status}
+  onSubmit={async (msg) => {
+    setStatus("submitted")
+    const stream = anthropic.messages.stream({
+      model: "claude-sonnet-4-20250514",
+      messages: [...history, { role: "user", content: msg.text }],
+    })
+    setStatus("streaming")
+    for await (const event of stream) { /* handle deltas */ }
+    setStatus("ready")
+  }}
+  onStop={() => { stream.abort(); setStatus("ready") }}
+  useKeyboard={useKeyboard}
+/>
+```
+
+### OpenAI SDK
+
+```tsx title="OpenAI SDK"
+<PromptInput
+  status={status}
+  onSubmit={async (msg) => {
+    setStatus("submitted")
+    const stream = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [...history, { role: "user", content: msg.text }],
+      stream: true,
+    })
+    setStatus("streaming")
+    for await (const chunk of stream) { /* handle deltas */ }
+    setStatus("ready")
+  }}
   useKeyboard={useKeyboard}
 />
 ```
@@ -244,7 +287,7 @@ function MyCustomStatus() {
 |------|------|---------|-------------|
 | `value` | `string` | - | Controlled input value |
 | `defaultValue` | `string` | `""` | Default value for uncontrolled mode |
-| `onSubmit` | `(message: { text: string }) => void \| Promise<void>` | - | Called on submit. Matches AI SDK `sendMessage({ text })`. |
+| `onSubmit` | `(message: { text: string }) => void \| Promise<void>` | - | Called on submit. Clears on resolve, preserves on reject. |
 | `onChange` | `(text: string) => void` | - | Called when input value changes |
 | `placeholder` | `string` | `"Type a message..."` | Placeholder text when empty |
 | `prompt` | `string` | `"❯ "` | Prompt character before input |
