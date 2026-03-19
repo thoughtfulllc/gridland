@@ -1,13 +1,13 @@
 ---
 title: Ascii
-description: ASCII art text rendering with font styles
+description: ASCII art text rendering with multiple font styles
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import AsciiDemo from '@/components/demos/ascii-demo'
 
-The `Ascii` component from `@gridland/ui` renders text as ASCII art using
-various font styles.
+Renders text as large ASCII art using the `<ascii-font>` OpenTUI intrinsic.
+Supports multiple font styles and custom colors.
 
 <div className="my-8">
   <AsciiDemo />
@@ -23,16 +23,42 @@ bunx shadcn@latest add @gridland/ascii
 
 ## Usage
 
-```tsx title="Example"
+```tsx
 import { Ascii } from "@/components/ui/ascii"
+```
 
+```tsx
 <Ascii text="Hello" font="slick" color="#88c0d0" />
 ```
 
-## Props
+## Examples
+
+### Fonts
+
+Use the `font` prop to change the ASCII art style.
+
+```tsx title="Font styles"
+<Ascii text="Hello" font="tiny" />
+<Ascii text="Hello" font="block" />
+<Ascii text="Hello" font="slick" />
+<Ascii text="Hello" font="shade" />
+```
+
+### Custom Color
+
+Override the default theme color.
+
+```tsx title="Custom color"
+<Ascii text="Hello" font="slick" color="#05FFA1" />
+<Ascii text="Hello" font="block" color="cyan" />
+```
+
+## API Reference
+
+### Ascii
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `text` | `string` | - | Text to render as ASCII art |
 | `font` | `"tiny" \| "block" \| "slick" \| "shade"` | - | ASCII font style |
-| `color` | `string` | - | Foreground color |
+| `color` | `string` | `theme.primary` | Foreground color |
