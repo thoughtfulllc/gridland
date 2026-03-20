@@ -7,7 +7,8 @@ let _renderer: CliRenderer
 
 function DemoShell({ children }: { children: ReactNode }) {
   useKeyboard((event) => {
-    if (event.name === "q" || event.name === "escape") {
+    if (event.defaultPrevented) return
+    if (event.name === "escape") {
       _renderer.destroy()
     }
   })
