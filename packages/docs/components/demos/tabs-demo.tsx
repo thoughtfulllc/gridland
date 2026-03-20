@@ -2,7 +2,7 @@
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { TabBarApp } from "../../../../demos/tabs"
+import { TabBarApp } from "@demos/tabs"
 import { Tabs, TabsList, TabsTrigger, TabsContent, StatusBar, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@gridland/utils"
 

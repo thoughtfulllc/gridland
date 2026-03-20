@@ -1,4 +1,5 @@
 // @ts-nocheck
+"use client"
 import { useKeyboard } from "@gridland/utils"
 import { Spinner, Table, MultiSelect } from "@gridland/ui"
 

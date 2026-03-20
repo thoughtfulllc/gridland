@@ -3,16 +3,19 @@ title: Focus & Navigation
 description: Unified focus, keyboard routing, and pointer events
 ---
 
-import FocusDemo from '@/components/demos/focus-demo'
-import PointerDemo from '@/components/demos/pointer-demo'
-import CursorHighlightDemo from '@/components/demos/cursor-highlight-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { FocusApp } from '@demos/focus'
+import { PointerApp } from '@demos/pointer'
+import { CursorHighlightApp } from '@demos/cursor-highlight'
 
 ## Overview
 
 Gridland provides a unified input system where focus, keyboard routing, mouse/pointer events, and tab navigation work identically in both terminal and web runtimes.
 
 <div className="my-8">
-  <FocusDemo />
+  <DemoWindow title="Focus & Navigation" tuiStyle={{ width: "100%", height: 340 }}>
+    <FocusApp />
+  </DemoWindow>
 </div>
 
 Two focus layers exist:
@@ -120,7 +123,9 @@ function GlobalShortcut() {
 ## Pointer Events
 
 <div className="my-8">
-  <PointerDemo />
+  <DemoWindow title="Pointer Events" tuiStyle={{ width: "100%", height: 280 }}>
+    <PointerApp />
+  </DemoWindow>
 </div>
 
 Intrinsic elements support mouse event props:
@@ -185,7 +190,9 @@ function CopyButton({ text }) {
 ## Cursor Highlight
 
 <div className="my-8">
-  <CursorHighlightDemo />
+  <DemoWindow title="Cursor Highlight" tuiStyle={{ width: "100%", height: 260 }} cursorHighlight>
+    <CursorHighlightApp />
+  </DemoWindow>
 </div>
 
 Show a visual highlight on the cell under the mouse cursor:

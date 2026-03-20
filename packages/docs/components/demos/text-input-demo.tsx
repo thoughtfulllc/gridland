@@ -2,7 +2,7 @@
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { TextInputApp } from "../../../../demos/text-input"
+import { TextInputApp } from "@demos/text-input"
 import { TextInput, StatusBar, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@gridland/utils"
 

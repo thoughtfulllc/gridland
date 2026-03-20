@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { MessageApp } from "../../../../demos/message"
+import { MessageApp } from "@demos/message"
 
 export default function MessageDemo() {
   return (

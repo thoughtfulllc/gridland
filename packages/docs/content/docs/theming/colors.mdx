@@ -4,7 +4,8 @@ description: Customize colors across your Gridland UI components with built-in t
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout'
-import ThemingDemo from '@/components/demos/theming-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { ThemingApp } from '@demos/theming'
 import { DarkThemeDisplay, LightThemeDisplay } from '@/components/ui/color-palette'
 
 Gridland UI uses semantic color tokens to theme all components. A `Theme` is a flat object with 11 hex values.
@@ -13,7 +14,9 @@ Gridland UI uses semantic color tokens to theme all components. A `Theme` is a f
   Without a `ThemeProvider`, all components fall back to the built-in dark theme.
 </Callout>
 
-<ThemingDemo />
+<DemoWindow title="Theming" tuiStyle={{ width: "100%", height: 380 }}>
+  <ThemingApp />
+</DemoWindow>
 
 ## Quick Start
 

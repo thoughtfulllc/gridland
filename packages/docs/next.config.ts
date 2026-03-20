@@ -31,6 +31,7 @@ const nextConfig: NextConfig = {
       "@gridland/web": path.resolve(pkgRoot, "src/index.ts"),
       "opentui-ui": path.resolve(__dirname, "../ui/components/index.ts"),
       "@gridland/ui": path.resolve(__dirname, "../ui/components/index.ts"),
+      "@demos": path.resolve(__dirname, "../../demos"),
 
       // react-reconciler — resolve from web's dependency tree
       "react-reconciler": path.resolve(pkgRoot, "node_modules/react-reconciler"),

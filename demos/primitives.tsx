@@ -1,4 +1,5 @@
 // @ts-nocheck
+"use client"
 
 export function PrimitivesApp() {
   return (

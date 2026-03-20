@@ -40,6 +40,9 @@
       ],
       "@gridland/ui": [
         "../ui/components/index.ts"
+      ],
+      "@demos/*": [
+        "../../demos/*"
       ]
     }
   },

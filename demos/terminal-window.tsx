@@ -1,4 +1,5 @@
 // @ts-nocheck
+"use client"
 import { textStyle, useTheme } from "@gridland/ui"
 
 export function TerminalWindowApp() {

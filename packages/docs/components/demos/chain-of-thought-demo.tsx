@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { ChainOfThoughtApp } from "../../../../demos/chain-of-thought"
+import { ChainOfThoughtApp } from "@demos/chain-of-thought"
 import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep } from "@gridland/ui"
 
 export default function ChainOfThoughtDemo() {

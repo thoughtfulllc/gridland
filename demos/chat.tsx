@@ -1,4 +1,5 @@
 // @ts-nocheck
+"use client"
 import { useState, useCallback, useRef } from "react"
 import { useKeyboard } from "@gridland/utils"
 import { ChatPanel } from "@gridland/ui"

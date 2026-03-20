@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { SpinnerApp } from "../../../../demos/spinner"
+import { SpinnerApp } from "@demos/spinner"
 import { Spinner, SpinnerShowcase } from "@gridland/ui"
 
 export default function SpinnerPickerDemo() {

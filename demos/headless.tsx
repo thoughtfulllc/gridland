@@ -1,4 +1,5 @@
 // @ts-nocheck
+"use client"
 import { Table } from "@gridland/ui"
 
 const data = [

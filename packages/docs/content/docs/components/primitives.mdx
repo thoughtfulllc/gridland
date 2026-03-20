@@ -5,13 +5,16 @@ description: Built-in JSX elements for terminal UI rendering
 
 import { Callout } from 'fumadocs-ui/components/callout'
 import { RunDemo } from '@/components/ui/run-demo'
-import PrimitivesDemo from '@/components/demos/primitives-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { PrimitivesApp } from '@demos/primitives'
 
 Gridland uses JSX intrinsic elements that map to renderable components in the opentui engine.
 These are used inside `<TUI>`.
 
 <div className="my-8">
-  <PrimitivesDemo />
+  <DemoWindow title="Primitives" tuiStyle={{ width: "100%", height: 200 }}>
+    <PrimitivesApp />
+  </DemoWindow>
 </div>
 
 <RunDemo name="primitives" />

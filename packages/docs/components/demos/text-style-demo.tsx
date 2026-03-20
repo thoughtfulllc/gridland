@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { TextStyleApp } from "../../../../demos/text-style"
+import { TextStyleApp } from "@demos/text-style"
 import { textStyle, useTheme } from "@gridland/ui"
 
 export default function TextStyleDemo() {

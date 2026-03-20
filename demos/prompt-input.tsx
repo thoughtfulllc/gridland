@@ -1,4 +1,5 @@
 // @ts-nocheck
+"use client"
 import { useState } from "react"
 import { useKeyboard } from "@gridland/utils"
 import { PromptInput, StatusBar, Modal, SelectInput, textStyle, useTheme } from "@gridland/ui"

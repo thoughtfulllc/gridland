@@ -4,13 +4,16 @@ description: A horizontal bar displaying keybinding hints
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
-import StatusBarDemo from '@/components/demos/status-bar-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { StatusBarApp } from '@demos/status-bar'
 
 A horizontal bar that displays keybinding hints with key labels and
 descriptions. Commonly placed at the bottom of a view.
 
 <div className="my-8">
-  <StatusBarDemo />
+  <DemoWindow title="StatusBar" tuiStyle={{ width: "100%", height: 80 }}>
+    <StatusBarApp />
+  </DemoWindow>
 </div>
 
 <RunDemo name="status-bar" />
