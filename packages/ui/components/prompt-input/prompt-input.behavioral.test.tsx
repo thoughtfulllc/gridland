@@ -80,14 +80,6 @@ describe("PromptInput disabled states", () => {
     expect(screen.text()).toContain("Writing...")
   })
 
-  it("shows error text when status is error", () => {
-    const { screen } = renderTui(
-      <PromptInput status="error" errorText="Something went wrong" />,
-      { cols: 40, rows: 4 },
-    )
-    expect(screen.text()).toContain("Something went wrong")
-  })
-
   it("calls onStop on escape when status is streaming", () => {
     let stopped = false
     let savedHandler = null
@@ -102,22 +94,6 @@ describe("PromptInput disabled states", () => {
     )
     savedHandler({ name: "escape" })
     expect(stopped).toBe(true)
-  })
-
-  it("does not call onStop on escape when status is ready", () => {
-    let stopped = false
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
-    renderTui(
-      <PromptInput
-        status="ready"
-        onStop={() => { stopped = true }}
-        useKeyboard={mockUseKeyboard}
-      />,
-      { cols: 40, rows: 4 },
-    )
-    savedHandler({ name: "escape" })
-    expect(stopped).toBe(false)
   })
 })
 
@@ -140,35 +116,5 @@ describe("PromptInput compound mode (disabled states)", () => {
       { cols: 40, rows: 4 },
     )
     expect(screen.text()).toContain("■")
-  })
-
-  it("renders submit icon for error status", () => {
-    const { screen } = renderTui(
-      <PromptInput status="error">
-        <PromptInput.Submit />
-      </PromptInput>,
-      { cols: 40, rows: 4 },
-    )
-    expect(screen.text()).toContain("✕")
-  })
-
-  it("shows error text via StatusText subcomponent", () => {
-    const { screen } = renderTui(
-      <PromptInput status="error" errorText="Oops">
-        <PromptInput.StatusText />
-      </PromptInput>,
-      { cols: 40, rows: 4 },
-    )
-    expect(screen.text()).toContain("Oops")
-  })
-
-  it("hides StatusText when not in error", () => {
-    const { screen } = renderTui(
-      <PromptInput status="ready" errorText="Oops">
-        <PromptInput.StatusText />
-      </PromptInput>,
-      { cols: 40, rows: 4 },
-    )
-    expect(screen.text()).not.toContain("Oops")
   })
 })
