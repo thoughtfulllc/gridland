@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
-import { BrowserTextBuffer } from "../browser-text-buffer"
-import { RGBA } from "../core-shims/rgba"
+import { BrowserTextBuffer } from "./browser-text-buffer"
+import { RGBA } from "./core-shims/rgba"
 
 describe("BrowserTextBuffer", () => {
   it("creates via factory", () => {

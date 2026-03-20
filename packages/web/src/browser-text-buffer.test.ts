@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test"
-import { BrowserTextBuffer } from "../browser-text-buffer"
+import { BrowserTextBuffer } from "./browser-text-buffer"
 import { RGBA } from "@gridland/utils"
 
 describe("BrowserTextBuffer", () => {

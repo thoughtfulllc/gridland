@@ -2,12 +2,12 @@
 
 exports[`PromptInput snapshots renders default state 1`] = `
 "────────────────────────────────────────
-❯ ▍ Type a message...
+ ❯ ▍ Type a message...
 ────────────────────────────────────────"
 `;
 
 exports[`PromptInput snapshots renders disabled state 1`] = `
 "────────────────────────────────────────
-❯ Generating...
+ ❯ Generating...
 ────────────────────────────────────────"
 `;

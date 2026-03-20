@@ -1,7 +1,7 @@
-import { describe, it, expect } from "bun:test"
-import { BrowserTextBuffer } from "../browser-text-buffer"
-import { BrowserTextBufferView } from "../browser-text-buffer-view"
-import { RGBA } from "@gridland/utils"
+import { describe, it, expect } from "vitest"
+import { BrowserTextBuffer } from "./browser-text-buffer"
+import { BrowserTextBufferView } from "./browser-text-buffer-view"
+import { RGBA } from "./core-shims/rgba"
 
 describe("BrowserTextBufferView", () => {
   function createView(text: string) {

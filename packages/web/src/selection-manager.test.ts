@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test"
-import { SelectionManager } from "../selection-manager"
-import { BrowserBuffer } from "../browser-buffer"
+import { SelectionManager } from "./selection-manager"
+import { BrowserBuffer } from "./browser-buffer"
 import { RGBA } from "@gridland/utils"
 
 const white = RGBA.fromValues(1, 1, 1, 1)

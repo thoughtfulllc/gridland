@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test"
-import { BrowserBuffer } from "../browser-buffer"
-import { bufferToText } from "../buffer-to-text"
+import { BrowserBuffer } from "./browser-buffer"
+import { bufferToText } from "./buffer-to-text"
 import { RGBA } from "@gridland/utils"
 
 const transparent = RGBA.fromValues(0, 0, 0, 0)

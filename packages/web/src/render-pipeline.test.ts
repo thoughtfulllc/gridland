@@ -1,5 +1,5 @@
 import { describe, it, expect, mock } from "bun:test"
-import { executeRenderPipeline } from "../render-pipeline"
+import { executeRenderPipeline } from "./render-pipeline"
 
 describe("executeRenderPipeline", () => {
   function createMockBuffer() {

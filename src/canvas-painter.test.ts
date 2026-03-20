@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest"
-import { CanvasPainter } from "../canvas-painter"
-import { BrowserBuffer } from "../browser-buffer"
-import { RGBA } from "../core-shims/rgba"
+import { CanvasPainter } from "./canvas-painter"
+import { BrowserBuffer } from "./browser-buffer"
+import { RGBA } from "./core-shims/rgba"
 
 function createMockCtx() {
   const calls: { method: string; args: any[] }[] = []

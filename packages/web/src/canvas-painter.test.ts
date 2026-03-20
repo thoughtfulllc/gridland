@@ -1,6 +1,6 @@
 import { describe, it, expect, mock } from "bun:test"
-import { CanvasPainter } from "../canvas-painter"
-import { BrowserBuffer } from "../browser-buffer"
+import { CanvasPainter } from "./canvas-painter"
+import { BrowserBuffer } from "./browser-buffer"
 import { RGBA } from "@gridland/utils"
 
 function createMockCtx() {

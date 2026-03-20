@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test"
-import { HeadlessRenderer, setHeadlessRootRenderableClass } from "../headless-renderer"
+import { HeadlessRenderer, setHeadlessRootRenderableClass } from "./headless-renderer"
 
 // A minimal mock RootRenderable for testing
 class MockRootRenderable {

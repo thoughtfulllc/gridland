@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test"
-import { isBrowser, isCanvasSupported, calculateGridSize } from "../utils"
+import { isBrowser, isCanvasSupported, calculateGridSize } from "./utils"
 
 describe("utils", () => {
   it("isBrowser returns boolean", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "bun:test"
-import { BrowserRenderContext } from "../browser-render-context"
+import { BrowserRenderContext } from "./browser-render-context"
 
 describe("BrowserRenderContext hit-grid", () => {
   let ctx: BrowserRenderContext

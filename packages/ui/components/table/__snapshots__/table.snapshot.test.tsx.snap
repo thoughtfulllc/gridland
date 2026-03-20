@@ -1,1 +1,34 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Table snapshots renders a compound table 1`] = `
+"
+  name      role       status
+ ─────────────────────────────
+  Alice     Engineer   Active
+ ─────────────────────────────
+  Bob       Designer   Active
+ ─────────────────────────────
+  Charlie   PM         Away"
+`;
+
+exports[`Table snapshots renders a Table 1`] = `
+"
+  name      role       status
+ ─────────────────────────────
+  Alice     Engineer   Active
+ ─────────────────────────────
+  Bob       Designer   Active
+ ─────────────────────────────
+  Charlie   PM         Away"
+`;
+
+exports[`Table snapshots renders with footer and caption 1`] = `
+"Recent invoices
+ item     amount
+─────────────────
+ Widget   $10
+─────────────────
+ Total    $10"
+`;
+
+exports[`Table snapshots renders with empty data 1`] = `""`;

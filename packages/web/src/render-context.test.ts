@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test"
-import { BrowserRenderContext, BrowserKeyHandler, BrowserInternalKeyHandler } from "../browser-render-context"
+import { BrowserRenderContext, BrowserKeyHandler, BrowserInternalKeyHandler } from "./browser-render-context"
 
 describe("BrowserRenderContext", () => {
   it("creates with dimensions", () => {
