@@ -13,9 +13,7 @@ interface ClearRect {
 interface MatrixBackgroundProps {
   width: number
   height: number
-  /** Rectangular area to exclude from matrix rendering */
-  clearRect?: ClearRect
-  /** Additional rectangular areas to exclude */
+  /** Rectangular areas to exclude from matrix rendering */
   clearRects?: ClearRect[]
 }
 
@@ -39,7 +37,7 @@ function colorForCell(mutedColors: string[], b: number): string {
   return mutedColors[idx]
 }
 
-export function MatrixBackground({ width, height, clearRect, clearRects }: MatrixBackgroundProps) {
+export function MatrixBackground({ width, height, clearRects }: MatrixBackgroundProps) {
   const { grid, brightness } = useMatrix(width, height)
   const theme = useTheme()
 
@@ -60,14 +58,11 @@ export function MatrixBackground({ width, height, clearRect, clearRects }: Matri
       {grid.map((row, y) => (
         <text key={y}>
           {row.map((cell, x) => {
-            const inClearRect = (clearRect &&
-              y >= clearRect.top && y < clearRect.top + clearRect.height &&
-              x >= clearRect.left && x < clearRect.left + clearRect.width) ||
-              (clearRects && clearRects.some(r =>
-                y >= r.top && y < r.top + r.height &&
-                x >= r.left && x < r.left + r.width
-              ))
             const mutedColors = columnMutedColors[x]
+            const inClearRect = clearRects?.some(r =>
+              y >= r.top && y < r.top + r.height &&
+              x >= r.left && x < r.left + r.width
+            )
             if (cell === " " || inClearRect || !mutedColors) {
               return <span key={x}>{" "}</span>
             }

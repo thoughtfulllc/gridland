@@ -16,6 +16,7 @@
     "docs:build": "bun run --cwd packages/docs build",
     "dev:next": "bun run --cwd examples/next-example dev",
     "demo": "node packages/demo/bin/cli.mjs",
+    "demo:dev": "bun run --cwd packages/demo build && node packages/demo/bin/cli.mjs",
     "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
     "setup": "bun install && bun run build"
   },
