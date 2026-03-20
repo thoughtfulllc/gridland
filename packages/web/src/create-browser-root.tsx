@@ -5,6 +5,7 @@ import { BrowserContext } from "./browser-context"
 import { _render } from "../../core/src/react/reconciler/reconciler"
 import { AppContext } from "../../core/src/react/components/app"
 import { ErrorBoundary as _ErrorBoundary } from "../../core/src/react/components/error-boundary"
+import { RuntimeProvider } from "../../core/src/react/runtime/runtime-context"
 
 // Cast needed: ErrorBoundary uses opentui's JSX intrinsics internally,
 // which causes a type conflict with React's JSX types during DTS builds.
@@ -21,11 +22,13 @@ export function createBrowserRoot(renderer: BrowserRenderer): BrowserRoot {
   return {
     render(node: ReactNode) {
       const element = (
-        <BrowserContext.Provider value={{ renderContext: renderer.renderContext }}>
-          <AppContext.Provider value={{ keyHandler: renderer.renderContext.keyInput as any, renderer: renderer.renderContext as any }}>
-            <ErrorBoundary>{node}</ErrorBoundary>
-          </AppContext.Provider>
-        </BrowserContext.Provider>
+        <RuntimeProvider value="web">
+          <BrowserContext.Provider value={{ renderContext: renderer.renderContext }}>
+            <AppContext.Provider value={{ keyHandler: renderer.renderContext.keyInput as any, renderer: renderer.renderContext as any }}>
+              <ErrorBoundary>{node}</ErrorBoundary>
+            </AppContext.Provider>
+          </BrowserContext.Provider>
+        </RuntimeProvider>
       )
       unmountFn = _render(element, renderer.root)
     },

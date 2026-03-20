@@ -1,4 +1,4 @@
 {
   "title": "Guides",
-  "pages": ["vite", "nextjs", "custom", "compile-binary", "components", "testing", "sandboxing", "ssr-for-agents"]
+  "pages": ["vite", "nextjs", "custom", "compile-binary", "components", "testing", "sandboxing", "ssr-for-agents", "focus-and-navigation"]
 }

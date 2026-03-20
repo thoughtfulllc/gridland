@@ -228,6 +228,10 @@ export abstract class Renderable extends BaseRenderable {
   private _sizeChangeListener: (() => void) | undefined = undefined
   private _mouseListener: ((event: MouseEvent) => void) | null = null
   private _mouseListeners: Partial<Record<MouseEventType, (event: MouseEvent) => void>> = {}
+  public _clickHandler: ((event: MouseEvent) => void) | undefined = undefined
+  private _clickMouseDownHandler: ((event: MouseEvent) => void) | undefined = undefined
+  private _clickMouseUpHandler: ((event: MouseEvent) => void) | undefined = undefined
+  private _clickPending: boolean = false
   private _pasteListener: ((event: PasteEvent) => void) | undefined = undefined
   private _keyListeners: Partial<Record<"down", (key: KeyEvent) => void>> = {}
 
@@ -1521,6 +1525,40 @@ export abstract class Renderable extends BaseRenderable {
   public set onMouseScroll(handler: ((event: MouseEvent) => void) | undefined) {
     if (handler) this._mouseListeners["scroll"] = handler
     else delete this._mouseListeners["scroll"]
+  }
+
+  public set onClick(handler: ((event: MouseEvent) => void) | undefined) {
+    if (handler) {
+      this._clickHandler = handler
+      // Set up mouseDown/mouseUp pair for click synthesis, composing with existing handlers
+      const existingDown = this._mouseListeners["down"]
+      const existingUp = this._mouseListeners["up"]
+      this._clickMouseDownHandler = (e: MouseEvent) => {
+        this._clickPending = true
+        existingDown?.call(this, e)
+      }
+      this._clickMouseUpHandler = (e: MouseEvent) => {
+        if (this._clickPending) {
+          this._clickPending = false
+          handler.call(this, e)
+        }
+        existingUp?.call(this, e)
+      }
+      this._mouseListeners["down"] = this._clickMouseDownHandler
+      this._mouseListeners["up"] = this._clickMouseUpHandler
+    } else {
+      this._clickHandler = undefined
+      // Restore original handlers if they existed
+      if (this._clickMouseDownHandler) {
+        delete this._mouseListeners["down"]
+        this._clickMouseDownHandler = undefined
+      }
+      if (this._clickMouseUpHandler) {
+        delete this._mouseListeners["up"]
+        this._clickMouseUpHandler = undefined
+      }
+      this._clickPending = false
+    }
   }
 
   public set onPaste(handler: ((event: PasteEvent) => void) | undefined) {

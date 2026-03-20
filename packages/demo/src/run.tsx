@@ -32,3 +32,9 @@ export async function runDemo(name: string) {
 }
 
 export { demos }
+
+// CLI entry point
+const name = process.argv[2]
+if (name) {
+  runDemo(name)
+}

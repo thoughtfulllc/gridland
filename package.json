@@ -1,7 +1,10 @@
 {
   "name": "gridland-monorepo",
   "private": true,
-  "workspaces": ["packages/*", "examples/*"],
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
   "scripts": {
     "build": "bun run --cwd packages/utils build && bun run --cwd packages/bun build && bun run --cwd packages/web build && bun run --cwd packages/ui build && bun run --cwd packages/ui build:registry && bun run --cwd packages/testing build && bun run --cwd packages/create-gridland build && bun run --cwd packages/demo build && bun run --cwd packages/docs build",
     "test": "bun run --cwd packages/web test && bun run --cwd packages/ui test && bun run --cwd packages/testing test && bun run --cwd packages/create-gridland test && bun run --cwd packages/create-gridland test:e2e && bun run --cwd packages/container test && bun run --cwd packages/container test:e2e && bun run --cwd packages/demo test",
@@ -10,6 +13,8 @@
     "test:e2e:update": "playwright test --update-snapshots",
     "test:e2e:ui": "playwright test --ui",
     "ui:build": "bun run --cwd packages/ui build && bun run --cwd packages/ui build:registry",
+    "demo": "bun packages/demo/src/run.tsx",
+    "demo:dev": "bun run --cwd packages/demo build && bun packages/demo/src/run.tsx",
     "dev": "bun run --cwd packages/docs dev",
     "chat:dev": "bun run --cwd packages/chat-worker dev",
     "chat:deploy": "bun run --cwd packages/chat-worker deploy",

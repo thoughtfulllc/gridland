@@ -803,6 +803,298 @@ export function ChatApp() {
   )
 }
 
+// ── Pointer Events Demo ───────────────────────────────────────────────────
+
+const pointerColors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6"]
+const pointerColorNames = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple"]
+
+function HoverBox() {
+  const [hovering, setHovering] = useState(false)
+  return (
+    <box
+      border
+      borderStyle="rounded"
+      borderColor={hovering ? "#22c55e" : "#555"}
+      width={20}
+      height={5}
+      onMouseOver={() => setHovering(true)}
+      onMouseOut={() => setHovering(false)}
+    >
+      <box padding={1}>
+        <text style={{ fg: hovering ? "#22c55e" : "#888", bold: hovering }}>
+          {hovering ? "Mouse inside!" : "Hover me"}
+        </text>
+      </box>
+    </box>
+  )
+}
+
+export function PointerApp() {
+  const [selected, setSelected] = useState<number | null>(null)
+  const [clickCount, setClickCount] = useState(0)
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
+
+  const selectedRef = useRef<number | null>(null)
+  const clickCountRef = useRef(0)
+  selectedRef.current = selected
+  clickCountRef.current = clickCount
+
+  useKeyboard((event) => {
+    const cur = selectedRef.current ?? -1
+    if (event.name === "right" || event.name === "tab") {
+      const next = (cur + 1) % pointerColors.length
+      selectedRef.current = next
+      setSelected(next)
+    } else if (event.name === "left") {
+      const next = (cur - 1 + pointerColors.length) % pointerColors.length
+      selectedRef.current = next
+      setSelected(next)
+    }
+    event.preventDefault()
+  })
+
+  return (
+    <box flexDirection="column" flexGrow={1} padding={1}>
+      <box flexDirection="row" gap={1}>
+        {pointerColors.map((color, i) => (
+          <box
+            key={color}
+            flexGrow={1}
+            height={3}
+            border
+            borderStyle="rounded"
+            borderColor={i === selected ? color : "#555"}
+            onMouseDown={(e: any) => {
+              clickCountRef.current++
+              setClickCount(clickCountRef.current)
+              selectedRef.current = i
+              setSelected(i)
+              setMousePos({ x: e.x, y: e.y })
+            }}
+          >
+            <text style={{ fg: color, bold: i === selected }}>
+              {i === selected ? `▸ ${pointerColorNames[i]}` : ` ${pointerColorNames[i]}`}
+            </text>
+          </box>
+        ))}
+      </box>
+      <box height={1} />
+      <box flexDirection="row" gap={2}>
+        <HoverBox />
+        <box flexDirection="column" flexGrow={1} paddingTop={1}>
+          <text style={{ fg: selected !== null ? pointerColors[selected] : "#888" }}>
+            {selected !== null ? `Clicked ${pointerColorNames[selected]}` : "Click a color"}
+            {clickCount > 0 ? `  (${clickCount} clicks)` : ""}
+          </text>
+          <text style={{ dim: true, fg: "#888" }}>
+            {mousePos ? `mouse: ${mousePos.x}, ${mousePos.y}` : ""}
+          </text>
+        </box>
+      </box>
+      <box paddingX={1} paddingBottom={1}>
+        <StatusBar items={[
+          { key: "click", label: "select" },
+          { key: "←→", label: "keyboard nav" },
+          { key: "q", label: "quit" },
+        ]} />
+      </box>
+    </box>
+  )
+}
+
+// ── Cursor Highlight Demo ────────────────────────────────────────────────
+
+export function CursorHighlightApp() {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
+
+  return (
+    <box
+      flexDirection="column"
+      flexGrow={1}
+      onMouseMove={(e: any) => {
+        setPos({ x: e.x, y: e.y })
+      }}
+    >
+      <box flexDirection="column" flexGrow={1} padding={1}>
+        <text style={{ bold: true, fg: "#fff" }}>Cursor Highlight</text>
+        <text style={{ dim: true, fg: "#888" }}>Move your mouse over the grid</text>
+        <box height={1} />
+        <box flexDirection="column">
+          {Array.from({ length: 6 }, (_, row) => (
+            <text key={row}>
+              {Array.from({ length: 40 }, (_, col) => {
+                const isEven = (row + col) % 2 === 0
+                return (
+                  <span key={col} style={{
+                    fg: isEven ? "#3b82f6" : "#8b5cf6",
+                    dim: !isEven,
+                  }}>
+                    {isEven ? "░░" : "▓▓"}
+                  </span>
+                )
+              })}
+            </text>
+          ))}
+        </box>
+      </box>
+      <box paddingX={1} paddingBottom={1}>
+        <StatusBar
+          items={[{ key: "q", label: "quit" }]}
+          extra={
+            <span>
+              <span style={textStyle({ bold: true, fg: "#1e1e2e", bg: "#888" })}>{" x "}</span>
+              <span style={textStyle({ dim: true, fg: "#888" })}>{` ${pos ? String(pos.x).padStart(3) : "  -"} `}</span>
+              <span style={textStyle({ bold: true, fg: "#1e1e2e", bg: "#888" })}>{" y "}</span>
+              <span style={textStyle({ dim: true, fg: "#888" })}>{` ${pos ? String(pos.y).padStart(3) : "  -"}`}</span>
+            </span>
+          }
+        />
+      </box>
+    </box>
+  )
+}
+
+// ── Focus Navigation Demo ─────────────────────────────────────────────────
+
+const focusPanels = [
+  {
+    label: "Language",
+    items: [
+      { label: "TypeScript", value: "ts" },
+      { label: "JavaScript", value: "js" },
+      { label: "Python", value: "py" },
+    ],
+  },
+  {
+    label: "Framework",
+    items: [
+      { label: "React", value: "react" },
+      { label: "Vue", value: "vue" },
+      { label: "Svelte", value: "svelte" },
+    ],
+  },
+  {
+    label: "Runtime",
+    items: [
+      { label: "Bun", value: "bun" },
+      { label: "Node", value: "node" },
+      { label: "Deno", value: "deno" },
+    ],
+  },
+]
+
+export function FocusApp() {
+  const [panelIndex, setPanelIndex] = useState(0)
+  const [entered, setEntered] = useState(false)
+  const [cursors, setCursors] = useState([0, 0, 0])
+  const [selections, setSelections] = useState<(string | null)[]>([null, null, null])
+
+  const panelRef = useRef(0)
+  const enteredRef = useRef(false)
+  const cursorsRef = useRef([0, 0, 0])
+  panelRef.current = panelIndex
+  enteredRef.current = entered
+  cursorsRef.current = cursors
+
+  useKeyboard((event) => {
+    const pi = panelRef.current
+    if (enteredRef.current) {
+      const items = focusPanels[pi].items
+      const cur = cursorsRef.current[pi]
+      if (event.name === "down" || event.name === "j") {
+        const next = (cur + 1) % items.length
+        cursorsRef.current = [...cursorsRef.current]
+        cursorsRef.current[pi] = next
+        setCursors([...cursorsRef.current])
+      } else if (event.name === "up" || event.name === "k") {
+        const next = (cur - 1 + items.length) % items.length
+        cursorsRef.current = [...cursorsRef.current]
+        cursorsRef.current[pi] = next
+        setCursors([...cursorsRef.current])
+      } else if (event.name === "return") {
+        const selected = items[cursorsRef.current[pi]].label
+        setSelections((s) => { const n = [...s]; n[pi] = selected; return n })
+        enteredRef.current = false
+        setEntered(false)
+      } else if (event.name === "escape") {
+        enteredRef.current = false
+        setEntered(false)
+      }
+    } else {
+      if (event.name === "right" || event.name === "tab") {
+        const next = (pi + 1) % focusPanels.length
+        panelRef.current = next
+        setPanelIndex(next)
+      } else if (event.name === "left") {
+        const next = (pi - 1 + focusPanels.length) % focusPanels.length
+        panelRef.current = next
+        setPanelIndex(next)
+      } else if (event.name === "return") {
+        enteredRef.current = true
+        setEntered(true)
+      }
+    }
+    event.preventDefault()
+  })
+
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <box flexDirection="row" gap={1} padding={1} flexGrow={1}>
+        {focusPanels.map((panel, i) => {
+          const focused = i === panelIndex
+          const active = focused && entered
+          const selected = selections[i]
+          return (
+            <box
+              key={panel.label}
+              border
+              borderStyle="rounded"
+              borderColor={active ? "#22c55e" : focused ? "#3b82f6" : "#555"}
+              flexGrow={1}
+            >
+              <box flexDirection="column" padding={1}>
+                <text style={{
+                  fg: active ? "#22c55e" : focused ? "#3b82f6" : "#888",
+                  bold: focused,
+                }}>
+                  {focused ? "▸ " : "  "}{panel.label}
+                  {selected ? `: ${selected}` : ""}
+                </text>
+                {(active || (!entered && focused)) && (
+                  <>
+                    <box height={1} />
+                    <box flexDirection="column">
+                      {panel.items.map((item, j) => {
+                        const highlighted = active && j === cursors[i]
+                        return (
+                          <text key={item.value} style={{
+                            fg: highlighted ? "#22c55e" : active ? "#ccc" : "#666",
+                            bold: highlighted,
+                          }}>
+                            {highlighted ? " ▸ " : "   "}{item.label}
+                          </text>
+                        )
+                      })}
+                    </box>
+                  </>
+                )}
+              </box>
+            </box>
+          )
+        })}
+      </box>
+      <box paddingX={1} paddingBottom={1}>
+        <StatusBar
+          items={entered
+            ? [{ key: "↑↓", label: "select" }, { key: "enter", label: "confirm" }, { key: "esc", label: "back" }, { key: "q", label: "quit" }]
+            : [{ key: "←→", label: "navigate" }, { key: "enter", label: "select" }, { key: "tab", label: "next" }, { key: "q", label: "quit" }]
+          }
+        />
+      </box>
+    </box>
+  )
+}
+
 // ── Demo registry ─────────────────────────────────────────────────────────
 
 export interface Demo {
@@ -828,5 +1120,8 @@ export const demos: Demo[] = [
   { name: "chain-of-thought", app: () => <ChainOfThoughtApp /> },
   { name: "message", app: () => <MessageApp /> },
   { name: "terminal-window", app: () => <TerminalWindowApp /> },
+  { name: "focus", app: () => <FocusApp /> },
+  { name: "pointer", app: () => <PointerApp /> },
+  { name: "cursor-highlight", app: () => <CursorHighlightApp /> },
   { name: "landing", app: () => <LandingApp useKeyboard={useKeyboard} /> },
 ]

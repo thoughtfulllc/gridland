@@ -1,0 +1,218 @@
+---
+title: Focus & Navigation
+description: Unified focus, keyboard routing, and pointer events
+---
+
+import FocusDemo from '@/components/demos/focus-demo'
+import PointerDemo from '@/components/demos/pointer-demo'
+import CursorHighlightDemo from '@/components/demos/cursor-highlight-demo'
+
+## Overview
+
+Gridland provides a unified input system where focus, keyboard routing, mouse/pointer events, and tab navigation work identically in both terminal and web runtimes.
+
+<div className="my-8">
+  <FocusDemo />
+</div>
+
+Two focus layers exist:
+
+1. **Renderable-level** — `Renderable.focus()/blur()` subscribes to keyboard events. Used by intrinsic elements (`<input>`, `<select>`).
+2. **React-level** — `FocusContext` tracks which React component is focused, handles tab order, and scopes. Built on top of the Renderable layer.
+
+## useFocus
+
+Register a component as focusable and track its focus state.
+
+```tsx
+import { useFocus } from "@gridland/utils"
+
+function MyComponent() {
+  const { isFocused, focus, blur, focusId } = useFocus({
+    id: "my-component",    // optional, auto-generated if omitted
+    tabIndex: 0,           // default 0. -1 = skip tab order
+    autoFocus: false,      // focus on mount
+    disabled: false,       // skip in tab order
+  })
+
+  return (
+    <box border borderColor={isFocused ? "green" : "gray"}>
+      <text>{isFocused ? "I'm focused!" : "Click or tab to me"}</text>
+    </box>
+  )
+}
+```
+
+### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `id` | `string` | auto-generated | Unique identifier for this focusable |
+| `tabIndex` | `number` | `0` | Tab order. `-1` to skip tab navigation |
+| `autoFocus` | `boolean` | `false` | Focus immediately on mount |
+| `disabled` | `boolean` | `false` | Skip in tab order when true |
+
+## Tab Navigation
+
+Both **Tab/Shift+Tab** and **Up/Down arrows** navigate between focusable components. Left/Right arrows do not navigate by default (commonly used by text inputs).
+
+**Arrow key conflict resolution:** When a focused component handles arrow keys internally (e.g., SelectInput cycling options), it calls `event.preventDefault()` in its keyboard handler. The FocusProvider checks `event.defaultPrevented` before navigating.
+
+## FocusScope
+
+Trap focus within a boundary, useful for modals and menus.
+
+```tsx
+import { FocusScope } from "@gridland/utils"
+
+function MyModal({ onClose }) {
+  return (
+    <FocusScope trap autoFocus restoreOnUnmount>
+      <TextInput label="Name" />
+      <TextInput label="Email" />
+      <button onClick={onClose}>Close</button>
+    </FocusScope>
+  )
+}
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `trap` | `boolean` | `false` | Prevent Tab from leaving the scope |
+| `autoFocus` | `boolean` | `false` | Focus first element on mount |
+| `restoreOnUnmount` | `boolean` | `true` | Restore previous focus on unmount |
+
+## Keyboard Routing
+
+The `useKeyboard` hook supports focus-aware routing:
+
+```tsx
+import { useKeyboard } from "@gridland/utils"
+import { useFocus } from "@gridland/utils"
+
+function FocusAwareComponent() {
+  const { focusId } = useFocus()
+
+  // Only fires when this component is focused
+  useKeyboard((e) => {
+    if (e.name === "return") handleSubmit()
+  }, { focusId })
+}
+
+function GlobalShortcut() {
+  // Always fires regardless of focus
+  useKeyboard((e) => {
+    if (e.ctrl && e.name === "q") quit()
+  }, { global: true })
+}
+```
+
+### Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `focusId` | `string` | Only fire when this ID is focused |
+| `global` | `boolean` | Always fire regardless of focus |
+| `release` | `boolean` | Include key release events |
+
+## Pointer Events
+
+<div className="my-8">
+  <PointerDemo />
+</div>
+
+Intrinsic elements support mouse event props:
+
+```tsx
+<box
+  onMouseDown={(e) => console.log("down", e.x, e.y)}
+  onMouseUp={(e) => console.log("up")}
+  onClick={(e) => console.log("clicked!")}
+  onMouseOver={(e) => console.log("hover")}
+  onMouseOut={(e) => console.log("left")}
+  onMouseScroll={(e) => console.log("scroll")}
+>
+  <text>Interactive box</text>
+</box>
+```
+
+`onClick` is a synthetic event that fires when mouseDown and mouseUp occur on the same element.
+
+## Shortcuts & StatusBar
+
+Register keyboard shortcuts that the StatusBar can display:
+
+```tsx
+import { useShortcuts, useFocusedShortcuts } from "@gridland/utils"
+
+function MyList() {
+  const { focusId } = useFocus()
+  useShortcuts([
+    { key: "↑↓", label: "Navigate" },
+    { key: "enter", label: "Select" },
+  ], focusId)
+  // ...
+}
+
+function MyStatusBar() {
+  const shortcuts = useFocusedShortcuts()
+  return <StatusBar items={shortcuts} />
+}
+```
+
+## useRuntime
+
+Detect the current runtime for conditional behavior:
+
+```tsx
+import { useRuntime } from "@gridland/utils"
+
+function CopyButton({ text }) {
+  const runtime = useRuntime() // 'web' | 'terminal'
+
+  if (runtime !== "web") return null
+
+  return (
+    <box onClick={() => navigator.clipboard.writeText(text)}>
+      <text>Copy</text>
+    </box>
+  )
+}
+```
+
+## Cursor Highlight
+
+<div className="my-8">
+  <CursorHighlightDemo />
+</div>
+
+Show a visual highlight on the cell under the mouse cursor:
+
+```tsx
+<TUI cursorHighlight cursorHighlightOpacity={0.2}>
+  {/* Cell under mouse gets a subtle background highlight */}
+</TUI>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `cursorHighlight` | `boolean` | `false` | Enable cell highlighting |
+| `cursorHighlightColor` | `string` | gray | CSS color for highlight |
+| `cursorHighlightOpacity` | `number` | `0.15` | Opacity of highlight |
+
+## FocusProvider Setup
+
+Wrap your app with `FocusProvider` to enable the focus system. Place it inside your `GridlandProvider`:
+
+```tsx
+import { FocusProvider } from "@gridland/utils"
+import { GridlandProvider } from "@gridland/ui"
+
+<GridlandProvider theme={darkTheme} useKeyboard={useKeyboard}>
+  <FocusProvider>
+    {/* All children can use useFocus, useShortcuts, etc. */}
+  </FocusProvider>
+</GridlandProvider>
+```
