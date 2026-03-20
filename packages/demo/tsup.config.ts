@@ -22,7 +22,7 @@ export default defineConfig([
     },
     async onSuccess() {
       const { readFileSync, writeFileSync } = await import("fs")
-      const source = readFileSync(resolve(__dirname, "../ui/scripts/demo-apps.tsx"), "utf-8")
+      const source = readFileSync(resolve(__dirname, "../../demos/index.tsx"), "utf-8")
       const names: string[] = []
       for (const match of source.matchAll(/\{\s*name:\s*"([^"]+)",\s*app:/g)) {
         names.push(match[1])

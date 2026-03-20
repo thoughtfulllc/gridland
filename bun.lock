@@ -13,6 +13,15 @@
         "@types/react": "^19.2.14",
       },
     },
+    "demos": {
+      "name": "gridland-demos",
+      "dependencies": {
+        "@gridland/ui": "workspace:*",
+        "@gridland/utils": "workspace:*",
+        "figlet": "^1.10.0",
+        "react": "^19.0.0",
+      },
+    },
     "examples/container-demo": {
       "name": "container-demo",
       "dependencies": {
@@ -917,6 +926,8 @@
     "graceful-fs": ["graceful-fs@4.2.11", "", {}, "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="],
 
     "graphql": ["graphql@16.13.1", "", {}, "sha512-gGgrVCoDKlIZ8fIqXBBb0pPKqDgki0Z/FSKNiQzSGj2uEYHr1tq5wmBegGwJx6QB5S5cM0khSBpi/JFHMCvsmQ=="],
+
+    "gridland-demos": ["gridland-demos@workspace:demos"],
 
     "gridland-docs": ["gridland-docs@workspace:packages/docs"],
 

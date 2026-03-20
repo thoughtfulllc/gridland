@@ -1,7 +1,7 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVX types
+// @ts-nocheck
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { PointerApp } from "../../../ui/scripts/demo-apps"
+import { PointerApp } from "../../../../demos/pointer"
 
 export default function PointerDemo() {
   return (

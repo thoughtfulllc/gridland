@@ -1,0 +1,10 @@
+{
+  "name": "gridland-demos",
+  "private": true,
+  "dependencies": {
+    "react": "^19.0.0",
+    "@gridland/ui": "workspace:*",
+    "@gridland/utils": "workspace:*",
+    "figlet": "^1.10.0"
+  }
+}

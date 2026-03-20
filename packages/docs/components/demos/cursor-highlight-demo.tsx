@@ -1,7 +1,7 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVX types
+// @ts-nocheck
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { CursorHighlightApp } from "../../../ui/scripts/demo-apps"
+import { CursorHighlightApp } from "../../../../demos/cursor-highlight"
 
 export default function CursorHighlightDemo() {
   return (

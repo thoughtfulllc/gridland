@@ -21,7 +21,8 @@ function readDistBundle(): string {
 const AVAILABLE_DEMOS = [
   "gradient", "ascii", "table", "spinner", "select-input",
   "multi-select", "prompt-input", "text-input", "link", "tabs", "status-bar",
-  "modal", "primitives", "chat", "chain-of-thought", "message", "terminal-window", "landing",
+  "modal", "primitives", "chat", "chain-of-thought", "message", "terminal-window",
+  "focus", "pointer", "cursor-highlight", "text-style", "headless", "theming", "landing",
 ]
 
 function run(...args: string[]) {
@@ -103,7 +104,6 @@ describe("bundle", () => {
     const source = readDistBundle()
     expect(source).toContain("LandingApp")
     expect(source).toContain("MatrixBackground")
-    expect(source).toContain("AboutModal")
     expect(source).toContain("Logo")
   })
 

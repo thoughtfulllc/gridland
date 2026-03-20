@@ -1,20 +1,12 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
+// @ts-nocheck
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { Table } from "@gridland/ui"
-
-const data = [
-  { name: "Alice", role: "Engineer", status: "Active" },
-  { name: "Bob", role: "Designer", status: "Active" },
-  { name: "Charlie", role: "PM", status: "Away" },
-]
+import { HeadlessApp } from "../../../../demos/headless"
 
 export default function HeadlessDemo() {
   return (
     <DemoWindow title="Headless" tuiStyle={{ width: "100%", height: 240, borderRadius: 8 }}>
-      <box padding={1}>
-        <Table data={data} />
-      </box>
+      <HeadlessApp />
     </DemoWindow>
   )
 }
