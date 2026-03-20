@@ -174,6 +174,7 @@ describe("PromptInput behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <PromptInput
+        focus={false}
         commands={[
           { cmd: "/help", desc: "Show help" },
           { cmd: "/clear", desc: "Clear chat" },
@@ -195,6 +196,7 @@ describe("PromptInput behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <PromptInput
+        focus={false}
         commands={[
           { cmd: "/help", desc: "Show help" },
           { cmd: "/clear", desc: "Clear chat" },
@@ -217,6 +219,7 @@ describe("PromptInput behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <PromptInput
+        focus={false}
         commands={[{ cmd: "/help" }]}
         useKeyboard={mockUseKeyboard}
         onSubmit={(msg) => { submitted = msg.text }}
@@ -235,6 +238,7 @@ describe("PromptInput behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <PromptInput
+        focus={false}
         commands={[{ cmd: "/help" }]}
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
@@ -257,6 +261,7 @@ describe("PromptInput behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <PromptInput
+        focus={false}
         files={["src/index.ts", "src/auth.ts"]}
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
@@ -307,6 +312,7 @@ describe("PromptInput behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <PromptInput
+        focus={false}
         enableHistory={false}
         useKeyboard={mockUseKeyboard}
         onChange={(text) => { changed = text }}
@@ -396,6 +402,7 @@ describe("PromptInput behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <PromptInput
+        focus={false}
         status="ready"
         onStop={() => { stopped = true }}
         useKeyboard={mockUseKeyboard}
@@ -412,6 +419,7 @@ describe("PromptInput behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <PromptInput
+        focus={false}
         status="ready"
         useKeyboard={mockUseKeyboard}
         onSubmit={(msg) => { submitted = msg.text }}
@@ -430,6 +438,7 @@ describe("PromptInput behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     renderTui(
       <PromptInput
+        focus={false}
         status="error"
         useKeyboard={mockUseKeyboard}
         onSubmit={(msg) => { submitted = msg.text }}
@@ -515,7 +524,7 @@ describe("PromptInput compound mode", () => {
 
   it("shows error text via StatusText subcomponent", () => {
     const { screen } = renderTui(
-      <PromptInput status="error" errorText="Oops">
+      <PromptInput focus={false} status="error" errorText="Oops">
         <PromptInput.StatusText />
       </PromptInput>,
       { cols: 40, rows: 4 },
