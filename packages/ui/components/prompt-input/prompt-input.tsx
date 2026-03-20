@@ -614,11 +614,104 @@ export function PromptInput({
     }
   }
 
-  // ── Keyboard handler (Escape→onStop when input is disabled) ────────────
+  // ── Keyboard handler ───────────────────────────────────────────────────
+  // When focused, <input> handles text input; useKeyboard only handles Escape→onStop.
+  // When not focused (no <input> rendered), useKeyboard provides full keyboard fallback
+  // for character input, suggestions, and history (used in tests and unfocused state).
 
   useKeyboard?.((event: any) => {
+    // Escape during submitted/streaming calls onStop (always active)
     if (event.name === "escape" && (status === "streaming" || status === "submitted") && onStop) {
       onStop()
+      return
+    }
+
+    // When <input> is rendered, it handles everything else
+    if (isFocused) return
+
+    if (disabled) return
+
+    if (event.name === "return") {
+      if (suggestionsRef.current.length > 0) {
+        const sel = suggestionsRef.current[sugIdxRef.current]
+        if (sel) {
+          if (valueRef.current.startsWith("/")) {
+            updateValue("")
+            if (enableHistory) {
+              setHist([sel.text, ...historyRef.current])
+            }
+            setHistI(-1)
+            handleSubmit(sel.text)
+          } else {
+            const base = valueRef.current.slice(0, valueRef.current.lastIndexOf("@"))
+            updateValue(base + sel.text + " ")
+            setSug([])
+          }
+        }
+      } else {
+        const trimmed = valueRef.current.trim()
+        if (!trimmed) return
+        if (enableHistory) {
+          setHist([trimmed, ...historyRef.current])
+        }
+        updateValue("")
+        setHistI(-1)
+        handleSubmit(trimmed)
+      }
+      return
+    }
+
+    if (event.name === "tab" && suggestionsRef.current.length > 0) {
+      setSugI((sugIdxRef.current + 1) % suggestionsRef.current.length)
+      return
+    }
+
+    if (event.name === "up") {
+      if (suggestionsRef.current.length > 0) {
+        setSugI(Math.max(0, sugIdxRef.current - 1))
+      } else if (enableHistory && historyRef.current.length > 0) {
+        const idx = Math.min(historyRef.current.length - 1, histIdxRef.current + 1)
+        setHistI(idx)
+        updateValue(historyRef.current[idx]!)
+      }
+      return
+    }
+
+    if (event.name === "down") {
+      if (suggestionsRef.current.length > 0) {
+        setSugI(Math.min(suggestionsRef.current.length - 1, sugIdxRef.current + 1))
+      } else if (enableHistory && histIdxRef.current > 0) {
+        const nextIdx = histIdxRef.current - 1
+        setHistI(nextIdx)
+        updateValue(historyRef.current[nextIdx]!)
+      } else if (enableHistory && histIdxRef.current === 0) {
+        setHistI(-1)
+        updateValue("")
+      }
+      return
+    }
+
+    if (event.name === "escape") {
+      if (suggestionsRef.current.length > 0) {
+        setSug([])
+      }
+      return
+    }
+
+    if (event.name === "backspace" || event.name === "delete") {
+      updateValue(valueRef.current.slice(0, -1))
+      return
+    }
+
+    if (event.ctrl || event.meta) return
+
+    if (event.name === "space") {
+      updateValue(valueRef.current + " ")
+      return
+    }
+
+    if (event.name && event.name.length === 1) {
+      updateValue(valueRef.current + event.name)
     }
   })
 

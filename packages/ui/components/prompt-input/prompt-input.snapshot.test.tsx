@@ -8,7 +8,7 @@ afterEach(() => cleanup())
 describe("PromptInput snapshots", () => {
   it("renders default state", () => {
     const { screen } = renderTui(
-      <PromptInput placeholder="Type a message..." />,
+      <PromptInput focus={false} placeholder="Type a message..." />,
       { cols: 40, rows: 4 },
     )
     expect(screen.text()).toMatchSnapshot()
