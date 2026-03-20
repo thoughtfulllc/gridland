@@ -22,7 +22,7 @@ const TableContext = createContext<TableContextValue | null>(null)
 
 function useTableContext() {
   const ctx = useContext(TableContext)
-  if (!ctx) throw new Error("Table compound components must be used within <Table>")
+  if (!ctx) throw new Error("Table compound components must be used within <TableRoot>")
   return ctx
 }
 
@@ -108,16 +108,16 @@ function getTotalWidth(columnWidths: number[]): number {
   return columnWidths.reduce((sum, w) => sum + w, 0) + (columnWidths.length - 1)
 }
 
-// ── Table (root) ─────────────────────────────────────────────────────────
+// ── TableRoot (compound root) ────────────────────────────────────────────
 
-export interface TableProps {
+export interface TableRootProps {
   children: ReactNode
   padding?: number
   headerColor?: string
   borderColor?: string
 }
 
-export function Table({ children, padding = 1, headerColor, borderColor }: TableProps) {
+export function TableRoot({ children, padding = 1, headerColor, borderColor }: TableRootProps) {
   const theme = useTheme()
   const resolvedHeaderColor = headerColor ?? theme.foreground
   const resolvedBorderColor = borderColor ?? theme.muted
@@ -300,9 +300,9 @@ export function TableCaption({ children }: TableCaptionProps) {
   )
 }
 
-// ── SimpleTable (data-driven convenience wrapper) ────────────────────────
+// ── Table (data-driven convenience wrapper) ────────────────────────
 
-export interface SimpleTableProps<T extends ScalarDict> {
+export interface TableProps<T extends ScalarDict> {
   data: T[]
   columns?: (keyof T)[]
   padding?: number
@@ -310,17 +310,17 @@ export interface SimpleTableProps<T extends ScalarDict> {
   borderColor?: string
 }
 
-export function SimpleTable<T extends ScalarDict>({
+export function Table<T extends ScalarDict>({
   data,
   columns: columnsProp,
   padding = 1,
   headerColor,
   borderColor,
-}: SimpleTableProps<T>) {
+}: TableProps<T>) {
   const cols = getColumns(data, columnsProp)
 
   return (
-    <Table padding={padding} headerColor={headerColor} borderColor={borderColor}>
+    <TableRoot padding={padding} headerColor={headerColor} borderColor={borderColor}>
       <TableHeader>
         <TableRow>
           {cols.map((col) => (
@@ -339,6 +339,6 @@ export function SimpleTable<T extends ScalarDict>({
           </TableRow>
         ))}
       </TableBody>
-    </Table>
+    </TableRoot>
   )
 }

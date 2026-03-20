@@ -10,7 +10,7 @@ import {
   TableHead,
   TableCell,
   TableCaption,
-  SimpleTable,
+  Table,
 } from "./table"
 
 afterEach(() => cleanup())
@@ -51,7 +51,7 @@ describe("Table snapshots", () => {
     expect(screen.text()).toMatchSnapshot()
   })
 
-  it("renders a SimpleTable", () => {
+  it("renders a Table", () => {
     const data = [
       { name: "Alice", role: "Engineer", status: "Active" },
       { name: "Bob", role: "Designer", status: "Active" },
@@ -59,7 +59,7 @@ describe("Table snapshots", () => {
     ]
     const { screen } = renderTui(
       <box padding={1}>
-        <SimpleTable data={data} headerColor="cyan" borderColor="#5e81ac" />
+        <Table data={data} headerColor="cyan" borderColor="#5e81ac" />
       </box>,
       { cols: 60, rows: 12 },
     )
@@ -96,7 +96,7 @@ describe("Table snapshots", () => {
 
   it("renders with empty data", () => {
     const { screen } = renderTui(
-      <SimpleTable data={[]} />,
+      <Table data={[]} />,
       { cols: 40, rows: 6 },
     )
     expect(screen.text()).toMatchSnapshot()

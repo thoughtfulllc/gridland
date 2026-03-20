@@ -2,7 +2,7 @@
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
 import {
-  Table,
+  TableRoot,
   TableHeader,
   TableBody,
   TableRow,
@@ -14,7 +14,7 @@ export default function TableDemo() {
   return (
     <DemoWindow title="Table" tuiStyle={{ width: "100%", height: 240 }}>
       <box padding={1}>
-        <Table>
+        <TableRoot>
           <TableHeader>
             <TableRow>
               <TableHead>name</TableHead>
@@ -39,7 +39,7 @@ export default function TableDemo() {
               <TableCell>Away</TableCell>
             </TableRow>
           </TableBody>
-        </Table>
+        </TableRoot>
       </box>
     </DemoWindow>
   )

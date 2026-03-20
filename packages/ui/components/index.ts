@@ -24,6 +24,7 @@ export type { MultiSelectProps, MultiSelectItem } from "./multi-select/multi-sel
 
 export {
   Table,
+  TableRoot,
   TableHeader,
   TableBody,
   TableFooter,
@@ -31,13 +32,13 @@ export {
   TableHead,
   TableCell,
   TableCaption,
-  SimpleTable,
   getColumns,
   calculateColumnWidths,
   padCell,
 } from "./table/table"
 export type {
   TableProps,
+  TableRootProps,
   TableHeaderProps,
   TableBodyProps,
   TableFooterProps,
@@ -45,7 +46,6 @@ export type {
   TableHeadProps,
   TableCellProps,
   TableCaptionProps,
-  SimpleTableProps,
 } from "./table/table"
 
 export { Gradient, GRADIENTS, generateGradient, hexToRgb, rgbToHex } from "./gradient/gradient"

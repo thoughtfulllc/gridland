@@ -1,7 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { Spinner, SimpleTable, MultiSelect } from "@gridland/ui"
+import { Spinner, Table, MultiSelect } from "@gridland/ui"
 import { useKeyboard } from "@gridland/utils"
 
 const tableData = [
@@ -19,7 +19,7 @@ function ThemingApp() {
   return (
     <box flexDirection="column" padding={1} gap={1} flexGrow={1}>
       <Spinner text="Loading data..." />
-      <SimpleTable data={tableData} />
+      <Table data={tableData} />
       <MultiSelect items={selectItems} useKeyboard={useKeyboard} />
     </box>
   )
