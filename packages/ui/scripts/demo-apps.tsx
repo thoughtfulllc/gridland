@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from "react"
 import { useKeyboard } from "@gridland/utils"
 import {
   Gradient, GRADIENTS, type GradientName,
-  StatusBar, textStyle,
+  StatusBar, textStyle, useTheme,
   Table,
   Spinner, SpinnerPicker, SpinnerShowcase,
   SelectInput,
@@ -1095,6 +1095,106 @@ export function FocusApp() {
   )
 }
 
+// ── Text Style Demo ──────────────────────────────────────────────────────
+
+export function TextStyleApp() {
+  const theme = useTheme()
+  const desc = textStyle({ fg: theme.muted })
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <box flexDirection="column" padding={1} gap={0} flexGrow={1}>
+        <text>
+          <span style={textStyle({ fg: theme.foreground, bold: true })}>bold          </span>
+          <span style={desc}>textStyle({"{"} bold: true {"}"})</span>
+        </text>
+        <text>
+          <span style={textStyle({ fg: theme.foreground, dim: true })}>dim           </span>
+          <span style={desc}>textStyle({"{"} dim: true {"}"})</span>
+        </text>
+        <text>
+          <span style={textStyle({ fg: theme.foreground, italic: true })}>italic        </span>
+          <span style={desc}>textStyle({"{"} italic: true {"}"})</span>
+        </text>
+        <text>
+          <span style={textStyle({ fg: theme.foreground, underline: true })}>underline     </span>
+          <span style={desc}>textStyle({"{"} underline: true {"}"})</span>
+        </text>
+        <text>
+          <span style={textStyle({ inverse: true })}>inverse       </span>
+          <span style={desc}>textStyle({"{"} inverse: true {"}"})</span>
+        </text>
+        <text> </text>
+        <text>
+          <span style={textStyle({ fg: theme.primary })}>fg color      </span>
+          <span style={desc}>textStyle({"{"} fg: theme.primary {"}"})</span>
+        </text>
+        <text>
+          <span style={textStyle({ fg: theme.foreground, bg: theme.secondary })}>bg color      </span>
+          <span style={desc}>textStyle({"{"} fg: theme.foreground, bg: theme.secondary {"}"})</span>
+        </text>
+        <text> </text>
+        <text>
+          <span style={textStyle({ fg: theme.accent, bold: true, underline: true })}>combined      </span>
+          <span style={desc}>textStyle({"{"} fg: theme.accent, bold: true, underline: true {"}"})</span>
+        </text>
+      </box>
+      <box paddingX={1} paddingBottom={1}>
+        <StatusBar items={[{ key: "q", label: "quit" }]} />
+      </box>
+    </box>
+  )
+}
+
+// ── Headless Demo ────────────────────────────────────────────────────────
+
+export function HeadlessApp() {
+  const data = [
+    { name: "Alice", role: "Engineer", status: "Active" },
+    { name: "Bob", role: "Designer", status: "Active" },
+    { name: "Charlie", role: "PM", status: "Away" },
+  ]
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <box padding={1} flexGrow={1}>
+        <Table data={data} />
+      </box>
+      <box paddingX={1} paddingBottom={1}>
+        <StatusBar items={[{ key: "q", label: "quit" }]} />
+      </box>
+    </box>
+  )
+}
+
+// ── Theming Demo ─────────────────────────────────────────────────────────
+
+export function ThemingApp() {
+  const tableData = [
+    { name: "Alice", role: "Engineer", status: "Active" },
+    { name: "Bob", role: "Designer", status: "Away" },
+  ]
+  const selectItems = [
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+    { label: "Python", value: "py" },
+  ]
+  return (
+    <box flexDirection="column" flexGrow={1}>
+      <box flexDirection="column" padding={1} gap={1} flexGrow={1}>
+        <Spinner text="Loading data..." />
+        <Table data={tableData} />
+        <MultiSelect items={selectItems} useKeyboard={useKeyboard} />
+      </box>
+      <box paddingX={1} paddingBottom={1}>
+        <StatusBar items={[
+          { key: "↑↓", label: "move" },
+          { key: "enter", label: "select" },
+          { key: "q", label: "quit" },
+        ]} />
+      </box>
+    </box>
+  )
+}
+
 // ── Demo registry ─────────────────────────────────────────────────────────
 
 export interface Demo {
@@ -1123,5 +1223,8 @@ export const demos: Demo[] = [
   { name: "focus", app: () => <FocusApp /> },
   { name: "pointer", app: () => <PointerApp /> },
   { name: "cursor-highlight", app: () => <CursorHighlightApp /> },
+  { name: "text-style", app: () => <TextStyleApp /> },
+  { name: "headless", app: () => <HeadlessApp /> },
+  { name: "theming", app: () => <ThemingApp /> },
   { name: "landing", app: () => <LandingApp useKeyboard={useKeyboard} /> },
 ]
