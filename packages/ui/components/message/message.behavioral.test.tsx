@@ -154,16 +154,13 @@ describe("Message", () => {
     expect(screen.text()).toContain("_")
   })
 
-  // ── Tool invocation ────────────────────────────────────────────────
+  // ── Tool call ───────────────────────────────────────────────────────
 
   it("renders tool call in progress", () => {
     const { screen } = renderTui(
       <Message role="assistant">
         <Message.Content>
-          <Message.ToolInvocation part={{
-            type: "tool-invocation",
-            toolInvocation: { toolCallId: "tc1", toolName: "readFile", state: "call" },
-          }} />
+          <Message.ToolCall name="readFile" state="running" />
         </Message.Content>
       </Message>,
       { cols: 50, rows: 6 },
@@ -177,10 +174,7 @@ describe("Message", () => {
     const { screen } = renderTui(
       <Message role="assistant">
         <Message.Content>
-          <Message.ToolInvocation part={{
-            type: "tool-invocation",
-            toolInvocation: { toolCallId: "tc1", toolName: "readFile", state: "result", result: "file contents here" },
-          }} />
+          <Message.ToolCall name="readFile" state="completed" result="file contents here" />
         </Message.Content>
       </Message>,
       { cols: 50, rows: 8 },
@@ -196,7 +190,7 @@ describe("Message", () => {
   it("renders reasoning header with duration", () => {
     const { screen } = renderTui(
       <Message role="assistant">
-        <Message.Reasoning part={{ type: "reasoning", duration: "120ms" }} />
+        <Message.Reasoning duration="120ms" />
         <Message.Content>
           <Message.Text>Here is the answer.</Message.Text>
         </Message.Content>
@@ -211,7 +205,7 @@ describe("Message", () => {
   it("renders collapsed reasoning with arrow", () => {
     const { screen } = renderTui(
       <Message role="assistant">
-        <Message.Reasoning part={{ type: "reasoning", collapsed: true }} />
+        <Message.Reasoning collapsed />
         <Message.Content>
           <Message.Text>Answer</Message.Text>
         </Message.Content>
@@ -224,7 +218,7 @@ describe("Message", () => {
   it("renders expanded reasoning with down arrow", () => {
     const { screen } = renderTui(
       <Message role="assistant">
-        <Message.Reasoning part={{ type: "reasoning", collapsed: false }} />
+        <Message.Reasoning collapsed={false} />
         <Message.Content>
           <Message.Text>Result</Message.Text>
         </Message.Content>
@@ -237,15 +231,14 @@ describe("Message", () => {
   it("shows step chain of thought when expanded", () => {
     const { screen } = renderTui(
       <Message role="assistant">
-        <Message.Reasoning part={{
-          type: "reasoning",
-          duration: "1.2s",
-          collapsed: false,
-          steps: [
+        <Message.Reasoning
+          duration="1.2s"
+          collapsed={false}
+          steps={[
             { tool: "Think", label: "Analyzing question", duration: "0.4s", status: "done" },
             { tool: "Search", label: "Looking up docs", duration: "0.8s", status: "done" },
-          ],
-        }} />
+          ]}
+        />
         <Message.Content>
           <Message.Text>Here is the answer.</Message.Text>
         </Message.Content>
@@ -267,10 +260,7 @@ describe("Message", () => {
       <Message role="assistant">
         <Message.Content>
           <Message.Text>Answer</Message.Text>
-          <Message.Source
-            part={{ type: "source", source: { title: "Documentation", url: "https://example.com" } }}
-            index={0}
-          />
+          <Message.Source title="Documentation" url="https://example.com" index={0} />
         </Message.Content>
       </Message>,
       { cols: 50, rows: 8 },
@@ -285,14 +275,11 @@ describe("Message", () => {
   it("renders reasoning + tool + text + source together", () => {
     const { screen } = renderTui(
       <Message role="assistant">
-        <Message.Reasoning part={{ type: "reasoning", duration: "50ms" }} />
+        <Message.Reasoning duration="50ms" />
         <Message.Content>
-          <Message.ToolInvocation part={{
-            type: "tool-invocation",
-            toolInvocation: { toolCallId: "t1", toolName: "search", state: "result", result: "found" },
-          }} />
+          <Message.ToolCall name="search" state="completed" result="found" />
           <Message.Text>Here is the answer.</Message.Text>
-          <Message.Source part={{ type: "source", source: { title: "Docs" } }} index={0} />
+          <Message.Source title="Docs" index={0} />
         </Message.Content>
       </Message>,
       { cols: 50, rows: 14 },
