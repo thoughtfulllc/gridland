@@ -5,21 +5,10 @@ import { ChatPanel } from "./chat"
 
 afterEach(() => cleanup())
 
-describe("ChatPanel snapshots", () => {
-  it("renders messages with input", () => {
-    const { screen } = renderTui(
-      <ChatPanel
-        messages={[
-          { id: "1", role: "user", content: "Hello!" },
-          { id: "2", role: "assistant", content: "Hi there!" },
-        ]}
-        onSendMessage={() => {}}
-      />,
-      { cols: 50, rows: 10 },
-    )
-    expect(screen.text()).toMatchSnapshot()
-  })
+// Note: ChatPanel uses PromptInput which uses <input> intrinsic (requires Zig FFI).
+// Only disabled states (loading/streaming/submitted) can be snapshot tested.
 
+describe("ChatPanel snapshots", () => {
   it("renders with streaming text", () => {
     const { screen } = renderTui(
       <ChatPanel

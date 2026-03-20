@@ -6,14 +6,6 @@ import { PromptInput } from "./prompt-input"
 afterEach(() => cleanup())
 
 describe("PromptInput snapshots", () => {
-  it("renders default state", () => {
-    const { screen } = renderTui(
-      <PromptInput placeholder="Type a message..." />,
-      { cols: 40, rows: 4 },
-    )
-    expect(screen.text()).toMatchSnapshot()
-  })
-
   it("renders disabled state", () => {
     const { screen } = renderTui(
       <PromptInput disabled disabledText="Generating..." />,
