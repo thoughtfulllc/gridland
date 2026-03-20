@@ -6,8 +6,8 @@ import path from "node:path"
 import os from "node:os"
 import { chromium, type Browser } from "@playwright/test"
 
-const CLI_PATH = path.resolve(__dirname, "../../dist/index.js")
-const MONOREPO_ROOT = path.resolve(__dirname, "../../../..")
+const CLI_PATH = path.resolve(__dirname, "../dist/index.js")
+const MONOREPO_ROOT = path.resolve(__dirname, "../../..")
 
 // Pre-pack local packages as tarballs so e2e tests install real npm-like
 // packages (not file: links which cause resolution issues with Vite/Rollup).

@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process"
 import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 
-const DEMO_DIR = join(import.meta.dir, "../..")
+const DEMO_DIR = join(import.meta.dir, "..")
 const CLI_PATH = join(DEMO_DIR, "bin/cli.mjs")
 const DIST_PATH = join(DEMO_DIR, "dist/run.js")
 const NAMES_PATH = join(DEMO_DIR, "dist/demo-names.json")
