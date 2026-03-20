@@ -1,40 +1,12 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
+// @ts-nocheck
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
-import { Tabs, TabsList, TabsTrigger, TabsContent, TabBar, StatusBar, textStyle, useTheme } from "@gridland/ui"
+import { TabBarApp } from "@demos/tabs"
+import { Tabs, TabsList, TabsTrigger, TabsContent, StatusBar, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@gridland/utils"
 
-// ── Simple demo (legacy TabBar API) ─────────────────────────────────────
-
-const simpleTabs = ["Files", "Search", "Git", "Debug"]
-
-function SimpleTabBarApp() {
-  const [selectedIndex, setSelectedIndex] = useState(0)
-
-  useKeyboard((event) => {
-    if (event.name === "left") {
-      setSelectedIndex((i) => (i > 0 ? i - 1 : simpleTabs.length - 1))
-    }
-    if (event.name === "right") {
-      setSelectedIndex((i) => (i < simpleTabs.length - 1 ? i + 1 : 0))
-    }
-  })
-
-  return (
-    <box flexDirection="column" flexGrow={1}>
-      <box padding={1}>
-        <TabBar options={simpleTabs} selectedIndex={selectedIndex} />
-      </box>
-      <box flexGrow={1} />
-      <box paddingX={1} paddingBottom={1}>
-        <StatusBar items={[{ key: "←→", label: "switch tab" }]} />
-      </box>
-    </box>
-  )
-}
-
-// ── Content demo (compound Tabs API) ────────────────────────────────────
+// ── Content demo (compound Tabs API, docs-only) ────────────────────────
 
 const tabFiles = ["index.ts", "config.ts", "routes.ts"]
 
@@ -138,7 +110,7 @@ function ContentTabBarApp() {
 export function TabsSimpleDemo() {
   return (
     <DemoWindow title="TabBar" tuiStyle={{ width: "100%", height: 120 }}>
-      <SimpleTabBarApp />
+      <TabBarApp />
     </DemoWindow>
   )
 }

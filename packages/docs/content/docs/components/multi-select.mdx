@@ -4,13 +4,16 @@ description: A multi-selection list with checkboxes, groups, and a submit row
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
-import MultiSelectDemo from '@/components/demos/multi-select-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { MultiSelectApp } from '@demos/multi-select'
 
 A multi-selection list with checkbox indicators, keyboard navigation, group
 headers, a submit row, and a submitted state.
 
 <div className="my-8">
-  <MultiSelectDemo />
+  <DemoWindow title="MultiSelect" tuiStyle={{ width: "100%", height: 240 }}>
+    <MultiSelectApp />
+  </DemoWindow>
 </div>
 
 <RunDemo name="multi-select" />

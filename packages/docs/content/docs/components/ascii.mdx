@@ -4,13 +4,16 @@ description: ASCII art text rendering with multiple font styles
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
-import AsciiDemo from '@/components/demos/ascii-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { AsciiApp } from '@demos/ascii'
 
 Renders text as large ASCII art using the `<ascii-font>` OpenTUI intrinsic.
 Supports multiple font styles and custom colors.
 
 <div className="my-8">
-  <AsciiDemo />
+  <DemoWindow title="Ascii" tuiStyle={{ width: "100%", height: 280 }}>
+    <AsciiApp />
+  </DemoWindow>
 </div>
 
 <RunDemo name="ascii" />

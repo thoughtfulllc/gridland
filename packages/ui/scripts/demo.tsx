@@ -1,5 +1,5 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
-import { demos } from "./demo-apps"
+import { demos } from "../../../demos/index"
 import { runDemo } from "../../demo/src/run"
 
 const name = process.argv[2]

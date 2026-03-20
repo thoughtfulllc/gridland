@@ -5,14 +5,17 @@ description: The root mounting component for Gridland
 
 import { Callout } from 'fumadocs-ui/components/callout'
 import { RunDemo } from '@/components/ui/run-demo'
-import PrimitivesDemo from '@/components/demos/primitives-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { PrimitivesApp } from '@demos/primitives'
 
 `TUI` is the single entry point for rendering TUI content to a
 canvas. It handles client detection, canvas creation, React reconciler setup,
 and automatic resizing. Gridland is built on the [opentui](https://opentui.com) engine.
 
 <div className="my-8">
-  <PrimitivesDemo />
+  <DemoWindow title="Primitives" tuiStyle={{ width: "100%", height: 200 }}>
+    <PrimitivesApp />
+  </DemoWindow>
 </div>
 
 <RunDemo name="primitives" />

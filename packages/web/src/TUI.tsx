@@ -11,6 +11,7 @@ import { CanvasPainter } from "./canvas-painter"
 import { RootRenderable } from "../../core/src/Renderable"
 import { HeadlessRenderer, setHeadlessRootRenderableClass } from "./headless-renderer"
 import { createHeadlessRoot } from "./create-headless-root"
+import { RuntimeProvider } from "../../core/src/react/runtime/runtime-context"
 
 export interface TUIProps {
   children: ReactNode
@@ -32,6 +33,12 @@ export interface TUIProps {
   fallbackCols?: number
   /** Rows to use for SSR headless render (default: 24) */
   fallbackRows?: number
+  /** Show a highlight on the cell under the mouse cursor */
+  cursorHighlight?: boolean
+  /** Color for the cursor highlight (CSS color string) */
+  cursorHighlightColor?: string
+  /** Opacity for the cursor highlight (default: 0.15) */
+  cursorHighlightOpacity?: number
 }
 
 /**
@@ -60,6 +67,9 @@ export function TUI({
   onReady,
   fallbackCols = 80,
   fallbackRows = 24,
+  cursorHighlight = false,
+  cursorHighlightColor,
+  cursorHighlightOpacity = 0.15,
 }: TUIProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -92,6 +102,9 @@ export function TUI({
     const rows = Math.max(1, Math.floor(containerRect.height / cellSize.height))
 
     const renderer = new BrowserRenderer(canvas, cols, rows, { backgroundColor })
+    renderer.renderContext.cursorHighlight = cursorHighlight
+    if (cursorHighlightColor) renderer.renderContext.cursorHighlightColor = cursorHighlightColor
+    renderer.renderContext.cursorHighlightOpacity = cursorHighlightOpacity
     rendererRef.current = renderer
 
     const root = createBrowserRoot(renderer)

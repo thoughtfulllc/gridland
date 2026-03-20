@@ -31,6 +31,7 @@ const nextConfig: NextConfig = {
       "@gridland/web": path.resolve(pkgRoot, "src/index.ts"),
       "opentui-ui": path.resolve(__dirname, "../ui/components/index.ts"),
       "@gridland/ui": path.resolve(__dirname, "../ui/components/index.ts"),
+      "@demos": path.resolve(__dirname, "../../demos"),
 
       // react-reconciler — resolve from web's dependency tree
       "react-reconciler": path.resolve(pkgRoot, "node_modules/react-reconciler"),
@@ -80,6 +81,15 @@ const nextConfig: NextConfig = {
       ...sharedAliases,
     }
 
+    // Allow imports from outside the docs package (e.g. ../../demos/) to
+    // resolve node_modules that live in the docs or root directories.
+    config.resolve.modules = [
+      ...(config.resolve.modules || []),
+      path.resolve(__dirname, "node_modules"),
+      path.resolve(pkgRoot, "node_modules"),
+      path.resolve(__dirname, "../../node_modules"),
+    ]
+
     // Slider circular dependency fix
     const renderablesDir = path.resolve(coreRoot, "src/renderables")
     config.plugins.push(
@@ -104,12 +114,7 @@ const nextConfig: NextConfig = {
         ...clientAliases,
       }
 
-      config.resolve.modules = [
-        ...(config.resolve.modules || []),
-        path.resolve(pkgRoot, "node_modules"),
-        path.resolve(pkgRoot, "../../node_modules"),
-        path.resolve(__dirname, "../../node_modules"),
-      ]
+      // Client-specific module paths already covered by shared resolve.modules above
 
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: any) => {

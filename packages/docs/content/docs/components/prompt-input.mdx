@@ -4,14 +4,17 @@ description: A chat input bar with slash commands, file mentions, and AI SDK int
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
-import PromptInputDemo from '@/components/demos/prompt-input-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { PromptInputApp } from '@demos/prompt-input'
 
 A chat input bar with slash command autocomplete, file mention suggestions,
 command history, and direct Vercel AI SDK integration. Supports both a
 self-contained default layout and a fully composable compound mode.
 
 <div className="my-8">
-  <PromptInputDemo />
+  <DemoWindow title="PromptInput" tuiStyle={{ width: "100%", height: 300 }}>
+    <PromptInputApp />
+  </DemoWindow>
 </div>
 
 <RunDemo name="prompt-input" />

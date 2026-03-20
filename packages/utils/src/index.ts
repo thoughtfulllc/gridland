@@ -62,5 +62,29 @@ export {
 // KeyEvent class and types
 export { KeyEvent, type KeyEventType } from "../../core/src/lib/KeyEvent"
 
+// Focus system
+export {
+  useFocus,
+  FocusProvider,
+  FocusScope,
+  useFocusContext,
+  useFocusScopeId,
+  useShortcuts,
+  useFocusedShortcuts,
+  type UseFocusOptions,
+  type UseFocusReturn,
+  type FocusProviderProps,
+  type FocusScopeProps,
+  type ShortcutEntry,
+} from "../../core/src/react/focus"
+
+// Runtime context
+export {
+  useRuntime,
+  RuntimeProvider,
+  type RuntimeType,
+  type RuntimeProviderProps,
+} from "../../core/src/react/runtime/runtime-context"
+
 // Browser utilities
 export { isBrowser, isCanvasSupported, calculateGridSize } from "./browser-utils"

@@ -4,14 +4,17 @@ description: A vertical chat interface with messages, tool calls, streaming, and
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
-import ChatDemo from '@/components/demos/chat-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { ChatApp } from '@demos/chat'
 
 A self-contained vertical chat interface that combines message display, tool
 call status cards, streaming text, a loading indicator, and a `PromptInput`.
 SDK-agnostic — the consumer passes messages and handles submission.
 
 <div className="my-8">
-  <ChatDemo />
+  <DemoWindow title="Chat" tuiStyle={{ width: "100%", height: 280 }}>
+    <ChatApp />
+  </DemoWindow>
 </div>
 
 <RunDemo name="chat" />

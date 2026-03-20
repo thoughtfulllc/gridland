@@ -58,6 +58,21 @@ export class BrowserInternalKeyHandler extends BrowserKeyHandler {
   }
 }
 
+export interface HitGridEntry {
+  x: number
+  y: number
+  width: number
+  height: number
+  id: number
+}
+
+interface ScissorRect {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 export class BrowserRenderContext extends EventEmitter implements RenderContext {
   private _width: number
   private _height: number
@@ -69,6 +84,15 @@ export class BrowserRenderContext extends EventEmitter implements RenderContext 
   public cursorColor: RGBA | null = null
   public cursorStyleType: CursorStyle = "block"
   public cursorBlinking: boolean = false
+
+  // Hit-grid for mouse event dispatch
+  private _hitGrid: HitGridEntry[] = []
+  private _hitGridScissorStack: ScissorRect[] = []
+
+  // Cursor highlight configuration
+  public cursorHighlight: boolean = false
+  public cursorHighlightColor: string | null = null
+  public cursorHighlightOpacity: number = 0.5
 
   // Typed as `any` for DTS compatibility — BrowserKeyHandler satisfies KeyHandler
   // at runtime but uses a different class hierarchy (EventEmitter vs opentui's KeyHandler).
@@ -118,14 +142,59 @@ export class BrowserRenderContext extends EventEmitter implements RenderContext 
     this.emit("resize", width, height)
   }
 
-  // RenderContext interface methods
-  addToHitGrid(_x: number, _y: number, _width: number, _height: number, _id: number): void {}
+  // RenderContext interface methods — hit-grid for mouse event dispatch
+  addToHitGrid(x: number, y: number, width: number, height: number, id: number): void {
+    // Apply scissor rect clipping if active
+    if (this._hitGridScissorStack.length > 0) {
+      const scissor = this._hitGridScissorStack[this._hitGridScissorStack.length - 1]
+      const clippedX = Math.max(x, scissor.x)
+      const clippedY = Math.max(y, scissor.y)
+      const clippedRight = Math.min(x + width, scissor.x + scissor.width)
+      const clippedBottom = Math.min(y + height, scissor.y + scissor.height)
+      if (clippedRight <= clippedX || clippedBottom <= clippedY) return // fully clipped
+      this._hitGrid.push({
+        x: clippedX,
+        y: clippedY,
+        width: clippedRight - clippedX,
+        height: clippedBottom - clippedY,
+        id,
+      })
+    } else {
+      this._hitGrid.push({ x, y, width, height, id })
+    }
+  }
 
-  pushHitGridScissorRect(_x: number, _y: number, _width: number, _height: number): void {}
+  pushHitGridScissorRect(x: number, y: number, width: number, height: number): void {
+    this._hitGridScissorStack.push({ x, y, width, height })
+  }
 
-  popHitGridScissorRect(): void {}
+  popHitGridScissorRect(): void {
+    this._hitGridScissorStack.pop()
+  }
 
-  clearHitGridScissorRects(): void {}
+  clearHitGridScissorRects(): void {
+    this._hitGridScissorStack.length = 0
+  }
+
+  clearHitGrid(): void {
+    this._hitGrid.length = 0
+  }
+
+  /** Walk array in reverse (last rendered = topmost), return first match */
+  hitTest(col: number, row: number): number | null {
+    for (let i = this._hitGrid.length - 1; i >= 0; i--) {
+      const entry = this._hitGrid[i]
+      if (col >= entry.x && col < entry.x + entry.width &&
+          row >= entry.y && row < entry.y + entry.height) {
+        return entry.id
+      }
+    }
+    return null
+  }
+
+  getHitGridEntries(): readonly HitGridEntry[] {
+    return this._hitGrid
+  }
 
   requestRender(): void {
     if (this._renderRequested) return

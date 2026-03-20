@@ -1,50 +1,18 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
+// @ts-nocheck
 "use client"
 import { DemoWindow } from "@/components/ui/demo-window"
+import { TextStyleApp } from "@demos/text-style"
 import { textStyle, useTheme } from "@gridland/ui"
 
-function TextStyleApp() {
-  const theme = useTheme()
-  const desc = textStyle({ fg: theme.muted })
+export default function TextStyleDemo() {
   return (
-    <box flexDirection="column" padding={1} gap={0}>
-      <text>
-        <span style={textStyle({ fg: theme.foreground, bold: true })}>bold          </span>
-        <span style={desc}>textStyle({"{"} bold: true {"}"})</span>
-      </text>
-      <text>
-        <span style={textStyle({ fg: theme.foreground, dim: true })}>dim           </span>
-        <span style={desc}>textStyle({"{"} dim: true {"}"})</span>
-      </text>
-      <text>
-        <span style={textStyle({ fg: theme.foreground, italic: true })}>italic        </span>
-        <span style={desc}>textStyle({"{"} italic: true {"}"})</span>
-      </text>
-      <text>
-        <span style={textStyle({ fg: theme.foreground, underline: true })}>underline     </span>
-        <span style={desc}>textStyle({"{"} underline: true {"}"})</span>
-      </text>
-      <text>
-        <span style={textStyle({ inverse: true })}>inverse       </span>
-        <span style={desc}>textStyle({"{"} inverse: true {"}"})</span>
-      </text>
-      <text> </text>
-      <text>
-        <span style={textStyle({ fg: theme.primary })}>fg color      </span>
-        <span style={desc}>textStyle({"{"} fg: theme.primary {"}"})</span>
-      </text>
-      <text>
-        <span style={textStyle({ fg: theme.foreground, bg: theme.secondary })}>bg color      </span>
-        <span style={desc}>textStyle({"{"} fg: theme.foreground, bg: theme.secondary {"}"})</span>
-      </text>
-      <text> </text>
-      <text>
-        <span style={textStyle({ fg: theme.accent, bold: true, underline: true })}>combined      </span>
-        <span style={desc}>textStyle({"{"} fg: theme.accent, bold: true, underline: true {"}"})</span>
-      </text>
-    </box>
+    <DemoWindow title="Text Style" tuiStyle={{ width: "100%", height: 260 }}>
+      <TextStyleApp />
+    </DemoWindow>
   )
 }
+
+// ── Docs-only variants ──────────────────────────────────────────────────
 
 function DirectTextStyleApp() {
   const theme = useTheme()
@@ -77,14 +45,6 @@ function MixedSpanStyleApp() {
         <span style={textStyle({ fg: theme.accent, underline: true })}>production</span>
       </text>
     </box>
-  )
-}
-
-export default function TextStyleDemo() {
-  return (
-    <DemoWindow title="Text Style" tuiStyle={{ width: "100%", height: 260 }}>
-      <TextStyleApp />
-    </DemoWindow>
   )
 }
 

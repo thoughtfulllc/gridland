@@ -4,13 +4,16 @@ description: A bordered overlay container with title and Escape key handling
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
-import ModalDemo from '@/components/demos/modal-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { ModalApp } from '@demos/modal'
 
 A bordered container that overlays content, optionally displays a title, and
 listens for the Escape key to trigger a close callback.
 
 <div className="my-8">
-  <ModalDemo />
+  <DemoWindow title="Modal" tuiStyle={{ width: "100%", height: 200 }}>
+    <ModalApp />
+  </DemoWindow>
 </div>
 
 <RunDemo name="modal" />

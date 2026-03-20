@@ -1,11 +1,12 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
+// @ts-nocheck
 "use client"
 import { useState } from "react"
 import { DemoWindow } from "@/components/ui/demo-window"
+import { TextInputApp } from "@demos/text-input"
 import { TextInput, StatusBar, textStyle, useTheme } from "@gridland/ui"
 import { useKeyboard } from "@gridland/utils"
 
-// ── State Picker ──────────────────────────────────────────────────────────
+// ── State Picker (docs-only) ────────────────────────────────────────────
 
 const STATES = [
   { name: "default", props: { focus: true } },
@@ -43,54 +44,6 @@ function TextInputPickerApp() {
   )
 }
 
-// ── Form Demo ─────────────────────────────────────────────────────────────
-
-const FIELDS = [
-  { label: "Username", placeholder: "enter your name", maxLength: 30, required: true },
-  { label: "Email", placeholder: "user@example.com", maxLength: 50, required: true, description: "We'll never share your email" },
-  { label: "Password", placeholder: "enter password", maxLength: 40 },
-  { label: "API Key", placeholder: "sk-...", maxLength: 60, disabled: true },
-]
-
-function TextInputFormApp() {
-  const [activeField, setActiveField] = useState(0)
-  const [values, setValues] = useState(FIELDS.map(() => ""))
-
-  useKeyboard((event) => {
-    if (event.name === "up") setActiveField((i) => Math.max(0, i - 1))
-    if (event.name === "down") setActiveField((i) => Math.min(FIELDS.length - 1, i + 1))
-  })
-
-  return (
-    <box flexDirection="column" flexGrow={1}>
-      <box flexDirection="column" paddingX={1} paddingTop={1} flexGrow={1}>
-        {FIELDS.map((field, i) => (
-          <box key={field.label} marginBottom={1}>
-            <TextInput
-              label={field.label}
-              placeholder={field.placeholder}
-              prompt="> "
-              focus={i === activeField}
-              maxLength={field.maxLength}
-              value={values[i]}
-              onChange={(v) => setValues((prev) => prev.map((old, j) => j === i ? v : old))}
-              required={field.required}
-              disabled={field.disabled}
-              description={field.description}
-            />
-          </box>
-        ))}
-      </box>
-
-      <box paddingX={1} paddingBottom={1}>
-        <StatusBar items={[
-          { key: "↑↓", label: "field" },
-        ]} />
-      </box>
-    </box>
-  )
-}
-
 // ── Exports ───────────────────────────────────────────────────────────────
 
 export function TextInputPickerDemo() {
@@ -104,7 +57,7 @@ export function TextInputPickerDemo() {
 export default function TextInputDemo() {
   return (
     <DemoWindow title="TextInput" tuiStyle={{ width: "100%", height: 360 }}>
-      <TextInputFormApp />
+      <TextInputApp />
     </DemoWindow>
   )
 }

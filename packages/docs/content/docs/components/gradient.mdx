@@ -4,13 +4,16 @@ description: Apply color gradients to text characters
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
-import GradientDemo from '@/components/demos/gradient-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { GradientApp } from '@demos/gradient'
 
 Applies a color gradient across text characters. Choose from 13 named presets
 or provide custom hex colors.
 
 <div className="my-8">
-  <GradientDemo />
+  <DemoWindow title="Gradient" tuiStyle={{ width: "100%", height: 280 }}>
+    <GradientApp />
+  </DemoWindow>
 </div>
 
 <RunDemo name="gradient" />
