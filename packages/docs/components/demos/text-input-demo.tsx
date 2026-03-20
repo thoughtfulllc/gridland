@@ -48,7 +48,7 @@ function TextInputPickerApp() {
 
 export function TextInputPickerDemo() {
   return (
-    <DemoWindow title="TextInput" tuiStyle={{ width: "100%", height: 200 }}>
+    <DemoWindow title="TextInput" tuiStyle={{ width: "100%", height: 200 }} autoFocus>
       <TextInputPickerApp />
     </DemoWindow>
   )

@@ -6,7 +6,7 @@ import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfTho
 
 export default function ChainOfThoughtDemo() {
   return (
-    <DemoWindow title="Chain of Thought" tuiStyle={{ width: "100%", height: 340 }}>
+    <DemoWindow title="Chain of Thought" tuiStyle={{ width: "100%", height: 340 }} autoFocus>
       <ChainOfThoughtApp />
     </DemoWindow>
   )

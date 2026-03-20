@@ -6,7 +6,7 @@ import { Spinner, SpinnerShowcase } from "@gridland/ui"
 
 export default function SpinnerPickerDemo() {
   return (
-    <DemoWindow title="Spinner" tuiStyle={{ width: "100%", height: 140 }}>
+    <DemoWindow title="Spinner" tuiStyle={{ width: "100%", height: 140 }} autoFocus>
       <SpinnerApp />
     </DemoWindow>
   )
