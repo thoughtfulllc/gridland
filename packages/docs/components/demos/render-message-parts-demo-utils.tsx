@@ -5,7 +5,7 @@ import type { UIMessagePart } from "@ai-sdk/react"
 
 /**
  * Maps Vercel AI SDK UIMessage.parts to Message sub-components.
- * Returns flat array of content elements (text, tool invocations, sources).
+ * Returns flat array of content elements (text, tool calls, sources).
  */
 export function renderContentParts(parts: UIMessagePart[], isStreaming: boolean): ReactNode[] {
   const elements: ReactNode[] = []
@@ -25,25 +25,18 @@ export function renderContentParts(parts: UIMessagePart[], isStreaming: boolean)
         break
       case "tool-invocation":
         elements.push(
-          <Message.ToolInvocation key={`p-${i}`} part={{
-            type: "tool-invocation",
-            toolInvocation: {
-              toolCallId: part.toolInvocation.toolCallId,
-              toolName: part.toolInvocation.toolName,
-              args: part.toolInvocation.args,
-              state: part.toolInvocation.state,
-              result: part.toolInvocation.result,
-            },
-          }} />
+          <Message.ToolCall
+            key={`p-${i}`}
+            name={part.toolInvocation.toolName}
+            state={mapToolState(part.toolInvocation.state)}
+            result={part.toolInvocation.result}
+          />
         )
         break
       case "source-url": {
         const idx = sourceIndex++
         elements.push(
-          <Message.Source key={`p-${i}`} part={{
-            type: "source",
-            source: { title: part.title, url: part.url },
-          }} index={idx} />
+          <Message.Source key={`p-${i}`} title={part.title} url={part.url} index={idx} />
         )
         break
       }
@@ -80,34 +73,26 @@ export function renderPartsWithReasoning(
         break
       case "reasoning":
         reasoning.push(
-          <Message.Reasoning key={`r-${i}`} part={{
-            type: "reasoning",
-            reasoning: part.reasoning,
-            collapsed: options?.expanded === false ? true : !(options?.expanded ?? true),
-          }} />
+          <Message.Reasoning
+            key={`r-${i}`}
+            collapsed={options?.expanded === false ? true : !(options?.expanded ?? true)}
+          />
         )
         break
       case "tool-invocation":
         content.push(
-          <Message.ToolInvocation key={`p-${i}`} part={{
-            type: "tool-invocation",
-            toolInvocation: {
-              toolCallId: part.toolInvocation.toolCallId,
-              toolName: part.toolInvocation.toolName,
-              args: part.toolInvocation.args,
-              state: part.toolInvocation.state,
-              result: part.toolInvocation.result,
-            },
-          }} />
+          <Message.ToolCall
+            key={`p-${i}`}
+            name={part.toolInvocation.toolName}
+            state={mapToolState(part.toolInvocation.state)}
+            result={part.toolInvocation.result}
+          />
         )
         break
       case "source-url": {
         const idx = sourceIndex++
         content.push(
-          <Message.Source key={`p-${i}`} part={{
-            type: "source",
-            source: { title: part.title, url: part.url },
-          }} index={idx} />
+          <Message.Source key={`p-${i}`} title={part.title} url={part.url} index={idx} />
         )
         break
       }
@@ -115,4 +100,14 @@ export function renderPartsWithReasoning(
   }
 
   return { reasoning, content }
+}
+
+/** Maps Vercel AI SDK tool states to our generic ToolCallState. */
+function mapToolState(state: string): "pending" | "running" | "completed" | "error" {
+  switch (state) {
+    case "partial-call": return "pending"
+    case "call": return "running"
+    case "result": return "completed"
+    default: return "pending"
+  }
 }

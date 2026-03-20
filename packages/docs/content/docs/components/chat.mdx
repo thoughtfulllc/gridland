@@ -1,13 +1,14 @@
 ---
 title: Chat
-description: Vertical chat interface with messages, tool calls, streaming, and text input
+description: A vertical chat interface with messages, tool calls, streaming, and text input
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import ChatDemo from '@/components/demos/chat-demo'
 
-The `ChatPanel` component from `@gridland/ui` renders a vertical chat interface
-with message display, tool call status cards, streaming text, loading indicators, and text input.
+A self-contained vertical chat interface that combines message display, tool
+call status cards, streaming text, a loading indicator, and a `PromptInput`.
+SDK-agnostic — the consumer passes messages and handles submission.
 
 <div className="my-8">
   <ChatDemo />
@@ -23,9 +24,11 @@ bunx shadcn@latest add @gridland/chat
 
 ## Usage
 
-```tsx title="Example"
+```tsx
 import { ChatPanel } from "@/components/ui/chat"
+```
 
+```tsx
 <ChatPanel
   messages={[
     { id: "1", role: "user", content: "Hello!" },
@@ -35,23 +38,90 @@ import { ChatPanel } from "@/components/ui/chat"
 />
 ```
 
-## Props
+## Examples
+
+### With Status
+
+Use the `status` prop to drive loading and streaming states. This takes
+precedence over the legacy `isLoading` prop.
+
+```tsx title="With status"
+<ChatPanel
+  messages={messages}
+  status="streaming"
+  streamingText={partialText}
+  onSendMessage={handleSend}
+  onStop={handleStop}
+/>
+```
+
+### Tool Calls
+
+Display active tool call status cards between messages and the input.
+
+```tsx title="With tool calls"
+<ChatPanel
+  messages={messages}
+  activeToolCalls={[
+    { id: "1", title: "Reading file", status: "completed" },
+    { id: "2", title: "Running tests", status: "in_progress" },
+  ]}
+  onSendMessage={handleSend}
+/>
+```
+
+### Custom Colors
+
+Override the default prefix colors for user and assistant messages.
+
+```tsx title="Custom colors"
+<ChatPanel
+  messages={messages}
+  userColor="#05FFA1"
+  assistantColor="cyan"
+  promptColor="#05FFA1"
+  onSendMessage={handleSend}
+/>
+```
+
+### With AI SDK
+
+```tsx title="Vercel AI SDK"
+const { messages, status, sendMessage, stop } = useChat({ api: "/api/chat" })
+
+<ChatPanel
+  messages={messages.map(m => ({ id: m.id, role: m.role, content: m.parts?.find(p => p.type === "text")?.text ?? "" }))}
+  status={status}
+  onSendMessage={(text) => sendMessage({ text })}
+  onStop={stop}
+/>
+```
+
+## Controls
+
+- **Enter**: Submit message
+- **Escape**: Stop generation (calls `onStop` during streaming)
+
+## API Reference
+
+### ChatPanel
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `messages` | `ChatMessage[]` | -- | Array of messages to display |
+| `messages` | `ChatMessage[]` | - | Array of messages to display |
 | `streamingText` | `string` | `""` | Partial streaming text from assistant |
-| `isLoading` | `boolean` | `false` | Whether the assistant is processing |
+| `status` | `ChatStatus` | - | AI chat status. Takes precedence over `isLoading`. |
+| `isLoading` | `boolean` | `false` | Whether the assistant is processing. Ignored when `status` is provided. |
 | `activeToolCalls` | `ToolCallInfo[]` | `[]` | Active tool call status cards |
-| `onSendMessage` | `(text: string) => void` | -- | Callback when user submits a message |
-| `onCancel` | `() => void` | `undefined` | Callback for Escape key during loading/streaming |
+| `onSendMessage` | `(text: string) => void` | - | Called when the user submits a message |
+| `onStop` | `() => void` | - | Called on Escape during streaming |
 | `placeholder` | `string` | `"Type a message..."` | Input placeholder text |
 | `promptChar` | `string` | `"> "` | Prompt string before user input |
-| `promptColor` | `string` | `"green"` | Color of the prompt |
-| `userColor` | `string` | `"green"` | Color of user message prefix |
-| `assistantColor` | `string` | `"blue"` | Color of assistant message prefix |
+| `promptColor` | `string` | `theme.secondary` | Color of the prompt |
+| `userColor` | `string` | `theme.secondary` | Color of user message `>` prefix |
+| `assistantColor` | `string` | `theme.primary` | Color of assistant message `<` prefix |
 | `loadingText` | `string` | `"Thinking..."` | Loading indicator text |
-| `useKeyboard` | `(handler) => void` | `undefined` | Keyboard handler hook |
+| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@opentui/react` |
 
 ### ChatMessage
 
@@ -60,6 +130,7 @@ import { ChatPanel } from "@/components/ui/chat"
 | `id` | `string` | Unique identifier |
 | `role` | `"user" \| "assistant"` | Message sender role |
 | `content` | `string` | Message text content |
+| `toolCalls` | `ToolCallInfo[]?` | Tool calls associated with this message |
 
 ### ToolCallInfo
 
@@ -68,3 +139,13 @@ import { ChatPanel } from "@/components/ui/chat"
 | `id` | `string` | Unique identifier |
 | `title` | `string` | Display name of the tool call |
 | `status` | `"pending" \| "in_progress" \| "completed" \| "failed"` | Current status |
+| `result` | `string?` | Result text from the tool call |
+
+### ChatStatus
+
+| Value | Description |
+|-------|-------------|
+| `"ready"` | Input enabled, accepts user input |
+| `"submitted"` | Shows loading indicator, input disabled |
+| `"streaming"` | Shows streaming text, input disabled, Escape calls `onStop` |
+| `"error"` | Input enabled, shows error state |

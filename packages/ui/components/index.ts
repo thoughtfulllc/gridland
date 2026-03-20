@@ -8,7 +8,7 @@ export { Ascii } from "./ascii/ascii"
 export type { AsciiProps } from "./ascii/ascii"
 
 export { Spinner } from "./spinner/spinner"
-export type { SpinnerProps, SpinnerVariant } from "./spinner/spinner"
+export type { SpinnerProps, SpinnerVariant, SpinnerStatus } from "./spinner/spinner"
 
 export { SpinnerPicker, SpinnerShowcase } from "./spinner/spinner-showcase"
 export type { SpinnerPickerProps } from "./spinner/spinner-showcase"
@@ -22,8 +22,31 @@ export type { SelectInputProps, SelectInputItem } from "./select-input/select-in
 export { MultiSelect } from "./multi-select/multi-select"
 export type { MultiSelectProps, MultiSelectItem } from "./multi-select/multi-select"
 
-export { Table, getColumns, calculateColumnWidths, padCell } from "./table/table"
-export type { TableProps } from "./table/table"
+export {
+  Table,
+  TableRoot,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+  getColumns,
+  calculateColumnWidths,
+  padCell,
+} from "./table/table"
+export type {
+  TableProps,
+  TableRootProps,
+  TableHeaderProps,
+  TableBodyProps,
+  TableFooterProps,
+  TableRowProps,
+  TableHeadProps,
+  TableCellProps,
+  TableCaptionProps,
+} from "./table/table"
 
 export { Gradient, GRADIENTS, generateGradient, hexToRgb, rgbToHex } from "./gradient/gradient"
 export type { GradientProps, GradientName } from "./gradient/gradient"
@@ -62,7 +85,8 @@ export type {
   MessagePart,
   TextPart,
   ReasoningPart,
-  ToolInvocationPart,
+  ToolCallPart,
+  ToolCallState,
   SourcePart,
   MessageRole,
 } from "./message/message"

@@ -6,7 +6,7 @@ import type { Theme } from "../theme/index"
 import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep, type Step } from "../chain-of-thought/chain-of-thought"
 export type { Step } from "../chain-of-thought/chain-of-thought"
 
-// ── Part types (aligned with Vercel AI SDK UIMessage.parts) ─────────
+// ── Part types (optional helpers — not coupled to sub-components) ──
 
 export type TextPart = {
   type: "text"
@@ -15,32 +15,29 @@ export type TextPart = {
 
 export type ReasoningPart = {
   type: "reasoning"
-  reasoning?: string
+  text?: string
   duration?: string
   steps?: Step[]
   collapsed?: boolean
 }
 
-export type ToolInvocationPart = {
-  type: "tool-invocation"
-  toolInvocation: {
-    toolCallId: string
-    toolName: string
-    args?: unknown
-    state: "partial-call" | "call" | "result"
-    result?: unknown
-  }
+export type ToolCallState = "pending" | "running" | "completed" | "error"
+
+export type ToolCallPart = {
+  type: "tool-call"
+  name: string
+  state: ToolCallState
+  args?: unknown
+  result?: unknown
 }
 
 export type SourcePart = {
   type: "source"
-  source: {
-    title?: string
-    url?: string
-  }
+  title?: string
+  url?: string
 }
 
-export type MessagePart = TextPart | ReasoningPart | ToolInvocationPart | SourcePart
+export type MessagePart = TextPart | ReasoningPart | ToolCallPart | SourcePart
 
 // ── Role ────────────────────────────────────────────────────────────
 
@@ -73,18 +70,19 @@ function getBubbleColors(theme: Theme): { assistantBg: string; userBg: string } 
     : { assistantBg: "#F1F5F9", userBg: "#E2E8F0" }
 }
 
-const TOOL_STATE_ICONS: Record<string, string> = {
-  "partial-call": "\u2022",  // •
-  "call": "\u280B",          // ⠋
-  "result": "\u2713",        // ✓
+const TOOL_STATE_ICONS: Record<ToolCallState, string> = {
+  pending: "\u2022",   // •
+  running: "\u280B",   // ⠋
+  completed: "\u2713", // ✓
+  error: "\u2715",     // ✕
 }
 
-function getToolStateColor(state: string, theme: Theme): string {
+function getToolStateColor(state: ToolCallState, theme: Theme): string {
   switch (state) {
-    case "partial-call": return theme.muted
-    case "call": return theme.warning
-    case "result": return theme.success
-    default: return theme.muted
+    case "pending": return theme.muted
+    case "running": return theme.warning
+    case "completed": return theme.success
+    case "error": return theme.error
   }
 }
 
@@ -125,73 +123,98 @@ function MessageText({ children, isLast = false }: {
   )
 }
 
-/** Renders a reasoning part as a collapsible ChainOfThought. */
-function MessageReasoning({ part }: { part: ReasoningPart }) {
+/** Collapsible reasoning block rendered as a ChainOfThought. */
+function MessageReasoning({ duration, steps, collapsed = true, children }: {
+  /** Duration label shown in the header */
+  duration?: string
+  /** Structured thinking steps */
+  steps?: Step[]
+  /** Whether the block starts collapsed */
+  collapsed?: boolean
+  /** Freeform content (used when steps are not provided) */
+  children?: ReactNode
+}) {
   return (
-    <ChainOfThought defaultOpen={part.collapsed === false}>
-      <ChainOfThoughtHeader duration={part.duration} />
+    <ChainOfThought defaultOpen={!collapsed}>
+      <ChainOfThoughtHeader duration={duration} />
       <ChainOfThoughtContent>
-        {part.steps?.map((step, i) => (
+        {steps?.map((step, i) => (
           <ChainOfThoughtStep
             key={i}
             label={step.label}
             description={step.description}
             status={step.status}
-            isLast={i === (part.steps?.length ?? 0) - 1}
+            isLast={i === (steps?.length ?? 0) - 1}
           >
             {step.output}
           </ChainOfThoughtStep>
         ))}
+        {children}
       </ChainOfThoughtContent>
     </ChainOfThought>
   )
 }
 
-/** Renders a tool invocation with status icon and optional result. */
-function MessageToolInvocation({ part, toolColors }: {
-  part: ToolInvocationPart
-  toolColors?: Record<string, string>
+/** Tool call with status icon and optional result. */
+function MessageToolCall({ name, state = "pending", result, color }: {
+  /** Tool name */
+  name: string
+  /** Tool execution state */
+  state?: ToolCallState
+  /** Tool result (shown when state is "completed") */
+  result?: unknown
+  /** Override the default state color */
+  color?: string
 }) {
   const theme = useTheme()
   const { backgroundColor, textColor } = useMessage()
-  const { toolName, state, result } = part.toolInvocation
-  const icon = TOOL_STATE_ICONS[state] || "\u2022"
-  const stateColor = toolColors?.[toolName] ?? getToolStateColor(state, theme)
-  const isActive = state === "partial-call" || state === "call"
+  const icon = TOOL_STATE_ICONS[state]
+  const stateColor = color ?? getToolStateColor(state, theme)
+  const isActive = state === "pending" || state === "running"
 
   return (
     <box flexDirection="column">
       <text>
         <span style={textStyle({ fg: stateColor, bg: backgroundColor })}>{icon}</span>
         <span style={textStyle({ fg: textColor, bg: backgroundColor })}>{" "}</span>
-        <span style={textStyle({ fg: stateColor, bold: isActive, bg: backgroundColor })}>{toolName}</span>
+        <span style={textStyle({ fg: stateColor, bold: isActive, bg: backgroundColor })}>{name}</span>
         {isActive && <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{" ..."}</span>}
       </text>
-      {state === "result" && result !== undefined && (
+      {state === "completed" && result !== undefined && (
         <text>
           <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{"  \u2514\u2500 "}</span>
           <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{String(result).slice(0, 120)}</span>
+        </text>
+      )}
+      {state === "error" && result !== undefined && (
+        <text>
+          <span style={textStyle({ fg: theme.error, dim: true, bg: backgroundColor })}>{"  \u2514\u2500 "}</span>
+          <span style={textStyle({ fg: theme.error, dim: true, bg: backgroundColor })}>{String(result).slice(0, 120)}</span>
         </text>
       )}
     </box>
   )
 }
 
-/** Renders a numbered source citation. */
-function MessageSource({ part, index }: {
-  part: SourcePart
+/** Numbered source citation. */
+function MessageSource({ title, url, index }: {
+  /** Source title */
+  title?: string
+  /** Source URL */
+  url?: string
+  /** Zero-based index for the citation number */
   index: number
 }) {
   const theme = useTheme()
   const { backgroundColor, textColor } = useMessage()
-  const title = part.source.title || part.source.url || "source"
+  const displayTitle = title || url || "source"
 
   return (
     <text>
       <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{"["}</span>
       <span style={textStyle({ fg: theme.accent, bg: backgroundColor })}>{String(index + 1)}</span>
       <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{"] "}</span>
-      <span style={textStyle({ fg: theme.accent, bg: backgroundColor })}>{title}</span>
+      <span style={textStyle({ fg: theme.accent, bg: backgroundColor })}>{displayTitle}</span>
     </text>
   )
 }
@@ -258,6 +281,6 @@ export function Message({
 Message.Content = MessageContent
 Message.Text = MessageText
 Message.Reasoning = MessageReasoning
-Message.ToolInvocation = MessageToolInvocation
+Message.ToolCall = MessageToolCall
 Message.Source = MessageSource
 Message.Footer = MessageFooter

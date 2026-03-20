@@ -48,6 +48,42 @@ describe("Spinner behavior", () => {
     )
     expect(screen.text()).toContain("⠋")
   })
+
+  it("renders success status symbol", () => {
+    const { screen } = renderTui(
+      <Spinner status="success" text="Done" />,
+      { cols: 30, rows: 3 },
+    )
+    const text = screen.text()
+    expect(text).toContain("✔")
+    expect(text).toContain("Done")
+    expect(text).not.toContain("⠋")
+  })
+
+  it("renders error status symbol", () => {
+    const { screen } = renderTui(
+      <Spinner status="error" text="Failed" />,
+      { cols: 30, rows: 3 },
+    )
+    expect(screen.text()).toContain("✖")
+    expect(screen.text()).toContain("Failed")
+  })
+
+  it("renders warning status symbol", () => {
+    const { screen } = renderTui(
+      <Spinner status="warning" text="Check logs" />,
+      { cols: 30, rows: 3 },
+    )
+    expect(screen.text()).toContain("⚠")
+  })
+
+  it("renders info status symbol", () => {
+    const { screen } = renderTui(
+      <Spinner status="info" text="Note" />,
+      { cols: 30, rows: 3 },
+    )
+    expect(screen.text()).toContain("ℹ")
+  })
 })
 
 describe("SpinnerShowcase behavior", () => {

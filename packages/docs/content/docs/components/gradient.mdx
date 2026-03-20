@@ -1,12 +1,13 @@
 ---
 title: Gradient
-description: Apply color gradients to text
+description: Apply color gradients to text characters
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import GradientDemo from '@/components/demos/gradient-demo'
 
-The `Gradient` component from `@gridland/ui` applies color gradients across text characters.
+Applies a color gradient across text characters. Choose from 13 named presets
+or provide custom hex colors.
 
 <div className="my-8">
   <GradientDemo />
@@ -22,32 +23,64 @@ bunx shadcn@latest add @gridland/gradient
 
 ## Usage
 
-```tsx title="Import"
+```tsx
 import { Gradient } from "@/components/ui/gradient"
 ```
 
-### Named Gradient
-
-```tsx title="Named gradient"
+```tsx
 <Gradient name="rainbow">Hello World!</Gradient>
 ```
 
+## Examples
+
+### Named Presets
+
+Use the `name` prop to select a built-in gradient.
+
+```tsx title="Named gradient"
+<Gradient name="rainbow">Rainbow text</Gradient>
+<Gradient name="morning">Morning vibes</Gradient>
+<Gradient name="passion">Passion gradient</Gradient>
+```
+
 ### Custom Colors
+
+Pass an array of hex colors to create a custom gradient.
 
 ```tsx title="Custom colors"
 <Gradient colors={["#ff6b6b", "#feca57", "#48dbfb"]}>Custom gradient</Gradient>
 ```
 
-## Props
+### Multiline
+
+Gradients work across multiline text — each line shares the same color stops.
+
+```tsx title="Multiline"
+<Gradient name="vice">{"Line one\nLine two\nLine three"}</Gradient>
+```
+
+## Available Gradients
+
+`cristal` · `teen` · `mind` · `morning` · `vice` · `passion` · `fruit` · `instagram` · `atlas` · `retro` · `summer` · `pastel` · `rainbow`
+
+## API Reference
+
+### Gradient
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `children` | `string` | - | Text content to apply the gradient to |
-| `name` | `GradientName` | - | Named gradient preset (see list below) |
-| `colors` | `string[]` | - | Array of hex colors for custom gradient |
+| `name` | `GradientName` | - | Named gradient preset |
+| `colors` | `string[]` | - | Array of hex colors for a custom gradient |
 
-> **Note:** `name` and `colors` are mutually exclusive. Provide exactly one.
+> `name` and `colors` are mutually exclusive — provide exactly one.
 
-## Available Gradient Names
+### Utility Functions
 
-`cristal`, `teen`, `mind`, `morning`, `vice`, `passion`, `fruit`, `instagram`, `atlas`, `retro`, `summer`, `pastel`, `rainbow`
+The component also exports utility functions for programmatic gradient generation.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `generateGradient` | `(colors: string[], steps: number) => string[]` | Generate an array of interpolated hex colors |
+| `hexToRgb` | `(hex: string) => { r, g, b }` | Convert hex to RGB |
+| `rgbToHex` | `(rgb: { r, g, b }) => string` | Convert RGB to hex |

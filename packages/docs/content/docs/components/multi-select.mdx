@@ -1,13 +1,13 @@
 ---
 title: MultiSelect
-description: Multi-selection list with selection indicators and groups
+description: A multi-selection list with checkboxes, groups, and a submit row
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import MultiSelectDemo from '@/components/demos/multi-select-demo'
 
-The `MultiSelect` component from `@gridland/ui` renders a multi-selection list
-with selection indicators, keyboard navigation, group headers, and a submitted state.
+A multi-selection list with checkbox indicators, keyboard navigation, group
+headers, a submit row, and a submitted state.
 
 <div className="my-8">
   <MultiSelectDemo />
@@ -23,28 +23,31 @@ bunx shadcn@latest add @gridland/multi-select
 
 ## Usage
 
-```tsx title="Uncontrolled"
+```tsx
 import { MultiSelect } from "@/components/ui/multi-select"
 import { useKeyboard } from "@gridland/utils"
+```
 
+```tsx
 <MultiSelect
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
     { label: "Python", value: "py" },
   ]}
-  defaultSelected={["ts"]}
   title="Select languages"
   useKeyboard={useKeyboard}
   onSubmit={(values) => console.log("Selected:", values)}
 />
 ```
 
-```tsx title="Controlled"
-import { useState } from "react"
-import { MultiSelect } from "@/components/ui/multi-select"
-import { useKeyboard } from "@gridland/utils"
+## Examples
 
+### Controlled
+
+Use `selected` and `onChange` to control the selection externally.
+
+```tsx title="Controlled"
 const [selected, setSelected] = useState<string[]>(["ts"])
 
 <MultiSelect
@@ -61,6 +64,28 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 />
 ```
 
+### Default Selected
+
+Set the initially selected items in uncontrolled mode.
+
+```tsx title="Default selected"
+<MultiSelect
+  items={[
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+    { label: "Python", value: "py" },
+  ]}
+  defaultSelected={["ts"]}
+  title="Select languages"
+  useKeyboard={useKeyboard}
+  onSubmit={(values) => console.log("Selected:", values)}
+/>
+```
+
+### Groups
+
+Use the `group` field on items to render group headers with separators.
+
 ```tsx title="With groups"
 <MultiSelect
   items={[
@@ -75,7 +100,11 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 />
 ```
 
-```tsx title="With disabled items"
+### Disabled Items
+
+Disable individual items so they cannot be toggled.
+
+```tsx title="Disabled items"
 <MultiSelect
   items={[
     { label: "TypeScript", value: "ts" },
@@ -87,6 +116,29 @@ const [selected, setSelected] = useState<string[]>(["ts"])
   onSubmit={(values) => console.log(values)}
 />
 ```
+
+### Max Selection
+
+Limit how many items can be selected. A counter is shown in the title.
+
+```tsx title="Max selection"
+<MultiSelect
+  items={[
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+    { label: "Python", value: "py" },
+    { label: "Rust", value: "rs" },
+  ]}
+  maxCount={2}
+  title="Pick up to 2"
+  useKeyboard={useKeyboard}
+  onSubmit={(values) => console.log(values)}
+/>
+```
+
+### Required
+
+Show a required indicator and use `invalid` to display an error state.
 
 ```tsx title="Required with validation"
 <MultiSelect
@@ -103,29 +155,56 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 />
 ```
 
-```tsx title="With max selection"
+### Allow Empty
+
+Show the Submit row even when nothing is selected.
+
+```tsx title="Allow empty submission"
 <MultiSelect
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
-    { label: "Python", value: "py" },
-    { label: "Rust", value: "rs" },
   ]}
-  maxCount={2}
-  title="Pick up to 2"
+  allowEmpty
+  title="Select languages (optional)"
   useKeyboard={useKeyboard}
   onSubmit={(values) => console.log(values)}
 />
 ```
 
-## Props
+### Disabled
+
+Disable the entire component. Navigation and selection are blocked.
+
+```tsx title="Disabled"
+<MultiSelect
+  items={[
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+  ]}
+  disabled
+  title="Select languages"
+  useKeyboard={useKeyboard}
+/>
+```
+
+## Controls
+
+- **↑/↓** or **j/k**: Navigate items
+- **Enter**: Toggle item selection (or submit when on the Submit row)
+- **a**: Select all
+- **x**: Clear all
+
+## API Reference
+
+### MultiSelect
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `items` | `MultiSelectItem<V>[]` | `[]` | Array of selectable items |
 | `defaultSelected` | `V[]` | `[]` | Initially selected values (uncontrolled) |
 | `selected` | `V[]` | - | Selected values (controlled) |
-| `onChange` | `(values: V[]) => void` | - | Called when selection changes (controlled) |
+| `onChange` | `(values: V[]) => void` | - | Called when the selection changes |
 | `disabled` | `boolean` | `false` | Disable the entire component |
 | `invalid` | `boolean` | `false` | Show error state with destructive styling |
 | `required` | `boolean` | `false` | Show required indicator (`*`) next to title |
@@ -133,14 +212,14 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 | `maxCount` | `number` | - | Maximum number of selectable items |
 | `title` | `string` | `"Select"` | Title shown next to the diamond indicator |
 | `submittedStatus` | `string` | `"submitted"` | Status text shown after submit |
-| `limit` | `number` | `12` | Max visible rows (enables scrolling) |
+| `limit` | `number` | `12` | Max visible rows before scrolling |
 | `enableSelectAll` | `boolean` | `true` | Enable select all with `a` key |
 | `enableClear` | `boolean` | `true` | Enable clear all with `x` key |
 | `highlightColor` | `string` | `theme.primary` | Color of the highlighted item |
 | `checkboxColor` | `string` | `theme.accent` | Color of the selection indicator |
-| `allowEmpty` | `boolean` | `false` | Always show Submit row, allowing empty submission |
-| `onSubmit` | `(values: V[]) => void` | - | Called when Submit row is selected |
-| `useKeyboard` | `function` | - | Keyboard hook from `@opentui/react` |
+| `allowEmpty` | `boolean` | `false` | Show Submit row even when nothing is selected |
+| `onSubmit` | `(values: V[]) => void` | - | Called when the Submit row is selected |
+| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@opentui/react` |
 
 ### MultiSelectItem
 
@@ -151,10 +230,3 @@ const [selected, setSelected] = useState<string[]>(["ts"])
 | `key` | `string?` | Optional React key |
 | `group` | `string?` | Group header label |
 | `disabled` | `boolean?` | Disable individual item |
-
-## Controls
-
-- **↑/↓** or **j/k**: Navigate items
-- **Enter**: Select item (or submit when on Submit row)
-- **a**: Select all
-- **x**: Clear all

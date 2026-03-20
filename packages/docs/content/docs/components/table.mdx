@@ -1,13 +1,13 @@
 ---
 title: Table
-description: Tabular data rendering with automatic column detection
+description: A data table with automatic column sizing and compound sub-components
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import TableDemo from '@/components/demos/table-demo'
 
-The `Table` component from `@gridland/ui` renders structured data in a bordered table
-with automatic column detection and box-drawing characters.
+A data table with automatic column detection, horizontal-only separators, and
+a compound sub-component API for full layout control.
 
 <div className="my-8">
   <TableDemo />
@@ -23,35 +23,169 @@ bunx shadcn@latest add @gridland/table
 
 ## Usage
 
-```tsx title="Basic usage"
+```tsx
 import { Table } from "@/components/ui/table"
+```
 
+```tsx
 <Table
   data={[
-    { name: "Alice", age: 30, role: "Engineer" },
-    { name: "Bob", age: 25, role: "Designer" },
+    { name: "Alice", role: "Engineer", status: "Active" },
+    { name: "Bob", role: "Designer", status: "Active" },
+    { name: "Charlie", role: "PM", status: "Away" },
   ]}
 />
 ```
 
-```tsx title="Custom columns and colors"
+## Examples
+
+### Custom Columns
+
+Select and order which columns to display.
+
+```tsx title="Custom columns"
 <Table
   data={[
     { name: "Alice", age: 30, role: "Engineer" },
     { name: "Bob", age: 25, role: "Designer" },
   ]}
   columns={["name", "role"]}
+/>
+```
+
+### Custom Colors
+
+Override the default header and separator colors.
+
+```tsx title="Custom colors"
+<Table
+  data={[
+    { name: "Alice", role: "Engineer" },
+    { name: "Bob", role: "Designer" },
+  ]}
   headerColor="cyan"
   borderColor="#5e81ac"
 />
 ```
 
-## Props
+### Compound API
+
+For full layout control, use `TableRoot` with sub-components.
+
+```tsx title="Compound table"
+import {
+  TableRoot,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+} from "@/components/ui/table"
+
+<TableRoot>
+  <TableCaption>A list of your recent invoices.</TableCaption>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Invoice</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Amount</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>INV001</TableCell>
+      <TableCell>Paid</TableCell>
+      <TableCell>$250.00</TableCell>
+    </TableRow>
+  </TableBody>
+  <TableFooter>
+    <TableRow>
+      <TableCell>Total</TableCell>
+      <TableCell></TableCell>
+      <TableCell>$250.00</TableCell>
+    </TableRow>
+  </TableFooter>
+</TableRoot>
+```
+
+## Compound Components
+
+| Component | Description |
+|-----------|-------------|
+| `TableRoot` | Compound root — computes column widths and provides layout context |
+| `TableHeader` | Wraps header rows with a solid separator below |
+| `TableBody` | Wraps body rows with dimmed separators between them |
+| `TableFooter` | Wraps footer rows with a solid separator above |
+| `TableRow` | Reads `TableHead`/`TableCell` children and renders a styled row |
+| `TableHead` | Header cell — does not render on its own |
+| `TableCell` | Body cell — does not render on its own |
+| `TableCaption` | Muted caption text below the table |
+
+## API Reference
+
+### Table
+
+Data-driven table with automatic column detection.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `data` | `T[]` | - | Array of data objects to display |
-| `columns` | `(keyof T)[]` | - | Keys to display as columns (auto-detected from data if omitted) |
+| `columns` | `(keyof T)[]` | - | Keys to display as columns (auto-detected if omitted) |
 | `padding` | `number` | `1` | Cell padding in characters |
-| `headerColor` | `string` | `"blue"` | Foreground color for header text |
-| `borderColor` | `string` | - | Color for border characters |
+| `headerColor` | `string` | `theme.foreground` | Header text color |
+| `borderColor` | `string` | `theme.muted` | Separator line color |
+
+### TableRoot
+
+Compound root that computes column widths from the component tree.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Table sub-components |
+| `padding` | `number` | `1` | Cell padding in characters |
+| `headerColor` | `string` | `theme.foreground` | Header text color |
+| `borderColor` | `string` | `theme.muted` | Separator line color |
+
+### TableHeader
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | One or more `TableRow` components |
+
+### TableBody
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | One or more `TableRow` components |
+
+### TableFooter
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | One or more `TableRow` components |
+
+### TableRow
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | `TableHead` or `TableCell` components |
+
+### TableHead
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Cell content (typically a string) |
+
+### TableCell
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Cell content (typically a string) |
+
+### TableCaption
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Caption text |

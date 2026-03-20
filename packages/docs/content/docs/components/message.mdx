@@ -1,29 +1,21 @@
 ---
 title: Message
-description: Parts-based chat message with support for text, reasoning, tool calls, and sources
+description: An SDK-agnostic chat message with text, reasoning, tool calls, and sources
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import MessageDemo, { MessageWithInputDemo } from '@/components/demos/message-demo'
 
-The `Message` component from `@gridland/ui` renders a single chat message using
-a compound component pattern aligned with the Vercel AI SDK's `UIMessage` format
-and ai-element's architecture. Consumers map over message parts and compose
-sub-components for full control over layout.
+A compound chat message component. Sub-components take flat props — no
+SDK-specific types required. Works with Vercel AI SDK, Anthropic SDK, OpenAI SDK,
+LangChain, or any other provider. The consumer maps their SDK's output to
+sub-components.
 
 <div className="my-8">
   <MessageDemo />
 </div>
 
 <RunDemo name="message" />
-
-### With PromptInput
-
-Combine `Message` with `PromptInput` for a complete conversation view. Type a message and press Enter.
-
-<div className="my-8">
-  <MessageWithInputDemo />
-</div>
 
 ## Installation
 
@@ -33,14 +25,11 @@ bunx shadcn@latest add @gridland/message
 
 ## Usage
 
-### Basic message
-
-Compose sub-components inside `Message`. All sub-components read shared state
-(role, streaming, background color) from context via `useMessage()`.
-
-```tsx title="Simple text messages"
+```tsx
 import { Message } from "@/components/ui/message"
+```
 
+```tsx
 <Message role="user">
   <Message.Content>
     <Message.Text>Hello, can you help me?</Message.Text>
@@ -55,6 +44,21 @@ import { Message } from "@/components/ui/message"
 </Message>
 ```
 
+## Examples
+
+### With PromptInput
+
+Combine `Message` with `PromptInput` for a complete conversation view.
+
+<div className="my-8">
+  <MessageWithInputDemo />
+</div>
+
+### Streaming
+
+Pass `isStreaming` to the message and `isLast` to the final text part to show a
+streaming cursor.
+
 ```tsx title="Streaming message"
 <Message role="assistant" isStreaming>
   <Message.Content>
@@ -63,13 +67,59 @@ import { Message } from "@/components/ui/message"
 </Message>
 ```
 
-### Mapping Vercel AI SDK parts
+### Tool Calls
 
-The consumer maps over `message.parts` and picks which sub-components to render.
-This follows the ai-element pattern for full control over layout.
+Render tool calls with the generic 4-state model. Map your SDK's tool states
+to `pending`, `running`, `completed`, or `error`.
 
-```tsx title="With useChat"
-import { Message } from "@/components/ui/message"
+```tsx title="Tool call states"
+<Message.ToolCall name="readFile" state="running" />
+<Message.ToolCall name="search" state="completed" result="3 results found" />
+<Message.ToolCall name="deploy" state="error" result="Permission denied" />
+```
+
+### Reasoning
+
+Render a collapsible reasoning/thinking block above the content bubble.
+
+```tsx title="With reasoning"
+<Message role="assistant">
+  <Message.Reasoning duration="1.2s" collapsed={false} />
+  <Message.Content>
+    <Message.Text>Here is the answer.</Message.Text>
+  </Message.Content>
+</Message>
+```
+
+### Sources
+
+Render numbered source citations.
+
+```tsx title="Source citations"
+<Message.Source title="API Reference" url="https://docs.example.com" index={0} />
+<Message.Source title="Tutorial" url="https://example.com/guide" index={1} />
+```
+
+### Footer
+
+Show model attribution and timestamp below the bubble.
+
+```tsx title="With footer"
+<Message role="assistant">
+  <Message.Content>
+    <Message.Text>Here is the answer.</Message.Text>
+  </Message.Content>
+  <Message.Footer model="claude-opus-4-6" timestamp="just now" />
+</Message>
+```
+
+### Mapping Vercel AI SDK Parts
+
+Map `message.parts` from `useChat` to sub-components. The consumer owns the
+mapping — the component has no SDK dependency.
+
+```tsx title="Vercel AI SDK"
+import { useChat } from "@ai-sdk/react"
 
 const { messages, status } = useChat({ api: "/api/chat" })
 
@@ -86,9 +136,16 @@ const { messages, status } = useChat({ api: "/api/chat" })
             case "text":
               return <Message.Text key={j} isLast={isLastPart && msgStreaming}>{part.text}</Message.Text>
             case "tool-invocation":
-              return <Message.ToolInvocation key={j} part={part} />
-            case "source":
-              return <Message.Source key={j} part={part} index={j} />
+              return (
+                <Message.ToolCall
+                  key={j}
+                  name={part.toolInvocation.toolName}
+                  state={part.toolInvocation.state === "result" ? "completed" : "running"}
+                  result={part.toolInvocation.result}
+                />
+              )
+            case "source-url":
+              return <Message.Source key={j} title={part.title} url={part.url} index={j} />
             default:
               return null
           }
@@ -99,104 +156,111 @@ const { messages, status } = useChat({ api: "/api/chat" })
 })}
 ```
 
-### With reasoning
+### Mapping Anthropic SDK
 
-Place `Message.Reasoning` outside `Message.Content` so it appears above the bubble.
-
-```tsx title="Reasoning + content"
-<Message role="assistant" isStreaming>
-  <Message.Reasoning part={{ type: "reasoning", duration: "1.2s", collapsed: false }} />
-  <Message.Content>
-    <Message.Text isLast>Here is the answer.</Message.Text>
-  </Message.Content>
-  <Message.Footer model="claude-opus-4-6" timestamp="2m ago" />
-</Message>
+```tsx title="Anthropic SDK"
+// Map Anthropic content blocks to sub-components
+msg.content.map((block, j) => {
+  switch (block.type) {
+    case "text":
+      return <Message.Text key={j}>{block.text}</Message.Text>
+    case "thinking":
+      return <Message.Reasoning key={j} collapsed={false}>{block.thinking}</Message.Reasoning>
+    case "tool_use":
+      return <Message.ToolCall key={j} name={block.name} state="running" />
+  }
+})
 ```
 
-### Sub-components
+## Compound Components
+
+All sub-components read shared state (role, streaming, background color) from
+`Message` via context. No prop drilling needed.
 
 | Component | Description |
 |-----------|-------------|
 | `Message.Content` | Bubble wrapper with role-based background color |
-| `Message.Text` | Text with word wrap and optional streaming cursor (`isLast`) |
-| `Message.Reasoning` | Collapsible Chain of Thought for reasoning steps |
-| `Message.ToolInvocation` | Tool call status with icon and result |
+| `Message.Text` | Text with word wrap and optional streaming cursor |
+| `Message.Reasoning` | Collapsible Chain of Thought block |
+| `Message.ToolCall` | Tool call with status icon and result |
 | `Message.Source` | Numbered source citation |
 | `Message.Footer` | Model attribution and timestamp |
 
-### useMessage hook
+### useMessage
 
-For advanced consumers, `useMessage()` exposes the context value
-from within any sub-component:
+Access message context from within any sub-component.
 
 ```tsx title="Custom sub-component"
 import { useMessage } from "@/components/ui/message"
 
 function MyCustomStatus() {
-  const { role, isStreaming } = useMessage()
+  const { role, isStreaming, textColor } = useMessage()
   return <text>{role}: {isStreaming ? "streaming..." : "done"}</text>
 }
 ```
 
-## Part Types
+## Tool Call States
 
-Each assistant message can contain multiple parts rendered in order:
+The component uses 4 generic states that map to any SDK.
 
-### TextPart
+| State | Icon | Color | Use case |
+|-------|------|-------|----------|
+| `pending` | • | muted | Input being prepared, waiting to execute |
+| `running` | ⠋ | warning | Tool is executing |
+| `completed` | ✓ | success | Tool finished with result |
+| `error` | ✕ | error | Tool execution failed |
 
-Plain text content with word wrapping. The streaming cursor appears on the last text part.
+## API Reference
 
-```tsx
-{ type: "text", text: "Hello world" }
-```
-
-### ReasoningPart
-
-Collapsible thinking block shown as a Chain of Thought.
-
-```tsx
-{ type: "reasoning", reasoning: "Let me analyze...", collapsed: false }
-```
-
-### ToolInvocationPart
-
-Tool call with status icon and optional result. Aligned with Vercel AI SDK's `ToolInvocation` type.
-
-```tsx
-{
-  type: "tool-invocation",
-  toolInvocation: {
-    toolCallId: "tc1",
-    toolName: "readFile",
-    state: "call",        // "partial-call" | "call" | "result"
-    result: "contents",   // shown when state is "result"
-  },
-}
-```
-
-| State | Icon | Color |
-|-------|------|-------|
-| `partial-call` | • | muted |
-| `call` | ⠋ | warning |
-| `result` | ✓ | success |
-
-### SourcePart
-
-Numbered source citation.
-
-```tsx
-{ type: "source", source: { title: "Docs", url: "https://example.com" } }
-```
-
-## Props
+### Message
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `role` | `"user" \| "assistant" \| "system"` | -- | Message role, determines alignment and background |
-| `isStreaming` | `boolean` | `false` | Shows streaming cursor on the last text part |
-| `streamingCursor` | `string` | `"▍"` | Cursor character shown while streaming |
-| `backgroundColor` | `string` | -- | Override the default role-based background color |
-| `children` | `ReactNode` | -- | Compound sub-components |
+| `role` | `"user" \| "assistant" \| "system"` | - | Message role — determines alignment and background |
+| `isStreaming` | `boolean` | `false` | Show streaming cursor on the last text part |
+| `streamingCursor` | `string` | `"▎"` | Cursor character shown while streaming |
+| `backgroundColor` | `string` | - | Override the default role-based background color |
+| `children` | `ReactNode` | - | Compound sub-components |
+
+### Message.Text
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `string` | - | Text content |
+| `isLast` | `boolean` | `false` | Show the streaming cursor after this part |
+
+### Message.Reasoning
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `duration` | `string` | - | Duration label shown in the header |
+| `steps` | `Step[]` | - | Structured thinking steps |
+| `collapsed` | `boolean` | `true` | Whether the block starts collapsed |
+| `children` | `ReactNode` | - | Freeform content (used when steps are not provided) |
+
+### Message.ToolCall
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `name` | `string` | - | Tool name |
+| `state` | `"pending" \| "running" \| "completed" \| "error"` | `"pending"` | Tool execution state |
+| `result` | `unknown` | - | Tool result (shown when completed or error) |
+| `color` | `string` | - | Override the default state color |
+
+### Message.Source
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `title` | `string?` | Source title |
+| `url` | `string?` | Source URL |
+| `index` | `number` | Zero-based index for the citation number |
+
+### Message.Footer
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `model` | `string?` | Model name |
+| `timestamp` | `string?` | Timestamp label |
 
 ### MessageContextValue
 
@@ -206,11 +270,22 @@ interface MessageContextValue {
   isStreaming: boolean
   streamingCursor: string
   backgroundColor: string
+  textColor: string
 }
 ```
 
-### MessagePart
+### Part Types (optional helpers)
+
+The component exports optional type definitions for consumers who want a
+standard intermediate format. Sub-components do NOT depend on these types.
 
 ```tsx
-type MessagePart = TextPart | ReasoningPart | ToolInvocationPart | SourcePart
+type MessagePart = TextPart | ReasoningPart | ToolCallPart | SourcePart
 ```
+
+| Type | Fields |
+|------|--------|
+| `TextPart` | `type: "text"`, `text: string` |
+| `ReasoningPart` | `type: "reasoning"`, `text?`, `duration?`, `steps?`, `collapsed?` |
+| `ToolCallPart` | `type: "tool-call"`, `name`, `state`, `args?`, `result?` |
+| `SourcePart` | `type: "source"`, `title?`, `url?` |

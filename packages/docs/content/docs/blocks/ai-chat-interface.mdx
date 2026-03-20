@@ -124,23 +124,16 @@ function ChatInterface() {
                       )
                     case "reasoning":
                       return (
-                        <Message.Reasoning key={j} part={{
-                          type: "reasoning",
-                          reasoning: part.reasoning,
-                        }} />
+                        <Message.Reasoning key={j} />
                       )
                     case "tool-invocation":
                       return (
-                        <Message.ToolInvocation key={j} part={{
-                          type: "tool-invocation",
-                          toolInvocation: {
-                            toolCallId: part.toolInvocation.toolCallId,
-                            toolName: part.toolInvocation.toolName,
-                            args: part.toolInvocation.args,
-                            state: part.toolInvocation.state,
-                            result: part.toolInvocation.result,
-                          },
-                        }} />
+                        <Message.ToolCall
+                          key={j}
+                          name={part.toolInvocation.toolName}
+                          state={part.toolInvocation.state === "result" ? "completed" : part.toolInvocation.state === "call" ? "running" : "pending"}
+                          result={part.toolInvocation.result}
+                        />
                       )
                     default:
                       return null
@@ -214,11 +207,7 @@ const [expanded, setExpanded] = useState(false)
 {msg.parts?.map((part, j) => {
   if (part.type === "reasoning") {
     return (
-      <Message.Reasoning key={j} part={{
-        type: "reasoning",
-        reasoning: part.reasoning,
-        collapsed: !expanded,
-      }} />
+      <Message.Reasoning key={j} collapsed={!expanded} />
     )
   }
   // ... other part types inside Message.Content

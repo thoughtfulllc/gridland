@@ -1,11 +1,137 @@
 // @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
-import { Table } from "./table"
+import {
+  Table,
+  TableRoot,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+} from "./table"
 
 afterEach(() => cleanup())
 
-describe("Table behavior", () => {
+describe("Table compound components", () => {
+  it("renders header and body rows", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead>name</TableHead>
+            <TableHead>role</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Alice</TableCell>
+            <TableCell>Engineer</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Bob</TableCell>
+            <TableCell>Designer</TableCell>
+          </TableRow>
+        </TableBody>
+      </TableRoot>,
+      { cols: 40, rows: 10 },
+    )
+    const text = screen.text()
+    expect(text).toContain("name")
+    expect(text).toContain("role")
+    expect(text).toContain("Alice")
+    expect(text).toContain("Bob")
+    expect(text).toContain("Engineer")
+    expect(text).toContain("Designer")
+  })
+
+  it("renders horizontal separator", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead>a</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>1</TableCell>
+          </TableRow>
+        </TableBody>
+      </TableRoot>,
+      { cols: 20, rows: 8 },
+    )
+    expect(screen.text()).toContain("\u2500") // ─
+  })
+
+  it("renders caption", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead>x</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>1</TableCell>
+          </TableRow>
+        </TableBody>
+        <TableCaption>A caption</TableCaption>
+      </TableRoot>,
+      { cols: 30, rows: 8 },
+    )
+    expect(screen.text()).toContain("A caption")
+  })
+
+  it("renders footer with separator", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead>item</TableHead>
+            <TableHead>price</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Widget</TableCell>
+            <TableCell>$10</TableCell>
+          </TableRow>
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell>Total</TableCell>
+            <TableCell>$10</TableCell>
+          </TableRow>
+        </TableFooter>
+      </TableRoot>,
+      { cols: 40, rows: 10 },
+    )
+    const text = screen.text()
+    expect(text).toContain("Total")
+    expect(text).toContain("$10")
+  })
+
+  it("handles empty body", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead>name</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>{[]}</TableBody>
+      </TableRoot>,
+      { cols: 30, rows: 6 },
+    )
+    expect(screen.text()).toContain("name")
+  })
+})
+
+describe("Table (data-driven)", () => {
   const data = [
     { name: "Alice", age: 30, role: "Engineer" },
     { name: "Bob", age: 25, role: "Designer" },
@@ -34,20 +160,6 @@ describe("Table behavior", () => {
     expect(text).toContain("25")
   })
 
-  it("renders border characters", () => {
-    const { screen } = renderTui(
-      <Table data={data} />,
-      { cols: 60, rows: 10 },
-    )
-    const text = screen.text()
-    expect(text).toContain("\u250c") // ┌
-    expect(text).toContain("\u2510") // ┐
-    expect(text).toContain("\u2514") // └
-    expect(text).toContain("\u2518") // ┘
-    expect(text).toContain("\u2502") // │
-    expect(text).toContain("\u2500") // ─
-  })
-
   it("respects custom columns ordering", () => {
     const { screen } = renderTui(
       <Table data={data} columns={["role", "name"]} />,
@@ -56,7 +168,6 @@ describe("Table behavior", () => {
     const text = screen.text()
     expect(text).toContain("role")
     expect(text).toContain("name")
-    // age should not appear
     expect(text).not.toContain("age")
   })
 
@@ -102,7 +213,6 @@ describe("Table behavior", () => {
       <Table data={data} headerColor="cyan" />,
       { cols: 60, rows: 10 },
     )
-    // Should render without errors
     expect(screen.text()).toContain("name")
   })
 
@@ -111,7 +221,7 @@ describe("Table behavior", () => {
       <Table data={data} borderColor="red" />,
       { cols: 60, rows: 10 },
     )
-    expect(screen.text()).toContain("\u2502")
+    expect(screen.text()).toContain("\u2500") // ─
   })
 
   it("handles sparse data (different keys per row)", () => {

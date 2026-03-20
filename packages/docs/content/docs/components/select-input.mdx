@@ -1,13 +1,13 @@
 ---
 title: SelectInput
-description: Single-selection list with radio indicators and groups
+description: A single-selection list with radio indicators and groups
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import SelectInputDemo from '@/components/demos/select-input-demo'
 
-The `SelectInput` component from `@gridland/ui` renders a single-selection list
-with radio indicators, keyboard navigation, group headers, and a submitted state.
+A single-selection list with radio indicators, keyboard navigation, group
+headers, and a submitted state.
 
 <div className="my-8">
   <SelectInputDemo />
@@ -23,28 +23,31 @@ bunx shadcn@latest add @gridland/select-input
 
 ## Usage
 
-```tsx title="Uncontrolled"
+```tsx
 import { SelectInput } from "@/components/ui/select-input"
 import { useKeyboard } from "@gridland/utils"
+```
 
+```tsx
 <SelectInput
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
     { label: "Python", value: "py" },
   ]}
-  defaultValue="ts"
   title="Select a language"
   useKeyboard={useKeyboard}
   onSubmit={(value) => console.log("Selected:", value)}
 />
 ```
 
-```tsx title="Controlled"
-import { useState } from "react"
-import { SelectInput } from "@/components/ui/select-input"
-import { useKeyboard } from "@gridland/utils"
+## Examples
 
+### Controlled
+
+Use `value` and `onChange` to control the selection externally.
+
+```tsx title="Controlled"
 const [value, setValue] = useState<string>("ts")
 
 <SelectInput
@@ -61,6 +64,28 @@ const [value, setValue] = useState<string>("ts")
 />
 ```
 
+### Default Value
+
+Set the initially selected item in uncontrolled mode.
+
+```tsx title="Default value"
+<SelectInput
+  items={[
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+    { label: "Python", value: "py" },
+  ]}
+  defaultValue="ts"
+  title="Select a language"
+  useKeyboard={useKeyboard}
+  onSubmit={(value) => console.log("Selected:", value)}
+/>
+```
+
+### Groups
+
+Use the `group` field on items to render group headers with separators.
+
 ```tsx title="With groups"
 <SelectInput
   items={[
@@ -75,7 +100,11 @@ const [value, setValue] = useState<string>("ts")
 />
 ```
 
-```tsx title="With disabled items"
+### Disabled Items
+
+Disable individual items so they cannot be selected.
+
+```tsx title="Disabled items"
 <SelectInput
   items={[
     { label: "TypeScript", value: "ts" },
@@ -87,6 +116,10 @@ const [value, setValue] = useState<string>("ts")
   onSubmit={(value) => console.log(value)}
 />
 ```
+
+### Required
+
+Show a required indicator and use `invalid` to display an error state.
 
 ```tsx title="Required with validation"
 <SelectInput
@@ -103,24 +136,60 @@ const [value, setValue] = useState<string>("ts")
 />
 ```
 
-## Props
+### Disabled
+
+Disable the entire component. Navigation and submission are blocked.
+
+```tsx title="Disabled"
+<SelectInput
+  items={[
+    { label: "TypeScript", value: "ts" },
+    { label: "JavaScript", value: "js" },
+  ]}
+  disabled
+  title="Select a language"
+  useKeyboard={useKeyboard}
+/>
+```
+
+### Placeholder
+
+Show placeholder text when the items list is empty.
+
+```tsx title="Placeholder"
+<SelectInput
+  items={[]}
+  placeholder="No options available"
+  title="Select a language"
+  useKeyboard={useKeyboard}
+/>
+```
+
+## Controls
+
+- **↑/↓** or **j/k**: Navigate and select
+- **Enter**: Submit selected item
+
+## API Reference
+
+### SelectInput
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `items` | `SelectInputItem<V>[]` | `[]` | Array of selectable items |
 | `defaultValue` | `V` | - | Initially selected value (uncontrolled) |
 | `value` | `V` | - | Selected value (controlled) |
-| `onChange` | `(value: V) => void` | - | Called when selection changes (controlled) |
+| `onChange` | `(value: V) => void` | - | Called when selection changes |
 | `disabled` | `boolean` | `false` | Disable the entire component |
 | `invalid` | `boolean` | `false` | Show error state with destructive styling |
 | `required` | `boolean` | `false` | Show required indicator (`*`) next to title |
 | `placeholder` | `string` | - | Placeholder text when items list is empty |
 | `title` | `string` | `"Select"` | Title shown next to the diamond indicator |
 | `submittedStatus` | `string` | `"submitted"` | Status text shown after submit |
-| `limit` | `number` | `12` | Max visible rows (enables scrolling) |
+| `limit` | `number` | `12` | Max visible rows before scrolling |
 | `highlightColor` | `string` | `theme.primary` | Color of the highlighted item |
-| `onSubmit` | `(value: V) => void` | - | Called on Enter with selected value |
-| `useKeyboard` | `function` | - | Keyboard hook from `@opentui/react` |
+| `onSubmit` | `(value: V) => void` | - | Called on Enter with the selected value |
+| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@opentui/react` |
 
 ### SelectInputItem
 
@@ -131,8 +200,3 @@ const [value, setValue] = useState<string>("ts")
 | `key` | `string?` | Optional React key |
 | `group` | `string?` | Group header label |
 | `disabled` | `boolean?` | Disable individual item |
-
-## Controls
-
-- **↑/↓** or **j/k**: Navigate and select
-- **Enter**: Submit selected item
