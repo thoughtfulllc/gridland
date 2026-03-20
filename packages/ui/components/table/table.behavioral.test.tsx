@@ -3,6 +3,7 @@ import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import {
   Table,
+  TableRoot,
   TableHeader,
   TableBody,
   TableFooter,
@@ -10,7 +11,6 @@ import {
   TableHead,
   TableCell,
   TableCaption,
-  Table,
 } from "./table"
 
 afterEach(() => cleanup())
@@ -18,7 +18,7 @@ afterEach(() => cleanup())
 describe("Table compound components", () => {
   it("renders header and body rows", () => {
     const { screen } = renderTui(
-      <Table>
+      <TableRoot>
         <TableHeader>
           <TableRow>
             <TableHead>name</TableHead>
@@ -35,7 +35,7 @@ describe("Table compound components", () => {
             <TableCell>Designer</TableCell>
           </TableRow>
         </TableBody>
-      </Table>,
+      </TableRoot>,
       { cols: 40, rows: 10 },
     )
     const text = screen.text()
@@ -49,7 +49,7 @@ describe("Table compound components", () => {
 
   it("renders horizontal separator", () => {
     const { screen } = renderTui(
-      <Table>
+      <TableRoot>
         <TableHeader>
           <TableRow>
             <TableHead>a</TableHead>
@@ -60,7 +60,7 @@ describe("Table compound components", () => {
             <TableCell>1</TableCell>
           </TableRow>
         </TableBody>
-      </Table>,
+      </TableRoot>,
       { cols: 20, rows: 8 },
     )
     expect(screen.text()).toContain("\u2500") // ─
@@ -68,7 +68,7 @@ describe("Table compound components", () => {
 
   it("renders caption", () => {
     const { screen } = renderTui(
-      <Table>
+      <TableRoot>
         <TableHeader>
           <TableRow>
             <TableHead>x</TableHead>
@@ -80,7 +80,7 @@ describe("Table compound components", () => {
           </TableRow>
         </TableBody>
         <TableCaption>A caption</TableCaption>
-      </Table>,
+      </TableRoot>,
       { cols: 30, rows: 8 },
     )
     expect(screen.text()).toContain("A caption")
@@ -88,7 +88,7 @@ describe("Table compound components", () => {
 
   it("renders footer with separator", () => {
     const { screen } = renderTui(
-      <Table>
+      <TableRoot>
         <TableHeader>
           <TableRow>
             <TableHead>item</TableHead>
@@ -107,7 +107,7 @@ describe("Table compound components", () => {
             <TableCell>$10</TableCell>
           </TableRow>
         </TableFooter>
-      </Table>,
+      </TableRoot>,
       { cols: 40, rows: 10 },
     )
     const text = screen.text()
@@ -117,14 +117,14 @@ describe("Table compound components", () => {
 
   it("handles empty body", () => {
     const { screen } = renderTui(
-      <Table>
+      <TableRoot>
         <TableHeader>
           <TableRow>
             <TableHead>name</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>{[]}</TableBody>
-      </Table>,
+      </TableRoot>,
       { cols: 30, rows: 6 },
     )
     expect(screen.text()).toContain("name")

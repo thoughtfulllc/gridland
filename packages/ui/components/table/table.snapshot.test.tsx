@@ -3,6 +3,7 @@ import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import {
   Table,
+  TableRoot,
   TableHeader,
   TableBody,
   TableFooter,
@@ -10,7 +11,6 @@ import {
   TableHead,
   TableCell,
   TableCaption,
-  Table,
 } from "./table"
 
 afterEach(() => cleanup())
@@ -19,7 +19,7 @@ describe("Table snapshots", () => {
   it("renders a compound table", () => {
     const { screen } = renderTui(
       <box padding={1}>
-        <Table headerColor="cyan" borderColor="#5e81ac">
+        <TableRoot headerColor="cyan" borderColor="#5e81ac">
           <TableHeader>
             <TableRow>
               <TableHead>name</TableHead>
@@ -44,7 +44,7 @@ describe("Table snapshots", () => {
               <TableCell>Away</TableCell>
             </TableRow>
           </TableBody>
-        </Table>
+        </TableRoot>
       </box>,
       { cols: 60, rows: 12 },
     )
@@ -68,7 +68,7 @@ describe("Table snapshots", () => {
 
   it("renders with footer and caption", () => {
     const { screen } = renderTui(
-      <Table>
+      <TableRoot>
         <TableCaption>Recent invoices</TableCaption>
         <TableHeader>
           <TableRow>
@@ -88,7 +88,7 @@ describe("Table snapshots", () => {
             <TableCell>$10</TableCell>
           </TableRow>
         </TableFooter>
-      </Table>,
+      </TableRoot>,
       { cols: 30, rows: 10 },
     )
     expect(screen.text()).toMatchSnapshot()
