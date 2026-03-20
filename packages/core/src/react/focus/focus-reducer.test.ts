@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test"
-import { focusReducer, initialFocusState } from "../focus-reducer"
-import type { FocusState, FocusEntry } from "../types"
+import { focusReducer, initialFocusState } from "./focus-reducer"
+import type { FocusState, FocusEntry } from "./types"
 
 function makeEntry(id: string, opts: Partial<FocusEntry> = {}): FocusEntry {
   return { id, tabIndex: 0, disabled: false, scopeId: null, ...opts }

@@ -1,8 +1,8 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
-import { renderTui, cleanup } from "../../../../../testing/src/index"
-import { useFocus } from "../use-focus"
-import { FocusProvider } from "../focus-provider"
+import { renderTui, cleanup } from "../../../../testing/src/index"
+import { useFocus } from "./use-focus"
+import { FocusProvider } from "./focus-provider"
 import React from "react"
 
 afterEach(() => cleanup())

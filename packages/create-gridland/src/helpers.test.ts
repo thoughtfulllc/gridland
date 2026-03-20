@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from "bun:test"
 import fs from "node:fs"
 import path from "node:path"
 import os from "node:os"
-import { validateProjectName, checkDirectory } from "../helpers/validate"
-import { detectPackageManager } from "../helpers/package-manager"
+import { validateProjectName, checkDirectory } from "./helpers/validate"
+import { detectPackageManager } from "./helpers/package-manager"
 
 describe("validateProjectName", () => {
   it("accepts valid names", () => {

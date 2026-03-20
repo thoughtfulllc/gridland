@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "bun:test"
 import fs from "node:fs"
 import path from "node:path"
 import os from "node:os"
-import { scaffold } from "../scaffold"
+import { scaffold } from "./scaffold"
 
 let tmpDir: string
 
