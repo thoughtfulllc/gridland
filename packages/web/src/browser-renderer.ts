@@ -357,6 +357,9 @@ export class BrowserRenderer {
       this.needsRender = true
     }
 
+    // Modifier-only keys don't produce input in a real terminal, so skip them
+    if (modifierOnly) return
+
     // Translate browser KeyboardEvent to OpenTUI KeyEvent format
     const keyEvent = {
       name: BrowserRenderer.KEY_MAP[event.key] ?? (event.key.length === 1 ? event.key : event.key.toLowerCase()),

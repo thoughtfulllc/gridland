@@ -121,6 +121,10 @@ export interface PromptInputContextValue {
   errorText: string
   model?: string
   theme: ReturnType<typeof useTheme>
+  /** @internal Key handler for the <input> intrinsic */
+  handleKeyDown?: (event: any) => void
+  /** @internal Input handler for the <input> intrinsic */
+  handleInputChange?: (value: string) => void
 }
 
 const PromptInputContext = createContext<PromptInputContextValue | null>(null)
@@ -278,24 +282,32 @@ function PromptInputSuggestions() {
 
 const CURSOR_CHAR = "\u258D"
 
-/** Prompt char + text with syntax highlighting + cursor. */
+/** Prompt char + <input> intrinsic with full cursor/selection support. */
 function PromptInputTextarea() {
-  const { value, disabled, statusHintText, placeholder, prompt, promptColor, theme } = usePromptInput()
+  const { value, disabled, statusHintText, placeholder, prompt, promptColor, theme, handleKeyDown, handleInputChange } = usePromptInput()
   return (
-    <text>
-      <span style={textStyle({ fg: promptColor })}>{prompt}</span>
-      {value.length === 0 ? (
-        <>
-          {!disabled && <span style={textStyle({ fg: theme.muted })}>{CURSOR_CHAR}</span>}
-          <span style={textStyle({ dim: true, fg: theme.placeholder })}>{disabled ? statusHintText : " " + placeholder}</span>
-        </>
+    <box flexDirection="row">
+      <text>
+        <span style={textStyle({ fg: promptColor })}>{prompt}</span>
+      </text>
+      {disabled ? (
+        <text>
+          <span style={textStyle({ dim: true, fg: theme.placeholder })}>{statusHintText}</span>
+        </text>
       ) : (
-        <>
-          <span style={textStyle({ fg: theme.foreground })}>{value}</span>
-          {!disabled && <span style={textStyle({ fg: theme.muted })}>{CURSOR_CHAR}</span>}
-        </>
+        <input
+          value={value}
+          placeholder={placeholder}
+          focused
+          onInput={handleInputChange}
+          onKeyDown={handleKeyDown}
+          cursorColor={theme.muted}
+          cursorStyle={{ style: "line", blinking: value.length === 0 }}
+          placeholderColor={theme.placeholder}
+          textColor={theme.foreground}
+        />
       )}
-    </text>
+    </box>
   )
 }
 
@@ -518,23 +530,23 @@ export function PromptInput({
     }
   }, [onSubmit, clearInput])
 
-  // ── Keyboard handler ───────────────────────────────────────────────────
+  // ── Keyboard handler (global — only for escape-during-streaming) ──────
 
   useKeyboard?.((event: any) => {
-    // Escape during submitted/streaming calls onStop
     if (event.name === "escape" && (status === "streaming" || status === "submitted") && onStop) {
       onStop()
-      return
     }
+  })
 
-    if (disabled) return
+  // ── onKeyDown for <input> intrinsic — intercepts before intrinsic handles ──
 
+  const handleKeyDown = useCallback((event: any) => {
     if (event.name === "return") {
+      event.preventDefault()
       if (suggestionsRef.current.length > 0) {
         const sel = suggestionsRef.current[sugIdxRef.current]
         if (sel) {
           if (valueRef.current.startsWith("/")) {
-            // Slash commands: submit immediately on selection
             setSug([])
             updateValue("")
             if (enableHistory) {
@@ -563,11 +575,13 @@ export function PromptInput({
     }
 
     if (event.name === "tab" && suggestionsRef.current.length > 0) {
+      event.preventDefault()
       setSugI((sugIdxRef.current + 1) % suggestionsRef.current.length)
       return
     }
 
     if (event.name === "up") {
+      event.preventDefault()
       if (suggestionsRef.current.length > 0) {
         setSugI(Math.max(0, sugIdxRef.current - 1))
       } else if (enableHistory && historyRef.current.length > 0) {
@@ -579,6 +593,7 @@ export function PromptInput({
     }
 
     if (event.name === "down") {
+      event.preventDefault()
       if (suggestionsRef.current.length > 0) {
         setSugI(Math.min(suggestionsRef.current.length - 1, sugIdxRef.current + 1))
       } else if (enableHistory && histIdxRef.current > 0) {
@@ -594,28 +609,18 @@ export function PromptInput({
 
     if (event.name === "escape") {
       if (suggestionsRef.current.length > 0) {
+        event.preventDefault()
         setSug([])
       }
       return
     }
+  }, [enableHistory, updateValue, handleSubmit, setSug, setSugI, setHist, setHistI])
 
-    // Character-level input fallback (used when <input> intrinsic is not available, e.g. in tests)
-    if (event.name === "backspace" || event.name === "delete") {
-      updateValue(valueRef.current.slice(0, -1))
-      return
-    }
+  // ── onInput for <input> intrinsic — fires when text value changes ──────
 
-    if (event.ctrl || event.meta) return
-
-    if (event.name === "space") {
-      updateValue(valueRef.current + " ")
-      return
-    }
-
-    if (event.name && event.name.length === 1) {
-      updateValue(valueRef.current + event.name)
-    }
-  })
+  const handleInputChange = useCallback((v: string) => {
+    updateValue(v)
+  }, [updateValue])
 
   // ── Build context for subcomponents ────────────────────────────────────
 
@@ -636,6 +641,8 @@ export function PromptInput({
     errorText,
     model,
     theme,
+    handleKeyDown,
+    handleInputChange,
   }
 
   // ── Render ─────────────────────────────────────────────────────────────
