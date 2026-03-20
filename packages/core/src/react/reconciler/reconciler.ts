@@ -33,7 +33,13 @@ $ bun add react-devtools-core@7 -d
 reconciler.injectIntoDevTools()
 
 export function _render(element: React.ReactNode, root: RootRenderable) {
-  const container = reconciler.createContainer(
+  const container = _createContainer(root)
+  _updateContainer(element, container)
+  return container
+}
+
+export function _createContainer(root: RootRenderable) {
+  return reconciler.createContainer(
     root,
     ConcurrentRoot,
     null,
@@ -46,8 +52,8 @@ export function _render(element: React.ReactNode, root: RootRenderable) {
     console.error,
     null,
   )
+}
 
+export function _updateContainer(element: React.ReactNode, container: ReturnType<typeof _createContainer>) {
   reconciler.updateContainer(element, container, null, () => {})
-
-  return container
 }

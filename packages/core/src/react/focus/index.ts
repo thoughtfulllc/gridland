@@ -1,7 +1,7 @@
 export { useFocus, type UseFocusOptions, type UseFocusReturn } from "./use-focus"
 export { FocusProvider, type FocusProviderProps } from "./focus-provider"
 export { FocusScope, type FocusScopeProps, useFocusScopeId } from "./focus-scope"
-export { useFocusContext, FocusContext, ShortcutsContext } from "./focus-context"
+export { useFocusContext, FocusContext } from "./focus-context"
 export { useShortcuts } from "./use-shortcuts"
 export { useFocusedShortcuts } from "./use-focused-shortcuts"
 export { focusReducer, initialFocusState } from "./focus-reducer"

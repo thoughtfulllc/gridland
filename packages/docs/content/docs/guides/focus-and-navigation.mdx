@@ -1,49 +1,95 @@
 ---
 title: Focus & Navigation
-description: Unified focus, keyboard routing, and pointer events
+description: Focus management, keyboard routing, selection, and pointer events
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout'
+import FocusGridDemo from '@/components/demos/focus-grid-demo'
 import FocusDemo from '@/components/demos/focus-demo'
 import PointerDemo from '@/components/demos/pointer-demo'
 import CursorHighlightDemo from '@/components/demos/cursor-highlight-demo'
 
-## Overview
+Gridland provides a unified focus and input system that works identically in both terminal and web runtimes.
 
-Gridland provides a unified input system where focus, keyboard routing, mouse/pointer events, and tab navigation work identically in both terminal and web runtimes.
+## Focus
+
+### Examples
+
+#### Spatial Navigation
+
+<div className="my-8">
+  <FocusGridDemo />
+</div>
+
+#### Focus with Multi-Select
 
 <div className="my-8">
   <FocusDemo />
 </div>
 
-Two focus layers exist:
+### Usage
 
-1. **Renderable-level** — `Renderable.focus()/blur()` subscribes to keyboard events. Used by intrinsic elements (`<input>`, `<select>`).
-2. **React-level** — `FocusContext` tracks which React component is focused, handles tab order, and scopes. Built on top of the Renderable layer.
+```tsx title="app.tsx"
+import { FocusProvider, useFocus, useKeyboard, useShortcuts, useFocusedShortcuts, FocusScope } from "@gridland/utils"
+import { GridlandProvider, StatusBar } from "@gridland/ui"
 
-## useFocus
+// 1. Wrap your app with FocusProvider
+function App() {
+  return (
+    <GridlandProvider theme={darkTheme} useKeyboard={useKeyboard}>
+      <FocusProvider selectable>
+        <box flexDirection="row" gap={1}>
+          <Cell id="inbox" label="Inbox" autoFocus />
+          <Cell id="drafts" label="Drafts" />
+          <Cell id="sent" label="Sent" />
+        </box>
+        <AppStatusBar />
+      </FocusProvider>
+    </GridlandProvider>
+  )
+}
 
-Register a component as focusable and track its focus state.
+// 2. Make components focusable with useFocus
+function Cell({ id, label, autoFocus }) {
+  const { isFocused, isSelected, focusId, focusRef } = useFocus({ id, autoFocus })
 
-```tsx
-import { useFocus } from "@gridland/utils"
+  // 3. Handle keyboard input when focused
+  useKeyboard((e) => {
+    if (e.name === "return") console.log("submitted", label)
+  }, { focusId, selectedOnly: true })
 
-function MyComponent() {
-  const { isFocused, focus, blur, focusId } = useFocus({
-    id: "my-component",    // optional, auto-generated if omitted
-    tabIndex: 0,           // default 0. -1 = skip tab order
-    autoFocus: false,      // focus on mount
-    disabled: false,       // skip in tab order
-  })
+  // 4. Register shortcuts for the status bar
+  useShortcuts(
+    isSelected
+      ? [{ key: "enter", label: "submit" }, { key: "esc", label: "back" }]
+      : [{ key: "↑↓←→", label: "navigate" }, { key: "enter", label: "select" }],
+    focusId,
+  )
 
   return (
-    <box border borderColor={isFocused ? "green" : "gray"}>
-      <text>{isFocused ? "I'm focused!" : "Click or tab to me"}</text>
+    <box ref={focusRef} border borderColor={isSelected ? "blue" : isFocused ? "green" : "gray"}>
+      <text>{label}</text>
+      <text>{isSelected ? "selected" : "not selected"}</text>
     </box>
   )
 }
+
+// 5. Display context-sensitive shortcuts
+function AppStatusBar() {
+  const shortcuts = useFocusedShortcuts()
+  return <StatusBar items={shortcuts} />
+}
 ```
 
-### Options
+### How it works
+
+**`FocusProvider`** enables the focus system. Pass `selectable` to enable two-layer focus: components are first **focused** (highlighted), then **selected** (entered for interaction) with Enter. Escape deselects.
+
+**`useFocus`** makes a component focusable. It returns:
+
+- `isFocused` / `isSelected` / `isAnySelected` for styling based on focus state
+- `focusId` to pass to other hooks like `useKeyboard` and `useShortcuts`
+- `focusRef` to attach to the root element so arrow-key navigation can measure positions
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -52,64 +98,9 @@ function MyComponent() {
 | `autoFocus` | `boolean` | `false` | Focus immediately on mount |
 | `disabled` | `boolean` | `false` | Skip in tab order when true |
 
-## Tab Navigation
+**Navigation** works two ways: **Tab/Shift+Tab** cycles in linear order, **arrow keys** navigate spatially to the nearest neighbor. If a component handles arrows internally (e.g., a SelectInput), call `event.preventDefault()` to prevent the FocusProvider from also navigating.
 
-Both **Tab/Shift+Tab** and **Up/Down arrows** navigate between focusable components. Left/Right arrows do not navigate by default (commonly used by text inputs).
-
-**Arrow key conflict resolution:** When a focused component handles arrow keys internally (e.g., SelectInput cycling options), it calls `event.preventDefault()` in its keyboard handler. The FocusProvider checks `event.defaultPrevented` before navigating.
-
-## FocusScope
-
-Trap focus within a boundary, useful for modals and menus.
-
-```tsx
-import { FocusScope } from "@gridland/utils"
-
-function MyModal({ onClose }) {
-  return (
-    <FocusScope trap autoFocus restoreOnUnmount>
-      <TextInput label="Name" />
-      <TextInput label="Email" />
-      <button onClick={onClose}>Close</button>
-    </FocusScope>
-  )
-}
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `trap` | `boolean` | `false` | Prevent Tab from leaving the scope |
-| `autoFocus` | `boolean` | `false` | Focus first element on mount |
-| `restoreOnUnmount` | `boolean` | `true` | Restore previous focus on unmount |
-
-## Keyboard Routing
-
-The `useKeyboard` hook supports focus-aware routing:
-
-```tsx
-import { useKeyboard } from "@gridland/utils"
-import { useFocus } from "@gridland/utils"
-
-function FocusAwareComponent() {
-  const { focusId } = useFocus()
-
-  // Only fires when this component is focused
-  useKeyboard((e) => {
-    if (e.name === "return") handleSubmit()
-  }, { focusId })
-}
-
-function GlobalShortcut() {
-  // Always fires regardless of focus
-  useKeyboard((e) => {
-    if (e.ctrl && e.name === "q") quit()
-  }, { global: true })
-}
-```
-
-### Options
+**`useKeyboard`** handles keyboard input. Pass `focusId` to scope it to the focused component, or `global: true` to always listen.
 
 | Option | Type | Description |
 |--------|------|-------------|
@@ -117,70 +108,105 @@ function GlobalShortcut() {
 | `global` | `boolean` | Always fire regardless of focus |
 | `release` | `boolean` | Include key release events |
 
+**`useShortcuts`** registers keyboard hints tied to a `focusId`. They update automatically as the user navigates. **`useFocusedShortcuts`** reads the active shortcuts for display in a StatusBar.
+
+### FocusScope
+
+Constrain navigation to a group of components. When `trap` is enabled, Tab wraps around instead of leaving the scope. Useful for modals and menus.
+
+```tsx title="Example"
+<FocusScope trap autoFocus restoreOnUnmount>
+  <TextInput label="Name" />
+  <TextInput label="Email" />
+  <button onClick={onClose}>Close</button>
+</FocusScope>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `trap` | `boolean` | `false` | Prevent Tab from leaving the scope |
+| `autoFocus` | `boolean` | `false` | Focus first element on mount |
+| `restoreOnUnmount` | `boolean` | `true` | Restore previous focus on unmount |
+
 ## Pointer Events
 
 <div className="my-8">
   <PointerDemo />
 </div>
 
-Intrinsic elements support mouse event props:
+### Usage
 
-```tsx
-<box
-  onMouseDown={(e) => console.log("down", e.x, e.y)}
-  onMouseUp={(e) => console.log("up")}
-  onClick={(e) => console.log("clicked!")}
-  onMouseOver={(e) => console.log("hover")}
-  onMouseOut={(e) => console.log("left")}
-  onMouseScroll={(e) => console.log("scroll")}
->
-  <text>Interactive box</text>
-</box>
-```
+```tsx title="app.tsx"
+import { useState } from "react"
 
-`onClick` is a synthetic event that fires when mouseDown and mouseUp occur on the same element.
+const colors = ["#ef4444", "#3b82f6", "#22c55e", "#8b5cf6"]
+const names = ["Red", "Blue", "Green", "Purple"]
 
-## Shortcuts & StatusBar
-
-Register keyboard shortcuts that the StatusBar can display:
-
-```tsx
-import { useShortcuts, useFocusedShortcuts } from "@gridland/utils"
-
-function MyList() {
-  const { focusId } = useFocus()
-  useShortcuts([
-    { key: "↑↓", label: "Navigate" },
-    { key: "enter", label: "Select" },
-  ], focusId)
-  // ...
-}
-
-function MyStatusBar() {
-  const shortcuts = useFocusedShortcuts()
-  return <StatusBar items={shortcuts} />
-}
-```
-
-## useRuntime
-
-Detect the current runtime for conditional behavior:
-
-```tsx
-import { useRuntime } from "@gridland/utils"
-
-function CopyButton({ text }) {
-  const runtime = useRuntime() // 'web' | 'terminal'
-
-  if (runtime !== "web") return null
+function PointerDemo() {
+  const [selected, setSelected] = useState<number | null>(null)
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
 
   return (
-    <box onClick={() => navigator.clipboard.writeText(text)}>
-      <text>Copy</text>
+    <box flexDirection="column" padding={1}>
+      {/* Click to select a color */}
+      <box flexDirection="row" gap={1}>
+        {colors.map((color, i) => (
+          <box
+            key={color}
+            flexGrow={1}
+            height={3}
+            border
+            borderColor={i === selected ? color : "#555"}
+            onMouseDown={(e) => {
+              setSelected(i)
+              setMousePos({ x: e.x, y: e.y })
+            }}
+          >
+            <text style={{ fg: color, bold: i === selected }}>{names[i]}</text>
+          </box>
+        ))}
+      </box>
+
+      {/* Hover detection */}
+      <HoverBox />
+
+      {/* Display click result */}
+      <text>{selected !== null ? `Clicked ${names[selected]}` : "Click a color"}</text>
+      <text style={{ dim: true }}>{mousePos ? `mouse: ${mousePos.x}, ${mousePos.y}` : ""}</text>
+    </box>
+  )
+}
+
+function HoverBox() {
+  const [hovering, setHovering] = useState(false)
+
+  return (
+    <box
+      border
+      borderColor={hovering ? "#22c55e" : "#555"}
+      onMouseOver={() => setHovering(true)}
+      onMouseOut={() => setHovering(false)}
+    >
+      <text>{hovering ? "Mouse inside!" : "Hover me"}</text>
     </box>
   )
 }
 ```
+
+### How it works
+
+All intrinsic elements (`<box>`, `<text>`, etc.) support mouse event props. Each event receives an object with `x`, `y` coordinates relative to the element.
+
+`onClick` is a synthetic event that fires when mouseDown and mouseUp occur on the same element.
+
+| Event | Description |
+|-------|-------------|
+| `onMouseDown` | Mouse button pressed |
+| `onMouseUp` | Mouse button released |
+| `onClick` | Press and release on the same element |
+| `onMouseOver` | Cursor enters the element |
+| `onMouseOut` | Cursor leaves the element |
+| `onMouseScroll` | Scroll wheel over the element |
 
 ## Cursor Highlight
 
@@ -188,31 +214,22 @@ function CopyButton({ text }) {
   <CursorHighlightDemo />
 </div>
 
-Show a visual highlight on the cell under the mouse cursor:
+### Usage
 
-```tsx
-<TUI cursorHighlight cursorHighlightOpacity={0.2}>
-  {/* Cell under mouse gets a subtle background highlight */}
+```tsx title="app.tsx"
+<TUI cursorHighlight cursorHighlightColor="#8888ff" cursorHighlightOpacity={0.2}>
+  <box border>
+    <text>Move the mouse over cells to see the highlight</text>
+  </box>
 </TUI>
 ```
+
+### How it works
+
+Cursor highlight adds a visual overlay on the cell under the mouse cursor. Enable it on the root `TUI` component.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `cursorHighlight` | `boolean` | `false` | Enable cell highlighting |
 | `cursorHighlightColor` | `string` | gray | CSS color for highlight |
 | `cursorHighlightOpacity` | `number` | `0.15` | Opacity of highlight |
-
-## FocusProvider Setup
-
-Wrap your app with `FocusProvider` to enable the focus system. Place it inside your `GridlandProvider`:
-
-```tsx
-import { FocusProvider } from "@gridland/utils"
-import { GridlandProvider } from "@gridland/ui"
-
-<GridlandProvider theme={darkTheme} useKeyboard={useKeyboard}>
-  <FocusProvider>
-    {/* All children can use useFocus, useShortcuts, etc. */}
-  </FocusProvider>
-</GridlandProvider>
-```

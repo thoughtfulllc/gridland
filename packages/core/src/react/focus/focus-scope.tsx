@@ -33,7 +33,7 @@ export function FocusScope({
   useEffect(() => {
     dispatch({
       type: "PUSH_SCOPE",
-      scope: { id: scopeId, trap, savedFocusId: null },
+      scope: { id: scopeId, trap, savedFocusId: null, savedSelectedId: null },
     })
 
     if (autoFocus) {

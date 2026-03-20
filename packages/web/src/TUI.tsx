@@ -194,9 +194,11 @@ export function TUI({
   return (
     <div
       ref={containerRef}
+      onClick={() => canvasRef.current?.focus()}
       style={{
         position: "relative",
         overflow: "hidden",
+        cursor: "default",
         ...style,
       }}
       className={className}

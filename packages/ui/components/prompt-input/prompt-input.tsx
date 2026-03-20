@@ -119,6 +119,8 @@ export interface PromptInputContextValue {
   maxSuggestions: number
   errorText: string
   model?: string
+  dividerColor?: string
+  dividerDashed?: boolean
   theme: ReturnType<typeof useTheme>
 }
 
@@ -188,6 +190,10 @@ export interface PromptInputProps {
   model?: string
   /** Show horizontal dividers above and below the input */
   showDividers?: boolean
+  /** Override divider line color (e.g. for focus indicators) */
+  dividerColor?: string
+  /** Use dashed divider lines (╌) instead of solid (─) */
+  dividerDashed?: boolean
   /** Keyboard hook from @opentui/react */
   useKeyboard?: (handler: (event: any) => void) => void
   /** Compound mode: provide subcomponents as children */
@@ -236,10 +242,12 @@ function resolveStatusHintText(
 
 /** Horizontal divider line. */
 function PromptInputDivider() {
-  const { theme } = usePromptInput()
+  const { dividerColor, dividerDashed, theme } = usePromptInput()
+  const color = dividerColor ?? theme.muted
+  const char = dividerDashed ? "╌" : "─"
   return (
     <text wrapMode="none">
-      <span style={textStyle({ dim: true, fg: theme.muted })}>{"─".repeat(500)}</span>
+      <span style={textStyle({ dim: !dividerColor, fg: color })}>{char.repeat(500)}</span>
     </text>
   )
 }
@@ -372,6 +380,8 @@ export function PromptInput({
   enableHistory = true,
   model,
   showDividers = true,
+  dividerColor,
+  dividerDashed,
   useKeyboard: useKeyboardProp,
   children,
 }: PromptInputProps) {
@@ -619,6 +629,8 @@ export function PromptInput({
     maxSuggestions,
     errorText,
     model,
+    dividerColor,
+    dividerDashed,
     theme,
   }
 
@@ -627,7 +639,7 @@ export function PromptInput({
   if (children) {
     return (
       <PromptInputContext.Provider value={ctxValue}>
-        <box flexDirection="column">
+        <box flexDirection="column" flexShrink={0}>
           {children}
         </box>
       </PromptInputContext.Provider>
@@ -636,7 +648,7 @@ export function PromptInput({
 
   return (
     <PromptInputContext.Provider value={ctxValue}>
-      <box flexDirection="column">
+      <box flexDirection="column" flexShrink={0}>
         {showDividers && <PromptInputDivider />}
         <PromptInputSuggestions />
         <PromptInputTextarea />

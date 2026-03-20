@@ -1,6 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState, useCallback, useRef, useEffect } from "react"
-import { useKeyboard } from "@gridland/utils"
+import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
 import {
   Gradient, GRADIENTS, type GradientName,
   StatusBar, textStyle,
@@ -954,27 +954,230 @@ export function CursorHighlightApp() {
   )
 }
 
+// ── Focus Grid Demo (spatial arrow-key navigation) ───────────────────────
+
+const gridItems = [
+  { id: "cell-1" },
+  { id: "cell-2" },
+  { id: "cell-3" },
+  { id: "cell-4" },
+  { id: "cell-5" },
+  { id: "cell-6" },
+]
+
+function GridCell({ id, autoFocus }: {
+  id: string; autoFocus?: boolean
+}) {
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id, autoFocus })
+
+  useShortcuts(
+    isSelected
+      ? [{ key: "esc", label: "back" }]
+      : [{ key: "↑↓←→", label: "navigate" }, { key: "enter", label: "select" }, { key: "tab", label: "cycle" }],
+    focusId,
+  )
+
+  const borderStyle = isSelected ? "rounded" as const
+    : isFocused ? "dashed" as const
+    : "rounded" as const
+  const borderColor = isSelected ? "#818cf8"
+    : isAnySelected ? "transparent"
+    : isFocused ? "#6366f1"
+    : "#3b3466"
+  const fg = isSelected ? "#a5b4fc"
+    : isFocused ? "#a5b4fc"
+    : "#888"
+
+  return (
+    <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor} width={16} height={5}>
+      <box flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1}>
+        <text style={{ fg, bold: isFocused || isSelected }}>
+          {isSelected ? "selected" : "not selected"}
+        </text>
+      </box>
+    </box>
+  )
+}
+
+function FocusGridStatusBar() {
+  const shortcuts = useFocusedShortcuts()
+  return (
+    <box paddingX={1} paddingBottom={1}>
+      <StatusBar items={shortcuts} />
+    </box>
+  )
+}
+
+export function FocusGridApp() {
+  return (
+    <FocusProvider selectable>
+      <box flexDirection="column" flexGrow={1}>
+        <box flexDirection="column" gap={1} padding={1} flexGrow={1} alignItems="center">
+          <box flexDirection="row" gap={1}>
+            {gridItems.slice(0, 3).map((item, i) => (
+              <GridCell key={item.id} {...item} autoFocus={i === 0} />
+            ))}
+          </box>
+          <box flexDirection="row" gap={1}>
+            {gridItems.slice(3, 6).map((item) => (
+              <GridCell key={item.id} {...item} />
+            ))}
+          </box>
+        </box>
+        <FocusGridStatusBar />
+      </box>
+    </FocusProvider>
+  )
+}
+
+// ── Focus Chat Demo ───────────────────────────────────────────────────────
+
+// ── Focus Chat Demo (sub-components using framework focus + selection) ─────
+
+function CotSection() {
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id: "cot", autoFocus: true })
+  const [cotOpen, setCotOpen] = useState(false)
+
+  // Toggle expand/collapse when selected
+  useKeyboard((event) => {
+    if (event.name === "return") {
+      setCotOpen((v) => !v)
+      event.preventDefault()
+    }
+  }, { focusId, selectedOnly: true })
+
+  // Register context-sensitive shortcuts
+  useShortcuts(
+    isSelected
+      ? [{ key: "enter", label: "expand/collapse" }, { key: "esc", label: "back" }]
+      : [{ key: "↑↓", label: "navigate" }, { key: "tab", label: "cycle" }, { key: "enter", label: "select" }],
+    focusId,
+  )
+
+  // Derive border style from focus state
+  const borderStyle = isSelected ? "rounded" as const
+    : isFocused ? "dashed" as const
+    : "rounded" as const
+  const borderColor = isSelected ? "#818cf8"
+    : isAnySelected ? "transparent"
+    : isFocused ? "#6366f1"
+    : "#3b3466"
+
+  return (
+    <box ref={focusRef} marginTop={1} border borderStyle={borderStyle} borderColor={borderColor}>
+      <ChainOfThought open={cotOpen} onOpenChange={setCotOpen}>
+        <ChainOfThoughtHeader duration="1.2s" />
+        <ChainOfThoughtContent>
+          <ChainOfThoughtStep label="Searched docs" status="done" isLast />
+        </ChainOfThoughtContent>
+      </ChainOfThought>
+    </box>
+  )
+}
+
+function PromptSection() {
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id: "prompt" })
+  const promptHandlerRef = useRef<((event: any) => void) | null>(null)
+
+  // Capture PromptInput's internal keyboard handler
+  const captureKeyboard = useCallback((handler: (event: any) => void) => {
+    promptHandlerRef.current = handler
+  }, [])
+
+  // Forward keys to PromptInput only when selected
+  useKeyboard((event) => {
+    promptHandlerRef.current?.(event)
+  }, { focusId, selectedOnly: true })
+
+  // Register context-sensitive shortcuts
+  useShortcuts(
+    isSelected
+      ? [{ key: "⏎", label: "send" }, { key: "esc", label: "back" }]
+      : [{ key: "↑↓", label: "navigate" }, { key: "tab", label: "cycle" }, { key: "enter", label: "select" }],
+    focusId,
+  )
+
+  // Derive divider style from focus state
+  const dividerColor = isSelected ? "#818cf8"
+    : isAnySelected ? undefined
+    : isFocused ? "#6366f1"
+    : "#3b3466"
+  const dividerDashed = isFocused && !isSelected && !isAnySelected
+
+  return (
+    <box ref={focusRef}>
+      <PromptInput
+        placeholder="Type a message..."
+        status="ready"
+        dividerColor={dividerColor}
+        dividerDashed={dividerDashed}
+        useKeyboard={captureKeyboard}
+      />
+    </box>
+  )
+}
+
+function FocusChatStatusBar() {
+  const shortcuts = useFocusedShortcuts()
+  return (
+    <box paddingX={1} paddingBottom={1}>
+      <StatusBar items={shortcuts} />
+    </box>
+  )
+}
+
+export function FocusChatApp() {
+  return (
+    <FocusProvider selectable>
+      <box flexDirection="column" flexGrow={1}>
+        <box flexDirection="column" flexGrow={1}>
+          <box flexDirection="column" paddingX={1} paddingTop={1} flexGrow={1}>
+            <Message role="user">
+              <Message.Content>
+                <Message.Text>How do I set up keyboard navigation?</Message.Text>
+              </Message.Content>
+            </Message>
+            <CotSection />
+            <Message role="assistant">
+              <Message.Content>
+                <Message.Text>Use the useKeyboard hook to listen for key events. Wrap your app in a FocusProvider to enable tab navigation between focusable components.</Message.Text>
+              </Message.Content>
+            </Message>
+          </box>
+          <PromptSection />
+        </box>
+        <FocusChatStatusBar />
+      </box>
+    </FocusProvider>
+  )
+}
+
 // ── Focus Navigation Demo ─────────────────────────────────────────────────
 
-const focusPanels = [
+const focusMultiSelects = [
   {
-    label: "Language",
+    id: "language",
+    title: "Language",
     items: [
       { label: "TypeScript", value: "ts" },
       { label: "JavaScript", value: "js" },
       { label: "Python", value: "py" },
+      { label: "Rust", value: "rs" },
     ],
   },
   {
-    label: "Framework",
+    id: "framework",
+    title: "Framework",
     items: [
       { label: "React", value: "react" },
       { label: "Vue", value: "vue" },
       { label: "Svelte", value: "svelte" },
+      { label: "Solid", value: "solid" },
     ],
   },
   {
-    label: "Runtime",
+    id: "runtime",
+    title: "Runtime",
     items: [
       { label: "Bun", value: "bun" },
       { label: "Node", value: "node" },
@@ -983,115 +1186,84 @@ const focusPanels = [
   },
 ]
 
-export function FocusApp() {
-  const [panelIndex, setPanelIndex] = useState(0)
-  const [entered, setEntered] = useState(false)
-  const [cursors, setCursors] = useState([0, 0, 0])
-  const [selections, setSelections] = useState<(string | null)[]>([null, null, null])
+function FocusMultiSelectPanel({ id, title, items, autoFocus }: {
+  id: string
+  title: string
+  items: { label: string; value: string }[]
+  autoFocus?: boolean
+}) {
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id, autoFocus })
+  const multiSelectHandlerRef = useRef<((event: any) => void) | null>(null)
 
-  const panelRef = useRef(0)
-  const enteredRef = useRef(false)
-  const cursorsRef = useRef([0, 0, 0])
-  panelRef.current = panelIndex
-  enteredRef.current = entered
-  cursorsRef.current = cursors
+  const captureKeyboard = useCallback((handler: (event: any) => void) => {
+    multiSelectHandlerRef.current = handler
+  }, [])
 
+  // Forward keys to MultiSelect only when selected
   useKeyboard((event) => {
-    const pi = panelRef.current
-    if (enteredRef.current) {
-      const items = focusPanels[pi].items
-      const cur = cursorsRef.current[pi]
-      if (event.name === "down" || event.name === "j") {
-        const next = (cur + 1) % items.length
-        cursorsRef.current = [...cursorsRef.current]
-        cursorsRef.current[pi] = next
-        setCursors([...cursorsRef.current])
-      } else if (event.name === "up" || event.name === "k") {
-        const next = (cur - 1 + items.length) % items.length
-        cursorsRef.current = [...cursorsRef.current]
-        cursorsRef.current[pi] = next
-        setCursors([...cursorsRef.current])
-      } else if (event.name === "return") {
-        const selected = items[cursorsRef.current[pi]].label
-        setSelections((s) => { const n = [...s]; n[pi] = selected; return n })
-        enteredRef.current = false
-        setEntered(false)
-      } else if (event.name === "escape") {
-        enteredRef.current = false
-        setEntered(false)
-      }
-    } else {
-      if (event.name === "right" || event.name === "tab") {
-        const next = (pi + 1) % focusPanels.length
-        panelRef.current = next
-        setPanelIndex(next)
-      } else if (event.name === "left") {
-        const next = (pi - 1 + focusPanels.length) % focusPanels.length
-        panelRef.current = next
-        setPanelIndex(next)
-      } else if (event.name === "return") {
-        enteredRef.current = true
-        setEntered(true)
-      }
-    }
-    event.preventDefault()
-  })
+    multiSelectHandlerRef.current?.(event)
+  }, { focusId, selectedOnly: true })
+
+  useShortcuts(
+    isSelected
+      ? [{ key: "↑↓", label: "move" }, { key: "enter", label: "toggle" }, { key: "esc", label: "back" }]
+      : [{ key: "←→", label: "navigate" }, { key: "tab", label: "cycle" }, { key: "enter", label: "select" }],
+    focusId,
+  )
+
+  const borderStyle = isSelected ? "rounded" as const
+    : isFocused ? "dashed" as const
+    : "rounded" as const
+  const borderColor = isSelected ? "#818cf8"
+    : isAnySelected ? "transparent"
+    : isFocused ? "#6366f1"
+    : "#3b3466"
 
   return (
-    <box flexDirection="column" flexGrow={1}>
-      <box flexDirection="row" gap={1} padding={1} flexGrow={1}>
-        {focusPanels.map((panel, i) => {
-          const focused = i === panelIndex
-          const active = focused && entered
-          const selected = selections[i]
-          return (
-            <box
-              key={panel.label}
-              border
-              borderStyle="rounded"
-              borderColor={active ? "#22c55e" : focused ? "#3b82f6" : "#555"}
-              flexGrow={1}
-            >
-              <box flexDirection="column" padding={1}>
-                <text style={{
-                  fg: active ? "#22c55e" : focused ? "#3b82f6" : "#888",
-                  bold: focused,
-                }}>
-                  {focused ? "▸ " : "  "}{panel.label}
-                  {selected ? `: ${selected}` : ""}
-                </text>
-                {(active || (!entered && focused)) && (
-                  <>
-                    <box height={1} />
-                    <box flexDirection="column">
-                      {panel.items.map((item, j) => {
-                        const highlighted = active && j === cursors[i]
-                        return (
-                          <text key={item.value} style={{
-                            fg: highlighted ? "#22c55e" : active ? "#ccc" : "#666",
-                            bold: highlighted,
-                          }}>
-                            {highlighted ? " ▸ " : "   "}{item.label}
-                          </text>
-                        )
-                      })}
-                    </box>
-                  </>
-                )}
-              </box>
-            </box>
-          )
-        })}
-      </box>
-      <box paddingX={1} paddingBottom={1}>
-        <StatusBar
-          items={entered
-            ? [{ key: "↑↓", label: "select" }, { key: "enter", label: "confirm" }, { key: "esc", label: "back" }, { key: "q", label: "quit" }]
-            : [{ key: "←→", label: "navigate" }, { key: "enter", label: "select" }, { key: "tab", label: "next" }, { key: "q", label: "quit" }]
-          }
+    <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor} flexGrow={1}>
+      <box flexDirection="column" paddingX={1}>
+        <MultiSelect
+          items={items}
+          title={title}
+          allowEmpty
+          enableSelectAll={false}
+          enableClear={false}
+          highlightColor={isSelected ? "#a5b4fc" : "#6366f1"}
+          checkboxColor="#818cf8"
+          useKeyboard={captureKeyboard}
         />
       </box>
     </box>
+  )
+}
+
+function FocusNavStatusBar() {
+  const shortcuts = useFocusedShortcuts()
+  return (
+    <box paddingX={1} paddingBottom={1}>
+      <StatusBar items={shortcuts} />
+    </box>
+  )
+}
+
+export function FocusApp() {
+  return (
+    <FocusProvider selectable>
+      <box flexDirection="column" flexGrow={1}>
+        <box flexDirection="row" gap={1} padding={1} flexGrow={1}>
+          {focusMultiSelects.map((panel, i) => (
+            <FocusMultiSelectPanel
+              key={panel.id}
+              id={panel.id}
+              title={panel.title}
+              items={panel.items}
+              autoFocus={i === 0}
+            />
+          ))}
+        </box>
+        <FocusNavStatusBar />
+      </box>
+    </FocusProvider>
   )
 }
 
@@ -1120,6 +1292,8 @@ export const demos: Demo[] = [
   { name: "chain-of-thought", app: () => <ChainOfThoughtApp /> },
   { name: "message", app: () => <MessageApp /> },
   { name: "terminal-window", app: () => <TerminalWindowApp /> },
+  { name: "focus-grid", app: () => <FocusGridApp /> },
+  { name: "focus-chat", app: () => <FocusChatApp /> },
   { name: "focus", app: () => <FocusApp /> },
   { name: "pointer", app: () => <PointerApp /> },
   { name: "cursor-highlight", app: () => <CursorHighlightApp /> },
