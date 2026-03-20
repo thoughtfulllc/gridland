@@ -12,8 +12,8 @@
   ],
   "scripts": {
     "build": "tsup",
-    "test": "bun test src/__tests__/scaffold.test.ts src/__tests__/helpers.test.ts src/__tests__/cli.test.ts",
-    "test:e2e": "bun test src/__tests__/e2e.test.ts --timeout 120000"
+    "test": "bun test src/scaffold.test.ts src/helpers.test.ts src/cli.test.ts",
+    "test:e2e": "bun test src/e2e.test.ts --timeout 120000"
   },
   "dependencies": {
     "commander": "^13.0.0"

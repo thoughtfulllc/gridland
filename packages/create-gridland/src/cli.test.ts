@@ -4,7 +4,7 @@ import fs from "node:fs"
 import path from "node:path"
 import os from "node:os"
 
-const CLI_PATH = path.resolve(__dirname, "../../dist/index.js")
+const CLI_PATH = path.resolve(__dirname, "../dist/index.js")
 
 let tmpDir: string
 
