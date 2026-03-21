@@ -276,7 +276,6 @@ export class BrowserRenderer {
 
     // --- Scroll events ---
     const onWheel = (e: WheelEvent) => {
-      e.preventDefault()
       const { col, row } = this.pixelToCell(e.clientX, e.clientY)
       const hitId = this.renderContext.hitTest(col, row)
       if (hitId !== null) {
@@ -286,7 +285,7 @@ export class BrowserRenderer {
         }
       }
     }
-    this.canvas.addEventListener("wheel", onWheel, { passive: false })
+    this.canvas.addEventListener("wheel", onWheel)
     this.cleanupListeners.push(() => this.canvas.removeEventListener("wheel", onWheel))
 
     // --- Drag enter/leave for visual feedback ---
