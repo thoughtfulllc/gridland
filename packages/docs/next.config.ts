@@ -31,7 +31,8 @@ const nextConfig: NextConfig = {
       "@gridland/web": path.resolve(pkgRoot, "src/index.ts"),
       "opentui-ui": path.resolve(__dirname, "../ui/components/index.ts"),
       "@gridland/ui": path.resolve(__dirname, "../ui/components/index.ts"),
-      "@demos": path.resolve(__dirname, "../../demos"),
+      "@gridland/demo/landing": path.resolve(__dirname, "../demo/src/landing/index.ts"),
+      "@demos": path.resolve(__dirname, "../demo/demos"),
 
       // react-reconciler — resolve from web's dependency tree
       "react-reconciler": path.resolve(pkgRoot, "node_modules/react-reconciler"),
@@ -81,7 +82,7 @@ const nextConfig: NextConfig = {
       ...sharedAliases,
     }
 
-    // Allow imports from outside the docs package (e.g. ../../demos/) to
+    // Allow imports from outside the docs package (e.g. ../demo/demos/) to
     // resolve node_modules that live in the docs or root directories.
     config.resolve.modules = [
       ...(config.resolve.modules || []),

@@ -3,7 +3,6 @@ import { resolve } from "path"
 
 const sharedAlias = {
   "@gridland/ui": resolve(__dirname, "../ui/components/index.ts"),
-  "@/lib/chat": resolve(__dirname, "../docs/lib/chat.ts"),
 }
 
 export default defineConfig([
@@ -22,7 +21,7 @@ export default defineConfig([
     },
     async onSuccess() {
       const { readFileSync, writeFileSync } = await import("fs")
-      const source = readFileSync(resolve(__dirname, "../../demos/index.tsx"), "utf-8")
+      const source = readFileSync(resolve(__dirname, "./demos/index.tsx"), "utf-8")
       const names: string[] = []
       for (const match of source.matchAll(/\{\s*name:\s*"([^"]+)",\s*app:/g)) {
         names.push(match[1])
@@ -34,14 +33,15 @@ export default defineConfig([
   // rewritten to @gridland/web in onSuccess so browser consumers use
   // the bundled hooks from @gridland/web (shared React context with TUI).
   {
-    entry: { landing: "src/landing.tsx" },
+    entry: { landing: "src/landing-entry.tsx" },
     format: ["esm"],
     dts: false,
     sourcemap: false,
-    external: ["react", "@gridland/utils", "@gridland/web", "ai", "@ai-sdk/react"],
+    external: ["react", "@gridland/utils", "@gridland/web"],
     target: "esnext",
     esbuildOptions(options) {
       options.alias = sharedAlias
+      options.jsx = "automatic"
     },
   },
 ])

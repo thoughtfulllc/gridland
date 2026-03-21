@@ -18,5 +18,5 @@
       "@gridland/ui": ["./components/index.ts"]
     }
   },
-  "include": ["components", "scripts", "../docs/components/landing", "gridland-jsx.d.ts"]
+  "include": ["components", "scripts", "../demo/src/landing", "gridland-jsx.d.ts"]
 }

@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "test": "bun test"
+    "test": "bun test --preload ../web/test/preload.ts"
   },
   "dependencies": {
     "@gridland/bun": "workspace:*",
@@ -27,6 +27,7 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
+    "@gridland/ui": "workspace:*",
     "tsup": "^8.4.0",
     "typescript": "^5.7.0"
   },

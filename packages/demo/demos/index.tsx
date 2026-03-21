@@ -23,7 +23,7 @@ import { CursorHighlightApp } from "./cursor-highlight"
 import { TextStyleApp } from "./text-style"
 import { HeadlessApp } from "./headless"
 import { ThemingApp } from "./theming"
-import { LandingApp } from "../packages/docs/components/landing"
+import { LandingApp } from "../src/landing"
 
 export {
   GradientApp,

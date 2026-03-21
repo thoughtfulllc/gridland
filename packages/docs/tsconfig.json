@@ -41,8 +41,11 @@
       "@gridland/ui": [
         "../ui/components/index.ts"
       ],
+      "@gridland/demo/landing": [
+        "../demo/src/landing/index.ts"
+      ],
       "@demos/*": [
-        "../../demos/*"
+        "../demo/demos/*"
       ]
     }
   },
