@@ -4,17 +4,17 @@ import { useState, useRef } from "react"
 import { useKeyboard } from "@gridland/utils"
 import { StatusBar, useTheme, textStyle } from "@gridland/ui"
 
-const COLS = 24
-const ROWS = 8
+const DEFAULT_COLS = 24
+const DEFAULT_ROWS = 8
 
 const PALETTE = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"]
 
-function makeEmptyGrid(): number[][] {
-  return Array.from({ length: ROWS }, () => Array(COLS).fill(0))
+function makeEmptyGrid(cols: number, rows: number): number[][] {
+  return Array.from({ length: rows }, () => Array(cols).fill(0))
 }
 
-function seedGrid(): number[][] {
-  const g = makeEmptyGrid()
+function seedGrid(cols: number, rows: number): number[][] {
+  const g = makeEmptyGrid(cols, rows)
   // Small heart near center
   const heart = [
     [0, 1, 1, 0, 0, 1, 1, 0],
@@ -24,11 +24,11 @@ function seedGrid(): number[][] {
     [0, 0, 1, 1, 1, 1, 0, 0],
     [0, 0, 0, 1, 1, 0, 0, 0],
   ]
-  const ox = 8
+  const ox = Math.floor(cols / 2) - 4
   const oy = 1
   for (let r = 0; r < heart.length; r++) {
     for (let c = 0; c < heart[r].length; c++) {
-      if (heart[r][c] && oy + r < ROWS && ox + c < COLS) {
+      if (heart[r][c] && oy + r < rows && ox + c < cols) {
         g[oy + r][ox + c] = 1 // red
       }
     }
@@ -36,9 +36,19 @@ function seedGrid(): number[][] {
   return g
 }
 
-export function CanvasApp() {
-  const [grid, setGrid] = useState<number[][]>(seedGrid)
-  const [cursor, setCursor] = useState({ x: 12, y: 4 })
+interface CanvasAppProps {
+  mouseOffset?: { x: number; y: number }
+  containerWidth?: number
+  containerHeight?: number
+}
+
+export function CanvasApp({ mouseOffset = { x: 0, y: 0 }, containerWidth, containerHeight }: CanvasAppProps = {}) {
+  const theme = useTheme()
+  const COLS = containerWidth ? Math.floor((containerWidth - 2) / 2) : DEFAULT_COLS
+  // instruction(1) + grid(ROWS) + spacer(1) + palette(1) + spacer(1) + statusbar(1) = containerHeight - 2 (borders)
+  const ROWS = containerHeight ? Math.max(3, containerHeight - 2 - 5) : DEFAULT_ROWS
+  const [grid, setGrid] = useState<number[][]>(() => seedGrid(COLS, ROWS))
+  const [cursor, setCursor] = useState({ x: Math.floor(COLS / 2), y: Math.floor(ROWS / 2) })
   const [selectedColor, setSelectedColor] = useState(0)
   const [drawing, setDrawing] = useState(false)
 
@@ -80,7 +90,7 @@ export function CanvasApp() {
       selectedColorRef.current = idx
       setSelectedColor(idx)
     } else if (event.name === "c") {
-      const g = makeEmptyGrid()
+      const g = makeEmptyGrid(COLS, ROWS)
       gridRef.current = g
       setGrid(g)
     }
@@ -96,8 +106,8 @@ export function CanvasApp() {
 
   function gridMousePos(e: any): { gx: number; gy: number } | null {
     // Each cell is 2 chars wide; grid has 1 padding left
-    const gx = Math.floor((e.x - 1) / 2)
-    const gy = e.y - 4 // account for padding (1) + title + subtitle + spacer
+    const gx = Math.floor((e.x - mouseOffset.x - 1) / 2)
+    const gy = e.y - mouseOffset.y - 2 // account for border (1) + instruction row (1)
     if (gx >= 0 && gx < COLS && gy >= 0 && gy < ROWS) {
       return { gx, gy }
     }
@@ -110,9 +120,9 @@ export function CanvasApp() {
       flexGrow={1}
       onMouseDown={(e: any) => {
         // Check if clicking on palette row (padding + title + subtitle + spacer + grid + spacer = row 13)
-        const paletteY = 1 + 1 + 1 + 1 + ROWS + 1
+        const paletteY = mouseOffset.y + 1 + 1 + ROWS + 1
         if (e.y === paletteY) {
-          const px = Math.floor((e.x - 1) / 4)
+          const px = Math.floor((e.x - mouseOffset.x - 1) / 4)
           if (px >= 0 && px < PALETTE.length) {
             selectedColorRef.current = px
             setSelectedColor(px)
@@ -139,10 +149,8 @@ export function CanvasApp() {
         }
       }}
     >
-      <box flexDirection="column" padding={1}>
-        <text style={{ bold: true, fg: "#fff" }}>Mini Pixel Canvas</text>
-        <text style={{ dim: true, fg: "#888" }}>Draw with mouse or keyboard</text>
-        <box height={1} />
+      <box flexDirection="column" paddingX={1}>
+        <text style={textStyle({ dim: true, fg: theme.muted })}>Draw with mouse or keyboard</text>
         <box flexDirection="column">
           {grid.map((row, r) => (
             <text key={r}>
@@ -184,7 +192,8 @@ export function CanvasApp() {
           })}
         </text>
       </box>
-      <box paddingX={1} paddingBottom={1}>
+      <box flexGrow={1} />
+      <box paddingX={1}>
         <StatusBar items={[
           { key: "↑↓←→", label: "move" },
           { key: "enter", label: "paint" },

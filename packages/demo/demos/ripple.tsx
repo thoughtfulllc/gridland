@@ -4,8 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { useKeyboard } from "@gridland/utils"
 import { StatusBar, useTheme } from "@gridland/ui"
 
-const COLS = 40
-const ROWS = 10
+const DEFAULT_COLS = 40
+const DEFAULT_ROWS = 10
 
 const CHARS = ["·", "░", "▒", "▓", "█"]
 
@@ -38,10 +38,19 @@ function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t
 }
 
-export function RippleApp() {
+interface RippleAppProps {
+  mouseOffset?: { x: number; y: number }
+  containerWidth?: number
+  containerHeight?: number
+}
+
+export function RippleApp({ mouseOffset = { x: 0, y: 0 }, containerWidth, containerHeight }: RippleAppProps = {}) {
   const theme = useTheme()
   const [, setTick] = useState(0)
 
+  const COLS = containerWidth ? containerWidth - 2 : DEFAULT_COLS
+  // instruction(1) + grid(ROWS) + statusbar(1) = containerHeight - 2 (borders)
+  const ROWS = containerHeight ? Math.max(3, containerHeight - 2 - 2) : DEFAULT_ROWS
   const cursorRef = useRef({ x: Math.floor(COLS / 2), y: Math.floor(ROWS / 2) })
   const ripplesRef = useRef<Ripple[]>([])
   const frameRef = useRef(0)
@@ -159,33 +168,32 @@ export function RippleApp() {
       <box
         flexDirection="column"
         flexGrow={1}
-        padding={1}
+        paddingX={1}
         onMouseMove={(e: any) => {
           // Map mouse position to grid coordinates
-          // Account for padding (1) + title + subtitle + spacer (3 rows)
-          const gx = e.x - 1
-          const gy = e.y - 4
+          // Account for border (1) + instruction row (1)
+          const gx = e.x - mouseOffset.x - 1
+          const gy = e.y - mouseOffset.y - 2
           if (gx >= 0 && gx < COLS && gy >= 0 && gy < ROWS) {
             mousePosRef.current = { x: gx, y: gy }
             cursorRef.current = { x: gx, y: gy }
           }
         }}
         onMouseDown={(e: any) => {
-          const gx = e.x - 1
-          const gy = e.y - 4
+          const gx = e.x - mouseOffset.x - 1
+          const gy = e.y - mouseOffset.y - 2
           if (gx >= 0 && gx < COLS && gy >= 0 && gy < ROWS) {
             addRipple(gx, gy)
           }
         }}
       >
-        <text style={{ bold: true, fg: theme.foreground }}>Ripple Grid</text>
         <text style={{ dim: true, fg: theme.muted }}>
           Click or press Enter to create ripples
         </text>
-        <box height={1} />
         <box flexDirection="column">{grid}</box>
       </box>
-      <box paddingX={1} paddingBottom={1}>
+      <box flexGrow={1} />
+      <box paddingX={1}>
         <StatusBar
           items={[
             { key: "↑↓←→", label: "move" },

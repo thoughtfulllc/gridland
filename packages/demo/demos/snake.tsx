@@ -2,7 +2,7 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useKeyboard, useTerminalDimensions } from "@gridland/utils"
-import { StatusBar, textStyle } from "@gridland/ui"
+import { StatusBar, textStyle, useTheme } from "@gridland/ui"
 
 // Layout constants (in terminal rows/cols)
 const SCORE_ROW = 0       // row 0: score line
@@ -40,8 +40,17 @@ function makeInitialSnake(cols: number, rows: number): { x: number; y: number }[
   ]
 }
 
-export function SnakeApp() {
-  const { width: termW, height: termH } = useTerminalDimensions()
+interface SnakeAppProps {
+  containerWidth?: number
+  containerHeight?: number
+  mouseOffset?: { x: number; y: number }
+}
+
+export function SnakeApp({ containerWidth, containerHeight, mouseOffset = { x: 0, y: 0 } }: SnakeAppProps = {}) {
+  const theme = useTheme()
+  const termDims = useTerminalDimensions()
+  const termW = containerWidth ?? termDims.width
+  const termH = containerHeight ? containerHeight - 2 : termDims.height // -2 for outer game box borders when embedded
   const [, setTick] = useState(0)
 
   // Derive game grid size from terminal dimensions
@@ -150,8 +159,8 @@ export function SnakeApp() {
     if (gameOverRef.current) return
 
     // Map absolute terminal coordinates to game cell
-    const cellX = Math.floor((e.x - contentLeft) / CELL_WIDTH)
-    const cellY = e.y - contentTop
+    const cellX = Math.floor((e.x - mouseOffset.x - contentLeft) / CELL_WIDTH)
+    const cellY = e.y - mouseOffset.y - contentTop
     if (cellX < 0 || cellX >= colsRef.current || cellY < 0 || cellY >= rowsRef.current) return
 
     const head = snakeRef.current[0]
@@ -188,12 +197,11 @@ export function SnakeApp() {
     <box width={termW} height={termH} flexDirection="column" onMouseDown={handleClick}>
       {/* Score row */}
       <box height={1} paddingX={1}>
-        <text style={{ bold: true, fg: "#fff" }}>
-          {"Snake  "}
-          <span style={textStyle({ fg: "#888" })}>{"Score: "}</span>
+        <text style={textStyle({ dim: true, fg: theme.muted })}>
+          {"Score: "}
           <span style={textStyle({ bold: true, fg: HEAD_COLOR })}>{String(score)}</span>
           {!gameStarted && (
-            <span style={textStyle({ dim: true, fg: "#888" })}>{" — press an arrow key to start"}</span>
+            <span style={textStyle({ dim: true, fg: theme.muted })}>{" — press an arrow key to start"}</span>
           )}
         </text>
       </box>
@@ -203,7 +211,7 @@ export function SnakeApp() {
         marginX={GRID_LEFT}
         border
         borderStyle="rounded"
-        borderColor={gameOver ? "#ef4444" : "#555"}
+        borderColor={gameOver ? "#ef4444" : theme.muted}
       >
         <box flexDirection="column">
           {Array.from({ length: rows }, (_, row) => (
@@ -242,6 +250,7 @@ export function SnakeApp() {
         </box>
       </box>
       {/* Status bar */}
+      <box flexGrow={1} />
       <box height={STATUS_HEIGHT} paddingX={1}>
         <StatusBar items={[
           { key: "↑↓←→", label: "move" },

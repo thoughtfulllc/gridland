@@ -7,8 +7,8 @@ import { StatusBar, useTheme, textStyle } from "@gridland/ui"
 const COLS = 4
 const ROWS = 3
 const TILE_COUNT = COLS * ROWS
-const TILE_WIDTH = 8
-const TILE_HEIGHT = 3
+const DEFAULT_TILE_WIDTH = 8
+const DEFAULT_TILE_HEIGHT = 3
 
 const SOLVED = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0]
 
@@ -79,8 +79,16 @@ function isAdjacentToEmpty(board: number[], tileIdx: number): boolean {
   )
 }
 
-export function PuzzleApp() {
+interface PuzzleAppProps {
+  containerWidth?: number
+  containerHeight?: number
+}
+
+export function PuzzleApp({ containerWidth, containerHeight }: PuzzleAppProps = {}) {
   const theme = useTheme()
+  const TILE_WIDTH = containerWidth ? Math.floor((containerWidth - 2) / COLS) : DEFAULT_TILE_WIDTH
+  // instruction(1) + tiles(ROWS * TILE_HEIGHT) + spacer(1) + moves(1) + statusbar(1) = containerHeight - 2 (borders)
+  const TILE_HEIGHT = containerHeight ? Math.max(3, Math.floor((containerHeight - 2 - 4) / ROWS)) : DEFAULT_TILE_HEIGHT
   const [board, setBoard] = useState<number[]>(SOLVED)
   const [moves, setMoves] = useState(0)
   const [solved, setSolved] = useState(false)
@@ -145,11 +153,10 @@ export function PuzzleApp() {
   }, [board])
 
   return (
-    <box flexDirection="column" flexGrow={1} padding={1}>
-      <text style={textStyle({ bold: true, fg: theme.primary })}>
-        Sliding Tile Puzzle
+    <box flexDirection="column" flexGrow={1} paddingX={1}>
+      <text style={textStyle({ dim: true, fg: theme.muted })}>
+        Slide tiles to solve the puzzle
       </text>
-      <box height={1} />
       <box flexDirection="column">
         {rows.map((row, rowIdx) => (
           <box key={rowIdx} flexDirection="row">
@@ -195,7 +202,7 @@ export function PuzzleApp() {
       </box>
       <box height={1} />
       <box flexDirection="row" gap={2}>
-        <text style={textStyle({ fg: theme.muted })}>
+        <text style={textStyle({ dim: true, fg: theme.muted })}>
           Moves: {moves}
         </text>
         {solved && moves > 0 && (
@@ -204,7 +211,8 @@ export function PuzzleApp() {
           </text>
         )}
       </box>
-      <box paddingX={1} paddingBottom={1}>
+      <box flexGrow={1} />
+      <box paddingX={1}>
         <StatusBar items={[
           { key: "↑↓←→", label: "slide" },
           { key: "click", label: "slide tile" },
