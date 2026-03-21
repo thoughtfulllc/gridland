@@ -1,6 +1,6 @@
 {
   "name": "@gridland/demo",
-  "version": "0.2.50",
+  "version": "0.2.51",
   "type": "module",
   "description": "Run gridland component demos from anywhere",
   "exports": {
@@ -27,7 +27,6 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
-    "@gridland/ui": "workspace:*",
     "tsup": "^8.4.0",
     "typescript": "^5.7.0"
   },
