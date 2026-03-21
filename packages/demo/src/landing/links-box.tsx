@@ -1,10 +1,12 @@
 // @ts-nocheck
 import { useTheme } from "@gridland/ui"
+import { isBrowser } from "@gridland/utils"
 
 const UNDERLINE = 1 << 3
 
 export function LinksBox() {
   const theme = useTheme()
+  const docsHref = isBrowser() ? `${window.location.origin}/docs` : 'https://gridland.io/docs'
 
   return (
     <box
@@ -22,7 +24,7 @@ export function LinksBox() {
         </a>
         <span>{"  "}</span>
         <span>📖</span>
-        <a href="https://gridland.io/docs" style={{ attributes: UNDERLINE, fg: theme.accent }}>
+        <a href={docsHref} style={{ attributes: UNDERLINE, fg: theme.accent }}>
           {" Docs"}
         </a>
       </text>
