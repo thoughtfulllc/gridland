@@ -3,22 +3,22 @@ import { useState, useEffect, useRef, useMemo } from "react"
 import { Gradient, GRADIENTS, generateGradient, textStyle } from "@gridland/ui"
 import figlet from "figlet"
 // @ts-ignore
-import ansiShadow from "figlet/importable-fonts/ANSI Shadow.js"
+import standardFont from "figlet/importable-fonts/Standard.js"
 
-figlet.parseFont("ANSI Shadow", ansiShadow)
+figlet.parseFont("Standard", standardFont)
 
-function makeArt(text: string) {
+function makeArt(text: string, font = "ANSI Shadow") {
   return figlet
-    .textSync(text, { font: "ANSI Shadow" as any })
+    .textSync(text, { font: font as any })
     .split("\n")
     .filter((l: string) => l.trimEnd().length > 0)
     .join("\n")
 }
 
-const fullArt = makeArt("gridland")
-const gridArt = makeArt("grid")
-const landArt = makeArt("land")
-const ART_HEIGHT = 6 // ANSI Shadow font produces 6 lines
+const fullArt = makeArt("gridland", "Standard")
+const gridArt = makeArt("grid", "Standard")
+const landArt = makeArt("land", "Standard")
+const ART_HEIGHT = 6 // Standard font produces 6 lines
 
 function useAnimation(duration = 1000) {
   const isBrowser = typeof document !== "undefined"
@@ -110,12 +110,12 @@ export function Logo({ compact, narrow, mobile }: { compact?: boolean; narrow?: 
   const progress = useAnimation(900)
 
   // Drop: animate top offset from -ART_HEIGHT to 0
-  const artHeight = compact ? 1 : narrow ? ART_HEIGHT * 2 : ART_HEIGHT
+  const artHeight = compact ? 1 : (narrow && !mobile) ? ART_HEIGHT * 2 : ART_HEIGHT
   const dropOffset = Math.round((1 - progress) * -artHeight)
 
   // Reveal: sweep columns left-to-right, slightly behind the drop
   const revealProgress = Math.max(0, Math.min(1, (progress - 0.1) / 0.7))
-  const maxWidth = compact ? 8 : narrow ? 40 : 62
+  const maxWidth = compact ? 8 : narrow ? 40 : 46
   const revealCol = Math.round(revealProgress * (maxWidth + 4)) - 2
 
   const taglineOpacity = Math.max(0, Math.min(1, (progress - 0.7) / 0.3))
@@ -131,7 +131,7 @@ export function Logo({ compact, narrow, mobile }: { compact?: boolean; narrow?: 
 
   // In CLI mode (no requestAnimationFrame), render without overflow/position wrappers
   if (!isBrowser) {
-    const art = compact ? "gridland" : narrow ? gridArt + "\n" + landArt : fullArt
+    const art = compact ? "gridland" : (narrow && !mobile) ? gridArt + "\n" + landArt : fullArt
     return (
       <box flexDirection="column" flexShrink={0} width="100%" alignItems="center" shouldFill={false}>
         <Gradient name="instagram">{art}</Gradient>
@@ -156,7 +156,7 @@ export function Logo({ compact, narrow, mobile }: { compact?: boolean; narrow?: 
     )
   }
 
-  if (narrow) {
+  if (narrow && !mobile) {
     return (
       <box flexDirection="column" flexShrink={0} width="100%" shouldFill={false}>
         <box height={artHeight} overflow="hidden" position="relative" width="100%" flexShrink={0} shouldFill={false}>

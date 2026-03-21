@@ -42,7 +42,7 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
   // Approximate the bordered box position for matrix background clear rect
   const isBrowser = typeof document !== 'undefined'
   const { clearRect, installLinksClearRect, boxTop } = useMemo(() => {
-    const logoHeight = isTiny ? 2 : isNarrow ? 13 : 7
+    const logoHeight = isTiny ? 2 : isMobile ? 7 : isNarrow ? 13 : 7
     const logoExtra = isBrowser ? 1 : 0
     const gap = isMobile ? 0 : 1
     const paddingTop = isMobile ? 1 : 3
@@ -73,7 +73,8 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
 
   // Container dimensions for demos (inner bordered box size)
   const containerWidth = boxWidth - 2 // minus border(1) on each side
-  const containerHeight = height - boxTop - 1 - TAB_HEIGHT // box region minus tab rows
+  const maxBoxHeight = 20 // includes tab rows + game box with borders
+  const containerHeight = Math.min(height - boxTop - 1 - TAB_HEIGHT, maxBoxHeight - TAB_HEIGHT) // box region minus tab rows, capped
 
   // ── Tab chrome rendering ──────────────────────────────────────────────
   const activeStart = TAB_POSITIONS[activeIndex]
@@ -133,11 +134,11 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
                 </text>
               </box>
             )}
-            <InstallBox />
+            {!isMobile && <InstallBox />}
             <LinksBox />
           </box>
           {/* Connected tabs + game box */}
-          <box flexDirection="column" width={boxWidth} maxWidth={MAX_BOX_WIDTH} alignSelf="center" flexGrow={1}>
+          <box flexDirection="column" width={boxWidth} maxWidth={MAX_BOX_WIDTH} maxHeight={20} alignSelf="center" flexGrow={1}>
             {/* Tab top border row (clickable per tab) */}
             <box height={1} flexShrink={0} flexDirection="row" shouldFill={false}>
               {DEMOS.map((name, i) => {
@@ -187,6 +188,15 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
                 {activeIndex === 2 && <CanvasApp mouseOffset={mouseOffset} containerWidth={containerWidth} containerHeight={containerHeight} />}
                 {activeIndex === 3 && <SnakeApp containerWidth={containerWidth} containerHeight={containerHeight} mouseOffset={mouseOffset} />}
               </box>
+            </box>
+            <box height={1} />
+            <box width="100%" alignItems="center" flexDirection="column" shouldFill={false}>
+              <text style={textStyle({ dim: true, fg: theme.muted })}>
+                {"Made with ❤️ by "}
+                <a href="https://cjroth.com" style={{ attributes: 1 << 3, fg: theme.muted }}>Chris Roth</a>
+                {" + "}
+                <a href="https://jessicacheng.studio" style={{ attributes: 1 << 3, fg: theme.muted }}>Jessica Cheng</a>
+              </text>
             </box>
           </box>
         </box>
