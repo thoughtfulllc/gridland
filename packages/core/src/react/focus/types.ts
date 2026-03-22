@@ -3,17 +3,22 @@ export interface FocusEntry {
   tabIndex: number
   disabled: boolean
   scopeId: string | null
+  /** Whether this entry supports selection (enter to interact). Default true. */
+  selectable: boolean
 }
 
 export interface FocusScope {
   id: string
   trap: boolean
   savedFocusId: string | null
+  savedSelectedId: string | null
 }
 
 export interface FocusState {
   entries: FocusEntry[]
   focusedId: string | null
+  /** The ID of the currently selected (entered) component, or null. */
+  selectedId: string | null
   scopes: FocusScope[]
   shortcuts: Map<string, ShortcutEntry[]>
 }
@@ -30,6 +35,9 @@ export type FocusAction =
   | { type: "BLUR"; id: string }
   | { type: "FOCUS_NEXT" }
   | { type: "FOCUS_PREV" }
+  | { type: "SELECT"; id: string }
+  | { type: "DESELECT" }
+  | { type: "PATCH_ENTRY"; id: string; patch: Partial<Omit<FocusEntry, "id">> }
   | { type: "PUSH_SCOPE"; scope: FocusScope }
   | { type: "POP_SCOPE"; scopeId: string }
   | { type: "SET_SHORTCUTS"; focusId: string; shortcuts: ShortcutEntry[] }

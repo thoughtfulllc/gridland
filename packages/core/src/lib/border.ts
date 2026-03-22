@@ -14,10 +14,10 @@ export interface BorderCharacters {
   cross: string
 }
 
-export type BorderStyle = "single" | "double" | "rounded" | "heavy"
+export type BorderStyle = "single" | "double" | "rounded" | "heavy" | "dashed"
 export type BorderSides = "top" | "right" | "bottom" | "left"
 
-const VALID_BORDER_STYLES: readonly BorderStyle[] = ["single", "double", "rounded", "heavy"] as const
+const VALID_BORDER_STYLES: readonly BorderStyle[] = ["single", "double", "rounded", "heavy", "dashed"] as const
 
 export function isValidBorderStyle(value: unknown): value is BorderStyle {
   return typeof value === "string" && VALID_BORDER_STYLES.includes(value as BorderStyle)
@@ -88,6 +88,19 @@ export const BorderChars: Record<BorderStyle, BorderCharacters> = {
     leftT: "┣",
     rightT: "┫",
     cross: "╋",
+  },
+  dashed: {
+    topLeft: "╭",
+    topRight: "╮",
+    bottomLeft: "╰",
+    bottomRight: "╯",
+    horizontal: "┄",
+    vertical: "┆",
+    topT: "┬",
+    bottomT: "┴",
+    leftT: "├",
+    rightT: "┤",
+    cross: "┼",
   },
 }
 
@@ -165,4 +178,5 @@ export const BorderCharArrays: Record<BorderStyle, Uint32Array> = {
   double: borderCharsToArray(BorderChars.double),
   rounded: borderCharsToArray(BorderChars.rounded),
   heavy: borderCharsToArray(BorderChars.heavy),
+  dashed: borderCharsToArray(BorderChars.dashed),
 }

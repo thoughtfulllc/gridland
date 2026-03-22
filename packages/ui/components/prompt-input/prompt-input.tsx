@@ -120,6 +120,8 @@ export interface PromptInputContextValue {
   maxSuggestions: number
   errorText: string
   model?: string
+  dividerColor?: string
+  dividerDashed?: boolean
   theme: ReturnType<typeof useTheme>
 }
 
@@ -191,6 +193,10 @@ export interface PromptInputProps {
   showDividers?: boolean
   /** Auto-focus the input on mount (ensures canvas has keyboard focus in the browser) */
   autoFocus?: boolean
+  /** Override divider line color (e.g. for focus indicators) */
+  dividerColor?: string
+  /** Use dashed divider lines (╌) instead of solid (─) */
+  dividerDashed?: boolean
   /** Keyboard hook from @opentui/react */
   useKeyboard?: (handler: (event: any) => void) => void
   /** Compound mode: provide subcomponents as children */
@@ -237,14 +243,14 @@ function resolveStatusHintText(
 // Subcomponents
 // ============================================================================
 
-const DIVIDER_LINE = "─".repeat(500)
-
 /** Horizontal divider line that extends into parent border gutters. */
 function PromptInputDivider() {
-  const { theme } = usePromptInput()
+  const { dividerColor, dividerDashed, theme } = usePromptInput()
+  const color = dividerColor ?? theme.muted
+  const char = dividerDashed ? "╌" : "─"
   return (
     <text wrapMode="none" marginLeft={-1} marginRight={-1}>
-      <span style={textStyle({ dim: true, fg: theme.muted })}>{DIVIDER_LINE}</span>
+      <span style={textStyle({ dim: !dividerColor, fg: color })}>{char.repeat(500)}</span>
     </text>
   )
 }
@@ -378,6 +384,8 @@ export function PromptInput({
   model,
   showDividers = true,
   autoFocus = false,
+  dividerColor,
+  dividerDashed,
   useKeyboard: useKeyboardProp,
   children,
 }: PromptInputProps) {
@@ -635,6 +643,8 @@ export function PromptInput({
     maxSuggestions,
     errorText,
     model,
+    dividerColor,
+    dividerDashed,
     theme,
   }
 

@@ -18,6 +18,8 @@ import { ChainOfThoughtApp } from "./chain-of-thought"
 import { MessageApp } from "./message"
 import { TerminalWindowApp } from "./terminal-window"
 import { FocusApp } from "./focus"
+import { FocusGridApp } from "./focus-grid"
+import { FocusChatApp } from "./focus-chat"
 import { PointerApp } from "./pointer"
 import { CursorHighlightApp } from "./cursor-highlight"
 import { TextStyleApp } from "./text-style"
@@ -48,6 +50,8 @@ export {
   MessageApp,
   TerminalWindowApp,
   FocusApp,
+  FocusGridApp,
+  FocusChatApp,
   PointerApp,
   CursorHighlightApp,
   TextStyleApp,
@@ -83,6 +87,8 @@ export const demos: Demo[] = [
   { name: "chain-of-thought", app: () => <ChainOfThoughtApp /> },
   { name: "message", app: () => <MessageApp /> },
   { name: "terminal-window", app: () => <TerminalWindowApp /> },
+  { name: "focus-grid", app: () => <FocusGridApp /> },
+  { name: "focus-chat", app: () => <FocusChatApp /> },
   { name: "focus", app: () => <FocusApp /> },
   { name: "pointer", app: () => <PointerApp /> },
   { name: "cursor-highlight", app: () => <CursorHighlightApp /> },

@@ -2,7 +2,7 @@ import React, { type ReactNode } from "react"
 import type { BrowserRenderer } from "./browser-renderer"
 import { BrowserContext } from "./browser-context"
 
-import { _render } from "../../core/src/react/reconciler/reconciler"
+import { _createContainer, _updateContainer } from "../../core/src/react/reconciler/reconciler"
 import { AppContext } from "../../core/src/react/components/app"
 import { ErrorBoundary as _ErrorBoundary } from "../../core/src/react/components/error-boundary"
 import { RuntimeProvider } from "../../core/src/react/runtime/runtime-context"
@@ -17,7 +17,7 @@ export interface BrowserRoot {
 }
 
 export function createBrowserRoot(renderer: BrowserRenderer): BrowserRoot {
-  let unmountFn: (() => void) | null = null
+  let container: ReturnType<typeof _createContainer> | null = null
 
   return {
     render(node: ReactNode) {
@@ -30,11 +30,15 @@ export function createBrowserRoot(renderer: BrowserRenderer): BrowserRoot {
           </BrowserContext.Provider>
         </RuntimeProvider>
       )
-      unmountFn = _render(element, renderer.root)
+      if (!container) {
+        container = _createContainer(renderer.root)
+      }
+      _updateContainer(element, container)
     },
     unmount() {
-      if (unmountFn) {
-        // Reconciler cleanup would happen here
+      if (container) {
+        _updateContainer(null, container)
+        container = null
       }
     },
   }

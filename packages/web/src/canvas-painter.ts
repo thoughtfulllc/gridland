@@ -33,6 +33,7 @@ interface BoxDrawDef {
   down?: boolean
   type: "light" | "heavy" | "double"
   arc?: "tl" | "tr" | "bl" | "br" // rounded corner arc direction
+  dashed?: boolean // dashed line style (U+2504–U+250B, U+254C–U+254F)
 }
 
 const BOX_DRAWING_MAP: Record<number, BoxDrawDef> = {
@@ -110,15 +111,19 @@ const BOX_DRAWING_MAP: Record<number, BoxDrawDef> = {
   0x2549: { left: true, right: true, up: true, down: true, type: "heavy" }, // ╉
   0x254a: { left: true, right: true, up: true, down: true, type: "heavy" }, // ╊
 
-  // Dashed lines (render as solid light/heavy)
-  0x2504: { left: true, right: true, type: "light" },                    // ┄
-  0x2505: { left: true, right: true, type: "heavy" },                    // ┅
-  0x2506: { up: true, down: true, type: "light" },                       // ┆
-  0x2507: { up: true, down: true, type: "heavy" },                       // ┇
-  0x2508: { left: true, right: true, type: "light" },                    // ┈
-  0x2509: { left: true, right: true, type: "heavy" },                    // ┉
-  0x250a: { up: true, down: true, type: "light" },                       // ┊
-  0x250b: { up: true, down: true, type: "heavy" },                       // ┋
+  // Dashed lines
+  0x2504: { left: true, right: true, type: "light", dashed: true },      // ┄ triple dash horizontal
+  0x2505: { left: true, right: true, type: "heavy", dashed: true },      // ┅
+  0x2506: { up: true, down: true, type: "light", dashed: true },         // ┆ triple dash vertical
+  0x2507: { up: true, down: true, type: "heavy", dashed: true },         // ┇
+  0x2508: { left: true, right: true, type: "light", dashed: true },      // ┈ quadruple dash horizontal
+  0x2509: { left: true, right: true, type: "heavy", dashed: true },      // ┉
+  0x250a: { up: true, down: true, type: "light", dashed: true },         // ┊ quadruple dash vertical
+  0x250b: { up: true, down: true, type: "heavy", dashed: true },         // ┋
+  0x254c: { left: true, right: true, type: "light", dashed: true },      // ╌ double dash horizontal
+  0x254d: { left: true, right: true, type: "heavy", dashed: true },      // ╍
+  0x254e: { up: true, down: true, type: "light", dashed: true },         // ╎ double dash vertical
+  0x254f: { up: true, down: true, type: "heavy", dashed: true },         // ╏
 
   // Double lines
   0x2550: { left: true, right: true, type: "double" },                   // ═
@@ -374,6 +379,31 @@ export class CanvasPainter {
                 ctx.lineTo(cellX + cw, cellY + ch)
               }
               ctx.stroke()
+            } else if (def.dashed) {
+              // Dashed: uniform dash length and gap in both directions.
+              // Horizontal: one dash per cell, centered.
+              // Vertical: tile multiple dashes per cell using the same period (cw)
+              // so dash and gap sizes match exactly.
+              const dashLen = Math.max(2, Math.round(cw * 0.45))
+              const half = dashLen / 2
+              ctx.lineWidth = def.type === "heavy" ? 2 : 1
+              ctx.lineCap = "round"
+              ctx.beginPath()
+              if (def.left || def.right) {
+                ctx.moveTo(cx - half, cy)
+                ctx.lineTo(cx + half, cy)
+              }
+              if (def.up || def.down) {
+                const count = Math.max(1, Math.round(ch / cw))
+                const step = ch / count
+                for (let i = 0; i < count; i++) {
+                  const dy = cellY + step / 2 + i * step
+                  ctx.moveTo(cx, dy - half)
+                  ctx.lineTo(cx, dy + half)
+                }
+              }
+              ctx.stroke()
+              ctx.lineCap = "square"
             } else {
               ctx.lineWidth = def.type === "heavy" ? 2 : 1
               ctx.beginPath()
