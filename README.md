@@ -2,6 +2,8 @@
 
 [![Build](https://github.com/thoughtfulllc/gridland/actions/workflows/test.yml/badge.svg)](https://github.com/thoughtfulllc/gridland/actions/workflows/test.yml)
 
+**[Website](https://gridland.io)** | **[Docs](https://gridland.io/docs)** | **[npm](https://www.npmjs.com/org/gridland)**
+
 Build terminal apps that run in the browser (and the terminal) with React. The [Gridland website](https://www.gridland.io) is built with Gridland.
 
 Gridland is built on the [OpenTUI](https://opentui.com) rendering engine.
