@@ -23,6 +23,7 @@ const AVAILABLE_DEMOS = [
   "multi-select", "prompt-input", "text-input", "link", "tabs", "status-bar",
   "modal", "primitives", "chat", "chain-of-thought", "message", "terminal-window",
   "focus", "pointer", "cursor-highlight", "text-style", "headless", "theming", "landing",
+  "ripple", "puzzle", "canvas", "snake",
 ]
 
 function run(...args: string[]) {

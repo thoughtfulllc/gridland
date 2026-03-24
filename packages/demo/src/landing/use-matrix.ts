@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useLayoutEffect, useRef } from "react"
 
 const CHARS = "abcdefghijklmnopqrstuvwxyz0123456789@#$%^&*(){}[]|;:<>,.?/~`"
 
@@ -179,8 +179,8 @@ export function useMatrix(
     return () => clearInterval(id)
   }, [width, height])
 
-  useEffect(() => {
-    // Re-seed columns on resize
+  useLayoutEffect(() => {
+    // Re-seed columns on resize (synchronous so grid dimensions update immediately)
     columnsRef.current = Array.from({ length: width }, () =>
       Math.random() < 0.5 ? createDrop(height, true) : null,
     )
