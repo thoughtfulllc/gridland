@@ -22,8 +22,8 @@ const AVAILABLE_DEMOS = [
   "gradient", "ascii", "table", "spinner", "select-input",
   "multi-select", "prompt-input", "text-input", "link", "tabs", "status-bar",
   "modal", "primitives", "chat", "chain-of-thought", "message", "terminal-window",
-  "focus", "pointer", "cursor-highlight", "text-style", "headless", "theming", "landing",
-  "ripple", "puzzle", "canvas", "snake",
+  "focus-grid", "focus-chat", "focus", "pointer", "cursor-highlight", "text-style",
+  "headless", "theming", "landing", "ripple", "puzzle",
 ]
 
 function run(...args: string[]) {
