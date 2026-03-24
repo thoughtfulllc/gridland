@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useMemo } from "react"
-import { useMatrix } from "./use-matrix"
+import { useMatrix, type MatrixRipple } from "./use-matrix"
 import { generateGradient, hexToRgb, rgbToHex, useTheme } from "@gridland/ui"
 
 interface ClearRect {
@@ -17,6 +17,8 @@ interface MatrixBackgroundProps {
   clearRect?: ClearRect
   /** Additional rectangular areas to exclude */
   clearRects?: ClearRect[]
+  mousePosRef?: { current: { x: number; y: number } | null }
+  ripplesRef?: { current: MatrixRipple[] }
 }
 
 // Brightness levels — subtle tints above the page background
@@ -39,8 +41,8 @@ function colorForCell(mutedColors: string[], b: number): string {
   return mutedColors[idx]
 }
 
-export function MatrixBackground({ width, height, clearRect, clearRects }: MatrixBackgroundProps) {
-  const { grid, brightness } = useMatrix(width, height)
+export function MatrixBackground({ width, height, clearRect, clearRects, mousePosRef, ripplesRef }: MatrixBackgroundProps) {
+  const { grid, brightness } = useMatrix(width, height, mousePosRef, ripplesRef)
   const theme = useTheme()
 
   // Generate a gradient across the full width from theme colors

@@ -262,7 +262,16 @@ export class BrowserRenderer {
             if (linkId > 0) {
               const url = this.buffer.getLinkUrl(linkId)
               if (url) {
-                window.open(url, "_blank")
+                try {
+                  const linkUrl = new URL(url, window.location.href)
+                  if (linkUrl.origin === window.location.origin) {
+                    window.location.href = url
+                  } else {
+                    window.open(url, "_blank")
+                  }
+                } catch {
+                  window.open(url, "_blank")
+                }
               }
             }
           }

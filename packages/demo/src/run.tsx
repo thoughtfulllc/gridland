@@ -1,13 +1,14 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { type ReactNode } from "react"
 import { createCliRenderer, type CliRenderer, createRoot, useKeyboard } from "@gridland/bun"
-import { demos } from "../../../demos/index"
+import { demos } from "../demos/index"
 
 let _renderer: CliRenderer
 
 function DemoShell({ children }: { children: ReactNode }) {
   useKeyboard((event) => {
-    if (event.name === "q" || event.name === "escape") {
+    if (event.defaultPrevented) return
+    if (event.name === "escape") {
       _renderer.destroy()
     }
   })

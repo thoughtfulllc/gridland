@@ -1,6 +1,6 @@
 {
   "name": "@gridland/demo",
-  "version": "0.2.50",
+  "version": "0.2.52",
   "type": "module",
   "description": "Run gridland component demos from anywhere",
   "exports": {
@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "test": "bun test"
+    "test": "bun test --preload ../web/test/preload.ts"
   },
   "dependencies": {
     "@gridland/bun": "workspace:*",

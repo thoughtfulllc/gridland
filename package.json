@@ -3,8 +3,7 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "examples/*",
-    "demos"
+    "examples/*"
   ],
   "scripts": {
     "build": "bun run --cwd packages/utils build && bun run --cwd packages/bun build && bun run --cwd packages/web build && bun run --cwd packages/ui build && bun run --cwd packages/ui build:registry && bun run --cwd packages/testing build && bun run --cwd packages/create-gridland build && bun run --cwd packages/demo build && bun run --cwd packages/docs build",

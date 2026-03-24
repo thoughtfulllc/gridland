@@ -18,12 +18,18 @@ import { ChainOfThoughtApp } from "./chain-of-thought"
 import { MessageApp } from "./message"
 import { TerminalWindowApp } from "./terminal-window"
 import { FocusApp } from "./focus"
+import { FocusGridApp } from "./focus-grid"
+import { FocusChatApp } from "./focus-chat"
 import { PointerApp } from "./pointer"
 import { CursorHighlightApp } from "./cursor-highlight"
 import { TextStyleApp } from "./text-style"
 import { HeadlessApp } from "./headless"
 import { ThemingApp } from "./theming"
-import { LandingApp } from "../packages/docs/components/landing"
+import { LandingApp } from "../src/landing"
+import { RippleApp } from "./ripple"
+import { PuzzleApp } from "./puzzle"
+import { CanvasApp } from "./canvas"
+import { SnakeApp } from "./snake"
 
 export {
   GradientApp,
@@ -44,12 +50,18 @@ export {
   MessageApp,
   TerminalWindowApp,
   FocusApp,
+  FocusGridApp,
+  FocusChatApp,
   PointerApp,
   CursorHighlightApp,
   TextStyleApp,
   HeadlessApp,
   ThemingApp,
   LandingApp,
+  RippleApp,
+  PuzzleApp,
+  CanvasApp,
+  SnakeApp,
 }
 
 export interface Demo {
@@ -75,6 +87,8 @@ export const demos: Demo[] = [
   { name: "chain-of-thought", app: () => <ChainOfThoughtApp /> },
   { name: "message", app: () => <MessageApp /> },
   { name: "terminal-window", app: () => <TerminalWindowApp /> },
+  { name: "focus-grid", app: () => <FocusGridApp /> },
+  { name: "focus-chat", app: () => <FocusChatApp /> },
   { name: "focus", app: () => <FocusApp /> },
   { name: "pointer", app: () => <PointerApp /> },
   { name: "cursor-highlight", app: () => <CursorHighlightApp /> },
@@ -82,4 +96,8 @@ export const demos: Demo[] = [
   { name: "headless", app: () => <HeadlessApp /> },
   { name: "theming", app: () => <ThemingApp /> },
   { name: "landing", app: () => <LandingApp useKeyboard={useKeyboard} /> },
+  { name: "ripple", app: () => <RippleApp /> },
+  { name: "puzzle", app: () => <PuzzleApp /> },
+  { name: "canvas", app: () => <CanvasApp /> },
+  { name: "snake", app: () => <SnakeApp /> },
 ]
