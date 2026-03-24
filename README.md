@@ -80,59 +80,6 @@ bun run chat:deploy
 
 Then set `NEXT_PUBLIC_CHAT_API_URL` to the deployed Worker URL in your static hosting environment (e.g. Render dashboard). This env var is baked into the static bundle at build time.
 
-## Project structure
-
-```
-packages/
-  web/              # Core browser runtime (npm: @gridland/web)
-    src/
-      index.ts               # Main exports (bundled mode)
-      core.ts                # Core exports (external mode for Vite plugin users)
-      TUI.tsx                # Single React component — THE mounting layer
-      mount.ts               # Imperative mount API: mountGridland(canvas, element)
-      browser-buffer.ts
-      browser-text-buffer.ts
-      browser-text-buffer-view.ts
-      browser-renderer.ts
-      browser-render-context.ts
-      canvas-painter.ts
-      selection-manager.ts
-      vite-plugin.ts         # Vite plugin for shim resolution
-      next.ts                # Next.js export (thin — just "use client" re-export)
-      next-plugin.ts         # Next.js webpack plugin
-      utils.ts               # SSR-safe utilities
-      core-shims/            # @opentui/core browser replacements
-      shims/                 # Node.js built-in stubs
-    __tests__/               # Unit + integration tests
-
-  core/             # Hard-forked opentui engine (private)
-
-  ui/               # UI component library (npm: @gridland/ui)
-    components/              # Components with tests
-
-  testing/           # Testing utilities (npm: @gridland/testing)
-    src/
-
-  utils/            # Portable hooks & utilities (npm: @gridland/utils)
-
-  chat-worker/      # Cloudflare Worker — AI chat proxy
-    src/index.ts             # CORS + streaming via OpenRouter
-    wrangler.toml            # Worker configuration
-
-  bun/              # Native Bun runtime for CLI (npm: @gridland/bun)
-  demo/             # CLI demo runner (npm: @gridland/demo)
-  create-gridland/  # Project scaffolder CLI
-  container/        # Docker sandbox runner
-  docs/             # Fumadocs documentation site (static export)
-
-examples/
-  vite-example/              # Minimal Vite example
-  next-example/              # Next.js example
-  container-demo/            # Docker container demo
-
-e2e/                         # Playwright E2E tests
-```
-
 ## How the Vite plugin works
 
 The opentui source tree (`packages/core/`) is loaded directly. A custom plugin intercepts imports at resolution time:
