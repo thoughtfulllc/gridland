@@ -12,7 +12,7 @@ function useResponsiveFontSize() {
       // Block font needs ~72 cols. Monospace char width ≈ fontSize * 0.6.
       // Compute the largest font size that gives at least 72 cols.
       const needed = Math.floor(window.innerWidth / (72 * 0.6))
-      setFontSize(Math.max(10, Math.min(14, needed)))
+      setFontSize(Math.max(9, Math.min(14, needed)))
     }
     update()
     window.addEventListener("resize", update)
