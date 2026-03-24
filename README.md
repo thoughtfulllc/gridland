@@ -100,7 +100,7 @@ bun build --compile src/cli.tsx --outfile my-app
 
 ## Documentation
 
-Full docs at [gridland.dev](https://gridland.dev)
+Full docs at [gridland.io/docs](https://gridland.io/docs)
 
 ---
 
