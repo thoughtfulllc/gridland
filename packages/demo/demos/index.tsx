@@ -28,8 +28,6 @@ import { ThemingApp } from "./theming"
 import { LandingApp } from "../src/landing"
 import { RippleApp } from "./ripple"
 import { PuzzleApp } from "./puzzle"
-import { CanvasApp } from "./canvas"
-import { SnakeApp } from "./snake"
 
 export {
   GradientApp,
@@ -60,8 +58,6 @@ export {
   LandingApp,
   RippleApp,
   PuzzleApp,
-  CanvasApp,
-  SnakeApp,
 }
 
 export interface Demo {
@@ -98,6 +94,4 @@ export const demos: Demo[] = [
   { name: "landing", app: () => <LandingApp useKeyboard={useKeyboard} /> },
   { name: "ripple", app: () => <RippleApp /> },
   { name: "puzzle", app: () => <PuzzleApp /> },
-  { name: "canvas", app: () => <CanvasApp /> },
-  { name: "snake", app: () => <SnakeApp /> },
 ]
