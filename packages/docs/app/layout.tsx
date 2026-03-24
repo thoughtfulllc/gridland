@@ -16,10 +16,15 @@ export const metadata = {
   },
 }
 
+export const viewport = {
+  themeColor: "#1a1a2e",
+  viewportFit: "cover" as const,
+}
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body style={{ backgroundColor: "#1a1a2e" }}>
         <RootProvider>{children}</RootProvider>
         {process.env.UMAMI_WEBSITE_ID && (
           <Script
