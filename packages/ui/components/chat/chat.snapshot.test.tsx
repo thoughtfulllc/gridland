@@ -9,6 +9,7 @@ describe("ChatPanel snapshots", () => {
   it("renders messages with input", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[
           { id: "1", role: "user", content: "Hello!" },
           { id: "2", role: "assistant", content: "Hi there!" },
@@ -23,6 +24,7 @@ describe("ChatPanel snapshots", () => {
   it("renders with streaming text", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[{ id: "1", role: "user", content: "Tell me a story" }]}
         streamingText="Once upon a time"
         onSendMessage={() => {}}
@@ -35,6 +37,7 @@ describe("ChatPanel snapshots", () => {
   it("renders with loading state", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[{ id: "1", role: "user", content: "Hello" }]}
         isLoading={true}
         onSendMessage={() => {}}
@@ -47,6 +50,7 @@ describe("ChatPanel snapshots", () => {
   it("renders with tool calls", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[{ id: "1", role: "user", content: "Read my file" }]}
         activeToolCalls={[
           { id: "t1", title: "Read file", status: "in_progress" },

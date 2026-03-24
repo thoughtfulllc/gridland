@@ -66,6 +66,7 @@ export function PromptInputApp() {
         files={files}
         placeholder="Message Claude..."
         showDividers
+        autoFocus
         useKeyboard={useKeyboard}
         onSubmit={handleSubmit}
       />

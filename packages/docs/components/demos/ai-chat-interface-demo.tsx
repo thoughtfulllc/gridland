@@ -78,7 +78,7 @@ function AIChatInterfaceApp() {
 
 export default function AIChatInterfaceDemo() {
   return (
-    <DemoWindow title="AI Chat Interface" tuiStyle={{ width: "100%", height: 480 }}>
+    <DemoWindow title="AI Chat Interface" tuiStyle={{ width: "100%", height: 480 }} autoFocus>
       <AIChatInterfaceApp />
     </DemoWindow>
   )

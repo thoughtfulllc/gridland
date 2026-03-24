@@ -9,6 +9,7 @@ describe("ChatPanel behavior", () => {
   it("renders user messages with > prefix", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[{ id: "1", role: "user", content: "Hello" }]}
         onSendMessage={() => {}}
       />,
@@ -22,6 +23,7 @@ describe("ChatPanel behavior", () => {
   it("renders assistant messages with < prefix", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[{ id: "1", role: "assistant", content: "Hi there" }]}
         onSendMessage={() => {}}
       />,
@@ -35,6 +37,7 @@ describe("ChatPanel behavior", () => {
   it("renders multiple messages in order", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[
           { id: "1", role: "user", content: "First" },
           { id: "2", role: "assistant", content: "Second" },
@@ -53,6 +56,7 @@ describe("ChatPanel behavior", () => {
   it("renders streaming text with cursor", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         streamingText="Partial response"
         onSendMessage={() => {}}
@@ -68,6 +72,7 @@ describe("ChatPanel behavior", () => {
   it("renders loading indicator when isLoading and no streaming", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         isLoading={true}
         onSendMessage={() => {}}
@@ -80,6 +85,7 @@ describe("ChatPanel behavior", () => {
   it("streaming text takes priority over loading", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         isLoading={true}
         streamingText="Streaming..."
@@ -95,6 +101,7 @@ describe("ChatPanel behavior", () => {
   it("renders tool call cards", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         activeToolCalls={[
           { id: "t1", title: "Read file", status: "pending" },
@@ -114,6 +121,7 @@ describe("ChatPanel behavior", () => {
   it("shows ellipsis for pending/in_progress tool calls", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         activeToolCalls={[
           { id: "t1", title: "Search", status: "in_progress" },
@@ -128,6 +136,7 @@ describe("ChatPanel behavior", () => {
   it("does not show ellipsis for completed tool calls", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         activeToolCalls={[
           { id: "t1", title: "Done", status: "completed" },
@@ -145,6 +154,7 @@ describe("ChatPanel behavior", () => {
   it("renders placeholder in input", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         onSendMessage={() => {}}
       />,
@@ -156,6 +166,7 @@ describe("ChatPanel behavior", () => {
   it("renders custom placeholder", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         placeholder="Ask anything..."
         onSendMessage={() => {}}
@@ -168,6 +179,7 @@ describe("ChatPanel behavior", () => {
   it("renders custom loading text", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         isLoading={true}
         loadingText="Processing..."
@@ -181,6 +193,7 @@ describe("ChatPanel behavior", () => {
   it("handles empty messages array", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         onSendMessage={() => {}}
       />,
@@ -196,6 +209,7 @@ describe("ChatPanel behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         onSendMessage={(text) => { sent = text }}
         useKeyboard={mockUseKeyboard}
@@ -215,6 +229,7 @@ describe("ChatPanel behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         onSendMessage={(text) => { sent = text }}
         useKeyboard={mockUseKeyboard}
@@ -232,6 +247,7 @@ describe("ChatPanel behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         onSendMessage={(text) => { sent = text }}
         useKeyboard={mockUseKeyboard}
@@ -252,6 +268,7 @@ describe("ChatPanel behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         isLoading={true}
         onSendMessage={(text) => { sent = text }}
@@ -271,6 +288,7 @@ describe("ChatPanel behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         isLoading={true}
         onCancel={() => { cancelled = true }}
@@ -290,6 +308,7 @@ describe("ChatPanel behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         streamingText="partial"
         onCancel={() => { cancelled = true }}
@@ -308,6 +327,7 @@ describe("ChatPanel behavior", () => {
   it("shows loading indicator when status is submitted", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         status="submitted"
         onSendMessage={() => {}}
@@ -320,6 +340,7 @@ describe("ChatPanel behavior", () => {
   it("shows streaming text when status is streaming", () => {
     const { screen } = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         status="streaming"
         streamingText="Partial response"
@@ -336,6 +357,7 @@ describe("ChatPanel behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         status="submitted"
         onSendMessage={(text) => { sent = text }}
@@ -355,6 +377,7 @@ describe("ChatPanel behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         status="streaming"
         streamingText="partial"
@@ -375,6 +398,7 @@ describe("ChatPanel behavior", () => {
     const mockUseKeyboard = (handler) => { savedHandler = handler }
     const tui = renderTui(
       <ChatPanel
+        focus={false}
         messages={[]}
         status="ready"
         onSendMessage={(text) => { sent = text }}

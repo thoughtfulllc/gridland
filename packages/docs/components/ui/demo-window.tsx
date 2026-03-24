@@ -22,6 +22,7 @@ export interface DemoWindowProps {
   cols?: number
   rows?: number
   cursorHighlight?: boolean
+  autoFocus?: boolean
   children: ReactNode
 }
 
@@ -32,6 +33,7 @@ export function DemoWindow({
   cols = 80,
   rows = 24,
   cursorHighlight = false,
+  autoFocus = false,
   children,
 }: DemoWindowProps) {
   const { resolvedTheme } = usePageTheme()
@@ -93,7 +95,7 @@ export function DemoWindow({
     <TerminalWindow title={title} className={className} titleBarRight={titleBarRight}>
       <div className="overflow-x-auto overscroll-x-none">
         <div style={{ display: mode === "browser" ? "block" : "none" }}>
-          <TUI style={tuiStyle} autoFocus={false} backgroundColor={tuiTheme.background} cursorHighlight={cursorHighlight}>
+          <TUI style={tuiStyle} autoFocus={autoFocus} backgroundColor={tuiTheme.background} cursorHighlight={cursorHighlight}>
             <ThemeProvider theme={tuiTheme}>{children}</ThemeProvider>
           </TUI>
         </div>

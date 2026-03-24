@@ -62,6 +62,8 @@ export interface ChatPanelProps {
   assistantColor?: string
   /** Text displayed when loading (and not streaming). */
   loadingText?: string
+  /** Whether the input is focused and accepting keystrokes */
+  focus?: boolean
   /** Keyboard handler — pass useKeyboard from @opentui/react */
   useKeyboard?: (handler: (event: any) => void) => void
 }
@@ -158,6 +160,7 @@ export function ChatPanel({
   userColor,
   assistantColor,
   loadingText = "Thinking...",
+  focus,
   useKeyboard: useKeyboardProp,
 }: ChatPanelProps) {
   const theme = useTheme()
@@ -217,6 +220,7 @@ export function ChatPanel({
           promptColor={resolvedPromptColor}
           foregroundColor={theme.foreground}
           submittedText={loadingText}
+          focus={focus}
           useKeyboard={useKeyboardProp}
         />
       </box>

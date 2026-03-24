@@ -109,7 +109,7 @@ function ContentTabBarApp() {
 
 export function TabsSimpleDemo() {
   return (
-    <DemoWindow title="TabBar" tuiStyle={{ width: "100%", height: 120 }}>
+    <DemoWindow title="TabBar" tuiStyle={{ width: "100%", height: 120 }} autoFocus>
       <TabBarApp />
     </DemoWindow>
   )

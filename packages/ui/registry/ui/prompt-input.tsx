@@ -1,3 +1,4 @@
+// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import {
   useState,
   useRef,
@@ -108,6 +109,7 @@ export function PromptInputProvider({ initialInput = "", children }: PromptInput
 
 export interface PromptInputContextValue {
   value: string
+  isFocused: boolean
   disabled: boolean
   status?: ChatStatus
   onStop?: () => void
@@ -123,6 +125,9 @@ export interface PromptInputContextValue {
   dividerColor?: string
   dividerDashed?: boolean
   theme: ReturnType<typeof useTheme>
+  handleInput: (value: string) => void
+  handleInputSubmit: (value: string) => void
+  handleInputKeyDown: (key: any) => void
 }
 
 const PromptInputContext = createContext<PromptInputContextValue | null>(null)
@@ -189,6 +194,8 @@ export interface PromptInputProps {
   enableHistory?: boolean
   /** Model name displayed below the input */
   model?: string
+  /** Whether the input is focused and accepting keystrokes */
+  focus?: boolean
   /** Show horizontal dividers above and below the input */
   showDividers?: boolean
   /** Auto-focus the input on mount (ensures canvas has keyboard focus in the browser) */
@@ -282,26 +289,31 @@ function PromptInputSuggestions() {
   )
 }
 
-const CURSOR_CHAR = "\u258D"
-
-/** Prompt char + text with syntax highlighting + cursor. */
+/** Prompt char + input element when focused, static text otherwise. */
 function PromptInputTextarea() {
-  const { value, disabled, statusHintText, placeholder, prompt, promptColor, theme } = usePromptInput()
+  const { value, isFocused, disabled, statusHintText, placeholder, prompt, promptColor, theme, handleInput, handleInputSubmit, handleInputKeyDown } = usePromptInput()
   return (
-    <text>
-      <span style={textStyle({ fg: promptColor })}>{prompt}</span>
-      {value.length === 0 ? (
-        <>
-          {!disabled && <span style={textStyle({ fg: theme.muted })}>{CURSOR_CHAR}</span>}
-          <span style={textStyle({ dim: true, fg: theme.placeholder })}>{disabled ? statusHintText : " " + placeholder}</span>
-        </>
+    <box flexDirection="row">
+      <text><span style={textStyle({ fg: promptColor })}>{prompt}</span></text>
+      {isFocused ? (
+        <input
+          value={value}
+          placeholder={placeholder}
+          focused
+          onInput={handleInput}
+          onSubmit={handleInputSubmit}
+          onKeyDown={handleInputKeyDown}
+          cursorColor={theme.muted}
+          cursorStyle={{ style: "line", blinking: !value }}
+          placeholderColor={theme.placeholder}
+          textColor={theme.foreground}
+        />
+      ) : disabled && value.length === 0 ? (
+        <text><span style={textStyle({ dim: true, fg: theme.placeholder })}>{statusHintText}</span></text>
       ) : (
-        <>
-          <span style={textStyle({ fg: theme.foreground })}>{value}</span>
-          {!disabled && <span style={textStyle({ fg: theme.muted })}>{CURSOR_CHAR}</span>}
-        </>
+        <text><span style={textStyle({ fg: value ? theme.foreground : theme.placeholder, dim: !value })}>{value || placeholder}</span></text>
       )}
-    </text>
+    </box>
   )
 }
 
@@ -382,6 +394,7 @@ export function PromptInput({
   maxSuggestions = 5,
   enableHistory = true,
   model,
+  focus = true,
   showDividers = true,
   autoFocus = false,
   dividerColor,
@@ -405,6 +418,7 @@ export function PromptInput({
 
   // Status-driven state
   const disabled = status ? status === "submitted" || status === "streaming" : disabledProp
+  const isFocused = focus && !disabled
   const statusHintText = resolveStatusHintText(status, submittedText, streamingLabel, errorText, disabledText)
 
   // ── Dual-mode state: provider-managed or self-managed ──────────────────
@@ -526,14 +540,102 @@ export function PromptInput({
     }
   }, [onSubmit, clearInput])
 
+  // ── Input handlers (passed to <input> intrinsic via context) ───────────
+
+  const handleInputSubmit = (text: string) => {
+    const trimmed = text.trim()
+    if (!trimmed) return
+    if (enableHistory) {
+      setHist([trimmed, ...historyRef.current])
+    }
+    updateValue("")
+    setHistI(-1)
+    handleSubmit(trimmed)
+  }
+
+  const handleInputKeyDown = (key: any) => {
+    // Return with active suggestions: custom submit logic
+    if (key.name === "return" && suggestionsRef.current.length > 0) {
+      const sel = suggestionsRef.current[sugIdxRef.current]
+      if (sel) {
+        if (valueRef.current.startsWith("/")) {
+          // Slash commands: submit immediately on selection
+          updateValue("")
+          if (enableHistory) {
+            setHist([sel.text, ...historyRef.current])
+          }
+          setHistI(-1)
+          handleSubmit(sel.text)
+        } else {
+          const base = valueRef.current.slice(0, valueRef.current.lastIndexOf("@"))
+          updateValue(base + sel.text + " ")
+          setSug([])
+        }
+      }
+      key.preventDefault()
+      return
+    }
+
+    // Tab: cycle suggestions
+    if (key.name === "tab" && suggestionsRef.current.length > 0) {
+      setSugI((sugIdxRef.current + 1) % suggestionsRef.current.length)
+      key.preventDefault()
+      return
+    }
+
+    // Up: navigate suggestions or history
+    if (key.name === "up") {
+      if (suggestionsRef.current.length > 0) {
+        setSugI(Math.max(0, sugIdxRef.current - 1))
+      } else if (enableHistory && historyRef.current.length > 0) {
+        const idx = Math.min(historyRef.current.length - 1, histIdxRef.current + 1)
+        setHistI(idx)
+        updateValue(historyRef.current[idx]!)
+      }
+      key.preventDefault()
+      return
+    }
+
+    // Down: navigate suggestions or history
+    if (key.name === "down") {
+      if (suggestionsRef.current.length > 0) {
+        setSugI(Math.min(suggestionsRef.current.length - 1, sugIdxRef.current + 1))
+      } else if (enableHistory && histIdxRef.current > 0) {
+        const nextIdx = histIdxRef.current - 1
+        setHistI(nextIdx)
+        updateValue(historyRef.current[nextIdx]!)
+      } else if (enableHistory && histIdxRef.current === 0) {
+        setHistI(-1)
+        updateValue("")
+      }
+      key.preventDefault()
+      return
+    }
+
+    // Escape: dismiss suggestions
+    if (key.name === "escape") {
+      if (suggestionsRef.current.length > 0) {
+        setSug([])
+        key.preventDefault()
+      }
+      return
+    }
+  }
+
   // ── Keyboard handler ───────────────────────────────────────────────────
+  // When focused, <input> handles text input; useKeyboard only handles Escape→onStop.
+  // When not focused (no <input> rendered), useKeyboard provides full keyboard fallback
+  // for character input, suggestions, and history (used in tests and unfocused state).
 
   useKeyboard?.((event: any) => {
-    // Escape during submitted/streaming calls onStop
+    // Escape during submitted/streaming calls onStop (always active)
     if (event.name === "escape" && (status === "streaming" || status === "submitted") && onStop) {
       onStop()
       return
     }
+
+    // When <input> is rendered, it handles everything else
+    if (isFocused) return
 
     if (disabled) return
 
@@ -542,8 +644,6 @@ export function PromptInput({
         const sel = suggestionsRef.current[sugIdxRef.current]
         if (sel) {
           if (valueRef.current.startsWith("/")) {
-            // Slash commands: submit immediately on selection
-            setSug([])
             updateValue("")
             if (enableHistory) {
               setHist([sel.text, ...historyRef.current])
@@ -564,7 +664,6 @@ export function PromptInput({
         }
         updateValue("")
         setHistI(-1)
-        setSug([])
         handleSubmit(trimmed)
       }
       return
@@ -607,7 +706,6 @@ export function PromptInput({
       return
     }
 
-    // Character-level input fallback (used when <input> intrinsic is not available, e.g. in tests)
     if (event.name === "backspace" || event.name === "delete") {
       updateValue(valueRef.current.slice(0, -1))
       return
@@ -631,6 +729,7 @@ export function PromptInput({
 
   const ctxValue: PromptInputContextValue = {
     value,
+    isFocused,
     disabled,
     status,
     onStop,
@@ -646,6 +745,9 @@ export function PromptInput({
     dividerColor,
     dividerDashed,
     theme,
+    handleInput: updateValue,
+    handleInputSubmit,
+    handleInputKeyDown,
   }
 
   // ── Render ─────────────────────────────────────────────────────────────
