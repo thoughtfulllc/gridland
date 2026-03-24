@@ -8,10 +8,7 @@ import { MatrixBackground } from './matrix-background'
 import type { MatrixRipple } from './use-matrix'
 import { RippleApp } from '../../demos/ripple'
 import { PuzzleApp } from '../../demos/puzzle'
-import { CanvasApp } from '../../demos/canvas'
-import { SnakeApp } from '../../demos/snake'
-
-const DEMOS = ["ripple", "puzzle", "canvas", "snake"]
+const DEMOS = ["ripple", "puzzle"]
 // Tab chrome is 2 rows (top border + labels); connecting line overlaps game box top border
 const TAB_HEIGHT = 2
 
@@ -199,8 +196,6 @@ export function LandingApp({ useKeyboard }: LandingAppProps) {
               <box border borderStyle="rounded" borderColor={theme.border} flexGrow={1} flexDirection="column" overflow="hidden">
                 {activeIndex === 0 && <RippleApp mouseOffset={mouseOffset} containerWidth={containerWidth} containerHeight={containerHeight} />}
                 {activeIndex === 1 && <PuzzleApp containerWidth={containerWidth} containerHeight={containerHeight} />}
-                {activeIndex === 2 && <CanvasApp mouseOffset={mouseOffset} containerWidth={containerWidth} containerHeight={containerHeight} />}
-                {activeIndex === 3 && <SnakeApp containerWidth={containerWidth} containerHeight={containerHeight} mouseOffset={mouseOffset} />}
               </box>
             </box>
             <box height={1} />

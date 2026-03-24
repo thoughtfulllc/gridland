@@ -101,7 +101,7 @@ export function TUI({
     const cols = Math.max(1, Math.floor(containerRect.width / cellSize.width))
     const rows = Math.max(1, Math.floor(containerRect.height / cellSize.height))
 
-    const renderer = new BrowserRenderer(canvas, cols, rows, { backgroundColor })
+    const renderer = new BrowserRenderer(canvas, cols, rows, { backgroundColor, fontSize, fontFamily })
     renderer.renderContext.cursorHighlight = cursorHighlight
     if (cursorHighlightColor) renderer.renderContext.cursorHighlightColor = cursorHighlightColor
     renderer.renderContext.cursorHighlightOpacity = cursorHighlightOpacity

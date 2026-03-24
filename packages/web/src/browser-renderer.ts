@@ -38,7 +38,7 @@ export class BrowserRenderer {
   public mouseCell: { col: number; row: number } | null = null
   private backgroundColor: string | null = null
 
-  constructor(canvas: HTMLCanvasElement, cols: number, rows: number, options?: { backgroundColor?: string }) {
+  constructor(canvas: HTMLCanvasElement, cols: number, rows: number, options?: { backgroundColor?: string; fontSize?: number; fontFamily?: string }) {
     this.canvas = canvas
     this.cols = cols
     this.rows = rows
@@ -48,7 +48,7 @@ export class BrowserRenderer {
     this.ctx2d = ctx2d
 
     // Measure cell size
-    this.painter = new CanvasPainter()
+    this.painter = new CanvasPainter({ fontSize: options?.fontSize, fontFamily: options?.fontFamily })
     const cellSize = this.painter.measureCell(this.ctx2d)
     this.cellWidth = cellSize.width
     this.cellHeight = cellSize.height

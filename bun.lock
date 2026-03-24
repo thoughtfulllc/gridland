@@ -61,7 +61,7 @@
     },
     "packages/bun": {
       "name": "@gridland/bun",
-      "version": "0.2.50",
+      "version": "0.2.52",
       "dependencies": {
         "@gridland/utils": "workspace:*",
         "react": "^19.0.0",
@@ -121,7 +121,7 @@
     },
     "packages/create-gridland": {
       "name": "create-gridland",
-      "version": "0.2.50",
+      "version": "0.2.52",
       "bin": {
         "create-gridland": "./dist/index.js",
       },
@@ -136,7 +136,7 @@
     },
     "packages/demo": {
       "name": "@gridland/demo",
-      "version": "0.2.50",
+      "version": "0.2.52",
       "bin": {
         "gridland-demo": "./bin/cli.mjs",
       },
@@ -147,7 +147,6 @@
         "react": "^19.0.0",
       },
       "devDependencies": {
-        "@gridland/ui": "workspace:*",
         "tsup": "^8.4.0",
         "typescript": "^5.7.0",
       },
@@ -180,7 +179,7 @@
     },
     "packages/testing": {
       "name": "@gridland/testing",
-      "version": "0.2.50",
+      "version": "0.2.52",
       "dependencies": {
         "@gridland/utils": "workspace:*",
         "events": "^3.3.0",
@@ -216,7 +215,7 @@
     },
     "packages/utils": {
       "name": "@gridland/utils",
-      "version": "0.2.50",
+      "version": "0.2.52",
       "dependencies": {
         "react": "^19.0.0",
       },
@@ -232,7 +231,7 @@
     },
     "packages/web": {
       "name": "@gridland/web",
-      "version": "0.2.50",
+      "version": "0.2.52",
       "dependencies": {
         "@gridland/utils": "workspace:*",
         "diff": "^8.0.3",

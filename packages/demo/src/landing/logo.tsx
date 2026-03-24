@@ -3,11 +3,11 @@ import { useState, useEffect, useRef, useMemo } from "react"
 import { Gradient, GRADIENTS, generateGradient, textStyle } from "@gridland/ui"
 import figlet from "figlet"
 // @ts-ignore
-import standardFont from "figlet/importable-fonts/Standard.js"
+import blockFont from "figlet/importable-fonts/Block.js"
 
-figlet.parseFont("Standard", standardFont)
+figlet.parseFont("Block", blockFont)
 
-function makeArt(text: string, font = "ANSI Shadow") {
+function makeArt(text: string, font = "Block") {
   return figlet
     .textSync(text, { font: font as any })
     .split("\n")
@@ -15,10 +15,10 @@ function makeArt(text: string, font = "ANSI Shadow") {
     .join("\n")
 }
 
-const fullArt = makeArt("gridland", "Standard")
-const gridArt = makeArt("grid", "Standard")
-const landArt = makeArt("land", "Standard")
-const ART_HEIGHT = 6 // Standard font produces 6 lines
+const fullArt = makeArt("gridland", "Block")
+const gridArt = makeArt("grid", "Block")
+const landArt = makeArt("land", "Block")
+const ART_HEIGHT = fullArt.split("\n").length
 
 function useAnimation(duration = 1000) {
   const isBrowser = typeof document !== "undefined"
@@ -46,6 +46,13 @@ function useAnimation(duration = 1000) {
 /** Renders text with gradient colors, revealing characters left-to-right.
  *  Non-space characters are rendered as positioned runs so that space gaps
  *  are truly empty (allowing a background layer to show through). */
+function darkenHex(hex: string, factor = 0.4): string {
+  const r = Math.round(parseInt(hex.slice(1, 3), 16) * factor)
+  const g = Math.round(parseInt(hex.slice(3, 5), 16) * factor)
+  const b = Math.round(parseInt(hex.slice(5, 7), 16) * factor)
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`
+}
+
 function RevealGradient({ children, revealCol }: { children: string; revealCol: number }) {
   const gradientColors = GRADIENTS.instagram
   const lines = children.split("\n")
@@ -54,6 +61,7 @@ function RevealGradient({ children, revealCol }: { children: string; revealCol: 
   if (maxLength === 0) return <text>{children}</text>
 
   const hexColors = useMemo(() => generateGradient(gradientColors, maxLength), [maxLength])
+  const bgColors = useMemo(() => hexColors.map((c) => darkenHex(c)), [hexColors])
 
   return (
     <box position="relative" width={maxLength} height={lines.length} shouldFill={false}>
@@ -92,7 +100,7 @@ function RevealGradient({ children, revealCol }: { children: string; revealCol: 
               {run.chars.map((char, ci) => (
                 <span
                   key={ci}
-                  style={{ fg: hexColors[run.start + ci] }}
+                  style={{ fg: hexColors[run.start + ci], bg: bgColors[run.start + ci] }}
                 >
                   {char}
                 </span>
@@ -115,7 +123,7 @@ export function Logo({ compact, narrow, mobile }: { compact?: boolean; narrow?: 
 
   // Reveal: sweep columns left-to-right, slightly behind the drop
   const revealProgress = Math.max(0, Math.min(1, (progress - 0.1) / 0.7))
-  const maxWidth = compact ? 8 : narrow ? 40 : 46
+  const maxWidth = compact ? 8 : narrow ? 35 : 69
   const revealCol = Math.round(revealProgress * (maxWidth + 4)) - 2
 
   const taglineOpacity = Math.max(0, Math.min(1, (progress - 0.7) / 0.3))

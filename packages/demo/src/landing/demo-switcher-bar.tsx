@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { textStyle, useTheme } from "@gridland/ui"
 
-const DEMOS = ["ripple", "puzzle", "canvas", "snake"]
+const DEMOS = ["ripple", "puzzle"]
 
 interface DemoSwitcherBarProps {
   activeIndex: number
