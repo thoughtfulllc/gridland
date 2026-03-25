@@ -517,7 +517,7 @@ export class BrowserRenderer {
       meta: event.metaKey,
       shift: event.shiftKey,
       option: event.altKey,
-      sequence: event.key,
+      sequence: event.key.length === 1 ? event.key : "",
       number: false,
       raw: event.key,
       eventType: "press" as const,
