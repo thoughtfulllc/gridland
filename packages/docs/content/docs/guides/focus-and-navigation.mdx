@@ -39,7 +39,7 @@ Gridland provides a unified focus and input system that works identically in bot
 ### Usage
 
 ```tsx title="app.tsx"
-import { FocusProvider, useFocus, useKeyboard, useShortcuts, useFocusedShortcuts, FocusScope } from "@gridland/utils"
+import { FocusProvider, useFocus, useKeyboard, useCapturedKeyboard, useShortcuts, useFocusedShortcuts, FocusScope } from "@gridland/utils"
 import { GridlandProvider, StatusBar } from "@gridland/ui"
 
 // 1. Wrap your app with FocusProvider
@@ -99,6 +99,8 @@ function AppStatusBar() {
 - `isFocused` / `isSelected` / `isAnySelected` for styling based on focus state
 - `focusId` to pass to other hooks like `useKeyboard` and `useShortcuts`
 - `focusRef` to attach to the root element so arrow-key navigation can measure positions
+- `focus()` / `blur()` to imperatively move focus
+- `select()` / `deselect()` to imperatively enter or exit selection
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -118,8 +120,11 @@ function AppStatusBar() {
 | `focusId` | `string` | Only fire when this ID is focused |
 | `global` | `boolean` | Always fire regardless of focus |
 | `release` | `boolean` | Include key release events |
+| `selectedOnly` | `boolean` | Only fire when the component is selected (requires `focusId`) |
 
 **`useShortcuts`** registers keyboard hints tied to a `focusId`. They update automatically as the user navigates. **`useFocusedShortcuts`** reads the active shortcuts for display in a StatusBar.
+
+**`useCapturedKeyboard(focusId)`** captures keyboard events for a selected focusable element and returns a `capture` function. Pass it as the `useKeyboard` prop to a child component (e.g., `PromptInput`) so the child's key handler fires only when the parent is selected.
 
 ### FocusScope
 
