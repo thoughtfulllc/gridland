@@ -175,8 +175,10 @@ export function MultiSelect<V>({
 
     if (event.name === "up" || event.name === "k") {
       move(-1)
+      event.preventDefault?.()
     } else if (event.name === "down" || event.name === "j") {
       move(1)
+      event.preventDefault?.()
     } else if (event.name === "return") {
       const onSubmitRow = hasSubmitRow && cursorRef.current === selectableItems.length
       if (onSubmitRow) {
@@ -193,11 +195,14 @@ export function MultiSelect<V>({
           setSelected(Array.from(next))
         }
       }
+      event.preventDefault?.()
     } else if (event.name === "a" && enableSelectAll) {
       const enabledValues = items.filter((i) => !i.disabled).map((i) => i.value)
       setSelected(maxCount !== undefined ? enabledValues.slice(0, maxCount) : enabledValues)
+      event.preventDefault?.()
     } else if (event.name === "x" && enableClear) {
       setSelected([])
+      event.preventDefault?.()
     }
   })
 

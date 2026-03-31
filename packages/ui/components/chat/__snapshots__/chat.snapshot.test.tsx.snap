@@ -1,0 +1,38 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`ChatPanel snapshots renders messages with input 1`] = `
+" > Hello!
+ < Hi there!
+
+──────────────────────────────────────────────────
+  > Type a message...
+──────────────────────────────────────────────────"
+`;
+
+exports[`ChatPanel snapshots renders with streaming text 1`] = `
+" > Tell me a story
+ < Once upon a time_
+
+──────────────────────────────────────────────────
+  > Generating...
+──────────────────────────────────────────────────"
+`;
+
+exports[`ChatPanel snapshots renders with loading state 1`] = `
+" > Hello
+   Thinking...
+
+──────────────────────────────────────────────────
+  > Thinking...
+──────────────────────────────────────────────────"
+`;
+
+exports[`ChatPanel snapshots renders with tool calls 1`] = `
+" > Read my file
+   ⠋ Read file ...
+   ✓ Edit file
+
+──────────────────────────────────────────────────
+  > Type a message...
+──────────────────────────────────────────────────"
+`;

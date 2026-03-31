@@ -2,6 +2,7 @@ import { createContext, useContext, useState, Children, isValidElement } from "r
 import type { ReactNode } from "react"
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
+import { useKeyboardContext } from "../provider/provider"
 
 // ── Context ──────────────────────────────────────────────────────────────
 
@@ -58,6 +59,8 @@ export interface TabsListProps {
   activeColor?: string
   /** Whether to show the horizontal separator below the triggers. */
   separator?: boolean
+  /** Keyboard handler — pass useKeyboard from @gridland/utils */
+  useKeyboard?: (handler: (event: any) => void) => void
   children: ReactNode
 }
 
@@ -66,10 +69,12 @@ export function TabsList({
   focused = true,
   activeColor,
   separator = true,
+  useKeyboard: useKeyboardProp,
   children,
 }: TabsListProps) {
   const theme = useTheme()
-  const { value } = useTabsContext()
+  const { value, onValueChange } = useTabsContext()
+  const useKeyboard = useKeyboardContext(useKeyboardProp)
   const color = activeColor ?? theme.accent
 
   // Extract trigger values and labels from children
@@ -77,6 +82,21 @@ export function TabsList({
   Children.forEach(children, (child) => {
     if (isValidElement(child) && "value" in child.props) {
       triggers.push({ value: child.props.value as string, label: child.props.children })
+    }
+  })
+
+  // Keyboard navigation: left/right arrows switch tabs
+  useKeyboard?.((event: any) => {
+    if (triggers.length === 0) return
+    const currentIndex = triggers.findIndex((t) => t.value === value)
+    if (event.name === "left" || event.name === "h") {
+      const next = currentIndex <= 0 ? triggers.length - 1 : currentIndex - 1
+      onValueChange(triggers[next].value)
+      event.preventDefault?.()
+    } else if (event.name === "right" || event.name === "l") {
+      const next = currentIndex >= triggers.length - 1 ? 0 : currentIndex + 1
+      onValueChange(triggers[next].value)
+      event.preventDefault?.()
     }
   })
 
@@ -175,6 +195,8 @@ export interface TabBarProps {
   activeColor?: string
   /** Whether to show the horizontal separator below tabs. */
   separator?: boolean
+  /** Keyboard handler — pass useKeyboard from @gridland/utils */
+  useKeyboard?: (handler: (event: any) => void) => void
 }
 
 export function TabBar({
@@ -184,10 +206,11 @@ export function TabBar({
   focused = true,
   activeColor,
   separator = true,
+  useKeyboard,
 }: TabBarProps) {
   return (
     <Tabs value={options[selectedIndex]}>
-      <TabsList label={label} focused={focused} activeColor={activeColor} separator={separator}>
+      <TabsList label={label} focused={focused} activeColor={activeColor} separator={separator} useKeyboard={useKeyboard}>
         {options.map((option) => (
           <TabsTrigger key={option} value={option}>
             {option}

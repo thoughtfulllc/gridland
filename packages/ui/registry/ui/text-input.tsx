@@ -30,7 +30,7 @@ export interface TextInputProps {
   maxLength?: number
 }
 
-export function TextInput({ label, description, error, required = false, disabled = false, value: controlledValue, onChange, onSubmit, placeholder, prompt, focus = true, maxLength }: TextInputProps) {
+export function TextInput({ label, description, error, required = false, disabled = false, value: controlledValue, onChange, onSubmit, placeholder, prompt, focus = false, maxLength }: TextInputProps) {
   const theme = useTheme()
   const [internalValue, setInternalValue] = useState('')
   const isControlled = controlledValue !== undefined

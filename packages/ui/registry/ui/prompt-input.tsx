@@ -399,7 +399,7 @@ export function PromptInput({
   maxSuggestions = 5,
   enableHistory = true,
   model,
-  focus = true,
+  focus = false,
   showDividers = true,
   autoFocus = false,
   dividerColor,
@@ -412,10 +412,11 @@ export function PromptInput({
 
   const registryCommands = useRegistryCommands()
   const allCommands = useMemo(() => {
-    if (registryCommands.length === 0) return [...commands, ...skills]
-    const propCmds = new Set([...commands, ...skills].map(c => c.cmd))
+    const base = [...commands, ...skills]
+    if (registryCommands.length === 0) return base
+    const propCmds = new Set(base.map(c => c.cmd))
     const deduped = registryCommands.filter(c => !propCmds.has(c.cmd))
-    return [...commands, ...skills, ...deduped]
+    return [...base, ...deduped]
   }, [commands, skills, registryCommands])
 
   // Auto-focus: ensure the canvas has DOM focus so keyboard events reach useKeyboard
@@ -790,9 +791,11 @@ export function PromptInput({
           <PromptInputSuggestions />
           <PromptInputTextarea />
           <PromptInputStatusText />
-          <PromptInputModel />
         </box>
         {showDividers && <PromptInputDivider />}
+        <box paddingX={1}>
+          <PromptInputModel />
+        </box>
       </box>
     </PromptInputContext.Provider>
   )

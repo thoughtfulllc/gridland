@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { FocusScope } from "@gridland/utils"
 import { textStyle } from "./text-style"
 import { useTheme } from "./theme"
 import { useKeyboardContext } from "./provider"
@@ -41,25 +42,27 @@ export function Modal({
   })
 
   return (
-    <box flexDirection="column" flexGrow={1}>
-      <box
-        flexDirection="column"
-        flexGrow={1}
-        border
-        borderStyle={borderStyle}
-        borderColor={resolvedBorderColor}
-      >
-        {title ? (
-          <>
-            <box paddingX={1} marginBottom={1}>
-              <text style={textStyle({ bold: true, fg: theme.primary })}>{title}</text>
-            </box>
-            {children}
-          </>
-        ) : (
-          children
-        )}
+    <FocusScope trap autoFocus restoreOnUnmount>
+      <box flexDirection="column" flexGrow={1}>
+        <box
+          flexDirection="column"
+          flexGrow={1}
+          border
+          borderStyle={borderStyle}
+          borderColor={resolvedBorderColor}
+        >
+          {title ? (
+            <>
+              <box paddingX={1} marginBottom={1}>
+                <text style={textStyle({ bold: true, fg: theme.primary })}>{title}</text>
+              </box>
+              {children}
+            </>
+          ) : (
+            children
+          )}
+        </box>
       </box>
-    </box>
+    </FocusScope>
   )
 }

@@ -120,8 +120,10 @@ plugin({
     // and replace it with re-exports from the source tree.
     const opentuiCoreSrc = path.resolve(pkgRoot, "../core/src/index.ts")
     const opentuiReactSrc = path.resolve(pkgRoot, "../core/src/react/index.ts")
+    const opentuiFocusSrc = path.resolve(pkgRoot, "../core/src/react/focus/index.ts")
+    const opentuiUtilsSrc = path.resolve(pkgRoot, "../utils/src/index.ts")
     build.onLoad({ filter: /packages\/utils\/dist\/index\.js$/ }, () => ({
-      contents: `export * from "${opentuiCoreSrc}"; export * from "${opentuiReactSrc}";`,
+      contents: `export * from "${opentuiCoreSrc}"; export * from "${opentuiReactSrc}"; export * from "${opentuiFocusSrc}"; export * from "${opentuiUtilsSrc}";`,
       loader: "ts",
     }))
     build.onResolve({ filter: /^@opentui\/core$/ }, () => ({ path: opentuiCoreSrc }))

@@ -144,6 +144,7 @@ export function SelectInput<V>({
       if (nextItem && !nextItem.item.disabled) {
         onChange?.(nextItem.item.value)
       }
+      event.preventDefault?.()
     } else if (event.name === "down" || event.name === "j") {
       const direction = 1
       let next = state.cursor + direction
@@ -153,12 +154,14 @@ export function SelectInput<V>({
       if (nextItem && !nextItem.item.disabled) {
         onChange?.(nextItem.item.value)
       }
+      event.preventDefault?.()
     } else if (event.name === "return") {
       const current = selectableItems[state.cursor]
       if (current && !current.item.disabled) {
         dispatch({ type: "SUBMIT" })
         onSubmit?.(isControlled ? controlledValue : current.item.value)
       }
+      event.preventDefault?.()
     }
   })
 
