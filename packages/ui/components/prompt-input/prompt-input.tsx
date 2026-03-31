@@ -13,6 +13,8 @@ import {
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
 import { useKeyboardContext } from "../provider/provider"
+import { useRegistryCommands } from "./command-registry"
+export type { PromptInputCommand } from "./command-registry"
 
 /** Chat lifecycle status. Compatible with any AI SDK. */
 export type ChatStatus = "ready" | "submitted" | "streaming" | "error"
@@ -182,8 +184,10 @@ export interface PromptInputProps {
   disabled?: boolean
   /** Text shown when disabled. Ignored when `status` is provided. */
   disabledText?: string
-  /** Slash commands for autocomplete */
-  commands?: { cmd: string; desc?: string }[]
+  /** Slash commands for autocomplete. Commands with `onExecute` are handled internally. */
+  commands?: PromptInputCommand[]
+  /** Dynamically-provided skills (e.g. from Claude Code). Merged into autocomplete alongside commands. */
+  skills?: PromptInputCommand[]
   /** File paths for @ mention autocomplete */
   files?: string[]
   /** Custom suggestion provider — overrides commands/files */
@@ -216,12 +220,12 @@ export interface PromptInputProps {
 
 function computeDefaultSuggestions(
   input: string,
-  commands: { cmd: string; desc?: string }[],
+  commands: PromptInputCommand[],
   files: string[],
 ): Suggestion[] {
   if (input.startsWith("/") && commands.length > 0) {
     return commands
-      .filter((c) => c.cmd.startsWith(input))
+      .filter((c) => !c.hidden && c.cmd.startsWith(input))
       .map((c) => ({ text: c.cmd, desc: c.desc }))
   }
   if (input.includes("@") && files.length > 0) {
@@ -389,12 +393,13 @@ export function PromptInput({
   disabled: disabledProp = false,
   disabledText = "Generating...",
   commands = [],
+  skills = [],
   files = [],
   getSuggestions: customGetSuggestions,
   maxSuggestions = 5,
   enableHistory = true,
   model,
-  focus = true,
+  focus = false,
   showDividers = true,
   autoFocus = false,
   dividerColor,
@@ -404,6 +409,15 @@ export function PromptInput({
 }: PromptInputProps) {
   const theme = useTheme()
   const useKeyboard = useKeyboardContext(useKeyboardProp)
+
+  const registryCommands = useRegistryCommands()
+  const allCommands = useMemo(() => {
+    const base = [...commands, ...skills]
+    if (registryCommands.length === 0) return base
+    const propCmds = new Set(base.map(c => c.cmd))
+    const deduped = registryCommands.filter(c => !propCmds.has(c.cmd))
+    return [...base, ...deduped]
+  }, [commands, skills, registryCommands])
 
   // Auto-focus: ensure the canvas has DOM focus so keyboard events reach useKeyboard
   useEffect(() => {
@@ -494,8 +508,8 @@ export function PromptInput({
 
   const computeSuggestions = useCallback((input: string): Suggestion[] => {
     if (customGetSuggestions) return customGetSuggestions(input)
-    return computeDefaultSuggestions(input, commands, files)
-  }, [customGetSuggestions, commands, files])
+    return computeDefaultSuggestions(input, allCommands, files)
+  }, [customGetSuggestions, allCommands, files])
 
   const updateValue = useCallback((next: string) => {
     valueRef.current = next
@@ -524,6 +538,13 @@ export function PromptInput({
   }, [usingProvider, controller, isControlled, onChange])
 
   const handleSubmit = useCallback((text: string) => {
+    const matched = allCommands.find((c) => c.cmd === text)
+    if (matched?.onExecute) {
+      matched.onExecute()
+      clearInput()
+      return
+    }
+
     if (!onSubmit) return
 
     const result = onSubmit({ text })
@@ -538,7 +559,7 @@ export function PromptInput({
       // Sync onSubmit completed without throwing — clear
       clearInput()
     }
-  }, [onSubmit, clearInput])
+  }, [onSubmit, clearInput, allCommands])
 
   // ── Input handlers (passed to <input> intrinsic via context) ───────────
 
@@ -770,9 +791,11 @@ export function PromptInput({
           <PromptInputSuggestions />
           <PromptInputTextarea />
           <PromptInputStatusText />
-          <PromptInputModel />
         </box>
         {showDividers && <PromptInputDivider />}
+        <box paddingX={1}>
+          <PromptInputModel />
+        </box>
       </box>
     </PromptInputContext.Provider>
   )

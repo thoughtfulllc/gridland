@@ -1,15 +1,16 @@
 ---
 title: AI Chat Interface
-description: Complete chat interface combining Message, PromptInput, and ChainOfThought with Vercel AI SDK
+description: Full-featured AI chat with SideNav, conversation history, model switching, and streaming
 ---
 
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
 import { Callout } from 'fumadocs-ui/components/callout'
 import AIChatInterfaceDemo from '@/components/demos/ai-chat-interface-demo'
 
-A ready-to-use AI chat interface that combines `Message`, `PromptInput`, and `ChainOfThought`
-into a scrollable conversation view with streaming support. Built on the Vercel AI SDK
-and compatible with any model provider via OpenRouter, OpenAI, Anthropic, or custom endpoints.
+A full-featured AI chat interface with `SideNav` for conversation history, multi-model
+switching via slash commands, `ChainOfThought` reasoning blocks, and streaming support.
+Built on the Vercel AI SDK and compatible with any model provider via OpenRouter, OpenAI,
+Anthropic, or custom endpoints.
 
 <div className="my-8">
   <AIChatInterfaceDemo />
@@ -70,17 +71,32 @@ export async function POST(req: Request) {
 
 ## Client Component
 
-Wire up `useChat` from the Vercel AI SDK with `Message` compound components and `PromptInput`.
+The chat interface uses `SideNav` for conversation history, `useChat` from the Vercel AI SDK
+for streaming, and `CommandProvider` for slash commands like `/model` and `/clear`.
 
 ```tsx title="chat-interface.tsx"
-import { Message } from "@/components/ui/message"
-import { PromptInput } from "@/components/ui/prompt-input"
-import type { ChatStatus } from "@/components/ui/prompt-input"
+import { useState, useRef, useCallback, useEffect, useMemo } from "react"
+import {
+  SideNav,
+  Message,
+  PromptInput,
+  SelectInput,
+  Modal,
+  ChainOfThought,
+  ChainOfThoughtHeader,
+  ChainOfThoughtContent,
+  ChainOfThoughtStep,
+  CommandProvider,
+  useRegisterCommands,
+} from "@gridland/ui"
+import type { ChatStatus } from "@gridland/ui"
+import { useFocus, useKeyboard, useCapturedKeyboard, useShortcuts } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
-import { useKeyboard } from "@gridland/utils"
 
-function ChatInterface() {
-  const { messages, status, sendMessage, stop } = useChat({
+function ChatPanel({ conversationId, selectedModelId, isInteracting }) {
+  const [showModelPicker, setShowModelPicker] = useState(false)
+  const { messages, status, sendMessage, stop, setMessages } = useChat({
+    id: conversationId,
     api: "/api/chat",
   })
 
@@ -90,86 +106,77 @@ function ChatInterface() {
     : status === "error" ? "error"
     : "ready"
 
-  const isStreaming = status === "streaming"
+  return (
+    <CommandProvider>
+      <box flexDirection="column" flexGrow={1}>
+        {/* Message area */}
+        <box flexDirection="column" paddingX={1} gap={1} flexGrow={1} overflow="hidden" justifyContent="flex-end">
+          {messages.map((msg, i) => {
+            const isLast = i === messages.length - 1
+            const msgStreaming = isLast && msg.role === "assistant" && status === "streaming"
+
+            return (
+              <Message key={msg.id} role={msg.role} isStreaming={msgStreaming}>
+                <Message.Content>
+                  {msg.parts?.map((part, j) => {
+                    switch (part.type) {
+                      case "text":
+                        return <Message.Text key={j} isLast={j === msg.parts.length - 1 && msgStreaming}>{part.text}</Message.Text>
+                      case "reasoning":
+                        return <Message.Reasoning key={j} />
+                      default:
+                        return null
+                    }
+                  })}
+                </Message.Content>
+              </Message>
+            )
+          })}
+        </box>
+        {/* Prompt input with focus management */}
+        <PromptInput
+          onSubmit={sendMessage}
+          onStop={stop}
+          status={chatStatus}
+          placeholder="Type a message..."
+          useKeyboard={useKeyboard}
+          showDividers
+        />
+      </box>
+    </CommandProvider>
+  )
+}
+
+function ChatApp() {
+  const [navItems] = useState([{ id: "new-chat", name: "+ New chat" }])
 
   return (
-    <box flexDirection="column" flexGrow={1}>
-      <box
-        flexDirection="column"
-        paddingX={1}
-        gap={1}
-        flexGrow={1}
-        overflow="hidden"
-        justifyContent="flex-end"
-      >
-        {messages.map((msg, i) => {
-          const isLast = i === messages.length - 1
-          const msgStreaming = isLast && msg.role === "assistant" && isStreaming
-
-          return (
-            <Message
-              key={msg.id}
-              role={msg.role as "user" | "assistant"}
-              isStreaming={msgStreaming}
-            >
-              <Message.Content>
-                {msg.parts?.map((part, j) => {
-                  const isLastPart = j === msg.parts.length - 1
-                  switch (part.type) {
-                    case "text":
-                      return (
-                        <Message.Text key={j} isLast={isLastPart && msgStreaming}>
-                          {part.text}
-                        </Message.Text>
-                      )
-                    case "reasoning":
-                      return (
-                        <Message.Reasoning key={j} />
-                      )
-                    case "tool-invocation":
-                      return (
-                        <Message.ToolCall
-                          key={j}
-                          name={part.toolInvocation.toolName}
-                          state={part.toolInvocation.state === "result" ? "completed" : part.toolInvocation.state === "call" ? "running" : "pending"}
-                          result={part.toolInvocation.result}
-                        />
-                      )
-                    default:
-                      return null
-                  }
-                }) ?? (
-                  typeof msg.content === "string"
-                    ? <Message.Text isLast={msgStreaming}>{msg.content}</Message.Text>
-                    : null
-                )}
-              </Message.Content>
-            </Message>
-          )
-        })}
-      </box>
-      <PromptInput
-        onSubmit={sendMessage}
-        onStop={stop}
-        status={chatStatus}
-        placeholder="Type a message..."
-        useKeyboard={useKeyboard}
-        showDividers
-      />
-    </box>
+    <SideNav items={navItems} title="Claude" sidebarWidth={22}>
+      {({ activeItem, isInteracting }) => (
+        <ChatPanel
+          conversationId={activeItem.id}
+          selectedModelId="anthropic/claude-sonnet-4"
+          isInteracting={isInteracting}
+        />
+      )}
+    </SideNav>
   )
 }
 ```
 
 ## Components Used
 
-This block combines three Gridland components:
+This block combines several Gridland components:
 
 | Component | Role |
 |-----------|------|
+| [`SideNav`](/docs/components/side-nav) | Sidebar navigation with conversation history and keyboard-driven switching |
 | [`Message`](/docs/components/message) | Renders individual messages with role-based styling and streaming |
 | [`PromptInput`](/docs/components/prompt-input) | Input field with submit/stop, slash commands, and file mentions |
-| [`ChainOfThought`](/docs/components/chain-of-thought) | Animated step chain of thought for reasoning chains (when model supports it) |
+| [`ChainOfThought`](/docs/components/chain-of-thought) | Expandable reasoning blocks for models with extended thinking |
+| [`SelectInput`](/docs/components/select-input) | Model picker dropdown inside a modal |
+| [`Modal`](/docs/components/modal) | Overlay for model selection |
+| [`CommandProvider`](/docs/components/command-provider) | Registers `/model` and `/clear` slash commands |
 
 ## Customization
 

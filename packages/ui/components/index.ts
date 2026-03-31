@@ -63,6 +63,7 @@ export type { ModalProps } from "./modal/modal"
 export { PromptInput, usePromptInput, PromptInputProvider, usePromptInputController } from "./prompt-input/prompt-input"
 export type {
   PromptInputProps,
+  PromptInputCommand,
   PromptInputContextValue,
   PromptInputProviderProps,
   PromptInputMessage,
@@ -71,6 +72,9 @@ export type {
   ChatStatus,
   Suggestion,
 } from "./prompt-input/prompt-input"
+
+export { CommandProvider, CommandRegistry, useCommandRegistry, useOptionalCommandRegistry, useRegisterCommand, useRegisterCommands, useRegistryCommands } from "./prompt-input/command-registry"
+export type { CommandProviderProps, CommandRegistryListener } from "./prompt-input/command-registry"
 
 export { ChatPanel } from "./chat/chat"
 export type { ChatPanelProps, ChatMessage, ToolCallInfo } from "./chat/chat"
@@ -104,3 +108,6 @@ export type { GridlandProviderProps } from "./provider/provider"
 
 export { useBreakpoints, BREAKPOINTS } from "./breakpoints/use-breakpoints"
 export type { Breakpoints } from "./breakpoints/use-breakpoints"
+
+export { SideNav } from "./side-nav/side-nav"
+export type { SideNavProps, SideNavItem } from "./side-nav/side-nav"

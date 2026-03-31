@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "docs-dev",
+      "runtimeExecutable": "/Users/jessicacheng/thoughtful/gridland/packages/docs/node_modules/.bin/next",
+      "runtimeArgs": ["dev", "--dir", "/Users/jessicacheng/thoughtful/gridland/packages/docs"],
+      "port": 3000
+    }
+  ]
+}

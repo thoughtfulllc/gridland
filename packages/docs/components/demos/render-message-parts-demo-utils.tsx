@@ -1,7 +1,15 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { Message } from "@gridland/ui"
+import type { ChatStatus } from "@gridland/ui"
 import type { ReactNode } from "react"
-import type { UIMessagePart } from "@ai-sdk/react"
+import type { UIMessagePart } from "ai"
+
+/** Convert Vercel AI SDK status string to ChatStatus union. */
+export function toChatStatus(status: string): ChatStatus {
+  return status === "streaming" || status === "submitted" || status === "error"
+    ? status as ChatStatus
+    : "ready"
+}
 
 /**
  * Maps Vercel AI SDK UIMessage.parts to Message sub-components.
@@ -23,13 +31,13 @@ export function renderContentParts(parts: UIMessagePart[], isStreaming: boolean)
           </Message.Text>
         )
         break
-      case "tool-invocation":
+      case "dynamic-tool":
         elements.push(
           <Message.ToolCall
             key={`p-${i}`}
-            name={part.toolInvocation.toolName}
-            state={mapToolState(part.toolInvocation.state)}
-            result={part.toolInvocation.result}
+            name={part.toolName}
+            state={mapToolState(part.state)}
+            result={part.state === "output-available" ? part.output : undefined}
           />
         )
         break
@@ -58,6 +66,7 @@ export function renderPartsWithReasoning(
   const reasoning: ReactNode[] = []
   const content: ReactNode[] = []
   let sourceIndex = 0
+  let hasReasoning = false
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i]
@@ -72,20 +81,24 @@ export function renderPartsWithReasoning(
         )
         break
       case "reasoning":
-        reasoning.push(
-          <Message.Reasoning
-            key={`r-${i}`}
-            collapsed={options?.expanded === false ? true : !(options?.expanded ?? true)}
-          />
-        )
+        // Consolidate multiple reasoning parts into a single Message.Reasoning
+        if (!hasReasoning) {
+          hasReasoning = true
+          reasoning.push(
+            <Message.Reasoning
+              key="reasoning"
+              collapsed={options?.expanded === false}
+            />
+          )
+        }
         break
-      case "tool-invocation":
+      case "dynamic-tool":
         content.push(
           <Message.ToolCall
             key={`p-${i}`}
-            name={part.toolInvocation.toolName}
-            state={mapToolState(part.toolInvocation.state)}
-            result={part.toolInvocation.result}
+            name={part.toolName}
+            state={mapToolState(part.state)}
+            result={part.state === "output-available" ? part.output : undefined}
           />
         )
         break
@@ -105,9 +118,10 @@ export function renderPartsWithReasoning(
 /** Maps Vercel AI SDK tool states to our generic ToolCallState. */
 function mapToolState(state: string): "pending" | "running" | "completed" | "error" {
   switch (state) {
-    case "partial-call": return "pending"
-    case "call": return "running"
-    case "result": return "completed"
+    case "input-streaming": return "pending"
+    case "input-available": return "running"
+    case "output-available": return "completed"
+    case "output-error": return "error"
     default: return "pending"
   }
 }

@@ -8,21 +8,16 @@ export const initialFocusState: FocusState = {
   shortcuts: new Map(),
 }
 
-export function getNavigableEntries(state: FocusState): FocusEntry[] {
-  const currentScopeId = state.scopes.length > 0
-    ? state.scopes[state.scopes.length - 1].id
-    : null
+export function getTopScope(state: FocusState) {
+  return state.scopes[state.scopes.length - 1] ?? null
+}
 
+export function getNavigableEntries(state: FocusState): FocusEntry[] {
+  const topScope = getTopScope(state)
   return state.entries.filter((e) => {
     if (e.disabled) return false
     if (e.tabIndex === -1) return false
-
-    // If we're in a trapping scope, only navigate entries in that scope
-    if (currentScopeId !== null) {
-      const currentScope = state.scopes[state.scopes.length - 1]
-      if (currentScope.trap && e.scopeId !== currentScopeId) return false
-    }
-
+    if (topScope?.trap && e.scopeId !== topScope.id) return false
     return true
   })
 }
@@ -203,7 +198,7 @@ export function focusReducer(state: FocusState, action: FocusAction): FocusState
         ...state,
         scopes: newScopes,
         focusedId,
-        selectedId: poppedScope.savedSelectedId ?? null,
+        selectedId: action.clearSelection ? null : (poppedScope.savedSelectedId ?? null),
       }
     }
 

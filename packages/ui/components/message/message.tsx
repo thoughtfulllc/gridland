@@ -63,11 +63,15 @@ export function useMessage(): MessageContextValue {
 
 // ── Style helpers ───────────────────────────────────────────────────
 
+const LIGHT_THEME_BACKGROUND = "#FFFFFF"
+const BUBBLE_COLORS = {
+  dark: { assistantBg: "#2a2a4a", userBg: "#2a3a3a" },
+  light: { assistantBg: "#F1F5F9", userBg: "#E2E8F0" },
+} as const
+
 function getBubbleColors(theme: Theme): { assistantBg: string; userBg: string } {
-  const isDark = theme.background !== "#FFFFFF"
-  return isDark
-    ? { assistantBg: "#2a2a4a", userBg: "#2a3a3a" }
-    : { assistantBg: "#F1F5F9", userBg: "#E2E8F0" }
+  const isDark = theme.background !== LIGHT_THEME_BACKGROUND
+  return isDark ? BUBBLE_COLORS.dark : BUBBLE_COLORS.light
 }
 
 const TOOL_STATE_ICONS: Record<ToolCallState, string> = {
@@ -268,6 +272,7 @@ export function Message({
       <box
         flexDirection="column"
         flexShrink={0}
+        width="100%"
         alignItems={isUser ? "flex-end" : "flex-start"}
       >
         {children}

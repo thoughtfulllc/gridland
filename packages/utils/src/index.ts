@@ -3,6 +3,7 @@
 // Shared singleton: AppContext is the bridge between utils, @gridland/bun, and @gridland/web.
 
 // Hooks
+export { useCapturedKeyboard } from "../../core/src/react/hooks/use-captured-keyboard"
 export { useKeyboard, type UseKeyboardOptions } from "../../core/src/react/hooks/use-keyboard"
 export { useOnResize } from "../../core/src/react/hooks/use-resize"
 export { useRenderer } from "../../core/src/react/hooks/use-renderer"

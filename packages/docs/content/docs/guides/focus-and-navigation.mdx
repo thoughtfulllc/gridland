@@ -8,12 +8,19 @@ import { FocusApp } from '@demos/focus'
 import { PointerApp } from '@demos/pointer'
 import { CursorHighlightApp } from '@demos/cursor-highlight'
 import FocusGridDemo from '@/components/demos/focus-grid-demo'
+import FocusAIChatDemo from '@/components/demos/focus-ai-chat-demo'
 
 Gridland provides a unified focus and input system that works identically in both terminal and web runtimes.
 
 ## Focus
 
 ### Examples
+
+#### AI Chat with Focus & Navigation
+
+<div className="my-8">
+  <FocusAIChatDemo />
+</div>
 
 #### Spatial Navigation
 
@@ -99,6 +106,8 @@ function AppStatusBar() {
 | `tabIndex` | `number` | `0` | Tab order. `-1` to skip tab navigation |
 | `autoFocus` | `boolean` | `false` | Focus immediately on mount |
 | `disabled` | `boolean` | `false` | Skip in tab order when true |
+| `scopeId` | `string \| null` | context scope | Override which FocusScope this element belongs to |
+| `selectable` | `boolean` | `true` | Whether this component supports selection (Enter to interact) |
 
 **Navigation** works two ways: **Tab/Shift+Tab** cycles in linear order, **arrow keys** navigate spatially to the nearest neighbor. If a component handles arrows internally (e.g., a SelectInput), call `event.preventDefault()` to prevent the FocusProvider from also navigating.
 
@@ -127,7 +136,9 @@ Constrain navigation to a group of components. When `trap` is enabled, Tab wraps
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `trap` | `boolean` | `false` | Prevent Tab from leaving the scope |
+| `selectable` | `boolean` | `false` | Enable Enter/Esc selection within this scope |
 | `autoFocus` | `boolean` | `false` | Focus first element on mount |
+| `autoSelect` | `boolean` | `false` | Auto-select if only one focusable element exists on mount |
 | `restoreOnUnmount` | `boolean` | `true` | Restore previous focus on unmount |
 
 ## Pointer Events

@@ -1,0 +1,21 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$file\" == *\"packages/ui\"* ]]; then cd /Users/jessicacheng/thoughtful/gridland && bun run --cwd packages/ui test --bail 2>&1 | grep -E '(FAIL|PASS|snapshot|✓|✗|error)' | head -20; fi",
+            "description": "Snapshot regression check — fails if any UI snapshot changed unexpectedly"
+          },
+          {
+            "type": "command",
+            "command": "file=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$file\" == *\"packages/ui\"* || \"$file\" == *\"packages/utils\"* || \"$file\" == *\"packages/core\"* ]]; then cd /Users/jessicacheng/thoughtful/gridland && packages/ui/node_modules/.bin/tsc --noEmit -p packages/ui/tsconfig.json 2>&1 | head -30; fi",
+            "description": "TypeScript check on UI package changes"
+          }
+        ]
+      }
+    ]
+  }
+}

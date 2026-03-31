@@ -1,0 +1,146 @@
+---
+title: SideNav
+description: A sidebar navigation layout with keyboard-driven focus and a main content panel
+---
+
+import SideNavDemo from '@/components/demos/side-nav-demo'
+
+A sidebar + main panel layout with built-in keyboard navigation. Arrow keys navigate the sidebar, Enter selects an item for interaction, Escape goes back.
+
+<div className="my-8">
+  <SideNavDemo />
+</div>
+
+## Installation
+
+```bash
+bunx shadcn@latest add @gridland/side-nav
+```
+
+## Usage
+
+```tsx
+import { SideNav } from "@/components/ui/side-nav"
+```
+
+```tsx
+const items = [
+  { id: "inbox", name: "Inbox" },
+  { id: "drafts", name: "Drafts" },
+  { id: "sent", name: "Sent" },
+]
+
+<SideNav items={items} title="Mail">
+  {({ activeItem, isInteracting, captureKeyboard }) => (
+    <YourContent item={activeItem} />
+  )}
+</SideNav>
+```
+
+## Examples
+
+### Basic
+
+A simple sidebar navigating between static content panels.
+
+```tsx title="Basic"
+const items = [
+  { id: "files", name: "Files" },
+  { id: "search", name: "Search" },
+  { id: "settings", name: "Settings" },
+]
+
+<SideNav items={items}>
+  {({ activeItem }) => (
+    <box padding={1}>
+      <text>Viewing: {activeItem.name}</text>
+    </box>
+  )}
+</SideNav>
+```
+
+### Interactive Content
+
+Use `isInteracting` and `captureKeyboard` to make the main panel interactive when the user presses Enter on a sidebar item.
+
+```tsx title="Interactive"
+function MyPanel({ isInteracting, captureKeyboard }) {
+  const [value, setValue] = useState("")
+
+  return (
+    <box padding={1}>
+      <TextInput
+        label="Name"
+        placeholder="type here..."
+        focus={isInteracting}
+        value={value}
+        onChange={setValue}
+        useKeyboard={captureKeyboard}
+      />
+    </box>
+  )
+}
+
+<SideNav items={items} title="Settings">
+  {({ activeItem, isInteracting, captureKeyboard }) => (
+    <MyPanel isInteracting={isInteracting} captureKeyboard={captureKeyboard} />
+  )}
+</SideNav>
+```
+
+### Custom Sidebar Width
+
+```tsx title="Wide sidebar"
+<SideNav items={items} sidebarWidth={30} title="Dashboard">
+  {({ activeItem }) => <Content id={activeItem.id} />}
+</SideNav>
+```
+
+### Without Status Bar
+
+```tsx title="No status bar"
+<SideNav items={items} showStatusBar={false}>
+  {({ activeItem }) => <Content id={activeItem.id} />}
+</SideNav>
+```
+
+## Controls
+
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` | Navigate sidebar items |
+| `Enter` | Select item — interact with main panel content |
+| `Escape` | Deselect — return to sidebar navigation |
+
+## API Reference
+
+### SideNav
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `SideNavItem[]` | - | List of navigable items |
+| `children` | `(ctx) => ReactNode` | - | Render function for main panel content |
+| `sidebarWidth` | `number` | `20` | Width of the sidebar in columns |
+| `title` | `string` | - | Optional title above the sidebar |
+| `showStatusBar` | `boolean` | `true` | Show the keyboard shortcuts status bar |
+| `focusedColor` | `string` | `"#cdd6f4"` | Text color for focused sidebar item |
+| `selectedColor` | `string` | `"#a5b4fc"` | Text color for selected sidebar item |
+| `mutedColor` | `string` | `"#6c7086"` | Text color for unfocused sidebar items |
+| `highlightBg` | `string` | `"#313244"` | Background color for focused sidebar item |
+| `borderColor` | `string` | `"#3b3466"` | Main panel border color |
+| `activeBorderColor` | `string` | `"#818cf8"` | Main panel border color when interacting |
+
+### SideNavItem
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `string` | Unique identifier |
+| `name` | `string` | Display label in the sidebar |
+
+### Children Render Context
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `activeItem` | `SideNavItem` | The currently focused/active item |
+| `isInteracting` | `boolean` | Whether the user has selected the item (Enter) |
+| `captureKeyboard` | `(handler) => void` | Register a keyboard handler for interactive content |

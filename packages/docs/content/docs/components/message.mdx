@@ -135,13 +135,13 @@ const { messages, status } = useChat({ api: "/api/chat" })
           switch (part.type) {
             case "text":
               return <Message.Text key={j} isLast={isLastPart && msgStreaming}>{part.text}</Message.Text>
-            case "tool-invocation":
+            case "dynamic-tool":
               return (
                 <Message.ToolCall
                   key={j}
-                  name={part.toolInvocation.toolName}
-                  state={part.toolInvocation.state === "result" ? "completed" : "running"}
-                  result={part.toolInvocation.result}
+                  name={part.toolName}
+                  state={part.state === "output-available" ? "completed" : part.state === "output-error" ? "error" : "running"}
+                  result={part.state === "output-available" ? part.output : undefined}
                 />
               )
             case "source-url":

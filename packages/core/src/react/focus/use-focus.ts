@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useCallback, useRef, useSyncExternalStore } from "react"
 import { useFocusContext } from "./focus-context"
+import { useFocusScopeId } from "./focus-scope"
 
 export interface UseFocusOptions {
   id?: string
@@ -30,18 +31,18 @@ export interface UseFocusReturn {
 
 export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
   const generatedId = useId()
+  const contextScopeId = useFocusScopeId()
   const {
     id = generatedId,
     tabIndex = 0,
     autoFocus = false,
     disabled = false,
-    scopeId = null,
+    scopeId = contextScopeId,
     selectable = true,
   } = options
 
   const { dispatch, store } = useFocusContext()
 
-  // Subscribe to store for reactivity — this is what drives re-renders
   const noopSubscribe = useCallback((cb: () => void) => () => {}, [])
   const focusedId = useSyncExternalStore(
     store?.subscribe ?? noopSubscribe,
@@ -53,8 +54,13 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
     () => store?.getState().selectedId ?? null,
     () => store?.getState().selectedId ?? null,
   )
+  // Derived boolean: is this ID saved as selectedId in any scope on the stack?
+  const isScopeSelected = useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    () => store?.getState().scopes.some(s => s.savedSelectedId === id) ?? false,
+    () => false,
+  )
 
-  // Register on mount, unregister on unmount. Only re-runs if id changes (rare).
   useEffect(() => {
     dispatch({
       type: "REGISTER",
@@ -81,7 +87,7 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
   }, [tabIndex, disabled, scopeId, selectable])
 
   const isFocused = focusedId === id
-  const isSelected = selectedId === id
+  const isSelected = selectedId === id || isScopeSelected
   const isAnySelected = selectedId !== null
 
   const focus = useCallback(() => {
@@ -100,7 +106,6 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
     dispatch({ type: "DESELECT" })
   }, [dispatch])
 
-  // Ref callback for spatial navigation — attach to root <box ref={focusRef}>
   const focusRef = useCallback((node: any) => {
     store?.setRef(id, node)
   }, [id, store])

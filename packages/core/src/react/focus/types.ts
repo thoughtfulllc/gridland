@@ -10,6 +10,8 @@ export interface FocusEntry {
 export interface FocusScope {
   id: string
   trap: boolean
+  /** Whether this scope supports its own Enter/Esc selection lifecycle. */
+  selectable: boolean
   savedFocusId: string | null
   savedSelectedId: string | null
 }
@@ -39,6 +41,6 @@ export type FocusAction =
   | { type: "DESELECT" }
   | { type: "PATCH_ENTRY"; id: string; patch: Partial<Omit<FocusEntry, "id">> }
   | { type: "PUSH_SCOPE"; scope: FocusScope }
-  | { type: "POP_SCOPE"; scopeId: string }
+  | { type: "POP_SCOPE"; scopeId: string; clearSelection?: boolean }
   | { type: "SET_SHORTCUTS"; focusId: string; shortcuts: ShortcutEntry[] }
   | { type: "CLEAR_SHORTCUTS"; focusId: string }
