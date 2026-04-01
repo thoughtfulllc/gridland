@@ -125,11 +125,6 @@ packages/
   container/        # Docker sandbox runner
   docs/             # Fumadocs documentation site (static export)
 
-examples/
-  vite-example/              # Minimal Vite example
-  next-example/              # Next.js example
-  container-demo/            # Docker container demo
-
 e2e/                         # Playwright E2E tests
 ```
 

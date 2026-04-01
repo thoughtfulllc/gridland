@@ -74,10 +74,6 @@ opentui-web/
 │       └── tests/
 │           └── framework.test.tsx
 │
-├── examples/
-│   ├── vite/                     # Minimal Vite example
-│   └── next/                     # Next.js example
-│
 ├── docs/                         # Fumadocs documentation site
 │   ├── content/docs/
 │   │   ├── getting-started.mdx

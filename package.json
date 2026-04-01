@@ -2,8 +2,7 @@
   "name": "gridland-monorepo",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "examples/*"
+    "packages/*"
   ],
   "scripts": {
     "build": "bun run --cwd packages/utils build && bun run --cwd packages/bun build && bun run --cwd packages/web build && bun run --cwd packages/ui build && bun run --cwd packages/ui build:registry && bun run --cwd packages/testing build && bun run --cwd packages/create-gridland build && bun run --cwd packages/demo build && bun run --cwd packages/docs build",
@@ -19,7 +18,6 @@
     "chat:dev": "bun run --cwd packages/chat-worker dev",
     "chat:deploy": "bun run --cwd packages/chat-worker deploy",
     "docs:build": "bun run --cwd packages/docs build",
-    "dev:next": "bun run --cwd examples/next-example dev",
     "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
     "setup": "bun install && bun run build"
   },
