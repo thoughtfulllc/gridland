@@ -28,7 +28,7 @@ For each component:
 
 **Check prop tables:**
 - Every prop in `{ComponentName}Props` appears in the docs table
-- Prop types match the implementation (string vs number vs union)
+- Prop types match the implementation
 - Required vs optional marked correctly
 - Default values documented correctly
 
@@ -41,54 +41,51 @@ For each component:
 Every ` ```tsx ` or ` ```ts ` block in the docs is treated as code to be verified.
 
 For each code block:
-- **Import paths**: Does `import { X } from "@gridland/ui"` match what's actually exported from `packages/ui/components/index.ts`?
-- **Component props**: Does the example use props that exist in the current `{ComponentName}Props` interface?
-- **Hook options**: Does the example pass options that exist in `UseFocusOptions` or equivalent?
-- **Deprecated patterns**: Does it use any anti-pattern from CLAUDE.md (e.g., `tabIndex: disabled ? -1 : 0`, `tool-invocation`, `@ai-sdk/react` for `UIMessagePart`)?
-
-Flag every code block with a structural error. Note: you are checking structure and API correctness, not runtime execution.
+- **Import paths**: Does `import { X } from "@gridland/ui"` match what's exported from `packages/ui/components/index.ts`?
+- **Component props**: Does the example use props that exist in the current `{ComponentName}Props`?
+- **Hook options**: Does the example pass options that exist in the current API?
+- **AI SDK correctness**:
+  - `UIMessagePart` must come from `"ai"` — NOT `"@ai-sdk/react"`
+  - Tool part type must be `"dynamic-tool"` — NOT `"tool-invocation"`
+  - Tool state values: `"input-streaming"` | `"input-available"` | `"approval-requested"` | `"output-available"` | `"output-error"`
+  - `useChat` prop: `messages` — NOT `initialMessages`
 
 ## Step 4 — Check demo components
 
 For each demo file in `packages/docs/components/demos/`:
-- Does it import from the correct packages (`@gridland/ui`, `@gridland/utils`, `@gridland/web`)?
-- Does it use the current prop names and types?
+- Does it import from correct packages (`@gridland/ui`, `@gridland/utils`, `@gridland/web`)?
+- Does it use current prop names and types?
 - Does it compile structurally (no props that don't exist, no removed imports)?
-
-```bash
-# Find all demo files
-ls packages/docs/components/demos/
-```
 
 ## Step 5 — Check render-message-parts-demo-utils specifically
 
 This utility is used in AI-related demos. Verify:
 - `UIMessagePart` imported from `"ai"` (not `"@ai-sdk/react"`)
 - Tool part type is `"dynamic-tool"` (not `"tool-invocation"`)
-- Tool state values are `"input-streaming"` | `"input-available"` | `"output-available"` | `"output-error"`
+- Tool state values are correct (5 values including `"approval-requested"`)
 
 ## Output format
 
 ```
 ## Documentation Mirror Report
 
-### ✅ Accurate
+### Accurate
 - Components with correct, up-to-date documentation
 
-### ❌ Prop Mismatches
+### Prop Mismatches
 - [doc:line] Documented prop "X" — not found in implementation
 - [doc:line] Prop "Y" documented as optional — actually required
 
-### ❌ Invalid Code Examples
+### Invalid Code Examples
 - [doc:line] Import `{ X }` from `"@gridland/ui"` — X is not exported
 - [doc:line] Prop `foo` passed to `<Component>` — prop does not exist
 - [doc:line] Anti-pattern: [description]
 
-### ❌ Missing Documentation
+### Missing Documentation
 - Component X has no doc page
 - Component X has no demo
 
-### ❌ Stale Documentation
+### Stale Documentation
 - Doc page for X exists but component was removed
 
 ### Summary

@@ -1,90 +1,55 @@
 ---
 name: sync-context
-description: >
-  Update CLAUDE.md to reflect the current state of the codebase — new components,
-  changed APIs, new patterns, and the reasoning behind non-obvious decisions.
-  Run after any significant design change before committing.
+description: Update context files to reflect current codebase state — new components, changed APIs, new patterns, and reasoning behind non-obvious decisions. Routes updates to the correct file based on what changed. Run after any significant design change before committing.
 ---
 
-You are updating `CLAUDE.md` so it accurately reflects the current codebase.
-This file is the primary context document read by Claude at the start of every session.
-It must stay truthful — an out-of-date CLAUDE.md is worse than no CLAUDE.md.
+Update context files to reflect the current state of the codebase.
 
 ## Step 1 — Gather what changed
 
-Run the following to understand what has changed since the last sync:
-
 ```bash
-# Staged + unstaged changes
 git diff HEAD
-
-# Recent commits not yet captured (last 10)
 git log --oneline -10
-
-# New or modified component files
 git diff HEAD --name-only | grep -E '\.(tsx|ts)$'
 ```
 
-Also read `CLAUDE.md` in full so you know its current state.
+## Step 2 — Classify each change and route to the correct file
 
-## Step 2 — Identify update categories
+| Change type | Target file |
+|---|---|
+| New component, removed component, changed component props | `packages/ui/CLAUDE.md` (component catalog table) |
+| New focus pattern, focus anti-pattern, useFocus API change | `.claude/rules/focus-system.md` |
+| New AI SDK convention, changed part types or states | `.claude/rules/ai-sdk.md` |
+| New layout rule, intrinsic element, borderStyle | `.claude/rules/opentui-layout.md` |
+| Non-obvious design decision worth preserving | `.claude/rules/design-decisions.md` |
+| New docs convention, demo pattern | `packages/docs/CLAUDE.md` |
+| New universal anti-pattern, import rule, test command | Root `CLAUDE.md` |
 
-For each changed file, classify the change:
+## Step 3 — For each update, evaluate
 
-| Category | What triggers it | Where it goes in CLAUDE.md |
-|---|---|---|
-| **New component** | New file in `packages/ui/components/` | Add row to UI Components table |
-| **New hook or utility** | New export from `packages/utils/` | Add to Focus System → Core API |
-| **Changed prop signature** | Existing component props added/removed/renamed | Update UI Components table |
-| **New correct pattern** | A new canonical way to do something | Add to Correct Patterns block |
-| **New anti-pattern** | A mistake that was caught and corrected | Add to Anti-Patterns list |
-| **Non-obvious design choice** | A decision with a non-trivial reason | Add entry to Design Decisions |
-| **Export convention change** | New export rule or index.ts pattern | Update Export Conventions |
-| **AI SDK convention change** | New type name, part type, or import path | Update AI SDK Conventions |
+- Is this new or already documented? (Don't duplicate)
+- Is the "why" non-obvious? (Only document if a future engineer might undo without understanding)
+- Is existing documentation still accurate? (Update or remove stale entries)
+- Is this a permanent pattern or temporary workaround? (Only document permanent)
 
-## Step 3 — Evaluate each change carefully
+## Step 4 — Apply updates
 
-For every change you plan to make to `CLAUDE.md`, ask:
+Read the target file, then edit it following the existing format:
+- Component catalog: add/update row in the table
+- Rules: add section or update existing content
+- Anti-patterns: add `- ` bullet item
+- Design decisions: add `## ` section with rationale
 
-- **Is this actually new, or is it already documented?** — Don't duplicate.
-- **Is the "why" non-obvious?** — Only add a Design Decision entry if a future engineer
-  might reasonably undo the choice without understanding its purpose. Don't document
-  things that are self-evident from the code.
-- **Is the existing documentation still accurate?** — If a prop was renamed or a default
-  changed, update or remove the old entry. Stale docs are actively harmful.
-- **Is this a temporary workaround or a permanent pattern?** — Only document permanent
-  decisions. Workarounds should be tracked in issues, not CLAUDE.md.
+## Step 5 — Verify
 
-## Step 4 — Write the updates
-
-Edit `CLAUDE.md` directly. Follow the existing formatting exactly:
-- Tables use `| Component | Key Props |` format with `---` separators
-- Code blocks use triple backticks with `tsx` or `ts`
-- Anti-patterns use `- ❌` prefix
-- Design Decision entries follow this template:
-
-```markdown
-### <Short title — the decision, not the outcome>
-
-<1-2 sentences: what the alternative was and why it was rejected, or what problem this solves>
-
-<Optional: short code example showing the correct vs incorrect approach if it helps clarity>
-```
-
-## Step 5 — Sync to main repo
-
-After updating `CLAUDE.md` in the worktree, also copy it to the main repo so it's
-discoverable from either location:
-
-```bash
-cp /Users/jessicacheng/thoughtful/gridland/.claude/worktrees/nervous-mestorf/CLAUDE.md \
-   /Users/jessicacheng/thoughtful/gridland/CLAUDE.md
-```
+- Root `CLAUDE.md` must stay under 100 lines
+- No duplicate information across files
+- All updated files have correct content
 
 ## What NOT to add
 
-- ❌ Implementation details that belong in code comments, not architecture docs
-- ❌ Step-by-step tutorials — this is a reference doc, not a guide
-- ❌ Decisions that are obvious from the component name or prop name
-- ❌ Workarounds for bugs that will be fixed — track those in issues
-- ❌ Version-specific notes (e.g., "in v2.3 we changed X") — CLAUDE.md reflects NOW
+- Implementation details that belong in code comments
+- Tutorials or guides
+- Obvious decisions that don't need rationale
+- Bug workarounds or version-specific notes
+- Anything derivable from reading the code directly

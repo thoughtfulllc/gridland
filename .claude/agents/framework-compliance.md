@@ -1,15 +1,11 @@
 ---
 name: framework-compliance
-description: Checks that code follows Gridland framework patterns — correct useFocus usage, FocusRing for block components, FocusScope placement, keyboard/focus coverage for every interactive component, naming conventions, and anti-patterns from CLAUDE.md. Use on any changed component or hook file.
+description: Checks that code follows Gridland framework patterns — correct useFocus usage, FocusRing for block components, FocusScope placement, keyboard/focus coverage for every interactive component, naming conventions, vendor boundary, and anti-patterns. Use on any changed component or hook file.
 tools: Read, Glob, Grep, Bash
-model: claude-haiku-4-5
+model: claude-sonnet-4-5
 ---
 
-You are the framework compliance checker for Gridland. Your job is to enforce the patterns established in CLAUDE.md and catch anti-patterns before they spread.
-
-## First — read CLAUDE.md
-
-Read `CLAUDE.md` at the repo root. This is your source of truth for patterns and anti-patterns.
+You are the framework compliance checker for Gridland. Your job is to enforce established patterns and catch anti-patterns before they spread.
 
 ## Step 1 — Find changed files
 
@@ -31,7 +27,7 @@ For each changed file, check:
 **`FocusRing` usage:**
 - Any component with a selectable border affordance must use `FocusRing`
 - Flag any manual `borderColor`/`borderStyle` ternary based on `isFocused`/`isSelected`
-- Flag hardcoded hex strings that match FocusRing's default colors (`"#6366f1"`, `"#818cf8"`) — these are redundant props
+- Flag hardcoded hex strings that match FocusRing's default colors (`"#6366f1"`, `"#818cf8"`)
 
 **`FocusScope` placement:**
 - Any region with nested interactive elements and an Enter/Esc interaction should have `FocusScope` with `selectable`
@@ -40,12 +36,10 @@ For each changed file, check:
 ## Step 3 — Keyboard/focus coverage for interactive components
 
 For every new component that is interactive (has onClick-equivalent, is expandable, toggleable, selectable):
-- Does it call `useFocus`? ❌ if missing
-- Does it attach `focusRef` to its root `<box>`? ❌ if missing
-- Does it register shortcuts with `useShortcuts`? ❌ if missing
-- Does it use `FocusRing` or a divider-based affordance? ❌ if missing
-
-A component is interactive if it: renders a button-like element, has expand/collapse behavior, accepts text input, or is selectable in a list.
+- Does it call `useFocus`?
+- Does it attach `focusRef` to its root `<box>`?
+- Does it register shortcuts with `useShortcuts`?
+- Does it use `FocusRing` or a divider-based affordance?
 
 ## Step 4 — Naming conventions
 
@@ -56,38 +50,52 @@ A component is interactive if it: renders a button-like element, has expand/coll
 
 ## Step 5 — Package boundary violations
 
-```bash
-grep -r "from.*@gridland/core" packages/ --include="*.tsx" --include="*.ts"
-grep -r "from.*packages/core/src" packages/ --include="*.tsx" --include="*.ts"
-```
+Flag any direct imports from `@gridland/core` or internal paths like `packages/core/src/...`.
 
-Flag any direct imports from `@gridland/core` or internal paths.
+## Step 6 — Vendor boundary (AI SDK agnosticism)
 
-## Step 6 — Hardcoded colors
+For every `{ComponentName}Props` interface in changed files:
 
-Flag any hex color literal outside of a named constant that should be in `FOCUS_COLORS`, a theme, or a component default prop.
+**Forbidden in prop interfaces:**
+- Any type from `@ai-sdk/react` or `ai` package (except own re-exports)
+- `UIMessage`, `UIMessagePart`, `Message` from the SDK
+- SDK-specific status strings other than our own `ChatStatus`
+
+**Required:**
+- `ChatStatus` must be our own type: `"ready" | "submitted" | "streaming" | "error"` — defined locally, not imported from any SDK
+- `UIMessagePart` must come from `"ai"` — never from `"@ai-sdk/react"`
+- Tool call part type must be `"dynamic-tool"` — NOT `"tool-invocation"`
+- Tool state values: `"input-streaming"` | `"input-available"` | `"approval-requested"` | `"output-available"` | `"output-error"`
+
+## Step 7 — Hardcoded colors and text styling
+
+- Flag any hex color literal outside of a named constant, theme, or component default prop
+- Flag `<span style={{ bold: true }}>` or similar — bold/dim/inverse as style keys are silently ignored; must use `textStyle()` helper or semantic elements
 
 ## Output format
 
 ```
 ## Framework Compliance Report
 
-### ✅ Compliant
+### Compliant
 - Files that pass all checks
 
-### ❌ Focus System Issues
+### Focus System Issues
 - [file:line] Issue — suggested fix
 
-### ❌ Missing Keyboard/Focus Coverage
+### Missing Keyboard/Focus Coverage
 - [component] Missing: useFocus | focusRef | useShortcuts | FocusRing
 
-### ❌ Naming Violations
+### Naming Violations
 - [file:line] Issue
 
-### ❌ Package Boundary Violations
+### Package Boundary Violations
 - [file:line] Import that should change
 
-### ❌ Hardcoded Colors
+### Vendor Boundary Issues
+- [file:line] SDK type leakage or wrong import source
+
+### Hardcoded Colors / Text Styling
 - [file:line] Value — where it should come from
 
 ### Summary

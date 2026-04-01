@@ -1,0 +1,35 @@
+# @gridland/ui — Component Library
+
+## Component Catalog
+
+| Component | Key Props |
+|---|---|
+| `SideNav` | `items`, `requestedActiveId`, `sidebarWidth`, `title`, `borderColor`, `activeBorderColor`, `focusedColor`, `selectedColor`, `mutedColor`, `highlightBg`, `showStatusBar`, `children({ activeItem, isInteracting, captureKeyboard })` |
+| `PromptInput` | `onSubmit`, `onStop`, `status`, `value`, `onChange`, `placeholder`, `disabled`, `focus`, `useKeyboard`, `dividerColor`, `dividerDashed`, `showDividers`, `model`, `commands`, `skills`, `files`. Compound: `PromptInput.Textarea`, `.Suggestions`, `.Submit`, `.Divider`, `.StatusText`, `.Model` |
+| `Message` | `role`, `isStreaming`, `streamingCursor`, `backgroundColor`. Sub: `Message.Content`, `Message.Text`, `Message.ToolCall`, `Message.Source`, `Message.Reasoning`, `Message.Footer` |
+| `Modal` | `title`, `useKeyboard`, `onClose`, `borderColor`, `borderStyle` |
+| `SelectInput` | `items`, `value`, `defaultValue`, `onChange`, `useKeyboard`, `onSubmit`, `disabled`, `limit` |
+| `StatusBar` | `items` (from `useFocusedShortcuts`), `extra` |
+| `ChainOfThought` | `open`, `defaultOpen`, `onOpenChange`. Sub: `ChainOfThoughtHeader`, `ChainOfThoughtContent`, `ChainOfThoughtStep` |
+| `TextInput` | `label`, `value`, `onChange`, `onSubmit`, `placeholder`, `disabled`, `focus` |
+| `MultiSelect` | `items`, `selected`, `onChange`, `onSubmit`, `useKeyboard`, `limit`, `enableSelectAll` |
+| `Table` | Compound: `TableRoot`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption` |
+| `TabBar` | `options`, `selectedIndex` |
+| `Tabs` | Compound: `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` |
+| `ChatPanel` | `messages`, `status`, `onSendMessage`, `onStop`, `placeholder`, `focus`, `useKeyboard` |
+| `Link` | `url`, `children`, `underline`, `color` |
+| `Ascii` | `text`, `font`, `color` |
+| `Spinner` | `variant`, `text`, `color`, `status` |
+| `Gradient` | `children`. Helper: `GRADIENTS` constant |
+| `GridlandProvider` | Root provider for theme + keyboard context |
+| `ThemeProvider` | Theme wrapper. Exports: `darkTheme`, `lightTheme`, `useTheme` |
+| `TerminalWindow` | `title`, `children` (HTML/web component for docs) |
+
+## Conventions
+
+- Every component must be exported from `packages/ui/components/index.ts` with both runtime and type exports
+- `// @ts-nocheck` at the top of any file using OpenTUI intrinsic elements (`<box>`, `<text>`, `<span>`)
+- Import `textStyle` from `"../text-style"` — never recreate the bitmask logic
+- Use `useTheme()` from `"../theme/index"` — never hardcode hex colors
+- Compound components use `Component.Sub` naming (e.g., `Message.Content`)
+- Props interface named `{ComponentName}Props` with JSDoc on every prop

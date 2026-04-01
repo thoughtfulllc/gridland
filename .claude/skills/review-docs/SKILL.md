@@ -3,40 +3,24 @@ name: review-docs
 description: Documentation-focused review. Runs docs-mirror and dependency-auditor in parallel. Use after writing or updating documentation, demo components, or MDX pages.
 ---
 
-Run a documentation review. Spawn **docs-mirror** and **dependency-auditor** as parallel background agents.
+Documentation-focused review after writing or updating docs.
 
-## Changed files
-
-!`git diff --name-only HEAD`
-
-## Focus
-
-If no argument is passed, review all changed files. If a specific component or path is provided as `$ARGUMENTS`, focus the review there:
-
-> Reviewing: $ARGUMENTS
-
-## Instructions
-
-1. Spawn **docs-mirror** and **dependency-auditor** simultaneously as background agents
-2. docs-mirror: verify props documented, code examples valid, demos exist and correct
-3. dependency-auditor: verify external library usage in examples matches official docs
-4. Present combined findings:
-
+1. Get the list of changed files:
+```bash
+git diff --name-only HEAD
 ```
-## Documentation Review
 
-### ❌ Prop/Type Mismatches
-[Props in docs that don't match implementation]
+2. If `$ARGUMENTS` provided, focus review on those files. Otherwise review all changed files.
 
-### ❌ Invalid Code Examples
-[Examples with wrong imports, removed props, anti-patterns]
+3. Spawn `docs-mirror` and `dependency-auditor` simultaneously as background agents.
+   - docs-mirror: verify props documented, code examples valid, demos exist and correct
+   - dependency-auditor: verify external library usage in examples matches official docs
 
-### ❌ Missing or Stale Docs
-[Components without docs, docs for removed components]
+4. Wait for both agents to complete.
 
-### ❌ External API Issues
-[SDK usage in examples that doesn't match official docs]
-
-### ✅ All Clear
-[Components with accurate, valid documentation]
-```
+5. Present combined findings:
+   - Prop/Type Mismatches
+   - Invalid Code Examples
+   - Missing or Stale Docs
+   - External API Issues
+   - All Clear (if no issues)
