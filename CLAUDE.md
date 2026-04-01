@@ -17,7 +17,7 @@ packages/
 
 ## Package Import Rules
 
-- ✅ `@gridland/ui` — UI components (FocusRing, SideNav, Message, PromptInput, Modal, etc.)
+- ✅ `@gridland/ui` — UI components (SideNav, Message, PromptInput, Modal, etc.)
 - ✅ `@gridland/utils` — hooks (useFocus, FocusProvider, FocusScope, useKeyboard, useShortcuts, useCapturedKeyboard)
 - ✅ `@gridland/web` — browser renderer (TUI)
 - ❌ Never import from `@gridland/core` directly — it is internal
@@ -44,14 +44,6 @@ Returns: `isFocused`, `isSelected`, `isAnySelected`, `focusId`, `focusRef`, `foc
 
 **`useCapturedKeyboard(focusId)`** — Returns a keyboard hook scoped to when this element is selected.
 
-### `FocusRing` (from `@gridland/ui`)
-
-Wrapper box with focus-aware border. Use for any selectable block component.
-Props: `isFocused`, `isSelected`, `isAnySelected?`, `focusedColor?` (default `"#6366f1"`), `selectedColor?` (default `"#818cf8"`), `idleColor?` (default `"transparent"`), `dimmedColor?` (default `"transparent"`)
-- Dashed border when focused (affordance: press Enter to enter)
-- Rounded solid border when selected
-- Transparent when idle or when `isAnySelected` and not selected
-
 ### Correct Patterns
 
 ```tsx
@@ -60,15 +52,6 @@ useFocus({ id, disabled })
 
 // ❌ Wrong — tabIndex: disabled ? -1 : 0 alongside disabled is redundant
 useFocus({ id, disabled, tabIndex: disabled ? -1 : 0 })
-
-// ✅ FocusRing for selectable block components
-<FocusRing ref={focusRef} isFocused={isFocused} isSelected={isSelected}>
-  {children}
-</FocusRing>
-
-// ❌ Wrong — manual border logic when FocusRing exists
-const borderColor = isSelected ? "#818cf8" : isFocused ? "#6366f1" : "transparent"
-<box border borderStyle="rounded" borderColor={borderColor}>
 
 // ✅ FocusScope with selectable for Enter/Esc interaction regions
 <FocusScope trap selectable autoFocus autoSelect>
@@ -80,16 +63,14 @@ const borderColor = isSelected ? "#818cf8" : isFocused ? "#6366f1" : "transparen
 
 1. Call `useFocus` to register with the focus system
 2. Attach `focusRef` to its root `<box>` for spatial navigation
-3. Use `FocusRing` if it has a border-based selection affordance
-4. Wrap nested interactive content in `FocusScope` with `selectable`
-5. Register shortcuts via `useShortcuts`
+3. Wrap nested interactive content in `FocusScope` with `selectable`
+4. Register shortcuts via `useShortcuts`
 
 ## UI Components (`@gridland/ui`)
 
 | Component | Key Props |
 |---|---|
 | `SideNav` | `items`, `requestedActiveId`, `borderColor`, `activeBorderColor`, `focusedColor`, `selectedColor`, `mutedColor`, `highlightBg`, `children({ activeItem, isInteracting })` |
-| `FocusRing` | `isFocused`, `isSelected`, `isAnySelected?`, `focusedColor?`, `selectedColor?`, `idleColor?`, `dimmedColor?` |
 | `PromptInput` | `onSubmit`, `onStop`, `status`, `focus`, `useKeyboard`, `dividerColor`, `dividerDashed`, `showDividers`, `model`, `commands`, `placeholder` |
 | `Message` | `role`, `isStreaming`. Sub: `Message.Content`, `Message.Text`, `Message.ToolCall`, `Message.Source`, `Message.Reasoning` |
 | `Modal` | `title`, `useKeyboard`, `onClose` |
@@ -113,8 +94,8 @@ The framework must remain AI-SDK agnostic. Component interfaces must not depend 
 Every component in `packages/ui/components/` must have a matching entry in `packages/ui/components/index.ts` with both a runtime export and a type export:
 
 ```ts
-export { FocusRing } from "./focus-ring/focus-ring"
-export type { FocusRingProps } from "./focus-ring/focus-ring"
+export { SideNav } from "./side-nav/side-nav"
+export type { SideNavProps } from "./side-nav/side-nav"
 ```
 
 ## Development Workflow
@@ -154,7 +135,6 @@ edit code
 
 - ❌ Importing from `@gridland/core` directly
 - ❌ `tabIndex: disabled ? -1 : 0` alongside `disabled` in `useFocus`
-- ❌ Manual `borderColor`/`borderStyle` logic when `FocusRing` applies
 - ❌ SDK-specific types in component prop interfaces
 - ❌ `UIMessagePart` from `"@ai-sdk/react"` (must be from `"ai"`)
 - ❌ `"tool-invocation"` part type (use `"dynamic-tool"`)
@@ -166,20 +146,6 @@ edit code
 ## Design Decisions
 
 Non-obvious choices and the reasoning behind them. Read this before refactoring any of these patterns.
-
-### `FocusRing` — why a wrapper component instead of inline border logic
-
-Before `FocusRing`, every selectable component repeated the same 5-line pattern:
-```tsx
-const borderStyle = isSelected ? "rounded" : isFocused ? "dashed" : "rounded"
-const borderColor = isSelected ? "#818cf8" : isFocused ? "#6366f1" : isAnySelected ? "transparent" : idleColor
-<box border borderStyle={borderStyle} borderColor={borderColor}>
-```
-This spread the affordance logic across every component, with subtle variations that caused inconsistency. `FocusRing` centralizes this so the dashed-when-focused / rounded-when-selected rule is enforced everywhere identically.
-
-### `FocusRing.dimmedColor` defaults to `"transparent"`, not `idleColor`
-
-If `dimmedColor` fell back to `idleColor`, then a component passing `idleColor="#3b3466"` would also show that color when `isAnySelected` (another component is selected) — the border would never fully disappear during interaction, cluttering the UI. By defaulting `dimmedColor` to `"transparent"`, the border auto-hides during active interaction with no extra props needed. A consumer that wants a visible-but-dimmed border can opt in by passing `dimmedColor` explicitly.
 
 ### `selectable` on `FocusScope` — scope declares Enter/Esc semantics, not the consumer
 

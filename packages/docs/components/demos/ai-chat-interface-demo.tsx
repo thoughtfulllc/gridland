@@ -120,7 +120,7 @@ function FocusableReasoning({ id, reasoningText, isThinking, disabled = false }:
   disabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
-  const { isFocused, isSelected, focusId, focusRef } = useFocus({ id, disabled, tabIndex: disabled ? -1 : 0 })
+  const { isFocused, isSelected, focusId, focusRef } = useFocus({ id, disabled })
 
   useKeyboard((event) => {
     if (event.name === "return") {
@@ -168,7 +168,7 @@ function FocusablePrompt({ onSubmit, onStop, status, model, disabled = false }: 
   model?: string
   disabled?: boolean
 }) {
-  const { isFocused, isSelected, focusId, focusRef, focus, select } = useFocus({ id: "prompt", disabled, tabIndex: disabled ? -1 : 0 })
+  const { isFocused, isSelected, focusId, focusRef, focus, select } = useFocus({ id: "prompt", disabled })
   const capturePrompt = useCapturedKeyboard(focusId)
 
   useEffect(() => {
@@ -333,7 +333,7 @@ function ChatPanel({ conversationId, initialMessages, onMessagesChange, onModelC
       prevLenRef.current = messages.length
       onMessagesChange(conversationId, messages)
     }
-  }, [messages.length, conversationId])
+  }, [messages.length, conversationId, onMessagesChange, messages])
 
   const prevStatusRef = useRef(status)
   useEffect(() => {
@@ -342,7 +342,7 @@ function ChatPanel({ conversationId, initialMessages, onMessagesChange, onModelC
     if (wasActive && status === "ready" && messages.length > 0) {
       onMessagesChange(conversationId, messages)
     }
-  }, [status])
+  }, [status, onMessagesChange, conversationId, messages])
 
   const chatStatus = toChatStatus(status)
   const modelDisplay = selectedModel?.name ?? selectedModelId
