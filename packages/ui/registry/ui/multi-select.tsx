@@ -4,32 +4,56 @@ import { useTheme } from "./theme"
 import { useKeyboardContext } from "./provider"
 
 export type MultiSelectItem<V> = {
+  /** Unique key for React reconciliation. Falls back to stringified value. */
   key?: string
+  /** Display label for this option. */
   label: string
+  /** The value returned when this item is selected. */
   value: V
+  /** Optional group heading this item belongs to. */
   group?: string
+  /** Whether this item is non-selectable. */
   disabled?: boolean
 }
 
 export interface MultiSelectProps<V> {
+  /** Available options. @default [] */
   items?: MultiSelectItem<V>[]
+  /** Initially selected values (uncontrolled). @default [] */
   defaultSelected?: V[]
+  /** Controlled selected values. */
   selected?: V[]
+  /** Called when selection changes (controlled mode). */
   onChange?: (values: V[]) => void
+  /** Disable all interaction. */
   disabled?: boolean
+  /** Show validation error state. */
   invalid?: boolean
+  /** Show required indicator on the title. */
   required?: boolean
+  /** Text shown when no items are available. */
   placeholder?: string
+  /** Maximum number of selectable items. */
   maxCount?: number
+  /** Heading text above the list. @default "Select" */
   title?: string
+  /** Status text shown after submission. @default "submitted" */
   submittedStatus?: string
+  /** Maximum visible rows before scrolling. @default 12 */
   limit?: number
+  /** Allow "a" key to select all. @default true */
   enableSelectAll?: boolean
+  /** Allow "x" key to clear selection. @default true */
   enableClear?: boolean
+  /** Override the cursor/highlight color. Defaults to theme.primary. */
   highlightColor?: string
+  /** Override the checkbox color. Defaults to theme.accent. */
   checkboxColor?: string
+  /** Allow submitting with zero selections. @default false */
   allowEmpty?: boolean
+  /** Called when the user confirms selection via the Submit row. */
   onSubmit?: (values: V[]) => void
+  /** Keyboard handler — pass useKeyboard from @opentui/react. */
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
@@ -73,6 +97,7 @@ type Row<V> =
   | { type: "separator" }
   | { type: "item"; item: MultiSelectItem<V>; index: number }
 
+/** Multi-select list with grouping, keyboard navigation, and a submit row. */
 export function MultiSelect<V>({
   items = [],
   defaultSelected = [],

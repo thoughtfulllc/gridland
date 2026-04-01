@@ -30,6 +30,7 @@ export interface TextInputProps {
   maxLength?: number
 }
 
+/** Form text input with label, validation, and controlled/uncontrolled modes. */
 export function TextInput({ label, description, error, required = false, disabled = false, value: controlledValue, onChange, onSubmit, placeholder, prompt, focus = false, maxLength }: TextInputProps) {
   const theme = useTheme()
   const [internalValue, setInternalValue] = useState('')

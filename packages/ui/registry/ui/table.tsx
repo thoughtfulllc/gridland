@@ -112,11 +112,15 @@ function getTotalWidth(columnWidths: number[]): number {
 
 export interface TableRootProps {
   children: ReactNode
+  /** Cell padding in characters. @default 1 */
   padding?: number
+  /** Override header text color. Defaults to theme.foreground. */
   headerColor?: string
+  /** Override border/separator color. Defaults to theme.muted. */
   borderColor?: string
 }
 
+/** Compound table root — auto-calculates column widths from all header and body cells. */
 export function TableRoot({ children, padding = 1, headerColor, borderColor }: TableRootProps) {
   const theme = useTheme()
   const resolvedHeaderColor = headerColor ?? theme.foreground
@@ -145,6 +149,7 @@ export interface TableHeaderProps {
   children: ReactNode
 }
 
+/** Table header section. Renders a horizontal rule below its rows. */
 export function TableHeader({ children }: TableHeaderProps) {
   const ctx = useTableContext()
   const totalWidth = getTotalWidth(ctx.columnWidths)
@@ -165,6 +170,7 @@ export interface TableBodyProps {
   children: ReactNode
 }
 
+/** Table body section. Renders dim separators between rows. */
 export function TableBody({ children }: TableBodyProps) {
   const ctx = useTableContext()
   const totalWidth = getTotalWidth(ctx.columnWidths)
@@ -194,6 +200,7 @@ export interface TableFooterProps {
   children: ReactNode
 }
 
+/** Table footer section. Renders a horizontal rule above its rows. */
 export function TableFooter({ children }: TableFooterProps) {
   const ctx = useTableContext()
   const totalWidth = getTotalWidth(ctx.columnWidths)
@@ -214,6 +221,7 @@ export interface TableRowProps {
   children: ReactNode
 }
 
+/** Renders a single row of padded, aligned cells. */
 export function TableRow({ children }: TableRowProps) {
   const ctx = useTableContext()
   const parts: any[] = []
@@ -289,6 +297,7 @@ export interface TableCaptionProps {
   children: ReactNode
 }
 
+/** Dim caption text rendered outside the table grid. */
 export function TableCaption({ children }: TableCaptionProps) {
   const ctx = useTableContext()
   return (
@@ -303,13 +312,19 @@ export function TableCaption({ children }: TableCaptionProps) {
 // ── Table (data-driven convenience wrapper) ────────────────────────
 
 export interface TableProps<T extends ScalarDict> {
+  /** Array of row objects to display. */
   data: T[]
+  /** Ordered subset of keys to show as columns. Defaults to all keys. */
   columns?: (keyof T)[]
+  /** Cell padding in characters. @default 1 */
   padding?: number
+  /** Override header text color. Defaults to theme.foreground. */
   headerColor?: string
+  /** Override border/separator color. Defaults to theme.muted. */
   borderColor?: string
 }
 
+/** Data-driven table — pass an array of objects and get a formatted table. */
 export function Table<T extends ScalarDict>({
   data,
   columns: columnsProp,

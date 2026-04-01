@@ -3,8 +3,11 @@ export type GradientName =
   | "fruit" | "instagram" | "atlas" | "retro" | "summer" | "pastel" | "rainbow"
 
 export interface GradientProps {
+  /** The text to render with a gradient. Must be a plain string. */
   children: string
+  /** Named preset gradient. Mutually exclusive with `colors`. */
   name?: GradientName
+  /** Custom array of hex color stops. Mutually exclusive with `name`. */
   colors?: string[]
 }
 
@@ -71,6 +74,7 @@ export function generateGradient(colors: string[], steps: number): string[] {
   return result
 }
 
+/** Renders text with a horizontal color gradient interpolated across characters. */
 export function Gradient({ children, name, colors }: GradientProps) {
   if (name && colors) throw new Error("The `name` and `colors` props are mutually exclusive")
   if (!name && !colors) throw new Error("Either `name` or `colors` prop must be provided")

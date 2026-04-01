@@ -120,6 +120,7 @@ function SideNavStatusBar() {
 
 // ── SideNav ───────────────────────────────────────────────────────────
 
+/** Two-panel layout with a keyboard-navigable sidebar and a main content area. */
 export function SideNav({
   items,
   sidebarWidth = 20,

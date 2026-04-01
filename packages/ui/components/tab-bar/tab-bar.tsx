@@ -31,6 +31,7 @@ export interface TabsProps {
   children: ReactNode
 }
 
+/** Root compound component for tabbed navigation. Manages active tab state. */
 export function Tabs({
   value: controlledValue,
   defaultValue = "",
@@ -64,6 +65,7 @@ export interface TabsListProps {
   children: ReactNode
 }
 
+/** Renders the tab trigger row with keyboard navigation and optional separator. */
 export function TabsList({
   label,
   focused = true,
@@ -174,6 +176,7 @@ export interface TabsContentProps {
   children: ReactNode
 }
 
+/** Renders children only when its value matches the active tab. */
 export function TabsContent({ value, children }: TabsContentProps) {
   const { value: activeValue } = useTabsContext()
   if (activeValue !== value) return null
@@ -199,6 +202,7 @@ export interface TabBarProps {
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
+/** Simple tab bar API wrapping the compound Tabs components. */
 export function TabBar({
   label,
   options,

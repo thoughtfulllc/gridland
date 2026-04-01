@@ -145,6 +145,7 @@ function ToolCallCard({ toolCall, statusColors }: { toolCall: ToolCallInfo; stat
   )
 }
 
+/** Vertical chat interface with message history, tool call cards, streaming text, and input. */
 export function ChatPanel({
   messages,
   streamingText = "",

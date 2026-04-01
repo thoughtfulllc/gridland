@@ -377,6 +377,7 @@ function PromptInputModel() {
 // Root component
 // ============================================================================
 
+/** Text input with slash-command autocomplete, history, and AI chat status integration. */
 export function PromptInput({
   value: controlledValue,
   defaultValue = "",

@@ -21,6 +21,7 @@ export const BREAKPOINTS = {
   mobile: 70,
 } as const
 
+/** Returns responsive breakpoint flags based on current terminal dimensions. */
 export function useBreakpoints(): Breakpoints {
   const { width, height } = useTerminalDimensions()
 

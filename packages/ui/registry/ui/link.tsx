@@ -9,12 +9,17 @@ const UNDERLINE_DASHED = 1 << 4
 const UNDERLINE_DOTTED = 1 << 6
 
 export interface LinkProps {
+  /** Link label content. */
   children: ReactNode
+  /** Target URL for the hyperlink. */
   url: string
+  /** Underline decoration style. @default "solid" */
   underline?: UnderlineStyle
+  /** Override the link color. Defaults to theme.accent. */
   color?: string
 }
 
+/** Renders a clickable hyperlink with configurable underline style and color. */
 export function Link({ children, url, underline = "solid", color }: LinkProps) {
   const theme = useTheme()
   const resolvedColor = color ?? theme.accent

@@ -22,12 +22,17 @@ const STATUS_SYMBOLS: Record<Exclude<SpinnerStatus, "spinning">, string> = {
 }
 
 export interface SpinnerProps {
+  /** Animation variant. @default "dots" */
   variant?: SpinnerVariant
+  /** Label text shown to the right of the spinner. */
   text?: string
+  /** Override the spinner color. Defaults to theme.accent. */
   color?: string
+  /** Current status. Non-"spinning" values show a static icon instead of animating. @default "spinning" */
   status?: SpinnerStatus
 }
 
+/** Animated spinner with multiple variants and terminal status icons. */
 export function Spinner({ variant = "dots", text, color, status = "spinning" }: SpinnerProps) {
   const theme = useTheme()
   const { frames, interval } = VARIANTS[variant]

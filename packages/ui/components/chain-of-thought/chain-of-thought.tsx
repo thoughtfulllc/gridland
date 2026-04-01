@@ -67,6 +67,7 @@ export interface ChainOfThoughtProps {
   children: ReactNode
 }
 
+/** Collapsible chain-of-thought container with controlled or uncontrolled open state. */
 export const ChainOfThought = memo(({
   open,
   defaultOpen = false,
@@ -100,6 +101,7 @@ export interface ChainOfThoughtHeaderProps {
   children?: ReactNode
 }
 
+/** Header row with collapse arrow and optional duration label. */
 export const ChainOfThoughtHeader = memo(({
   duration,
   children = "Thought for",
@@ -122,6 +124,7 @@ export interface ChainOfThoughtContentProps {
   children: ReactNode
 }
 
+/** Content region that renders only when the chain is open. */
 export const ChainOfThoughtContent = memo(({ children }: ChainOfThoughtContentProps) => {
   const { isOpen } = useChainOfThought()
   if (!isOpen) return null
@@ -143,6 +146,7 @@ export interface ChainOfThoughtStepProps {
   children?: ReactNode
 }
 
+/** Individual step with status icon, label, and optional output content. */
 export const ChainOfThoughtStep = memo(({
   label,
   description,

@@ -17,6 +17,7 @@ export interface GridlandProviderProps {
   children: ReactNode
 }
 
+/** Root provider that supplies theme and keyboard context to all Gridland components. */
 export function GridlandProvider({ theme, useKeyboard, children }: GridlandProviderProps) {
   const inner = (
     <KeyboardContext.Provider value={useKeyboard ?? null}>

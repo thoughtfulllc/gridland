@@ -22,6 +22,7 @@ export interface ModalProps {
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
+/** Bordered modal overlay with optional title and Escape-to-close. Traps focus automatically. */
 export function Modal({
   children,
   title,

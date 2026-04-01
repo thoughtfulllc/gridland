@@ -4,27 +4,46 @@ import { useTheme } from "../theme/index"
 import { useKeyboardContext } from "../provider/provider"
 
 export type SelectInputItem<V> = {
+  /** Unique key for React reconciliation. Falls back to stringified value. */
   key?: string
+  /** Display label for this option. */
   label: string
+  /** The value returned when this item is selected. */
   value: V
+  /** Optional group heading this item belongs to. */
   group?: string
+  /** Whether this item is non-selectable. */
   disabled?: boolean
 }
 
 export interface SelectInputProps<V> {
+  /** Available options. @default [] */
   items?: SelectInputItem<V>[]
+  /** Initially selected value (uncontrolled). */
   defaultValue?: V
+  /** Controlled selected value. */
   value?: V
+  /** Called when the highlighted item changes (controlled mode). */
   onChange?: (value: V) => void
+  /** Disable all interaction. */
   disabled?: boolean
+  /** Show validation error state. */
   invalid?: boolean
+  /** Show required indicator on the title. */
   required?: boolean
+  /** Text shown when no items are available. */
   placeholder?: string
+  /** Heading text above the list. @default "Select" */
   title?: string
+  /** Status text shown after submission. @default "submitted" */
   submittedStatus?: string
+  /** Maximum visible rows before scrolling. @default 12 */
   limit?: number
+  /** Override the cursor/highlight color. Defaults to theme.primary. */
   highlightColor?: string
+  /** Called when the user confirms selection via Enter. */
   onSubmit?: (value: V) => void
+  /** Keyboard handler — pass useKeyboard from @opentui/react. */
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
@@ -63,6 +82,7 @@ type Row<V> =
   | { type: "separator" }
   | { type: "item"; item: SelectInputItem<V>; index: number }
 
+/** Single-select list with grouping and keyboard navigation. */
 export function SelectInput<V>({
   items = [],
   defaultValue,

@@ -22,6 +22,7 @@ export interface StatusBarProps {
   extra?: ReactNode
 }
 
+/** Horizontal bar displaying keybinding hints with optional extra content. */
 export function StatusBar({ items, extra }: StatusBarProps) {
   const theme = useTheme()
   const parts: any[] = []

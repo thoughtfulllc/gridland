@@ -255,6 +255,7 @@ export interface MessageProps {
   children: ReactNode
 }
 
+/** Chat message bubble with role-based styling. Compose with Message.Content, Message.Text, etc. */
 export function Message({
   role,
   isStreaming = false,

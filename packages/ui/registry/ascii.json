@@ -11,7 +11,7 @@
     {
       "path": "registry/ui/ascii.tsx",
       "type": "registry:ui",
-      "content": "import { useTheme } from \"./theme\"\n\nexport interface AsciiProps {\n  text: string\n  font?: \"tiny\" | \"block\" | \"slick\" | \"shade\"\n  color?: string\n}\n\nexport function Ascii({ text, font, color }: AsciiProps) {\n  const theme = useTheme()\n  const resolvedColor = color ?? theme.primary\n  return <ascii-font text={text} font={font} style={{ fg: resolvedColor }} />\n}\n"
+      "content": "import { useTheme } from \"./theme\"\n\nexport interface AsciiProps {\n  /** The text string to render as ASCII art. */\n  text: string\n  /** Font variant for the ASCII rendering. */\n  font?: \"tiny\" | \"block\" | \"slick\" | \"shade\"\n  /** Override the text color. Defaults to theme.primary. */\n  color?: string\n}\n\n/** Renders text as ASCII art using the specified font and color. */\nexport function Ascii({ text, font, color }: AsciiProps) {\n  const theme = useTheme()\n  const resolvedColor = color ?? theme.primary\n  return <ascii-font text={text} font={font} style={{ fg: resolvedColor }} />\n}\n"
     }
   ]
 }
