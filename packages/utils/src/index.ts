@@ -87,5 +87,16 @@ export {
   type RuntimeProviderProps,
 } from "../../core/src/react/runtime/runtime-context"
 
+// Focus border affordance
+export {
+  getFocusBorderStyle,
+  getFocusDividerStyle,
+  FOCUS_BORDER_COLORS,
+  type FocusBorderColors,
+  type FocusBorderState,
+  type FocusBorderResult,
+  type FocusDividerResult,
+} from "./focus-border"
+
 // Browser utilities
 export { isBrowser, isCanvasSupported, calculateGridSize } from "./browser-utils"

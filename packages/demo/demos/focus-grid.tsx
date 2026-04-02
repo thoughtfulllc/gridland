@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client"
-import { useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
+import { useFocus, FocusProvider, useShortcuts, useFocusedShortcuts, getFocusBorderStyle } from "@gridland/utils"
 import { StatusBar } from "@gridland/ui"
 
 const gridItems = [
@@ -24,13 +24,7 @@ function GridCell({ id, autoFocus }: {
     focusId,
   )
 
-  const borderStyle = isSelected ? "rounded" as const
-    : isFocused ? "dashed" as const
-    : "rounded" as const
-  const borderColor = isSelected ? "#818cf8"
-    : isAnySelected ? "transparent"
-    : isFocused ? "#6366f1"
-    : "#3b3466"
+  const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
   const fg = isSelected ? "#a5b4fc"
     : isFocused ? "#a5b4fc"
     : "#888"

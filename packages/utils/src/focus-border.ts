@@ -1,0 +1,78 @@
+/** Colors used for focus border affordance. */
+export interface FocusBorderColors {
+  /** Border color when the component is selected (entered for interaction). @default "#818cf8" */
+  selected: string
+  /** Border color when the component has keyboard focus. @default "#6366f1" */
+  focused: string
+  /** Dimmed border color when idle — visual hint that the component is selectable. @default "#3b3466" */
+  idle: string
+}
+
+/** Default focus border colors used across Gridland demos and components. */
+export const FOCUS_BORDER_COLORS: FocusBorderColors = {
+  selected: "#818cf8",
+  focused: "#6366f1",
+  idle: "#3b3466",
+}
+
+export interface FocusBorderState {
+  isFocused: boolean
+  isSelected: boolean
+  isAnySelected: boolean
+}
+
+export interface FocusBorderResult {
+  borderColor: string
+  borderStyle: "rounded" | "dashed"
+}
+
+/**
+ * Computes border color and style from focus state for `<box border>` components.
+ *
+ * Four states, highest priority first:
+ * 1. **Selected** — bright border, rounded (component is being interacted with)
+ * 2. **Sibling selected** — transparent border (reduce noise while sibling is active)
+ * 3. **Focused** — bright border, dashed (keyboard focus indicator)
+ * 4. **Idle** — dimmed border (affordance hint that the component is selectable)
+ */
+export function getFocusBorderStyle(
+  state: FocusBorderState,
+  colors: FocusBorderColors = FOCUS_BORDER_COLORS,
+): FocusBorderResult {
+  const borderColor = state.isSelected ? colors.selected
+    : state.isAnySelected ? "transparent"
+    : state.isFocused ? colors.focused
+    : colors.idle
+
+  const borderStyle = state.isFocused && !state.isSelected
+    ? "dashed" as const
+    : "rounded" as const
+
+  return { borderColor, borderStyle }
+}
+
+export interface FocusDividerResult {
+  dividerColor: string | undefined
+  dividerDashed: boolean
+}
+
+/**
+ * Computes divider color and dashed state from focus state for PromptInput-style components.
+ *
+ * Same four-state logic as `getFocusBorderStyle`, except returns `undefined` (instead
+ * of `"transparent"`) when a sibling is selected. This lets the component's built-in
+ * design divider show through with its default muted appearance.
+ */
+export function getFocusDividerStyle(
+  state: FocusBorderState,
+  colors: FocusBorderColors = FOCUS_BORDER_COLORS,
+): FocusDividerResult {
+  const dividerColor = state.isSelected ? colors.selected
+    : state.isAnySelected ? undefined
+    : state.isFocused ? colors.focused
+    : colors.idle
+
+  const dividerDashed = state.isFocused && !state.isSelected && !state.isAnySelected
+
+  return { dividerColor, dividerDashed }
+}

@@ -1,15 +1,9 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState, useRef, useCallback } from "react"
 import { Message, PromptInput, StatusBar } from "@gridland/ui"
-import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
+import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts, getFocusBorderStyle, getFocusDividerStyle } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 import { renderPartsWithReasoning, toChatStatus } from "./render-message-parts-demo-utils"
-
-const FOCUS_COLORS = {
-  selected: "#818cf8",
-  focused: "#6366f1",
-  idle: "#3b3466",
-} as const
 
 function MessageArea({ messages, isStreaming, expanded }: {
   messages: any[]
@@ -25,10 +19,7 @@ function MessageArea({ messages, isStreaming, expanded }: {
     focusId,
   )
 
-  const borderColor = isSelected ? FOCUS_COLORS.selected
-    : isAnySelected ? "transparent"
-    : isFocused ? FOCUS_COLORS.focused
-    : "transparent"
+  const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box
@@ -40,7 +31,7 @@ function MessageArea({ messages, isStreaming, expanded }: {
       overflow="hidden"
       justifyContent="flex-end"
       border
-      borderStyle={isFocused && !isSelected ? "dashed" as const : "rounded" as const}
+      borderStyle={borderStyle}
       borderColor={borderColor}
     >
       {messages.map((msg, i) => {
@@ -102,11 +93,7 @@ function PromptSection({ onSubmit, onStop, chatStatus }: {
     focusId,
   )
 
-  const dividerColor = isSelected ? FOCUS_COLORS.selected
-    : isAnySelected ? undefined
-    : isFocused ? FOCUS_COLORS.focused
-    : FOCUS_COLORS.idle
-  const dividerDashed = isFocused && !isSelected && !isAnySelected
+  const { dividerColor, dividerDashed } = getFocusDividerStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef}>

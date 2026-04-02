@@ -14,7 +14,7 @@ import {
   useRegisterCommands,
 } from "@gridland/ui"
 import type { ChatStatus } from "@gridland/ui"
-import { useFocus, useKeyboard, useCapturedKeyboard, useShortcuts } from "@gridland/utils"
+import { useFocus, useKeyboard, useCapturedKeyboard, useShortcuts, getFocusBorderStyle, getFocusDividerStyle, FOCUS_BORDER_COLORS } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 import { renderPartsWithReasoning, toChatStatus } from "./render-message-parts-demo-utils"
 import {
@@ -28,14 +28,11 @@ const COT_PREFIX = "cot-"
 const STORAGE_KEY = "gridland-chat-history"
 const MAX_CONVERSATIONS = 50
 
-const FOCUS_COLORS = {
-  selected: "#818cf8",
-  focused: "#6366f1",
-  border: "#3b3466",
-  navFocused: "#cdd6f4",
-  navSelected: "#a5b4fc",
-  navMuted: "#6c7086",
-  navHighlight: "#2a2a4a",
+const NAV_COLORS = {
+  focused: "#cdd6f4",
+  selected: "#a5b4fc",
+  muted: "#6c7086",
+  highlight: "#2a2a4a",
 } as const
 
 // -- Chat history persistence ------------------------------------------------
@@ -117,7 +114,7 @@ function FocusableReasoning({ id, reasoningText, isThinking, disabled = false }:
   disabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
-  const { isFocused, isSelected, focusId, focusRef } = useFocus({ id, disabled })
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id, disabled })
 
   useKeyboard((event) => {
     if (event.name === "return") {
@@ -133,10 +130,7 @@ function FocusableReasoning({ id, reasoningText, isThinking, disabled = false }:
     focusId,
   )
 
-  const borderColor = isSelected ? FOCUS_COLORS.selected
-    : isFocused ? FOCUS_COLORS.focused
-    : "transparent"
-  const borderStyle = isFocused && !isSelected ? "dashed" as const : "rounded" as const
+  const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor}>
@@ -165,7 +159,7 @@ function FocusablePrompt({ onSubmit, onStop, status, model, disabled = false }: 
   model?: string
   disabled?: boolean
 }) {
-  const { isFocused, isSelected, focusId, focusRef, focus, select } = useFocus({ id: "prompt", disabled })
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef, focus, select } = useFocus({ id: "prompt", disabled })
   const capturePrompt = useCapturedKeyboard(focusId)
 
   useEffect(() => {
@@ -187,9 +181,7 @@ function FocusablePrompt({ onSubmit, onStop, status, model, disabled = false }: 
     focusId,
   )
 
-  const dividerColor = isSelected ? FOCUS_COLORS.selected
-    : isFocused ? FOCUS_COLORS.focused
-    : FOCUS_COLORS.border
+  const { dividerColor, dividerDashed } = getFocusDividerStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef} flexShrink={0} overflow="hidden">
@@ -202,7 +194,7 @@ function FocusablePrompt({ onSubmit, onStop, status, model, disabled = false }: 
         useKeyboard={capturePrompt}
         showDividers
         dividerColor={dividerColor}
-        dividerDashed={isFocused && !isSelected}
+        dividerDashed={dividerDashed}
         model={model}
       />
     </box>
@@ -473,12 +465,12 @@ export function AIChatInterfaceApp({ transport }: { transport: any }) {
       title=""
       sidebarWidth={22}
       requestedActiveId={requestedActiveId}
-      borderColor={FOCUS_COLORS.border}
-      activeBorderColor={FOCUS_COLORS.selected}
-      focusedColor={FOCUS_COLORS.navFocused}
-      selectedColor={FOCUS_COLORS.navSelected}
-      mutedColor={FOCUS_COLORS.navMuted}
-      highlightBg={FOCUS_COLORS.navHighlight}
+      borderColor={FOCUS_BORDER_COLORS.idle}
+      activeBorderColor={FOCUS_BORDER_COLORS.selected}
+      focusedColor={NAV_COLORS.focused}
+      selectedColor={NAV_COLORS.selected}
+      mutedColor={NAV_COLORS.muted}
+      highlightBg={NAV_COLORS.highlight}
     >
       {({ activeItem, isInteracting }) => (
         <SideNavContent
