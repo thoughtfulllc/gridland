@@ -25,6 +25,7 @@ export interface BorderDrawOptions {
   borderColor: RGBA
   backgroundColor: RGBA
   shouldFill?: boolean
+  borderRadius?: number
   title?: string
   titleAlignment?: "left" | "center" | "right"
 }
@@ -54,6 +55,16 @@ export class BrowserBuffer {
   public cursorStyleType: CursorStyle = "block"
   /** Line cursor position -- set by drawEditorView during pipeline, read by renderer after */
   public lineCursorPosition: { x: number; y: number } | null = null
+
+  /** Rounded background regions — populated by drawBox, consumed by CanvasPainter */
+  public roundedBackgrounds: Array<{
+    x: number
+    y: number
+    width: number
+    height: number
+    color: { r: number; g: number; b: number; a: number }
+    radius: number
+  }> = []
 
   constructor(
     width: number,
@@ -161,6 +172,7 @@ export class BrowserBuffer {
     this.attributes.fill(0)
     this.linkRegistry.clear()
     this.nextLinkId = 1
+    this.roundedBackgrounds.length = 0
 
     if (bg) {
       for (let i = 0; i < size; i++) {
@@ -319,7 +331,41 @@ export class BrowserBuffer {
       const fillWidth = width - (sides.left ? 1 : 0) - (sides.right ? 1 : 0)
       const fillHeight = height - (sides.top ? 1 : 0) - (sides.bottom ? 1 : 0)
       if (fillWidth > 0 && fillHeight > 0) {
-        this.fillRect(fillStartX, fillStartY, fillWidth, fillHeight, backgroundColor)
+        const borderRadius = options.borderRadius ?? 0
+        if (borderRadius > 0) {
+          // Register rounded region for canvas painter to draw with ctx.roundRect()
+          const effectiveBg = this.applyOpacity(backgroundColor)
+          this.roundedBackgrounds.push({
+            x: fillStartX,
+            y: fillStartY,
+            width: fillWidth,
+            height: fillHeight,
+            color: { r: effectiveBg.r, g: effectiveBg.g, b: effectiveBg.b, a: effectiveBg.a },
+            radius: borderRadius,
+          })
+          // Fill interior cells but skip corners so cell-based paint doesn't overwrite rounded edges
+          for (let row = fillStartY; row < fillStartY + fillHeight && row < this._height; row++) {
+            for (let col = fillStartX; col < fillStartX + fillWidth && col < this._width; col++) {
+              if (col < 0 || row < 0) continue
+              if (!this.isInScissor(col, row)) continue
+              const isCorner =
+                (row === fillStartY && col === fillStartX) ||
+                (row === fillStartY && col === fillStartX + fillWidth - 1) ||
+                (row === fillStartY + fillHeight - 1 && col === fillStartX) ||
+                (row === fillStartY + fillHeight - 1 && col === fillStartX + fillWidth - 1)
+              if (isCorner) continue
+              const idx = row * this._width + col
+              const offset = idx * 4
+              this.char[idx] = 0x20
+              this.bg[offset] = effectiveBg.r
+              this.bg[offset + 1] = effectiveBg.g
+              this.bg[offset + 2] = effectiveBg.b
+              this.bg[offset + 3] = effectiveBg.a
+            }
+          }
+        } else {
+          this.fillRect(fillStartX, fillStartY, fillWidth, fillHeight, backgroundColor)
+        }
       }
     }
 

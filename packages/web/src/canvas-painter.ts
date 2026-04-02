@@ -219,6 +219,15 @@ export class CanvasPainter {
     const cw = this.cellWidth
     const ch = this.cellHeight
 
+    // Pass 0: Rounded background rects (smooth corners via ctx.roundRect)
+    for (const rb of buffer.roundedBackgrounds) {
+      if (rb.color.a <= 0) continue
+      ctx.fillStyle = rgbaToCSS(rb.color.r, rb.color.g, rb.color.b, rb.color.a)
+      ctx.beginPath()
+      ctx.roundRect(rb.x * cw, rb.y * ch, rb.width * cw, rb.height * ch, rb.radius)
+      ctx.fill()
+    }
+
     // Pass 1: Background rects — batch adjacent same-color cells per row
     for (let row = 0; row < rows; row++) {
       let runStartCol = 0

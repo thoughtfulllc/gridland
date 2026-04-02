@@ -24,6 +24,7 @@ export interface BoxOptions<TRenderable extends Renderable = BoxRenderable> exte
   title?: string
   titleAlignment?: "left" | "center" | "right"
   focusedBorderColor?: ColorInput
+  borderRadius?: number
   focusable?: boolean
   gap?: number | `${number}%`
   rowGap?: number | `${number}%`
@@ -50,6 +51,7 @@ export class BoxRenderable extends Renderable {
   protected _customBorderChars?: Uint32Array
   protected borderSides: BorderSidesConfig
   public shouldFill: boolean
+  protected _borderRadius: number
   protected _title?: string
   protected _titleAlignment: "left" | "center" | "right"
 
@@ -85,6 +87,7 @@ export class BoxRenderable extends Renderable {
     this._customBorderChars = this._customBorderCharsObj ? borderCharsToArray(this._customBorderCharsObj) : undefined
     this.borderSides = getBorderSides(this._border)
     this.shouldFill = options.shouldFill ?? this._defaultOptions.shouldFill
+    this._borderRadius = options.borderRadius ?? 0
     this._title = options.title
     this._titleAlignment = options.titleAlignment || this._defaultOptions.titleAlignment
 
@@ -186,6 +189,17 @@ export class BoxRenderable extends Renderable {
     }
   }
 
+  public get borderRadius(): number {
+    return this._borderRadius
+  }
+
+  public set borderRadius(value: number) {
+    if (this._borderRadius !== value) {
+      this._borderRadius = value
+      this.requestRender()
+    }
+  }
+
   public get title(): string | undefined {
     return this._title
   }
@@ -222,6 +236,7 @@ export class BoxRenderable extends Renderable {
       borderColor: currentBorderColor,
       backgroundColor: this._backgroundColor,
       shouldFill: this.shouldFill,
+      borderRadius: this._borderRadius,
       title: this._title,
       titleAlignment: this._titleAlignment,
     })

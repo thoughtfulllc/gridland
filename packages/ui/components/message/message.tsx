@@ -101,6 +101,7 @@ function MessageContent({ children }: { children: ReactNode }) {
     <box
       flexDirection="column"
       backgroundColor={backgroundColor}
+      borderRadius={8}
       paddingX={2}
       paddingY={1}
       {...(isUser ? { maxWidth: "85%" } : { width: "85%" })}

@@ -418,6 +418,7 @@ export class OptimizedBuffer {
     borderColor: RGBA
     backgroundColor: RGBA
     shouldFill?: boolean
+    borderRadius?: number
     title?: string
     titleAlignment?: "left" | "center" | "right"
   }): void {
