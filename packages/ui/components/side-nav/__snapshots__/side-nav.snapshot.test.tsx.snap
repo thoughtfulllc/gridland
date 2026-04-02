@@ -1,0 +1,31 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`SideNav snapshots renders 3-item sidebar with default state 1`] = `
+"
+                    ╭─────────────────────────────────────╮
+ > General          │ General                             │
+   Theme            │General panel content                │
+   Keybinds         │                                     │
+                    │                                     │
+                    │                                     │
+                    │                                     │
+                    │                                     │
+                    ╰─────────────────────────────────────╯
+  ↑↓  navigate  enter  select"
+`;
+
+exports[`SideNav snapshots renders with title 1`] = `
+"
+  Settings
+
+                    ╭─────────────────────────────────────╮
+ > General          │ General                             │
+   Theme            │General panel content                │
+   Keybinds         │                                     │
+                    │                                     │
+                    │                                     │
+                    │                                     │
+                    │                                     │
+                    ╰─────────────────────────────────────╯
+  ↑↓  navigate  enter  select"
+`;
