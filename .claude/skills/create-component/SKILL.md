@@ -85,7 +85,12 @@ Both runtime export AND type export required.
 
 ## 6. Documentation
 
-Create a doc page at `packages/docs/content/docs/components/<component-name>.mdx` and a demo at `packages/docs/components/demos/<component-name>-demo.tsx`. Interactive components need interactive demos with `useState` + `useKeyboard`.
+1. Create the core demo in `packages/demo/demos/<component-name>.tsx` — export a named app component (e.g., `export function MyComponentApp()`)
+2. Register it in `packages/demo/demos/index.tsx` (import, re-export, and add to `demos` array)
+3. Create a doc page at `packages/docs/content/docs/components/<component-name>.mdx`
+4. If the MDX page needs multiple demo variants, create a thin wrapper at `packages/docs/components/demos/<component-name>-demo.tsx` that imports from `@demos/<component-name>`
+
+Interactive components need interactive demos with `useState` + `useKeyboard`.
 
 ## 7. After creation
 

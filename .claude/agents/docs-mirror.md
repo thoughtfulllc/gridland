@@ -19,12 +19,13 @@ If doc files changed → check against their corresponding implementation.
 ## Step 2 — For each changed component, verify its documentation
 
 Docs live in: `packages/docs/content/docs/components/`
-Demos live in: `packages/docs/components/demos/`
+Core demos live in: `packages/demo/demos/`
+Doc wrappers live in: `packages/docs/components/demos/` (thin wrappers that import from `@demos/*`)
 
 For each component:
 1. Read the implementation (`packages/ui/components/<name>/<name>.tsx`)
 2. Read the doc page (`packages/docs/content/docs/components/<name>.mdx`)
-3. Read the demo (`packages/docs/components/demos/<name>-demo.tsx`)
+3. Read the core demo (`packages/demo/demos/<name>.tsx`) and wrapper if it exists (`packages/docs/components/demos/<name>-demo.tsx`)
 
 **Check prop tables:**
 - Every prop in `{ComponentName}Props` appears in the docs table
@@ -52,14 +53,16 @@ For each code block:
 
 ## Step 4 — Check demo components
 
-For each demo file in `packages/docs/components/demos/`:
-- Does it import from correct packages (`@gridland/ui`, `@gridland/utils`, `@gridland/web`)?
+Core demo logic lives in `packages/demo/demos/`. Doc wrappers in `packages/docs/components/demos/` should be thin imports from `@demos/*` — flag any that contain standalone implementations instead of importing from `@demos/*`.
+
+For each demo file in `packages/demo/demos/` and `packages/docs/components/demos/`:
+- Does it import from correct packages (`@gridland/ui`, `@gridland/utils`, `@gridland/web`, `@demos/*`)?
 - Does it use current prop names and types?
 - Does it compile structurally (no props that don't exist, no removed imports)?
 
 ## Step 5 — Check render-message-parts-demo-utils specifically
 
-This utility is used in AI-related demos. Verify:
+This utility lives in `packages/demo/demos/render-message-parts-demo-utils.tsx` and is used in AI-related demos. Verify:
 - `UIMessagePart` imported from `"ai"` (not `"@ai-sdk/react"`)
 - Tool part type is `"dynamic-tool"` (not `"tool-invocation"`)
 - Tool state values are correct (5 values including `"approval-requested"`)

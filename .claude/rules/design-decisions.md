@@ -2,6 +2,7 @@
 paths:
   - "packages/core/src/react/focus/**"
   - "packages/ui/components/side-nav/**"
+  - "packages/demo/demos/ai-chat-interface.tsx"
   - "packages/docs/components/demos/ai-chat-interface-demo.tsx"
 ---
 
@@ -31,7 +32,7 @@ An imperative API (e.g., `ref.current.navigate(id)`) would require consumers to 
 
 ## `lastAutoNavIdRef` as a single ref, not a `Set`
 
-When auto-navigating back to a previous conversation after Esc (e.g., in `packages/docs/components/demos/ai-chat-interface-demo.tsx`), only the most recent navigation matters. Using a `Set` to track "already navigated to" IDs would grow unbounded over a long session. A single ref that tracks the last auto-nav ID is sufficient because the guard only needs to prevent re-processing the same ID on consecutive renders.
+When auto-navigating back to a previous conversation after Esc (e.g., in `packages/demo/demos/ai-chat-interface.tsx`), only the most recent navigation matters. Using a `Set` to track "already navigated to" IDs would grow unbounded over a long session. A single ref that tracks the last auto-nav ID is sufficient because the guard only needs to prevent re-processing the same ID on consecutive renders.
 
 ## `autoSelect` on `FocusScope` — only fires for single-item scopes
 

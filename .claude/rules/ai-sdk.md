@@ -5,9 +5,11 @@ paths:
   - "packages/ui/components/prompt-input/**"
   - "packages/ui/components/chain-of-thought/**"
   - "packages/chat-worker/**"
+  - "packages/demo/demos/*chat*"
+  - "packages/demo/demos/*message*"
+  - "packages/demo/demos/render-message-parts*"
   - "packages/docs/components/demos/*chat*"
   - "packages/docs/components/demos/*message*"
-  - "packages/docs/components/demos/render-message-parts*"
 ---
 
 # AI SDK Conventions

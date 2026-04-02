@@ -18,7 +18,7 @@ import type { ChatStatus } from "@gridland/ui"
 import { useKeyboard } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 import { chatTransport } from "@/lib/chat"
-import { renderContentParts } from "./render-message-parts-demo-utils"
+import { renderContentParts } from "@demos/render-message-parts-demo-utils"
 
 function MessageWithInputApp() {
   const { messages, status, sendMessage, stop } = useChat({

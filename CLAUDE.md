@@ -11,7 +11,7 @@ packages/
 ├── container/      @gridland/container — isolated Docker container runner
 ├── core/           Internal — focus system, reconciler, hooks source (NOT for external import)
 ├── create-gridland/ create-gridland — project scaffolding CLI
-├── demo/           Demo app (Bun)
+├── demo/           @gridland/demo — canonical demo implementations (Bun CLI + browser via @demos/* alias)
 ├── docs/           Documentation site (Next.js, content in content/docs/)
 ├── testing/        @gridland/testing — test helpers
 ├── ui/             @gridland/ui — all UI components
@@ -71,4 +71,4 @@ Other skills: `/create-component` (guided scaffold), `/debug-layout` (layout dia
 
 ## Context Architecture
 
-Domain knowledge loads automatically via path-scoped rules in `.claude/rules/` when you touch relevant files (OpenTUI layout, focus system, AI SDK conventions, design decisions). Per-package `CLAUDE.md` files in `packages/ui/` and `packages/docs/` provide package-specific context. Agents are self-contained and carry their own domain knowledge.
+Domain knowledge loads automatically via path-scoped rules in `.claude/rules/` when you touch relevant files (OpenTUI layout, focus system, AI SDK conventions, design decisions). Per-package `CLAUDE.md` files in `packages/ui/`, `packages/docs/`, and `packages/demo/` provide package-specific context. Agents are self-contained and carry their own domain knowledge.

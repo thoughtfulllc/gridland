@@ -8,6 +8,7 @@
 
 ## Demo Conventions
 
+- Core demo logic lives in `packages/demo/demos/`. Files in `packages/docs/components/demos/` are thin wrappers that import from `@demos/*` and add docs-specific variants (multiple states, pickers, DemoWindow chrome). Never put standalone demo implementations in the docs wrapper directory.
 - Import from `@gridland/ui`, `@gridland/utils`, `@gridland/web` — never internal paths
 - Interactive components need interactive demos with `useState` + `useKeyboard`
 - Static components (Spinner, Ascii) can use simple rendering
