@@ -132,7 +132,6 @@ describe("SideNav behavior", () => {
     keys.enter()
     await settle(flush)
     expect(screen.text()).toContain("interacting:true")
-    expect(screen.text()).toContain("(interactive)")
   })
 
   it("escape exits interactive mode", async () => {

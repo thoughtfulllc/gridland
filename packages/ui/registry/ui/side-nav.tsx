@@ -210,9 +210,6 @@ export function SideNav({
                 <text style={textStyle({ bold: true, fg: selectedColor })}>
                   {activeItem.name}
                 </text>
-                {isInteracting && (
-                  <text style={textStyle({ dim: true, fg: mutedColor })}> (interactive)</text>
-                )}
               </box>
               {isInteracting ? (
                 <FocusScope trap selectable autoFocus autoSelect restoreOnUnmount>
