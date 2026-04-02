@@ -64,6 +64,8 @@ export class BrowserBuffer {
     height: number
     color: { r: number; g: number; b: number; a: number }
     radius: number
+    /** Active scissor rect at draw time — painter applies ctx.clip() when present */
+    clipRect?: { x: number; y: number; width: number; height: number }
   }> = []
 
   constructor(
@@ -335,14 +337,32 @@ export class BrowserBuffer {
         if (borderRadius > 0) {
           // Register rounded region for canvas painter to draw with ctx.roundRect()
           const effectiveBg = this.applyOpacity(backgroundColor)
-          this.roundedBackgrounds.push({
-            x: fillStartX,
-            y: fillStartY,
-            width: fillWidth,
-            height: fillHeight,
-            color: { r: effectiveBg.r, g: effectiveBg.g, b: effectiveBg.b, a: effectiveBg.a },
-            radius: borderRadius,
-          })
+
+          // Capture current scissor rect so the canvas painter can clip the rounded background.
+          // Without this, ctx.roundRect() bypasses the cell-based scissor system entirely.
+          let clipRect: { x: number; y: number; width: number; height: number } | undefined
+          let fullyClipped = false
+          if (this.scissorStack.length > 0) {
+            const sr = this.scissorStack[this.scissorStack.length - 1]
+            if (fillStartX >= sr.x + sr.width || fillStartX + fillWidth <= sr.x ||
+                fillStartY >= sr.y + sr.height || fillStartY + fillHeight <= sr.y) {
+              fullyClipped = true
+            } else {
+              clipRect = { x: sr.x, y: sr.y, width: sr.width, height: sr.height }
+            }
+          }
+
+          if (!fullyClipped) {
+            this.roundedBackgrounds.push({
+              x: fillStartX,
+              y: fillStartY,
+              width: fillWidth,
+              height: fillHeight,
+              color: { r: effectiveBg.r, g: effectiveBg.g, b: effectiveBg.b, a: effectiveBg.a },
+              radius: borderRadius,
+              clipRect,
+            })
+          }
           // Fill interior cells but skip corners so cell-based paint doesn't overwrite rounded edges
           for (let row = fillStartY; row < fillStartY + fillHeight && row < this._height; row++) {
             for (let col = fillStartX; col < fillStartX + fillWidth && col < this._width; col++) {
