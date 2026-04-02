@@ -28,6 +28,34 @@ Returns: `isFocused`, `isSelected`, `isAnySelected`, `focusId`, `focusRef`, `foc
 
 **`useCapturedKeyboard(focusId)`** — Returns a keyboard hook scoped to when this element is selected.
 
+**`getFocusBorderStyle({ isFocused, isSelected, isAnySelected })`** — Returns `{ borderColor, borderStyle }` for `<box border>` components. Encapsulates the 4-state visual affordance pattern.
+
+**`getFocusDividerStyle({ isFocused, isSelected, isAnySelected })`** — Returns `{ dividerColor, dividerDashed }` for PromptInput-style dividers. Returns `undefined` (not `"transparent"`) when a sibling is selected, so the component's built-in design divider shows through.
+
+**`FOCUS_BORDER_COLORS`** — Default colors: `{ selected: "#818cf8", focused: "#6366f1", idle: "#3b3466" }`. Pass custom colors as the second argument to either function to override.
+
+## Focus Border Affordance (4-State Pattern)
+
+Every selectable component must show visual affordance via borders or dividers. The utilities enforce this pattern automatically:
+
+| # | State | Condition | Border | Divider |
+|---|-------|-----------|--------|---------|
+| 1 | Selected | `isSelected` | bright, rounded | bright, solid |
+| 2 | Sibling selected | `isAnySelected` | transparent (hidden) | `undefined` (design border shows) |
+| 3 | Focused | `isFocused` | bright, dashed | bright, dashed |
+| 4 | Idle | none | dimmed, rounded | dimmed, solid |
+
+```tsx
+// Border affordance for <box border> components
+const { isFocused, isSelected, isAnySelected, focusRef } = useFocus({ id })
+const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
+return <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor}>...</box>
+
+// Divider affordance for PromptInput-style components
+const { dividerColor, dividerDashed } = getFocusDividerStyle({ isFocused, isSelected, isAnySelected })
+return <PromptInput dividerColor={dividerColor} dividerDashed={dividerDashed} showDividers />
+```
+
 ## Correct Patterns
 
 ```tsx
@@ -46,6 +74,7 @@ useFocus({ id, disabled })
 2. Attach `focusRef` to its root `<box>` for spatial navigation
 3. Wrap nested interactive content in `FocusScope` with `selectable`
 4. Register shortcuts via `useShortcuts`
+5. Use `getFocusBorderStyle` or `getFocusDividerStyle` for visual affordance — never write manual border ternaries
 
 ## Anti-Patterns
 
@@ -53,3 +82,6 @@ useFocus({ id, disabled })
 - Re-implementing `getNavigableEntries` or `getTopScope` instead of importing from `focus-reducer`
 - Interactive component that doesn't call `useFocus` and attach `focusRef`
 - Forgetting that `useFocus` inside a `FocusScope` auto-binds to that scope (pass `scopeId={null}` if global scope needed)
+- Manual `borderColor`/`borderStyle` ternaries based on `isFocused`/`isSelected` — use `getFocusBorderStyle` or `getFocusDividerStyle` instead
+- Hardcoded `"#818cf8"`, `"#6366f1"`, `"#3b3466"` in border/divider logic — use the utility functions which include these as defaults
+- Using `"transparent"` as the idle border color — idle state must show a dimmed border for affordance

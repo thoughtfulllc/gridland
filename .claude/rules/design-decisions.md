@@ -42,6 +42,10 @@ When auto-navigating back to a previous conversation after Esc (e.g., in `packag
 
 Before computing which element is spatially closest in a given direction, `findSpatialTarget` calls `ensureLayoutComputed` to flush any pending yoga layout calculations. Without this, the first spatial nav keypress after a render can fail silently — yoga has computed sizes internally but not yet propagated positions to the node tree, so all rects appear at `(0,0)`.
 
+## Focus border affordance centralized in `getFocusBorderStyle` / `getFocusDividerStyle`, not manual ternaries
+
+The 4-state border affordance pattern (selected → sibling-selected → focused → idle) was repeated in 8+ components with hardcoded ternaries and hex literals. The idle state (`"transparent"` vs dimmed `#3b3466`) was the #1 source of recurring bugs — developers would use `"transparent"` instead of the dimmed color, breaking the visual hint that a component is selectable. Centralizing in utility functions (`packages/utils/src/focus-border.ts`) makes the correct behavior the default. Two variants exist: `getFocusBorderStyle` returns `"transparent"` for the sibling-selected state (hides the box border), while `getFocusDividerStyle` returns `undefined` (lets PromptInput's built-in design divider show through with its default muted appearance).
+
 ## AI SDK agnosticism — `ChatStatus` is our own type
 
 SDK-specific status types (e.g., from `@ai-sdk/react`) couple components to a specific vendor. Our `ChatStatus = "ready" | "submitted" | "streaming" | "error"` is defined in our codebase and mapped from whatever SDK the consumer uses.

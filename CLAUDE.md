@@ -22,7 +22,7 @@ packages/
 ## Import Rules
 
 - `@gridland/ui` — UI components
-- `@gridland/utils` — hooks (useFocus, FocusProvider, FocusScope, useKeyboard, useShortcuts, useCapturedKeyboard)
+- `@gridland/utils` — hooks (useFocus, FocusProvider, FocusScope, useKeyboard, useShortcuts, useCapturedKeyboard) and focus border utilities (getFocusBorderStyle, getFocusDividerStyle, FOCUS_BORDER_COLORS)
 - `@gridland/web` — browser renderer (TUI)
 - Never import from `@gridland/core` directly — it is internal
 - Never import from internal paths (`packages/core/src/...`)

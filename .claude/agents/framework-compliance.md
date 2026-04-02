@@ -24,10 +24,11 @@ For each changed file, check:
 - `selectable` defaults to `true` — only pass it when explicitly setting to `false`
 - `scopeId` only needed for cross-scope registration
 
-**`FocusRing` usage:**
-- Any component with a selectable border affordance must use `FocusRing`
-- Flag any manual `borderColor`/`borderStyle` ternary based on `isFocused`/`isSelected`
-- Flag hardcoded hex strings that match FocusRing's default colors (`"#6366f1"`, `"#818cf8"`)
+**Focus border affordance (`getFocusBorderStyle` / `getFocusDividerStyle`):**
+- Any component with a selectable border affordance must use `getFocusBorderStyle` (for `<box border>`) or `getFocusDividerStyle` (for PromptInput dividers) from `@gridland/utils`
+- Flag any manual `borderColor`/`borderStyle` ternary based on `isFocused`/`isSelected` — should use the utility functions
+- Flag hardcoded hex strings `"#6366f1"`, `"#818cf8"`, `"#3b3466"` in border/divider logic — should use `FOCUS_BORDER_COLORS` or the utility functions
+- Flag `"transparent"` as the idle (fallback) border color — idle state must show a dimmed border for affordance
 
 **`FocusScope` placement:**
 - Any region with nested interactive elements and an Enter/Esc interaction should have `FocusScope` with `selectable`
@@ -39,7 +40,7 @@ For every new component that is interactive (has onClick-equivalent, is expandab
 - Does it call `useFocus`?
 - Does it attach `focusRef` to its root `<box>`?
 - Does it register shortcuts with `useShortcuts`?
-- Does it use `FocusRing` or a divider-based affordance?
+- Does it use `getFocusBorderStyle` or `getFocusDividerStyle` for visual affordance?
 
 ## Step 4 — Naming conventions
 
