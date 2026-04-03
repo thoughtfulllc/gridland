@@ -199,7 +199,7 @@ export function SideNav({
 
         {/* Main panel */}
         <box flexDirection="column" flexGrow={1}>
-          <box flexDirection="column" flexGrow={1} paddingRight={1} paddingTop={1}>
+          <box flexDirection="column" flexGrow={1} paddingTop={1}>
             <box
               flexDirection="column"
               flexGrow={1}

@@ -344,7 +344,7 @@ export class ArrowRenderable extends Renderable {
     }
 
     if (!options.width) {
-      this.width = Bun.stringWidth(this.getArrowChar())
+      this.width = typeof Bun !== "undefined" ? Bun.stringWidth(this.getArrowChar()) : 1
     }
   }
 

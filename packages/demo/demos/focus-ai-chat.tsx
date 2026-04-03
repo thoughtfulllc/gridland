@@ -22,17 +22,21 @@ function MessageArea({ messages, isStreaming, expanded }: {
   const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   return (
-    <box
+    <scrollbox
       ref={focusRef}
-      flexDirection="column"
+      stickyScroll
+      stickyStart="bottom"
+      scrollY
       paddingX={1}
-      gap={1}
       flexGrow={1}
-      overflow="hidden"
-      justifyContent="flex-end"
       border
       borderStyle={borderStyle}
       borderColor={borderColor}
+      contentOptions={{
+        gap: 1,
+        justifyContent: "flex-end",
+        flexDirection: "column",
+      }}
     >
       {messages.map((msg, i) => {
         const isLast = i === messages.length - 1
@@ -66,7 +70,7 @@ function MessageArea({ messages, isStreaming, expanded }: {
           </Message>
         )
       })}
-    </box>
+    </scrollbox>
   )
 }
 

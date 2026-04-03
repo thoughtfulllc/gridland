@@ -209,15 +209,18 @@ function MessageArea({ messages, isStreaming, disabled = false }: {
   disabled?: boolean
 }) {
   return (
-    <box
-      flexDirection="column"
+    <scrollbox
+      stickyScroll
+      stickyStart="bottom"
+      scrollY
       paddingX={1}
-      gap={1}
       flexGrow={1}
       flexShrink={1}
-      overflow="hidden"
-      justifyContent="flex-end"
-      width="100%"
+      contentOptions={{
+        gap: 1,
+        justifyContent: "flex-end",
+        flexDirection: "column",
+      }}
     >
       {messages.map((msg, i) => {
         const isLast = i === messages.length - 1
@@ -263,7 +266,7 @@ function MessageArea({ messages, isStreaming, disabled = false }: {
           </Message>
         )
       })}
-    </box>
+    </scrollbox>
   )
 }
 
