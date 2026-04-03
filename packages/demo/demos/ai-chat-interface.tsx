@@ -170,7 +170,7 @@ function FocusablePrompt({ onSubmit, onStop, status, model, disabled = false }: 
       }, 0)
       return () => clearTimeout(t)
     }
-  }, []) // intentionally mount-only
+  }, [disabled]) // re-run when entering interaction mode
 
   useShortcuts(
     isSelected

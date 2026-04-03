@@ -45,9 +45,9 @@ export interface SideNavProps {
   mutedColor?: string
   /** Background highlight color for focused sidebar item. @default "#313244" */
   highlightBg?: string
-  /** Border color for the main panel. @default "#3b3466" */
+  /** Border color for the sidebar divider. @default "#3b3466" */
   borderColor?: string
-  /** Border color for the main panel when interacting. @default "#818cf8" */
+  /** Border color for the sidebar divider when interacting. @default "#818cf8" */
   activeBorderColor?: string
   /** Show the status bar at the bottom. @default true */
   showStatusBar?: boolean
@@ -161,18 +161,17 @@ export function SideNav({
 
   return (
     <FocusProvider selectable>
-      <box flexDirection="column" flexGrow={1}>
-        {title && (
-          <box paddingX={2} paddingTop={1}>
-            <text style={textStyle({ bold: true, fg: focusedColor })}>
-              {title}
-            </text>
-          </box>
-        )}
-
-        <box flexDirection="row" flexGrow={1} paddingTop={1}>
-          {/* Sidebar */}
-          <box flexDirection="column" width={sidebarWidth} paddingTop={1}>
+      <box flexDirection="row" flexGrow={1}>
+        {/* Sidebar — full height with right divider */}
+        <box flexDirection="column" width={sidebarWidth} border={["right"]} borderColor={borderColor}>
+          {title && (
+            <box paddingX={2} paddingTop={1}>
+              <text style={textStyle({ bold: true, fg: focusedColor })}>
+                {title}
+              </text>
+            </box>
+          )}
+          <box flexDirection="column" paddingTop={1}>
             {items.map((item, i) => (
               <NavItemRow
                 key={item.id}
@@ -196,15 +195,14 @@ export function SideNav({
               />
             ))}
           </box>
+        </box>
 
-          {/* Main panel */}
-          <box flexDirection="column" flexGrow={1} paddingRight={1}>
+        {/* Main panel */}
+        <box flexDirection="column" flexGrow={1}>
+          <box flexDirection="column" flexGrow={1} paddingRight={1} paddingTop={1}>
             <box
               flexDirection="column"
               flexGrow={1}
-              border
-              borderStyle={"rounded" as const}
-              borderColor={isInteracting ? activeBorderColor : borderColor}
             >
               <box paddingX={1}>
                 <text style={textStyle({ bold: true, fg: selectedColor })}>
@@ -220,9 +218,8 @@ export function SideNav({
               )}
             </box>
           </box>
+          {showStatusBar && <SideNavStatusBar />}
         </box>
-
-        {showStatusBar && <SideNavStatusBar />}
       </box>
     </FocusProvider>
   )

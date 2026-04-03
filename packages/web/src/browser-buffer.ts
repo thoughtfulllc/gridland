@@ -423,14 +423,18 @@ export class BrowserBuffer {
 
     // Left border
     if (sides.left) {
-      for (let row = 1; row < height - 1; row++) {
+      const startRow = sides.top ? 1 : 0
+      const endRow = sides.bottom ? height - 1 : height
+      for (let row = startRow; row < endRow; row++) {
         this.drawChar(vertical, x, y + row, borderColor, transparent)
       }
     }
 
     // Right border
     if (sides.right && width > 1) {
-      for (let row = 1; row < height - 1; row++) {
+      const startRow = sides.top ? 1 : 0
+      const endRow = sides.bottom ? height - 1 : height
+      for (let row = startRow; row < endRow; row++) {
         this.drawChar(vertical, x + width - 1, y + row, borderColor, transparent)
       }
     }
