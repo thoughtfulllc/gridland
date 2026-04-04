@@ -144,7 +144,7 @@ export function SideNav({
     <FocusProvider selectable>
       <box flexDirection="row" flexGrow={1}>
         {/* Sidebar — full height with right divider */}
-        <box flexDirection="column" width={sidebarWidth} border={["right"]} borderColor={theme.border}>
+        <box flexDirection="column" width={sidebarWidth} border={["right"]} borderColor={theme.borderMuted}>
           {title && (
             <box paddingX={2} paddingTop={1}>
               <text style={textStyle({ bold: true, fg: theme.focusFocused })}>

@@ -11,6 +11,8 @@ export interface Theme {
   placeholder: string
   /** Border and divider color */
   border: string
+  /** Muted border color — subtle structural dividers */
+  borderMuted: string
   /** Default foreground text color */
   foreground: string
   /** App background color */
