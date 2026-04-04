@@ -1,18 +1,18 @@
 /** Colors used for focus border affordance. */
 export interface FocusBorderColors {
-  /** Border color when the component is selected (entered for interaction). @default "#818cf8" */
+  /** Border color when the component is selected (entered for interaction). @default "#FF71CE" */
   selected: string
-  /** Border color when the component has keyboard focus. @default "#6366f1" */
+  /** Border color when the component has keyboard focus. @default "#e065b8" */
   focused: string
-  /** Dimmed border color when idle — visual hint that the component is selectable. @default "#3b3466" */
+  /** Dimmed border color when idle — visual hint that the component is selectable. @default "#33192a" */
   idle: string
 }
 
-/** Default focus border colors used across Gridland demos and components. */
+/** Default focus border colors — matches darkTheme.focusSelected/focusFocused/focusIdle. */
 export const FOCUS_BORDER_COLORS: FocusBorderColors = {
-  selected: "#818cf8",
-  focused: "#6366f1",
-  idle: "#3b3466",
+  selected: "#FF71CE",
+  focused: "#e065b8",
+  idle: "#33192a",
 }
 
 export interface FocusBorderState {

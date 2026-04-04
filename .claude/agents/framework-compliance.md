@@ -24,11 +24,12 @@ For each changed file, check:
 - `selectable` defaults to `true` — only pass it when explicitly setting to `false`
 - `scopeId` only needed for cross-scope registration
 
-**Focus border affordance (`getFocusBorderStyle` / `getFocusDividerStyle`):**
-- Any component with a selectable border affordance must use `getFocusBorderStyle` (for `<box border>`) or `getFocusDividerStyle` (for PromptInput dividers) from `@gridland/utils`
-- Flag any manual `borderColor`/`borderStyle` ternary based on `isFocused`/`isSelected` — should use the utility functions
-- Flag hardcoded hex strings `"#6366f1"`, `"#818cf8"`, `"#3b3466"` in border/divider logic — should use `FOCUS_BORDER_COLORS` or the utility functions
+**Focus border affordance (`useFocusBorderStyle` / `useFocusDividerStyle`):**
+- Any component with a selectable border affordance must use `useFocusBorderStyle` (for `<box border>`) or `useFocusDividerStyle` (for PromptInput dividers) from `@gridland/ui`
+- Flag any manual `borderColor`/`borderStyle` ternary based on `isFocused`/`isSelected` — should use the hooks
+- Flag hardcoded focus color hex values in border/divider logic — should use the hooks which read from `theme.focusSelected`/`focusFocused`/`focusIdle`
 - Flag `"transparent"` as the idle (fallback) border color — idle state must show a dimmed border for affordance
+- Flag `getFocusBorderStyle`/`getFocusDividerStyle` from `@gridland/utils` in components that have access to `@gridland/ui` — prefer the theme-aware hooks
 
 **`FocusScope` placement:**
 - Any region with nested interactive elements and an Enter/Esc interaction should have `FocusScope` with `selectable`

@@ -10,6 +10,7 @@ import {
 } from "@gridland/utils"
 import { StatusBar } from "../status-bar/status-bar"
 import { textStyle } from "../text-style"
+import { useTheme } from "../theme/index"
 
 // ── Types ─────────────────────────────────────────────────────────────
 
@@ -37,18 +38,6 @@ export interface SideNavProps {
     isInteracting: boolean
     captureKeyboard: (handler: (event: any) => void) => void
   }) => ReactNode
-  /** Color for the focused sidebar item text. @default "#cdd6f4" */
-  focusedColor?: string
-  /** Color for the selected (interacting) sidebar item text. @default "#a5b4fc" */
-  selectedColor?: string
-  /** Color for unfocused sidebar item text. @default "#6c7086" */
-  mutedColor?: string
-  /** Background highlight color for focused sidebar item. @default "#313244" */
-  highlightBg?: string
-  /** Border color for the sidebar divider. @default "#3b3466" */
-  borderColor?: string
-  /** Border color for the sidebar divider when interacting. @default "#818cf8" */
-  activeBorderColor?: string
   /** Show the status bar at the bottom. @default true */
   showStatusBar?: boolean
   /**
@@ -61,17 +50,14 @@ export interface SideNavProps {
 
 // ── NavItem ───────────────────────────────────────────────────────────
 
-function NavItemRow({ item, autoFocus, onFocus, onSelectChange, handlerRef, focusedColor, selectedColor, mutedColor, highlightBg }: {
+function NavItemRow({ item, autoFocus, onFocus, onSelectChange, handlerRef }: {
   item: SideNavItem
   autoFocus?: boolean
   onFocus: () => void
   onSelectChange: (selected: boolean) => void
   handlerRef: React.MutableRefObject<((event: any) => void) | null>
-  focusedColor: string
-  selectedColor: string
-  mutedColor: string
-  highlightBg: string
 }) {
+  const theme = useTheme()
   const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id: item.id, autoFocus })
 
   useEffect(() => {
@@ -93,10 +79,10 @@ function NavItemRow({ item, autoFocus, onFocus, onSelectChange, handlerRef, focu
     focusId,
   )
 
-  const fg = isSelected ? selectedColor
-    : isFocused ? focusedColor
-    : mutedColor
-  const bg = isFocused && !isSelected && !isAnySelected ? highlightBg : undefined
+  const fg = isSelected ? theme.focusSelected
+    : isFocused ? theme.focusFocused
+    : theme.muted
+  const bg = isFocused && !isSelected && !isAnySelected ? theme.focusIdle : undefined
 
   return (
     <box ref={focusRef} height={1} paddingX={1}>
@@ -126,15 +112,10 @@ export function SideNav({
   sidebarWidth = 20,
   title,
   children,
-  focusedColor = "#cdd6f4",
-  selectedColor = "#a5b4fc",
-  mutedColor = "#6c7086",
-  highlightBg = "#313244",
-  borderColor = "#3b3466",
-  activeBorderColor = "#818cf8",
   showStatusBar = true,
   requestedActiveId,
 }: SideNavProps) {
+  const theme = useTheme()
   const [activeIndex, setActiveIndex] = useState(0)
   const [isInteracting, setIsInteracting] = useState(false)
   const handlerRef = useRef<((event: any) => void) | null>(null)
@@ -163,10 +144,10 @@ export function SideNav({
     <FocusProvider selectable>
       <box flexDirection="row" flexGrow={1}>
         {/* Sidebar — full height with right divider */}
-        <box flexDirection="column" width={sidebarWidth} border={["right"]} borderColor={borderColor}>
+        <box flexDirection="column" width={sidebarWidth} border={["right"]} borderColor={theme.border}>
           {title && (
             <box paddingX={2} paddingTop={1}>
-              <text style={textStyle({ bold: true, fg: focusedColor })}>
+              <text style={textStyle({ bold: true, fg: theme.focusFocused })}>
                 {title}
               </text>
             </box>
@@ -188,10 +169,6 @@ export function SideNav({
                   }
                 }}
                 handlerRef={handlerRef}
-                focusedColor={focusedColor}
-                selectedColor={selectedColor}
-                mutedColor={mutedColor}
-                highlightBg={highlightBg}
               />
             ))}
           </box>
@@ -206,7 +183,7 @@ export function SideNav({
               overflow="hidden"
             >
               <box paddingX={1}>
-                <text style={textStyle({ bold: true, fg: selectedColor })}>
+                <text style={textStyle({ bold: true, fg: theme.focusSelected })}>
                   {activeItem.name}
                 </text>
               </box>

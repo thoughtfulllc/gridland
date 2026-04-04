@@ -12,6 +12,9 @@ export const darkTheme: Theme = {
   success: "#05FFA1",
   error: "#FF6B6B",
   warning: "#FFC164",
+  focusSelected: "#FF71CE",
+  focusFocused: "#e065b8",
+  focusIdle: "#33192a",
 }
 
 export const lightTheme: Theme = {
@@ -26,4 +29,7 @@ export const lightTheme: Theme = {
   success: "#0B8438",
   error: "#E11D48",
   warning: "#B45309",
+  focusSelected: "#FF6B2B",
+  focusFocused: "#d45a24",
+  focusIdle: "#f5e6d8",
 }

@@ -21,4 +21,10 @@ export interface Theme {
   error: string
   /** Warning state color */
   warning: string
+  /** Bright focus color — component is selected (entered for interaction) */
+  focusSelected: string
+  /** Medium focus color — component has keyboard focus */
+  focusFocused: string
+  /** Dimmed focus color — idle hint that the component is selectable */
+  focusIdle: string
 }

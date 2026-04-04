@@ -123,12 +123,9 @@ function MyPanel({ isInteracting, captureKeyboard }) {
 | `sidebarWidth` | `number` | `20` | Width of the sidebar in columns |
 | `title` | `string` | - | Optional title above the sidebar |
 | `showStatusBar` | `boolean` | `true` | Show the keyboard shortcuts status bar |
-| `focusedColor` | `string` | `"#cdd6f4"` | Text color for focused sidebar item |
-| `selectedColor` | `string` | `"#a5b4fc"` | Text color for selected sidebar item |
-| `mutedColor` | `string` | `"#6c7086"` | Text color for unfocused sidebar items |
-| `highlightBg` | `string` | `"#313244"` | Background color for focused sidebar item |
-| `borderColor` | `string` | `"#3b3466"` | Sidebar divider color |
-| `activeBorderColor` | `string` | `"#818cf8"` | Sidebar divider color when interacting |
+| `requestedActiveId` | `string` | - | Programmatically switch active item by ID |
+
+Colors are derived from the theme (`useTheme()`): focus indicators use `theme.focusSelected`/`focusFocused`/`focusIdle`, structural borders use `theme.border`, and idle text uses `theme.muted`. Customize by providing a different theme via `ThemeProvider`.
 
 ### SideNavItem
 

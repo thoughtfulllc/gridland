@@ -21,6 +21,12 @@ export interface Theme {
   error: string
   /** Warning state color */
   warning: string
+  /** Bright focus color — component is selected (entered for interaction) */
+  focusSelected: string
+  /** Medium focus color — component has keyboard focus */
+  focusFocused: string
+  /** Dimmed focus color — idle hint that the component is selectable */
+  focusIdle: string
 }
 
 export const darkTheme: Theme = {
@@ -35,6 +41,9 @@ export const darkTheme: Theme = {
   success: "#05FFA1",
   error: "#FF6B6B",
   warning: "#FFC164",
+  focusSelected: "#FF71CE",
+  focusFocused: "#e065b8",
+  focusIdle: "#33192a",
 }
 
 export const lightTheme: Theme = {
@@ -49,6 +58,9 @@ export const lightTheme: Theme = {
   success: "#0B8438",
   error: "#E11D48",
   warning: "#B45309",
+  focusSelected: "#FF6B2B",
+  focusFocused: "#d45a24",
+  focusIdle: "#f5e6d8",
 }
 
 import { createContext, useContext, type ReactNode } from "react"
@@ -67,4 +79,27 @@ export function ThemeProvider({ theme, children }: ThemeProviderProps) {
 /** Returns the current theme from the nearest ThemeProvider. Falls back to darkTheme. */
 export function useTheme(): Theme {
   return useContext(ThemeContext)
+}
+
+import { getFocusBorderStyle, getFocusDividerStyle } from "@gridland/utils"
+import type { FocusBorderState, FocusBorderResult, FocusDividerResult } from "@gridland/utils"
+
+/** Returns focus border color and style from the current theme. */
+export function useFocusBorderStyle(state: FocusBorderState): FocusBorderResult {
+  const theme = useTheme()
+  return getFocusBorderStyle(state, {
+    selected: theme.focusSelected,
+    focused: theme.focusFocused,
+    idle: theme.focusIdle,
+  })
+}
+
+/** Returns focus divider color and dashed state from the current theme. */
+export function useFocusDividerStyle(state: FocusBorderState): FocusDividerResult {
+  const theme = useTheme()
+  return getFocusDividerStyle(state, {
+    selected: theme.focusSelected,
+    focused: theme.focusFocused,
+    idle: theme.focusIdle,
+  })
 }

@@ -1,7 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState, useRef, useCallback } from "react"
-import { Message, PromptInput, StatusBar } from "@gridland/ui"
-import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts, getFocusBorderStyle, getFocusDividerStyle } from "@gridland/utils"
+import { Message, PromptInput, StatusBar, useFocusBorderStyle, useFocusDividerStyle } from "@gridland/ui"
+import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 import { renderPartsWithReasoning, toChatStatus } from "./render-message-parts-demo-utils"
 
@@ -19,7 +19,7 @@ function MessageArea({ messages, isStreaming, expanded }: {
     focusId,
   )
 
-  const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
+  const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <scrollbox
@@ -100,7 +100,7 @@ function PromptSection({ onSubmit, onStop, chatStatus }: {
     focusId,
   )
 
-  const { dividerColor, dividerDashed } = getFocusDividerStyle({ isFocused, isSelected, isAnySelected })
+  const { dividerColor, dividerDashed } = useFocusDividerStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef}>

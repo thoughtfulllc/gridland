@@ -100,7 +100,7 @@ export type { TerminalWindowProps } from "./terminal-window/terminal-window"
 
 export { textStyle } from "./text-style"
 
-export { ThemeProvider, useTheme, darkTheme, lightTheme } from "./theme"
+export { ThemeProvider, useTheme, darkTheme, lightTheme, useFocusBorderStyle, useFocusDividerStyle } from "./theme"
 export type { Theme, ThemeProviderProps } from "./theme"
 
 export { GridlandProvider, useKeyboardContext } from "./provider/provider"

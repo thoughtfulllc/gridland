@@ -1,8 +1,8 @@
 // @ts-nocheck
 "use client"
 import { useState, useRef, useCallback } from "react"
-import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts, getFocusBorderStyle } from "@gridland/utils"
-import { StatusBar, MultiSelect } from "@gridland/ui"
+import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
+import { StatusBar, MultiSelect, useFocusBorderStyle, useTheme } from "@gridland/ui"
 
 const focusMultiSelects = [
   {
@@ -60,7 +60,8 @@ function FocusMultiSelectPanel({ id, title, items, autoFocus }: {
     focusId,
   )
 
-  const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
+  const theme = useTheme()
+  const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor} flexGrow={1}>
@@ -71,8 +72,8 @@ function FocusMultiSelectPanel({ id, title, items, autoFocus }: {
           allowEmpty
           enableSelectAll={false}
           enableClear={false}
-          highlightColor={isSelected ? "#a5b4fc" : "#6366f1"}
-          checkboxColor="#818cf8"
+          highlightColor={isSelected ? theme.focusSelected : theme.focusFocused}
+          checkboxColor={theme.focusSelected}
           useKeyboard={captureKeyboard}
         />
       </box>

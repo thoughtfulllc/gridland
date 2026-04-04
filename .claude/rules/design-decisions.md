@@ -42,9 +42,17 @@ When auto-navigating back to a previous conversation after Esc (e.g., in `packag
 
 Before computing which element is spatially closest in a given direction, `findSpatialTarget` calls `ensureLayoutComputed` to flush any pending yoga layout calculations. Without this, the first spatial nav keypress after a render can fail silently — yoga has computed sizes internally but not yet propagated positions to the node tree, so all rects appear at `(0,0)`.
 
-## Focus border affordance centralized in `getFocusBorderStyle` / `getFocusDividerStyle`, not manual ternaries
+## Focus colors live in the Theme, not as a separate constant
 
-The 4-state border affordance pattern (selected → sibling-selected → focused → idle) was repeated in 8+ components with hardcoded ternaries and hex literals. The idle state (`"transparent"` vs dimmed `#3b3466`) was the #1 source of recurring bugs — developers would use `"transparent"` instead of the dimmed color, breaking the visual hint that a component is selectable. Centralizing in utility functions (`packages/utils/src/focus-border.ts`) makes the correct behavior the default. Two variants exist: `getFocusBorderStyle` returns `"transparent"` for the sibling-selected state (hides the box border), while `getFocusDividerStyle` returns `undefined` (lets PromptInput's built-in design divider show through with its default muted appearance).
+Focus colors are defined on the `Theme` interface as flat camelCase fields: `theme.focusSelected`, `theme.focusFocused`, `theme.focusIdle`. Components use `useFocusBorderStyle` / `useFocusDividerStyle` hooks from `@gridland/ui` which read from `useTheme().focus` automatically. This means users configure focus colors once in `ThemeProvider` and all components pick them up — no per-component color props needed. The hooks live in `@gridland/ui` (not `@gridland/utils`) because `@gridland/utils` cannot depend on `@gridland/ui` (circular dependency). The plain functions `getFocusBorderStyle`/`getFocusDividerStyle` remain in `@gridland/utils` as lower-level building blocks for edge cases.
+
+## Focus border affordance centralized in hooks, not manual ternaries
+
+The 4-state border affordance pattern (selected → sibling-selected → focused → idle) was repeated in 8+ components with hardcoded ternaries and hex literals. The idle state (`"transparent"` vs dimmed) was the #1 source of recurring bugs — developers would use `"transparent"` instead of the dimmed color, breaking the visual hint that a component is selectable. Centralizing in hooks makes the correct behavior the default. Two variants exist: `useFocusBorderStyle` returns `"transparent"` for the sibling-selected state (hides the box border), while `useFocusDividerStyle` returns `undefined` (lets PromptInput's built-in design divider show through with its default muted appearance).
+
+## Structural borders vs focus borders
+
+Structural borders (SideNav sidebar divider, Modal outline) use `theme.border`. Focus borders (4-state affordance) use `theme.focusSelected`/`focusFocused`/`focusIdle` via the hooks. These are distinct concerns — a structural border is always visible and stateless, while a focus border changes based on interaction state.
 
 ## AI SDK agnosticism — `ChatStatus` is our own type
 

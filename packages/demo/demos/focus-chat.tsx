@@ -1,12 +1,14 @@
 // @ts-nocheck
 "use client"
 import { useState, useRef, useCallback } from "react"
-import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts, getFocusBorderStyle, getFocusDividerStyle } from "@gridland/utils"
+import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
 import {
   StatusBar,
   PromptInput,
   Message,
   ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep,
+  useFocusBorderStyle,
+  useFocusDividerStyle,
 } from "@gridland/ui"
 
 function CotSection() {
@@ -27,7 +29,7 @@ function CotSection() {
     focusId,
   )
 
-  const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
+  const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef} marginTop={1} border borderStyle={borderStyle} borderColor={borderColor}>
@@ -60,7 +62,7 @@ function PromptSection() {
     focusId,
   )
 
-  const { dividerColor, dividerDashed } = getFocusDividerStyle({ isFocused, isSelected, isAnySelected })
+  const { dividerColor, dividerDashed } = useFocusDividerStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef}>

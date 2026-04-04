@@ -29,6 +29,7 @@ const IMPORT_REWRITES: [RegExp, string][] = [
   [/(from\s+["'])\.\.\/theme\/types(["'])/g, "$1./theme$2"],
   [/(from\s+["'])\.\.\/theme\/themes(["'])/g, "$1./theme$2"],
   [/(from\s+["'])\.\.\/theme\/theme-context(["'])/g, "$1./theme$2"],
+  [/(from\s+["'])\.\.\/theme\/use-focus-styles(["'])/g, "$1./theme$2"],
   [/(from\s+["'])\.\.\/theme(["'])/g, "$1./theme$2"],
   // Utilities
   [/(from\s+["'])\.\.\/text-style(["'])/g, "$1./text-style$2"],
@@ -57,6 +58,7 @@ function buildThemeSource(): string {
   const types = readFileSync(join(COMPONENTS_DIR, "theme/types.ts"), "utf-8")
   const themes = readFileSync(join(COMPONENTS_DIR, "theme/themes.ts"), "utf-8")
   const context = readFileSync(join(COMPONENTS_DIR, "theme/theme-context.tsx"), "utf-8")
+  const focusStyles = readFileSync(join(COMPONENTS_DIR, "theme/use-focus-styles.ts"), "utf-8")
 
   // Strip local imports that reference sibling files (now merged)
   const cleanThemes = themes
@@ -66,7 +68,10 @@ function buildThemeSource(): string {
     .replace(/import\s+type\s+\{[^}]+\}\s+from\s+["']\.\/types["']\s*\n?/g, "")
     .replace(/import\s+\{[^}]+\}\s+from\s+["']\.\/themes["']\s*\n?/g, "")
 
-  return [types.trim(), cleanThemes.trim(), cleanContext.trim()].join("\n\n")
+  const cleanFocusStyles = focusStyles
+    .replace(/import\s+\{[^}]+\}\s+from\s+["']\.\/theme-context["']\s*\n?/g, "")
+
+  return [types.trim(), cleanThemes.trim(), cleanContext.trim(), cleanFocusStyles.trim()].join("\n\n")
 }
 
 // ── Registry item configs ─────────────────────────────────────────────

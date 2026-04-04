@@ -28,11 +28,17 @@ Returns: `isFocused`, `isSelected`, `isAnySelected`, `focusId`, `focusRef`, `foc
 
 **`useCapturedKeyboard(focusId)`** — Returns a keyboard hook scoped to when this element is selected.
 
-**`getFocusBorderStyle({ isFocused, isSelected, isAnySelected })`** — Returns `{ borderColor, borderStyle }` for `<box border>` components. Encapsulates the 4-state visual affordance pattern.
+## Focus Style Hooks (from `@gridland/ui`)
 
-**`getFocusDividerStyle({ isFocused, isSelected, isAnySelected })`** — Returns `{ dividerColor, dividerDashed }` for PromptInput-style dividers. Returns `undefined` (not `"transparent"`) when a sibling is selected, so the component's built-in design divider shows through.
+**`useFocusBorderStyle({ isFocused, isSelected, isAnySelected })`** — Returns `{ borderColor, borderStyle }` for `<box border>` components. Reads colors from `theme.focusSelected`/`focusFocused`/`focusIdle` via `useTheme()`.
 
-**`FOCUS_BORDER_COLORS`** — Default colors: `{ selected: "#818cf8", focused: "#6366f1", idle: "#3b3466" }`. Pass custom colors as the second argument to either function to override.
+**`useFocusDividerStyle({ isFocused, isSelected, isAnySelected })`** — Returns `{ dividerColor, dividerDashed }` for PromptInput-style dividers. Reads colors from `theme.focusSelected`/`focusFocused`/`focusIdle` via `useTheme()`.
+
+These hooks live in `@gridland/ui` (not `@gridland/utils`) because they depend on `useTheme()`. They delegate to the lower-level plain functions `getFocusBorderStyle`/`getFocusDividerStyle` from `@gridland/utils`.
+
+**`theme.focusSelected`**, **`theme.focusFocused`**, **`theme.focusIdle`** — Focus colors defined on the Theme. Set once in `ThemeProvider`, consumed automatically by the hooks above.
+
+**`FOCUS_BORDER_COLORS`** — Legacy default constant in `@gridland/utils`. Still available for edge cases where `useTheme()` is not accessible. Prefer the hooks.
 
 ## Focus Border Affordance (4-State Pattern)
 
@@ -48,11 +54,11 @@ Every selectable component must show visual affordance via borders or dividers. 
 ```tsx
 // Border affordance for <box border> components
 const { isFocused, isSelected, isAnySelected, focusRef } = useFocus({ id })
-const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
+const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 return <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor}>...</box>
 
 // Divider affordance for PromptInput-style components
-const { dividerColor, dividerDashed } = getFocusDividerStyle({ isFocused, isSelected, isAnySelected })
+const { dividerColor, dividerDashed } = useFocusDividerStyle({ isFocused, isSelected, isAnySelected })
 return <PromptInput dividerColor={dividerColor} dividerDashed={dividerDashed} showDividers />
 ```
 
@@ -74,7 +80,7 @@ useFocus({ id, disabled })
 2. Attach `focusRef` to its root `<box>` for spatial navigation
 3. Wrap nested interactive content in `FocusScope` with `selectable`
 4. Register shortcuts via `useShortcuts`
-5. Use `getFocusBorderStyle` or `getFocusDividerStyle` for visual affordance — never write manual border ternaries
+5. Use `useFocusBorderStyle` or `useFocusDividerStyle` for visual affordance — never write manual border ternaries or hardcode focus colors
 
 ## Anti-Patterns
 
@@ -82,6 +88,7 @@ useFocus({ id, disabled })
 - Re-implementing `getNavigableEntries` or `getTopScope` instead of importing from `focus-reducer`
 - Interactive component that doesn't call `useFocus` and attach `focusRef`
 - Forgetting that `useFocus` inside a `FocusScope` auto-binds to that scope (pass `scopeId={null}` if global scope needed)
-- Manual `borderColor`/`borderStyle` ternaries based on `isFocused`/`isSelected` — use `getFocusBorderStyle` or `getFocusDividerStyle` instead
-- Hardcoded `"#818cf8"`, `"#6366f1"`, `"#3b3466"` in border/divider logic — use the utility functions which include these as defaults
+- Manual `borderColor`/`borderStyle` ternaries based on `isFocused`/`isSelected` — use `useFocusBorderStyle` or `useFocusDividerStyle` instead
+- Hardcoded focus color hex values in border/divider logic — use the hooks which read from `theme.focusSelected`/`focusFocused`/`focusIdle`
 - Using `"transparent"` as the idle border color — idle state must show a dimmed border for affordance
+- Importing `getFocusBorderStyle`/`getFocusDividerStyle` from `@gridland/utils` in components that have access to `@gridland/ui` — prefer the theme-aware hooks

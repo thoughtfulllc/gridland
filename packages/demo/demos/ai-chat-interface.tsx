@@ -12,9 +12,11 @@ import {
   ChainOfThoughtStep,
   CommandProvider,
   useRegisterCommands,
+  useFocusBorderStyle,
+  useFocusDividerStyle,
 } from "@gridland/ui"
 import type { ChatStatus } from "@gridland/ui"
-import { useFocus, useKeyboard, useCapturedKeyboard, useShortcuts, getFocusBorderStyle, getFocusDividerStyle, FOCUS_BORDER_COLORS } from "@gridland/utils"
+import { useFocus, useKeyboard, useCapturedKeyboard, useShortcuts } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 import { renderPartsWithReasoning, toChatStatus } from "./render-message-parts-demo-utils"
 import {
@@ -27,13 +29,6 @@ import {
 const COT_PREFIX = "cot-"
 const STORAGE_KEY = "gridland-chat-history"
 const MAX_CONVERSATIONS = 50
-
-const NAV_COLORS = {
-  focused: "#cdd6f4",
-  selected: "#a5b4fc",
-  muted: "#6c7086",
-  highlight: "#2a2a4a",
-} as const
 
 // -- Chat history persistence ------------------------------------------------
 
@@ -130,7 +125,7 @@ function FocusableReasoning({ id, reasoningText, isThinking, disabled = false }:
     focusId,
   )
 
-  const { borderColor, borderStyle } = getFocusBorderStyle({ isFocused, isSelected, isAnySelected })
+  const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor}>
@@ -181,7 +176,7 @@ function FocusablePrompt({ onSubmit, onStop, status, model, disabled = false }: 
     focusId,
   )
 
-  const { dividerColor, dividerDashed } = getFocusDividerStyle({ isFocused, isSelected, isAnySelected })
+  const { dividerColor, dividerDashed } = useFocusDividerStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef} flexShrink={0} overflow="hidden">
@@ -471,12 +466,6 @@ export function AIChatInterfaceApp({ transport }: { transport: any }) {
       title=""
       sidebarWidth={22}
       requestedActiveId={requestedActiveId}
-      borderColor={FOCUS_BORDER_COLORS.idle}
-      activeBorderColor={FOCUS_BORDER_COLORS.selected}
-      focusedColor={NAV_COLORS.focused}
-      selectedColor={NAV_COLORS.selected}
-      mutedColor={NAV_COLORS.muted}
-      highlightBg={NAV_COLORS.highlight}
     >
       {({ activeItem, isInteracting }) => (
         <SideNavContent
