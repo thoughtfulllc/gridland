@@ -199,10 +199,11 @@ export function SideNav({
 
         {/* Main panel */}
         <box flexDirection="column" flexGrow={1}>
-          <box flexDirection="column" flexGrow={1} paddingTop={1}>
+          <box flexDirection="column" flexGrow={1} paddingTop={1} overflow="hidden">
             <box
               flexDirection="column"
               flexGrow={1}
+              overflow="hidden"
             >
               <box paddingX={1}>
                 <text style={textStyle({ bold: true, fg: selectedColor })}>

@@ -29,6 +29,8 @@ function MessageArea({ messages, isStreaming, expanded }: {
       scrollY
       paddingX={1}
       flexGrow={1}
+      overflow="hidden"
+      minHeight={0}
       border
       borderStyle={borderStyle}
       borderColor={borderColor}

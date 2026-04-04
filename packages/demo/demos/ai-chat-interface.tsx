@@ -216,6 +216,8 @@ function MessageArea({ messages, isStreaming, disabled = false }: {
       paddingX={1}
       flexGrow={1}
       flexShrink={1}
+      overflow="hidden"
+      minHeight={0}
       contentOptions={{
         gap: 1,
         justifyContent: "flex-end",
@@ -360,7 +362,7 @@ function ChatPanel({ conversationId, initialMessages, onMessagesChange, onModelC
   return (
     <CommandProvider>
       <ChatPanelCommands setShowModelPicker={setShowModelPicker} setMessages={setMessages} />
-      <box flexDirection="column" flexGrow={1}>
+      <box flexDirection="column" flexGrow={1} overflow="hidden">
         <MessageArea messages={messages} isStreaming={chatStatus === "streaming"} disabled={!isInteracting} />
         <FocusablePrompt
           onSubmit={handleSubmit}
