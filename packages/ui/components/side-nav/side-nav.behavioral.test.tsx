@@ -59,7 +59,7 @@ describe("SideNav behavior", () => {
       { cols: 60, rows: 15 },
     )
     flushN(flush)
-    expect(screen.text()).toContain("> General")
+    expect(screen.text()).toContain("▸ General")
   })
 
   it("renders main panel via children render function", () => {
@@ -89,6 +89,44 @@ describe("SideNav behavior", () => {
     expect(screen.text()).not.toContain("navigate")
   })
 
+  it("renders suffix appended after item name", () => {
+    const suffixItems = [
+      { id: "new", name: "New chat", suffix: "+" },
+      { id: "old", name: "Old chat" },
+    ]
+    const { screen, flush } = renderTui(
+      <SideNav items={suffixItems}>{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+    expect(screen.text()).toContain("New chat +")
+    expect(screen.text()).not.toContain("Old chat +")
+  })
+
+  it("shows header by default", () => {
+    const { screen, flush } = renderTui(
+      <SideNav items={items}>{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+    const text = screen.text()
+    // "General" appears in: sidebar, header, and renderPanel ("active:General")
+    const matches = text.match(/General/g) ?? []
+    expect(matches.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it("hides header when showHeader=false", () => {
+    const { screen, flush } = renderTui(
+      <SideNav items={items} showHeader={false}>{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+    const text = screen.text()
+    // "General" appears in: sidebar + renderPanel ("active:General"), but no header
+    const matches = text.match(/General/g) ?? []
+    expect(matches.length).toBe(2)
+  })
+
   // ── Keyboard navigation ───────────────────────────────────────────
 
   it("down arrow moves focus to next item", async () => {
@@ -97,11 +135,11 @@ describe("SideNav behavior", () => {
       { cols: 60, rows: 15 },
     )
     flushN(flush)
-    expect(screen.text()).toContain("> General")
+    expect(screen.text()).toContain("▸ General")
 
     keys.down()
     await settle(flush)
-    expect(screen.text()).toContain("> Theme")
+    expect(screen.text()).toContain("▸ Theme")
     expect(screen.text()).toContain("active:Theme")
   })
 
@@ -114,11 +152,11 @@ describe("SideNav behavior", () => {
 
     keys.down()
     await settle(flush)
-    expect(screen.text()).toContain("> Theme")
+    expect(screen.text()).toContain("▸ Theme")
 
     keys.up()
     await settle(flush)
-    expect(screen.text()).toContain("> General")
+    expect(screen.text()).toContain("▸ General")
     expect(screen.text()).toContain("active:General")
   })
 

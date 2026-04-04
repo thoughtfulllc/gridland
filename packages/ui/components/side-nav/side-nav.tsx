@@ -19,6 +19,8 @@ export interface SideNavItem {
   id: string
   /** Display label shown in the sidebar. */
   name: string
+  /** Optional text appended after the item name. */
+  suffix?: string
 }
 
 export interface SideNavProps {
@@ -40,6 +42,8 @@ export interface SideNavProps {
   }) => ReactNode
   /** Show the status bar at the bottom. @default true */
   showStatusBar?: boolean
+  /** Show the active item name as a header in the main panel. @default true */
+  showHeader?: boolean
   /**
    * Programmatically switch the active item by ID. When this changes to a new
    * value that matches an item in the list, the nav switches to that item.
@@ -58,7 +62,7 @@ function NavItemRow({ item, autoFocus, onFocus, onSelectChange, handlerRef }: {
   handlerRef: React.MutableRefObject<((event: any) => void) | null>
 }) {
   const theme = useTheme()
-  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id: item.id, autoFocus })
+  const { isFocused, isSelected, focusId, focusRef } = useFocus({ id: item.id, autoFocus })
 
   useEffect(() => {
     if (isFocused) onFocus()
@@ -82,12 +86,11 @@ function NavItemRow({ item, autoFocus, onFocus, onSelectChange, handlerRef }: {
   const fg = isSelected ? theme.focusSelected
     : isFocused ? theme.focusFocused
     : theme.muted
-  const bg = isFocused && !isSelected && !isAnySelected ? theme.focusIdle : undefined
 
   return (
     <box ref={focusRef} height={1} paddingX={1}>
-      <text style={textStyle({ fg, bg, bold: isFocused || isSelected })}>
-        {isFocused || isSelected ? ">" : " "} {item.name}
+      <text style={textStyle({ fg, bold: isFocused || isSelected })}>
+        {isFocused || isSelected ? "▸" : " "} {item.name}{item.suffix && ` ${item.suffix}`}
       </text>
     </box>
   )
@@ -113,6 +116,7 @@ export function SideNav({
   title,
   children,
   showStatusBar = true,
+  showHeader = true,
   requestedActiveId,
 }: SideNavProps) {
   const theme = useTheme()
@@ -182,11 +186,13 @@ export function SideNav({
               flexGrow={1}
               overflow="hidden"
             >
-              <box paddingX={1}>
-                <text style={textStyle({ bold: true, fg: theme.focusSelected })}>
-                  {activeItem.name}
-                </text>
-              </box>
+              {showHeader && (
+                <box paddingX={1}>
+                  <text style={textStyle({ bold: true, fg: theme.focusSelected })}>
+                    {activeItem.name}
+                  </text>
+                </box>
+              )}
               {isInteracting ? (
                 <FocusScope trap selectable autoFocus autoSelect restoreOnUnmount>
                   {children({ activeItem, isInteracting, captureKeyboard })}

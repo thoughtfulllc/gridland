@@ -376,7 +376,7 @@ function ChatPanel({ conversationId, initialMessages, onMessagesChange, onModelC
 
 function buildNavItems(history: StoredConversation[]) {
   return [
-    { id: "new-chat", name: "+ New chat" },
+    { id: "new-chat", name: "New chat", suffix: "+" },
     ...history.map(c => ({ id: c.id, name: c.title })),
   ]
 }
@@ -463,9 +463,9 @@ export function AIChatInterfaceApp({ transport }: { transport: any }) {
   return (
     <SideNav
       items={navItems}
-      title=""
       sidebarWidth={22}
       requestedActiveId={requestedActiveId}
+      showHeader={false}
     >
       {({ activeItem, isInteracting }) => (
         <SideNavContent

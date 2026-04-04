@@ -2,7 +2,7 @@
 
 exports[`SideNav snapshots renders 3-item sidebar with default state 1`] = `
 "                   │
- > General         │ General
+ ▸ General         │ General
    Theme           │General panel content
    Keybinds        │
                    │
@@ -19,7 +19,7 @@ exports[`SideNav snapshots renders with title 1`] = `
 "                   │
   Settings         │ General
                    │General panel content
- > General         │
+ ▸ General         │
    Theme           │
    Keybinds        │
                    │
