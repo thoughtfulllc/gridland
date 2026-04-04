@@ -214,6 +214,7 @@ function MessageArea({ messages, isStreaming, disabled = false }: {
       stickyStart="bottom"
       scrollY
       paddingX={1}
+      paddingBottom={1}
       flexGrow={1}
       flexShrink={1}
       overflow="hidden"

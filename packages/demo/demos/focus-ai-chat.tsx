@@ -28,6 +28,7 @@ function MessageArea({ messages, isStreaming, expanded }: {
       stickyStart="bottom"
       scrollY
       paddingX={1}
+      paddingBottom={1}
       flexGrow={1}
       overflow="hidden"
       minHeight={0}
