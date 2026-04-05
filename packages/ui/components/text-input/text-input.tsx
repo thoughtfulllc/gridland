@@ -62,7 +62,7 @@ export function TextInput({ label, description, error, required = false, disable
         </text>
       )}
       <box flexDirection="row" marginLeft={showLabel ? 2 : 0}>
-        {prompt != null && <text style={{ fg: isFocused ? theme.primary : theme.muted }}>{prompt}</text>}
+        {prompt != null && <text style={{ fg: error ? theme.error : isFocused ? theme.primary : theme.muted }}>{prompt}</text>}
         {isFocused ? (
           <input
             value={value}
@@ -71,7 +71,7 @@ export function TextInput({ label, description, error, required = false, disable
             focused
             onInput={onChange}
             onSubmit={onSubmit}
-            cursorColor={theme.muted}
+            cursorColor={error ? theme.error : theme.muted}
             cursorStyle={{ style: "line", blinking: empty }}
             placeholderColor={theme.placeholder}
             textColor={theme.foreground}

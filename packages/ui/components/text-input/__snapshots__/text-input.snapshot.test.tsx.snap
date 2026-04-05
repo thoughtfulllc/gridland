@@ -3,3 +3,8 @@
 exports[`TextInput snapshots renders with placeholder 1`] = `"Type something..."`;
 
 exports[`TextInput snapshots renders with custom prompt 1`] = `"> Enter name"`;
+
+exports[`TextInput snapshots renders with error state 1`] = `
+"  Email | This field is required
+  > user@example.com"
+`;

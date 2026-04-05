@@ -21,4 +21,12 @@ describe("TextInput snapshots", () => {
     )
     expect(screen.text()).toMatchSnapshot()
   })
+
+  it("renders with error state", () => {
+    const { screen } = renderTui(
+      <TextInput value="" label="Email" placeholder="user@example.com" prompt="> " error="This field is required" />,
+      { cols: 80, rows: 4 },
+    )
+    expect(screen.text()).toMatchSnapshot()
+  })
 })
