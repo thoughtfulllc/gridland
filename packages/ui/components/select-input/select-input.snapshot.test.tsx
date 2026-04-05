@@ -40,4 +40,41 @@ describe("SelectInput snapshots", () => {
     )
     expect(screen.text()).toMatchSnapshot()
   })
+
+  it("renders disabled state", () => {
+    const items = [
+      { label: "TypeScript", value: "ts" },
+      { label: "JavaScript", value: "js" },
+    ]
+    const { screen } = renderTui(
+      <SelectInput items={items} disabled />,
+      { cols: 40, rows: 6 },
+    )
+    expect(screen.text()).toMatchSnapshot()
+  })
+
+  it("renders with groups", () => {
+    const items = [
+      { label: "TypeScript", value: "ts", group: "Languages" },
+      { label: "Python", value: "py", group: "Languages" },
+      { label: "React", value: "react", group: "Frameworks" },
+    ]
+    const { screen } = renderTui(
+      <SelectInput items={items} />,
+      { cols: 40, rows: 10 },
+    )
+    expect(screen.text()).toMatchSnapshot()
+  })
+
+  it("renders required and invalid state", () => {
+    const items = [
+      { label: "TypeScript", value: "ts" },
+      { label: "JavaScript", value: "js" },
+    ]
+    const { screen } = renderTui(
+      <SelectInput items={items} required invalid />,
+      { cols: 40, rows: 8 },
+    )
+    expect(screen.text()).toMatchSnapshot()
+  })
 })

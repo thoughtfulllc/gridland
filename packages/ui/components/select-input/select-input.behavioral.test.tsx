@@ -231,7 +231,7 @@ describe("SelectInput behavior", () => {
     expect(changed).toBeNull()
   })
 
-  it("does not fire onChange for disabled items on move", () => {
+  it("skips disabled items on move", () => {
     const disabledItems = [
       { label: "TypeScript", value: "ts" },
       { label: "JavaScript", value: "js", disabled: true },
@@ -249,8 +249,109 @@ describe("SelectInput behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    // Move down to second item (disabled) — onChange should not fire
+    // Move down — should skip disabled "js" and land on "py"
+    savedHandler({ name: "down" })
+    expect(changed).toBe("py")
+  })
+
+  // ── j/k navigation ──────────────────────────────────────────────────
+
+  it("selects on j key (move down)", () => {
+    let changed = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <SelectInput
+        items={items}
+        value="ts"
+        onChange={(value) => { changed = value }}
+        useKeyboard={mockUseKeyboard}
+      />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "j" })
+    expect(changed).toBe("js")
+  })
+
+  it("selects on k key (move up)", () => {
+    let changed = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    renderTui(
+      <SelectInput
+        items={items}
+        value="ts"
+        onChange={(value) => { changed = value }}
+        useKeyboard={mockUseKeyboard}
+      />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "k" })
+    expect(changed).toBe("rs")
+  })
+
+  // ── Submitted state ─────────────────────────────────────────────────
+
+  it("renders submitted state after enter", () => {
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const { screen, rerender } = renderTui(
+      <SelectInput
+        items={items}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={() => {}}
+      />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "return" })
+    rerender(
+      <SelectInput
+        items={items}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={() => {}}
+      />,
+    )
+    const text = screen.text()
+    expect(text).toContain("submitted")
+    expect(text).toContain("●")
+  })
+
+  it("ignores keys after submission", () => {
+    let changed = null
+    let savedHandler = null
+    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    const props = {
+      items,
+      value: "ts" as const,
+      onChange: (value) => { changed = value },
+      useKeyboard: mockUseKeyboard,
+      onSubmit: () => {},
+    }
+    const { rerender } = renderTui(
+      <SelectInput {...props} />,
+      { cols: 40, rows: 10 },
+    )
+    savedHandler({ name: "return" })
+    // Re-render to flush submitted state into ref
+    rerender(<SelectInput {...props} />)
     savedHandler({ name: "down" })
     expect(changed).toBeNull()
+  })
+
+  // ── Scroll windowing ────────────────────────────────────────────────
+
+  it("limits visible rows via limit prop", () => {
+    const manyItems = Array.from({ length: 20 }, (_, i) => ({
+      label: `Item ${i}`,
+      value: `item-${i}`,
+    }))
+    const { screen } = renderTui(
+      <SelectInput items={manyItems} limit={5} />,
+      { cols: 40, rows: 20 },
+    )
+    const text = screen.text()
+    // Should show at most 5 items, not all 20
+    const itemMatches = text.match(/Item \d+/g) ?? []
+    expect(itemMatches.length).toBeLessThanOrEqual(5)
   })
 })

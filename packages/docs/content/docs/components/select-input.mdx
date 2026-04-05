@@ -185,12 +185,14 @@ Show placeholder text when the items list is empty.
 | `onChange` | `(value: V) => void` | - | Called when selection changes |
 | `disabled` | `boolean` | `false` | Disable the entire component |
 | `invalid` | `boolean` | `false` | Show error state with destructive styling |
+| `errorMessage` | `string` | `"Please select an option"` | Custom error message when invalid |
 | `required` | `boolean` | `false` | Show required indicator (`*`) next to title |
 | `placeholder` | `string` | - | Placeholder text when items list is empty |
 | `title` | `string` | `"Select"` | Title shown next to the diamond indicator |
 | `submittedStatus` | `string` | `"submitted"` | Status text shown after submit |
 | `limit` | `number` | `12` | Max visible rows before scrolling |
 | `highlightColor` | `string` | `theme.primary` | Color of the highlighted item |
+| `radioColor` | `string` | `theme.muted` | Color of the radio indicator |
 | `onSubmit` | `(value: V) => void` | - | Called on Enter with the selected value |
 | `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@gridland/utils` |
 
