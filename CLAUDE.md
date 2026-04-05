@@ -63,7 +63,7 @@ edit code
   → /release-check       # before publishing a package version
 ```
 
-Other skills: `/create-component` (guided scaffold), `/debug-layout` (layout diagnostics), `/audit-render` (rendering pipeline clipping audit).
+Other skills: `/create-component` (guided scaffold), `/production-ready` (ship-readiness review for a component), `/debug-layout` (layout diagnostics), `/audit-render` (rendering pipeline clipping audit).
 
 **`/sync-context` is required when:** adding/removing a component, hook, or utility; changing a prop name, type, or default; making a non-obvious design choice; changing how a pattern should be used.
 

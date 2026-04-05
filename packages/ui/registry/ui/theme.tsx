@@ -11,6 +11,8 @@ export interface Theme {
   placeholder: string
   /** Border and divider color */
   border: string
+  /** Muted border color — subtle structural dividers */
+  borderMuted: string
   /** Default foreground text color */
   foreground: string
   /** App background color */
@@ -36,6 +38,7 @@ export const darkTheme: Theme = {
   muted: "#A69CBD",
   placeholder: "#CEC7DE",
   border: "#B967FF",
+  borderMuted: "#2A2A2A",
   foreground: "#F0E6FF",
   background: "#0D0B10",
   success: "#05FFA1",
@@ -53,6 +56,7 @@ export const lightTheme: Theme = {
   muted: "#64748B",
   placeholder: "#475569",
   border: "#E2E8F0",
+  borderMuted: "#D9D9D9",
   foreground: "#1E293B",
   background: "#FFFFFF",
   success: "#0B8438",

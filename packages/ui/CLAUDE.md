@@ -12,7 +12,7 @@
 | `StatusBar` | `items` (from `useFocusedShortcuts`), `extra` |
 | `ChainOfThought` | `open`, `defaultOpen`, `onOpenChange`. Sub: `ChainOfThoughtHeader`, `ChainOfThoughtContent`, `ChainOfThoughtStep` |
 | `TextInput` | `label`, `value`, `onChange`, `onSubmit`, `placeholder`, `disabled`, `focus` |
-| `MultiSelect` | `items`, `selected`, `onChange`, `onSubmit`, `useKeyboard`, `limit`, `enableSelectAll` |
+| `MultiSelect` | `items`, `selected`, `onChange`, `onSubmit`, `useKeyboard`, `limit`, `enableSelectAll`, `errorMessage` |
 | `Table` | Compound: `TableRoot`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption` |
 | `TabBar` | `options`, `selectedIndex` |
 | `Tabs` | Compound: `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` |
