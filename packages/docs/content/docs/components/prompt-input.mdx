@@ -297,19 +297,24 @@ function MyCustomStatus() {
 | `promptColor` | `string` | `theme.muted` | Color of the prompt character |
 | `status` | `ChatStatus` | - | AI chat status. Drives disabled state and hint text. |
 | `onStop` | `() => void` | - | Called when Escape is pressed during streaming |
+| `onError` | `(error: unknown) => void` | - | Called when async `onSubmit` rejects |
 | `submittedText` | `string` | `"Thinking..."` | Hint text when status is `"submitted"` |
 | `streamingText` | `string` | `"Generating..."` | Hint text when status is `"streaming"` |
 | `errorText` | `string` | `"An error occurred. Try again."` | Text shown when status is `"error"` |
 | `disabled` | `boolean` | `false` | Disable input. Ignored when `status` is provided. |
 | `disabledText` | `string` | `"Generating..."` | Text shown when disabled. Ignored when `status` is provided. |
-| `commands` | `{ cmd: string; desc?: string }[]` | `[]` | Slash commands for autocomplete |
+| `commands` | `PromptInputCommand[]` | `[]` | Slash commands for autocomplete |
+| `skills` | `PromptInputCommand[]` | `[]` | Dynamically-provided skills merged into autocomplete alongside commands |
 | `files` | `string[]` | `[]` | File paths for `@` mention autocomplete |
 | `getSuggestions` | `(value: string) => Suggestion[]` | - | Custom suggestion provider — overrides commands/files |
 | `maxSuggestions` | `number` | `5` | Max visible suggestions |
 | `enableHistory` | `boolean` | `true` | Enable command history with ↑/↓ |
 | `model` | `string` | - | Model name displayed below the input |
+| `focus` | `boolean` | `false` | Whether the input is focused and accepting keystrokes |
 | `showDividers` | `boolean` | `true` | Show horizontal dividers above and below input |
 | `autoFocus` | `boolean` | `false` | Auto-focus the canvas on mount for keyboard events |
+| `dividerColor` | `string` | - | Override divider line color (e.g. for focus indicators) |
+| `dividerDashed` | `boolean` | - | Use dashed divider lines (`╌`) instead of solid (`─`) |
 | `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@gridland/utils` |
 | `children` | `ReactNode` | - | When provided, enables compound mode |
 
@@ -320,12 +325,23 @@ function MyCustomStatus() {
 | `initialInput` | `string` | `""` | Initial text input value |
 | `children` | `ReactNode` | - | Components that can access the provider context |
 
+### PromptInputCommand
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `cmd` | `string` | Slash command string (e.g. `"/help"`) |
+| `desc` | `string?` | Description shown in autocomplete |
+| `group` | `string?` | Group name for categorization in autocomplete |
+| `onExecute` | `() => void?` | When provided, PromptInput calls this directly instead of `onSubmit` |
+| `hidden` | `boolean?` | Hide from autocomplete suggestions but still executable |
+
 ### Suggestion
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `text` | `string` | Suggestion text |
 | `desc` | `string?` | Optional description |
+| `trigger` | `string?` | Character that triggered this suggestion (e.g. `"@"`, `"#"`). Used to determine replacement range. |
 
 ### ChatStatus
 

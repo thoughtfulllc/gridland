@@ -22,6 +22,8 @@ export type ChatStatus = "ready" | "submitted" | "streaming" | "error"
 export interface Suggestion {
   text: string
   desc?: string
+  /** Character that triggered this suggestion (e.g. "@", "#"). Used to determine replacement range. */
+  trigger?: string
 }
 
 /** Message shape passed to onSubmit. */
@@ -174,6 +176,8 @@ export interface PromptInputProps {
   status?: ChatStatus
   /** Called when user presses Escape during streaming to stop generation */
   onStop?: () => void
+  /** Called when async onSubmit rejects. Lets consumers surface errors (e.g. toast, status update). */
+  onError?: (error: unknown) => void
   /** Text shown when status is "submitted" */
   submittedText?: string
   /** Text shown when status is "streaming" */
@@ -208,7 +212,7 @@ export interface PromptInputProps {
   dividerColor?: string
   /** Use dashed divider lines (╌) instead of solid (─) */
   dividerDashed?: boolean
-  /** Keyboard hook from @opentui/react */
+  /** Keyboard hook from @gridland/utils */
   useKeyboard?: (handler: (event: any) => void) => void
   /** Compound mode: provide subcomponents as children */
   children?: ReactNode
@@ -232,7 +236,7 @@ function computeDefaultSuggestions(
     const query = input.split("@").pop() ?? ""
     return files
       .filter((f) => f.toLowerCase().includes(query.toLowerCase()))
-      .map((f) => ({ text: "@" + f }))
+      .map((f) => ({ text: "@" + f, trigger: "@" }))
   }
   return []
 }
@@ -369,7 +373,7 @@ function PromptInputModel() {
   const { model, theme } = usePromptInput()
   if (!model) return null
   return (
-    <text dim color={theme.muted}>model: {model}</text>
+    <text><span style={textStyle({ dim: true, fg: theme.muted })}>{"model: " + model}</span></text>
   )
 }
 
@@ -388,6 +392,7 @@ export function PromptInput({
   promptColor,
   status,
   onStop,
+  onError,
   submittedText = "Thinking...",
   streamingText: streamingLabel = "Generating...",
   errorText = "An error occurred. Try again.",
@@ -530,13 +535,17 @@ export function PromptInput({
   // ── Submit handler (auto-clears on success, preserves on error) ────────
 
   const clearInput = useCallback(() => {
+    valueRef.current = ""
     if (usingProvider) {
       controller.textInput.clear()
+      controller.suggestions.clear()
     } else if (!isControlled) {
       setLocalValue("")
     }
+    setSug([])
+    setSugI(0)
     onChange?.("")
-  }, [usingProvider, controller, isControlled, onChange])
+  }, [usingProvider, controller, isControlled, onChange, setSug, setSugI])
 
   const handleSubmit = useCallback((text: string) => {
     const matched = allCommands.find((c) => c.cmd === text)
@@ -546,7 +555,7 @@ export function PromptInput({
       return
     }
 
-    if (!onSubmit) return
+    if (!onSubmit) { clearInput(); return }
 
     const result = onSubmit({ text })
 
@@ -554,59 +563,52 @@ export function PromptInput({
     if (result instanceof Promise) {
       result.then(
         () => clearInput(),
-        () => { /* Don't clear on error — user may want to retry */ },
+        (err: unknown) => { onError?.(err) },
       )
     } else {
       // Sync onSubmit completed without throwing — clear
       clearInput()
     }
-  }, [onSubmit, clearInput, allCommands])
+  }, [onSubmit, onError, clearInput, allCommands])
 
-  // ── Input handlers (passed to <input> intrinsic via context) ───────────
+  // ── Shared keyboard action handler (used by both <input> and useKeyboard) ──
 
-  const handleInputSubmit = (text: string) => {
-    const trimmed = text.trim()
-    if (!trimmed) return
-    if (enableHistory) {
-      setHist([trimmed, ...historyRef.current])
-    }
-    updateValue("")
-    setHistI(-1)
-    handleSubmit(trimmed)
-  }
-
-  const handleInputKeyDown = (key: any) => {
-    // Return with active suggestions: custom submit logic
-    if (key.name === "return" && suggestionsRef.current.length > 0) {
-      const sel = suggestionsRef.current[sugIdxRef.current]
-      if (sel) {
-        if (valueRef.current.startsWith("/")) {
-          // Slash commands: submit immediately on selection
-          updateValue("")
-          if (enableHistory) {
-            setHist([sel.text, ...historyRef.current])
+  const handleKeyAction = useCallback((keyName: string): boolean => {
+    if (keyName === "return") {
+      if (suggestionsRef.current.length > 0) {
+        const sel = suggestionsRef.current[sugIdxRef.current]
+        if (sel) {
+          if (valueRef.current.startsWith("/")) {
+            if (enableHistory) {
+              setHist([sel.text, ...historyRef.current])
+            }
+            setHistI(-1)
+            handleSubmit(sel.text)
+          } else {
+            const triggerIdx = sel.trigger ? valueRef.current.lastIndexOf(sel.trigger) : -1
+            const base = triggerIdx >= 0 ? valueRef.current.slice(0, triggerIdx) : ""
+            updateValue(base + sel.text + " ")
+            setSug([])
           }
-          setHistI(-1)
-          handleSubmit(sel.text)
-        } else {
-          const base = valueRef.current.slice(0, valueRef.current.lastIndexOf("@"))
-          updateValue(base + sel.text + " ")
-          setSug([])
         }
+      } else {
+        const trimmed = valueRef.current.trim()
+        if (!trimmed) return true
+        if (enableHistory) {
+          setHist([trimmed, ...historyRef.current])
+        }
+        setHistI(-1)
+        handleSubmit(trimmed)
       }
-      key.preventDefault()
-      return
+      return true
     }
 
-    // Tab: cycle suggestions
-    if (key.name === "tab" && suggestionsRef.current.length > 0) {
+    if (keyName === "tab" && suggestionsRef.current.length > 0) {
       setSugI((sugIdxRef.current + 1) % suggestionsRef.current.length)
-      key.preventDefault()
-      return
+      return true
     }
 
-    // Up: navigate suggestions or history
-    if (key.name === "up") {
+    if (keyName === "up") {
       if (suggestionsRef.current.length > 0) {
         setSugI(Math.max(0, sugIdxRef.current - 1))
       } else if (enableHistory && historyRef.current.length > 0) {
@@ -614,12 +616,10 @@ export function PromptInput({
         setHistI(idx)
         updateValue(historyRef.current[idx]!)
       }
-      key.preventDefault()
-      return
+      return true
     }
 
-    // Down: navigate suggestions or history
-    if (key.name === "down") {
+    if (keyName === "down") {
       if (suggestionsRef.current.length > 0) {
         setSugI(Math.min(suggestionsRef.current.length - 1, sugIdxRef.current + 1))
       } else if (enableHistory && histIdxRef.current > 0) {
@@ -630,17 +630,35 @@ export function PromptInput({
         setHistI(-1)
         updateValue("")
       }
-      key.preventDefault()
-      return
+      return true
     }
 
-    // Escape: dismiss suggestions
-    if (key.name === "escape") {
+    if (keyName === "escape") {
       if (suggestionsRef.current.length > 0) {
         setSug([])
-        key.preventDefault()
+        return true
       }
-      return
+      return false
+    }
+
+    return false
+  }, [enableHistory, handleSubmit, updateValue, setSug, setSugI, setHist, setHistI])
+
+  // ── Input handlers (passed to <input> intrinsic via context) ───────────
+
+  const handleInputSubmit = (text: string) => {
+    const trimmed = text.trim()
+    if (!trimmed) return
+    if (enableHistory) {
+      setHist([trimmed, ...historyRef.current])
+    }
+    setHistI(-1)
+    handleSubmit(trimmed)
+  }
+
+  const handleInputKeyDown = (key: any) => {
+    if (handleKeyAction(key.name)) {
+      key.preventDefault()
     }
   }
 
@@ -661,72 +679,7 @@ export function PromptInput({
 
     if (disabled) return
 
-    if (event.name === "return") {
-      if (suggestionsRef.current.length > 0) {
-        const sel = suggestionsRef.current[sugIdxRef.current]
-        if (sel) {
-          if (valueRef.current.startsWith("/")) {
-            updateValue("")
-            if (enableHistory) {
-              setHist([sel.text, ...historyRef.current])
-            }
-            setHistI(-1)
-            handleSubmit(sel.text)
-          } else {
-            const base = valueRef.current.slice(0, valueRef.current.lastIndexOf("@"))
-            updateValue(base + sel.text + " ")
-            setSug([])
-          }
-        }
-      } else {
-        const trimmed = valueRef.current.trim()
-        if (!trimmed) return
-        if (enableHistory) {
-          setHist([trimmed, ...historyRef.current])
-        }
-        updateValue("")
-        setHistI(-1)
-        handleSubmit(trimmed)
-      }
-      return
-    }
-
-    if (event.name === "tab" && suggestionsRef.current.length > 0) {
-      setSugI((sugIdxRef.current + 1) % suggestionsRef.current.length)
-      return
-    }
-
-    if (event.name === "up") {
-      if (suggestionsRef.current.length > 0) {
-        setSugI(Math.max(0, sugIdxRef.current - 1))
-      } else if (enableHistory && historyRef.current.length > 0) {
-        const idx = Math.min(historyRef.current.length - 1, histIdxRef.current + 1)
-        setHistI(idx)
-        updateValue(historyRef.current[idx]!)
-      }
-      return
-    }
-
-    if (event.name === "down") {
-      if (suggestionsRef.current.length > 0) {
-        setSugI(Math.min(suggestionsRef.current.length - 1, sugIdxRef.current + 1))
-      } else if (enableHistory && histIdxRef.current > 0) {
-        const nextIdx = histIdxRef.current - 1
-        setHistI(nextIdx)
-        updateValue(historyRef.current[nextIdx]!)
-      } else if (enableHistory && histIdxRef.current === 0) {
-        setHistI(-1)
-        updateValue("")
-      }
-      return
-    }
-
-    if (event.name === "escape") {
-      if (suggestionsRef.current.length > 0) {
-        setSug([])
-      }
-      return
-    }
+    if (handleKeyAction(event.name)) return
 
     if (event.name === "backspace" || event.name === "delete") {
       updateValue(valueRef.current.slice(0, -1))
