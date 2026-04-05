@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { Spinner } from "./spinner"
-import { SpinnerShowcase } from "./spinner-showcase"
+import { SpinnerPicker, SpinnerShowcase } from "./spinner-showcase"
 
 afterEach(() => cleanup())
 
@@ -83,6 +83,37 @@ describe("Spinner behavior", () => {
       { cols: 30, rows: 3 },
     )
     expect(screen.text()).toContain("ℹ")
+  })
+})
+
+describe("Spinner color prop", () => {
+  it("renders with custom color prop", () => {
+    const { screen } = renderTui(
+      <Spinner color="cyan" text="Compiling" />,
+      { cols: 30, rows: 3 },
+    )
+    const text = screen.text()
+    expect(text).toContain("⠋")
+    expect(text).toContain("Compiling")
+  })
+})
+
+describe("SpinnerPicker behavior", () => {
+  it("renders default variant name", () => {
+    const { screen } = renderTui(
+      <SpinnerPicker />,
+      { cols: 40, rows: 10 },
+    )
+    expect(screen.text()).toContain("dots")
+  })
+
+  it("renders status bar with keyboard hint", () => {
+    const { screen } = renderTui(
+      <SpinnerPicker />,
+      { cols: 40, rows: 10 },
+    )
+    expect(screen.text()).toContain("←→")
+    expect(screen.text()).toContain("change spinner type")
   })
 })
 
