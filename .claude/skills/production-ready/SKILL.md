@@ -22,6 +22,7 @@ Read all files for the target component:
 - `packages/docs/content/docs/components/<name>.mdx` — documentation
 - `packages/demo/demos/<name>.tsx` — demo (if exists)
 - `packages/docs/components/demos/<name>-demo.tsx` — docs demo wrapper (if exists)
+- `packages/ui/registry/ui/<name>.tsx` — registry copy (must stay in sync with component source)
 - `packages/ui/components/index.ts` — export barrel (grep for the component)
 
 ## Phase 2 — Architecture classification
@@ -56,6 +57,7 @@ Check the implementation against these criteria, ordered by severity:
 1. **API correctness for framework consumers**
    - Props interface has JSDoc on every prop
    - Exported types are useful (not leaking internals)
+   - Types that users need to work with the component API (data constraints, item shapes, column info) are exported from `index.ts` — check that every `interface` or `type` used in public props or utility function signatures is re-exported
    - `useKeyboard` JSDoc references `@gridland/utils` (not `@opentui/react` or internal paths)
    - Generic type parameters: if compared by `===` or `Set.has`, document the equality constraint (primitives recommended) or add a type bound
    - Controlled/uncontrolled: if both modes are supported, warn on mode switching (check for `useRef` guard)
@@ -66,31 +68,38 @@ Check the implementation against these criteria, ordered by severity:
    - All keyboard bindings documented in the Controls section of the docs
    - **Dead handlers**: Flag any `useKeyboard`, `useCallback`, or `useEffect` whose body is empty or contains only a guard clause (`if (disabled) return`) with no actual logic. These are no-ops that bloat the component and mislead readers
 
-3. **Theme compliance**
+3. **`// @ts-nocheck` on component files using intrinsics**
+   - If the component file uses OpenTUI intrinsic elements (`<box>`, `<text>`, `<span>`), it must have `// @ts-nocheck` at line 1
+   - Also check the registry copy at `packages/ui/registry/ui/<name>.tsx`
+
+4. **Theme compliance**
    - No hardcoded hex colors — all colors from `useTheme()` or props
    - Uses `textStyle()` for bold/dim/inverse (never raw style keys)
 
-4. **Export registration**
+5. **Export registration**
    - Both runtime and type exports in `packages/ui/components/index.ts`
    - Listed in `packages/ui/CLAUDE.md` component catalog
 
-5. **Unnecessary indirection**
+6. **Registry sync**
+   - `packages/ui/registry/ui/<name>.tsx` must match the component source — diff the two files and flag any drift
+
+7. **Unnecessary indirection**
    - Flag `useCallback` wrappers that just forward to a prop callback with no transformation (e.g., `useCallback((v) => { onChange?.(v) }, [onChange])`). Pass the prop directly instead
    - Flag intermediary state or refs that serve no purpose after a refactor (e.g., leftover `isControlled` guards after removing uncontrolled mode)
 
 ### P1 — Significant (should fix)
 
-6. **Performance**
+8. **Performance**
    - `useMemo` for expensive derived state (Set creation from arrays, flatMap operations)
    - `useMemo` dep arrays are correct (no missing deps, no over-deps)
    - No unnecessary allocations in the render path (e.g., `new Set()` on every render)
 
-7. **React key stability**
+9. **React key stability**
    - Keys in `.map()` calls are stable across re-renders
    - Scroll-windowed lists use absolute indices, not relative window indices
    - Group/separator keys won't collide
 
-8. **Edge cases**
+10. **Edge cases**
    - Empty items array handled gracefully
    - Single item works
    - Disabled state blocks all interaction
@@ -99,36 +108,47 @@ Check the implementation against these criteria, ordered by severity:
 
 ### P2 — Polish (nice to have)
 
-9. **Test coverage by code path**
+11. **Test coverage by code path**
     - For each conditional branch in the render function, verify a corresponding test exists. Enumerate branches explicitly: disabled rendering, focused vs unfocused, label present vs absent, error vs description vs neither, empty value vs filled, maxLength counter shown vs hidden
     - No duplicate tests (same setup + assertions)
     - Shared test helpers for repeated patterns (e.g., mock keyboard setup)
     - Test file has `// @ts-nocheck` if using OpenTUI intrinsics
     - Tests run with `--preload ../web/test/preload.ts`
 
-10. **Documentation — code examples are valid**
+12. **Documentation — code examples are valid**
     - Every fenced code block in the MDX must pass all required props and use correct prop names. Cross-reference the component's Props interface with each example. A user who copies any example should get zero TypeScript errors
     - If a prop was recently made required or removed, check every example — not just the main usage block
 
-11. **Documentation — prose matches implementation**
+13. **Documentation — prose matches implementation**
     - The page description, section headings, and explanatory copy must accurately reflect the current API. If the component was refactored (e.g., uncontrolled removed, prop renamed, mode dropped), the narrative must match
     - Check for stale references to removed concepts (e.g., "controlled/uncontrolled modes" after uncontrolled was removed)
 
-12. **Documentation — API table and controls**
+14. **Documentation — API table and controls**
     - API reference table matches current props (no missing, no stale, correct defaults)
     - Controls section lists all keyboard bindings
     - `errorMessage` or similar customization props are documented
 
-13. **Demo validity**
+15. **Documentation — example coverage**
+    - Every non-trivial prop (anything beyond `children` and standard layout props) should have a corresponding fenced code example in the MDX
+    - If a feature exists but has no example, users won't discover it — flag it
+
+16. **Demo validity and feature coverage**
     - The demo file and docs demo wrapper must pass all required props for every state/variant rendered. If a prop was made required, verify every demo usage — not just the main demo
     - Demo state arrays (pickers, variant lists) must provide required props or the parent must supply defaults
+    - The demo should showcase the component's **key features**, not just render a basic default instance. Check that distinctive props (alignment, color overrides, colSpan, compound sub-components like Footer/Caption) appear in at least one demo variant. A demo that only shows the default configuration is incomplete
 
-## Phase 4 — Cross-reference with sibling components
+## Phase 4 — Cross-reference with sibling components and shadcn
 
 Read the equivalent sibling component (e.g., if reviewing MultiSelect, read SelectInput) to verify:
 - Pattern consistency (same reducer style, same keyboard handling approach, same ref usage)
 - Consistent prop naming (e.g., both use `useKeyboard`, `onSubmit`, `disabled`)
 - No divergence that would confuse framework consumers
+
+If the component has a shadcn/ui equivalent (Table, Tabs, Select, Modal/Dialog, etc.), compare API expressiveness:
+- For each common use case of that component type, can users achieve it with the current props?
+- Examples: right-aligning a column, coloring a status cell, spanning columns, disabling a row
+- Flag major expressiveness gaps where shadcn users would expect functionality that Gridland doesn't offer
+- This is about API design quality, not HTML/CSS parity — adapt the comparison to what makes sense for TUI
 
 ## Phase 5 — Produce report and fix plan
 
