@@ -26,7 +26,14 @@ Read all files for the target component:
 
 ## Phase 2 — Architecture classification
 
-Classify the component before checking focus integration. This is critical — the rules differ:
+First, separate the **primary component** from **companion demo utilities**. Files that exist to showcase or preview variants (e.g., SpinnerPicker, SpinnerShowcase) are demo utilities — not shipped components. Only apply the full P0–P2 checklist to the primary component. Demo utilities only need basic correctness (`// @ts-nocheck` if needed, no crashes). Do not review their docs, add Controls tables, or treat them as consumer-facing API.
+
+Signs something is a demo utility:
+- Named `*Picker`, `*Showcase`, `*Demo`
+- Cycles through variants or displays all options side-by-side
+- Used by `packages/demo/` or docs wrappers, not by consumers directly
+
+Then classify the primary component. This is critical — the rules differ:
 
 **Container components** (e.g., SideNav, Modal, ChatPanel) manage their own focus scope. They MUST:
 - Call `useFocus` and attach `focusRef`
