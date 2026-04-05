@@ -106,5 +106,32 @@ describe("table utilities", () => {
       expect(result.length).toBe(6)
       expect(result.startsWith(" ")).toBe(true)
     })
+
+    it("right-aligns value", () => {
+      const result = padCell("hi", 10, 1, "right")
+      expect(result.length).toBe(10)
+      // value should be at the right with 1 char padding
+      expect(result).toBe("       hi ")
+    })
+
+    it("center-aligns value", () => {
+      const result = padCell("hi", 10, 1, "center")
+      expect(result.length).toBe(10)
+      // totalGap = 10-2 = 8, leftGap = 4, rightGap = 4
+      expect(result).toBe("    hi    ")
+    })
+
+    it("center-aligns with odd gap", () => {
+      const result = padCell("ab", 9, 1, "center")
+      expect(result.length).toBe(9)
+      // totalGap = 9-2 = 7, leftGap = 3, rightGap = 4
+      expect(result).toBe("   ab    ")
+    })
+
+    it("defaults to left alignment", () => {
+      const left = padCell("hi", 10, 1)
+      const explicit = padCell("hi", 10, 1, "left")
+      expect(left).toBe(explicit)
+    })
   })
 })

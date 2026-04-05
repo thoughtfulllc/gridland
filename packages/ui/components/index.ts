@@ -37,6 +37,8 @@ export {
   padCell,
 } from "./table/table"
 export type {
+  ScalarDict,
+  ColumnInfo,
   TableProps,
   TableRootProps,
   TableHeaderProps,

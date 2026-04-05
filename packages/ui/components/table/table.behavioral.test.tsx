@@ -115,6 +115,137 @@ describe("Table compound components", () => {
     expect(text).toContain("$10")
   })
 
+  it("extracts text from React element children in cells", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead>item</TableHead>
+            <TableHead>price</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell><text><span>Widget</span></text></TableCell>
+            <TableCell><text><span>$10</span></text></TableCell>
+          </TableRow>
+        </TableBody>
+      </TableRoot>,
+      { cols: 40, rows: 10 },
+    )
+    const text = screen.text()
+    expect(text).toContain("Widget")
+    expect(text).toContain("$10")
+  })
+
+  it("right-aligns cell text with align prop", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead>item</TableHead>
+            <TableHead align="right">price</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Widget</TableCell>
+            <TableCell align="right">$10</TableCell>
+          </TableRow>
+        </TableBody>
+      </TableRoot>,
+      { cols: 40, rows: 10 },
+    )
+    const text = screen.text()
+    expect(text).toContain("Widget")
+    expect(text).toContain("$10")
+    // Right-aligned: value should have padding on the right, extra space on left
+    const lines = text.split("\n")
+    const priceLine = lines.find((l: string) => l.includes("$10"))
+    expect(priceLine).toBeDefined()
+    // $10 should appear closer to the right edge of its column
+    const priceIdx = priceLine!.indexOf("$10")
+    const widgetLine = lines.find((l: string) => l.includes("Widget"))
+    const widgetIdx = widgetLine!.indexOf("Widget")
+    // Widget is left-aligned so starts early; $10 is right-aligned so starts later
+    expect(priceIdx).toBeGreaterThan(widgetIdx)
+  })
+
+  it("center-aligns cell text with align prop", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead align="center">status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell align="center">ok</TableCell>
+          </TableRow>
+        </TableBody>
+      </TableRoot>,
+      { cols: 30, rows: 8 },
+    )
+    const text = screen.text()
+    expect(text).toContain("status")
+    expect(text).toContain("ok")
+  })
+
+  it("renders cell with colSpan spanning multiple columns", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead>a</TableHead>
+            <TableHead>b</TableHead>
+            <TableHead>c</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>1</TableCell>
+            <TableCell>2</TableCell>
+            <TableCell>3</TableCell>
+          </TableRow>
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={2}>Total</TableCell>
+            <TableCell>6</TableCell>
+          </TableRow>
+        </TableFooter>
+      </TableRoot>,
+      { cols: 30, rows: 10 },
+    )
+    const text = screen.text()
+    expect(text).toContain("Total")
+    expect(text).toContain("6")
+  })
+
+  it("renders cell with custom color", () => {
+    const { screen } = renderTui(
+      <TableRoot>
+        <TableHeader>
+          <TableRow>
+            <TableHead>name</TableHead>
+            <TableHead>status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Alice</TableCell>
+            <TableCell color="green">Active</TableCell>
+          </TableRow>
+        </TableBody>
+      </TableRoot>,
+      { cols: 40, rows: 10 },
+    )
+    const text = screen.text()
+    expect(text).toContain("Alice")
+    expect(text).toContain("Active")
+  })
+
   it("handles empty body", () => {
     const { screen } = renderTui(
       <TableRoot>
