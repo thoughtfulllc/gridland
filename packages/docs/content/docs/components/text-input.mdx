@@ -7,7 +7,7 @@ import { RunDemo } from '@/components/ui/run-demo'
 import TextInputDemo, { TextInputPickerDemo } from '@/components/demos/text-input-demo'
 
 A single-line text input field with label, prompt prefix, placeholder, character
-count, validation states, and controlled/uncontrolled modes.
+count, and validation states.
 
 <div className="my-8">
   <TextInputPickerDemo />
@@ -28,8 +28,12 @@ import { TextInput } from "@/components/ui/text-input"
 ```
 
 ```tsx
+const [name, setName] = useState("")
+
 <TextInput
   label="Username"
+  value={name}
+  onChange={setName}
   placeholder="enter your name"
   prompt="> "
 />
@@ -45,17 +49,17 @@ Multiple inputs composed into a form with keyboard navigation.
   <TextInputDemo />
 </div>
 
-### Controlled
+### With onSubmit
 
-Use `value` and `onChange` to control the input externally.
+Use `onSubmit` to handle Enter key presses.
 
-```tsx title="Controlled"
-const [value, setValue] = useState("")
+```tsx title="With onSubmit"
+const [email, setEmail] = useState("")
 
 <TextInput
   label="Email"
-  value={value}
-  onChange={setValue}
+  value={email}
+  onChange={setEmail}
   onSubmit={(v) => console.log("Submitted:", v)}
   placeholder="user@example.com"
   prompt="> "
@@ -67,8 +71,12 @@ const [value, setValue] = useState("")
 Show a required indicator (`*`) next to the label.
 
 ```tsx title="Required"
+const [name, setName] = useState("")
+
 <TextInput
   label="Name"
+  value={name}
+  onChange={setName}
   placeholder="enter your name"
   prompt="> "
   required
@@ -80,8 +88,12 @@ Show a required indicator (`*`) next to the label.
 Display helper text inline next to the label.
 
 ```tsx title="With description"
+const [email, setEmail] = useState("")
+
 <TextInput
   label="Email"
+  value={email}
+  onChange={setEmail}
   placeholder="user@example.com"
   prompt="> "
   description="We'll never share your email"
@@ -93,8 +105,12 @@ Display helper text inline next to the label.
 Pass an `error` string to show a validation message. It replaces the description.
 
 ```tsx title="With error"
+const [email, setEmail] = useState("")
+
 <TextInput
   label="Email"
+  value={email}
+  onChange={setEmail}
   placeholder="user@example.com"
   prompt="> "
   error="This field is required"
@@ -106,8 +122,12 @@ Pass an `error` string to show a validation message. It replaces the description
 Limit input length and show a character counter when the user starts typing.
 
 ```tsx title="Max length"
+const [bio, setBio] = useState("")
+
 <TextInput
   label="Bio"
+  value={bio}
+  onChange={setBio}
   placeholder="tell us about yourself"
   prompt="> "
   maxLength={100}
@@ -121,10 +141,46 @@ A disabled input ignores focus and keystrokes.
 ```tsx title="Disabled"
 <TextInput
   label="API Key"
+  value="sk-1234...abcd"
   placeholder="sk-..."
   prompt="> "
   disabled
 />
+```
+
+### Form with keyboard navigation
+
+TextInput is a controlled primitive — it takes a `focus` prop rather than managing focus internally. Compose multiple inputs into a form by tracking the active field index and wiring arrow keys.
+
+```tsx title="Form"
+import { useKeyboard } from "@gridland/utils"
+
+const FIELDS = ["Username", "Email", "Password"]
+
+function MyForm() {
+  const [active, setActive] = useState(0)
+  const [values, setValues] = useState(FIELDS.map(() => ""))
+
+  useKeyboard((event) => {
+    if (event.name === "up") setActive((i) => Math.max(0, i - 1))
+    if (event.name === "down") setActive((i) => Math.min(FIELDS.length - 1, i + 1))
+  })
+
+  return (
+    <>
+      {FIELDS.map((label, i) => (
+        <TextInput
+          key={label}
+          label={label}
+          value={values[i]}
+          onChange={(v) => setValues((prev) => prev.map((old, j) => j === i ? v : old))}
+          focus={i === active}
+          prompt="> "
+        />
+      ))}
+    </>
+  )
+}
 ```
 
 ## Controls
@@ -143,10 +199,10 @@ A disabled input ignores focus and keystrokes.
 | `error` | `string` | - | Error message — overrides description when set |
 | `required` | `boolean` | `false` | Show required indicator (`*`) on the label |
 | `disabled` | `boolean` | `false` | Disable the input |
-| `value` | `string` | - | Controlled value |
+| `value` | `string` | *required* | Current value of the input |
 | `onChange` | `(value: string) => void` | - | Called on every keystroke |
 | `onSubmit` | `(value: string) => void` | - | Called when Enter is pressed |
 | `placeholder` | `string` | - | Hint text shown when the input is empty |
 | `prompt` | `string` | - | Prompt string before the input (e.g. `"> "`) |
-| `focus` | `boolean` | `true` | Whether the input is focused and accepting keystrokes |
+| `focus` | `boolean` | `false` | Whether the input is focused and accepting keystrokes |
 | `maxLength` | `number` | - | Maximum characters allowed (shows counter when typing) |

@@ -21,6 +21,7 @@ Read all files for the target component:
 - `packages/ui/components/<name>/*.test.tsx` — all test files
 - `packages/docs/content/docs/components/<name>.mdx` — documentation
 - `packages/demo/demos/<name>.tsx` — demo (if exists)
+- `packages/docs/components/demos/<name>-demo.tsx` — docs demo wrapper (if exists)
 - `packages/ui/components/index.ts` — export barrel (grep for the component)
 
 ## Phase 2 — Architecture classification
@@ -56,6 +57,7 @@ Check the implementation against these criteria, ordered by severity:
    - Values read inside `useKeyboard` handler that change between renders should use refs (cursor position, selected state, submitted flag)
    - Verify the handler reads from refs for rapidly-changing state and closure-captures for stable props (consistent with SelectInput/PromptInput pattern)
    - All keyboard bindings documented in the Controls section of the docs
+   - **Dead handlers**: Flag any `useKeyboard`, `useCallback`, or `useEffect` whose body is empty or contains only a guard clause (`if (disabled) return`) with no actual logic. These are no-ops that bloat the component and mislead readers
 
 3. **Theme compliance**
    - No hardcoded hex colors — all colors from `useTheme()` or props
@@ -65,19 +67,23 @@ Check the implementation against these criteria, ordered by severity:
    - Both runtime and type exports in `packages/ui/components/index.ts`
    - Listed in `packages/ui/CLAUDE.md` component catalog
 
+5. **Unnecessary indirection**
+   - Flag `useCallback` wrappers that just forward to a prop callback with no transformation (e.g., `useCallback((v) => { onChange?.(v) }, [onChange])`). Pass the prop directly instead
+   - Flag intermediary state or refs that serve no purpose after a refactor (e.g., leftover `isControlled` guards after removing uncontrolled mode)
+
 ### P1 — Significant (should fix)
 
-5. **Performance**
+6. **Performance**
    - `useMemo` for expensive derived state (Set creation from arrays, flatMap operations)
    - `useMemo` dep arrays are correct (no missing deps, no over-deps)
    - No unnecessary allocations in the render path (e.g., `new Set()` on every render)
 
-6. **React key stability**
+7. **React key stability**
    - Keys in `.map()` calls are stable across re-renders
    - Scroll-windowed lists use absolute indices, not relative window indices
    - Group/separator keys won't collide
 
-7. **Edge cases**
+8. **Edge cases**
    - Empty items array handled gracefully
    - Single item works
    - Disabled state blocks all interaction
@@ -86,18 +92,29 @@ Check the implementation against these criteria, ordered by severity:
 
 ### P2 — Polish (nice to have)
 
-8. **Test quality**
-   - Coverage: static rendering, keyboard interactions, controlled/uncontrolled, edge cases, disabled state
-   - No duplicate tests (same setup + assertions)
-   - Shared test helpers for repeated patterns (e.g., mock keyboard setup)
-   - Test file has `// @ts-nocheck` if using OpenTUI intrinsics
-   - Tests run with `--preload ../web/test/preload.ts`
+9. **Test coverage by code path**
+    - For each conditional branch in the render function, verify a corresponding test exists. Enumerate branches explicitly: disabled rendering, focused vs unfocused, label present vs absent, error vs description vs neither, empty value vs filled, maxLength counter shown vs hidden
+    - No duplicate tests (same setup + assertions)
+    - Shared test helpers for repeated patterns (e.g., mock keyboard setup)
+    - Test file has `// @ts-nocheck` if using OpenTUI intrinsics
+    - Tests run with `--preload ../web/test/preload.ts`
 
-9. **Documentation completeness**
-   - MDX page exists with: usage example, all prop variants demoed, API reference table
-   - API reference table matches current props (no missing, no stale)
-   - Controls section lists all keyboard bindings
-   - `errorMessage` or similar customization props are documented
+10. **Documentation — code examples are valid**
+    - Every fenced code block in the MDX must pass all required props and use correct prop names. Cross-reference the component's Props interface with each example. A user who copies any example should get zero TypeScript errors
+    - If a prop was recently made required or removed, check every example — not just the main usage block
+
+11. **Documentation — prose matches implementation**
+    - The page description, section headings, and explanatory copy must accurately reflect the current API. If the component was refactored (e.g., uncontrolled removed, prop renamed, mode dropped), the narrative must match
+    - Check for stale references to removed concepts (e.g., "controlled/uncontrolled modes" after uncontrolled was removed)
+
+12. **Documentation — API table and controls**
+    - API reference table matches current props (no missing, no stale, correct defaults)
+    - Controls section lists all keyboard bindings
+    - `errorMessage` or similar customization props are documented
+
+13. **Demo validity**
+    - The demo file and docs demo wrapper must pass all required props for every state/variant rendered. If a prop was made required, verify every demo usage — not just the main demo
+    - Demo state arrays (pickers, variant lists) must provide required props or the parent must supply defaults
 
 ## Phase 4 — Cross-reference with sibling components
 

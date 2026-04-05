@@ -8,7 +8,7 @@ afterEach(() => cleanup())
 describe("TextInput snapshots", () => {
   it("renders with placeholder", () => {
     const { screen } = renderTui(
-      <TextInput placeholder="Type something..." />,
+      <TextInput value="" placeholder="Type something..." />,
       { cols: 80, rows: 4 },
     )
     expect(screen.text()).toMatchSnapshot()
@@ -16,7 +16,7 @@ describe("TextInput snapshots", () => {
 
   it("renders with custom prompt", () => {
     const { screen } = renderTui(
-      <TextInput placeholder="Enter name" prompt="> " />,
+      <TextInput value="" placeholder="Enter name" prompt="> " />,
       { cols: 80, rows: 4 },
     )
     expect(screen.text()).toMatchSnapshot()
