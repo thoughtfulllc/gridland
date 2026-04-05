@@ -222,9 +222,14 @@ export function MultiSelect<V>({
     const total = selItems.length + (hasSubmit ? 1 : 0)
 
     const move = (direction: 1 | -1) => {
-      let next = cursorRef.current + direction
-      if (next < 0) next = total - 1
-      if (next >= total) next = 0
+      let next = cursorRef.current
+      for (let i = 0; i < total; i++) {
+        next += direction
+        if (next < 0) next = total - 1
+        if (next >= total) next = 0
+        // Submit row (last position) is always enabled
+        if (next >= selItems.length || !selItems[next]?.item.disabled) break
+      }
       cursorRef.current = next
       dispatch({ type: "SET_CURSOR", cursor: next })
     }
