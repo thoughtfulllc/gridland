@@ -106,31 +106,6 @@ Override the default role-based background with `backgroundColor`.
 </Message>
 ```
 
-### With ChainOfThought
-
-Compose `ChainOfThought` as a **sibling** of `Message`, not inside it.
-ChainOfThought is a separate component — it renders above or alongside
-the message bubble.
-
-```tsx title="With ChainOfThought"
-import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep } from "@gridland/ui"
-
-<box flexDirection="column">
-  <ChainOfThought defaultOpen={false}>
-    <ChainOfThoughtHeader duration="1.2s" />
-    <ChainOfThoughtContent>
-      <ChainOfThoughtStep label="Analyzing question" status="done" />
-      <ChainOfThoughtStep label="Looking up docs" status="done" isLast />
-    </ChainOfThoughtContent>
-  </ChainOfThought>
-  <Message role="assistant">
-    <MessageContent>
-      <MessageText>Here is the answer.</MessageText>
-    </MessageContent>
-  </Message>
-</box>
-```
-
 ### Mapping Vercel AI SDK Parts
 
 Map `message.parts` from `useChat` to sub-components. The consumer owns the
@@ -224,7 +199,7 @@ The following compound sub-components were removed in this version:
 |---------|-------------|
 | `Message.Content` | `MessageContent` (named export) |
 | `Message.Text` | `MessageText` (named export) |
-| `Message.Reasoning` | Compose `ChainOfThought` as a sibling — see example above |
+| `Message.Reasoning` | Use `ChainOfThought` component as a sibling |
 | `Message.ToolCall` | Build your own with `useMessage()` for context |
 | `Message.Source` | Build your own with `useMessage()` for context |
 | `Message.Footer` | Build your own with `useMessage()` for context |
