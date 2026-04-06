@@ -26,11 +26,10 @@ export function renderContentParts(parts: UIMessagePart[], isStreaming: boolean)
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i]
-    const isLast = i === parts.length - 1
 
     if (part.type === "text") {
       elements.push(
-        <MessageText key={`p-${i}`} isLast={isLast && isStreaming}>
+        <MessageText key={`p-${i}`}>
           {part.text}
         </MessageText>
       )
@@ -55,12 +54,11 @@ export function renderPartsWithReasoning(
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i]
-    const isLast = i === parts.length - 1
 
     switch (part.type) {
       case "text":
         content.push(
-          <MessageText key={`p-${i}`} isLast={isLast && isStreaming}>
+          <MessageText key={`p-${i}`}>
             {part.text}
           </MessageText>
         )

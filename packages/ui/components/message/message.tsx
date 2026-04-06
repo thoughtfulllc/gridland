@@ -13,7 +13,6 @@ export type MessageRole = "user" | "assistant" | "system"
 export interface MessageContextValue {
   role: MessageRole
   isStreaming: boolean
-  streamingCursor: string
   backgroundColor: string
   textColor: string
 }
@@ -54,20 +53,15 @@ export const MessageContent = memo(function MessageContent({ children }: Message
 export interface MessageTextProps {
   /** Text content to display. */
   children: string
-  /** When true and the parent Message is streaming, shows the streaming cursor after this text. */
-  isLast?: boolean
 }
 
-/** Renders text with word wrap. Pass `isLast` to show the streaming cursor. */
-export const MessageText = memo(function MessageText({ children, isLast = false }: MessageTextProps) {
-  const { isStreaming, streamingCursor, backgroundColor, textColor } = useMessage()
+/** Renders text with word wrap. */
+export const MessageText = memo(function MessageText({ children }: MessageTextProps) {
+  const { backgroundColor, textColor } = useMessage()
 
   return (
     <text wrapMode="word">
       <span style={textStyle({ fg: textColor, bg: backgroundColor })}>{children}</span>
-      {isLast && isStreaming && (
-        <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{streamingCursor}</span>
-      )}
     </text>
   )
 })
@@ -75,22 +69,15 @@ export const MessageText = memo(function MessageText({ children, isLast = false 
 export interface MessageMarkdownProps {
   /** Markdown string to render. */
   children: string
-  /** When true and the parent Message is streaming, shows the streaming cursor after this content. */
-  isLast?: boolean
 }
 
 /** Renders markdown content via the OpenTUI markdown intrinsic. */
-export const MessageMarkdown = memo(function MessageMarkdown({ children, isLast = false }: MessageMarkdownProps) {
-  const { isStreaming, streamingCursor, backgroundColor, textColor } = useMessage()
+export const MessageMarkdown = memo(function MessageMarkdown({ children }: MessageMarkdownProps) {
+  const { backgroundColor } = useMessage()
 
   return (
     <box flexDirection="column">
       <markdown content={children} bg={backgroundColor} />
-      {isLast && isStreaming && (
-        <text>
-          <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{streamingCursor}</span>
-        </text>
-      )}
     </box>
   )
 })
@@ -102,8 +89,6 @@ export interface MessageProps {
   role: MessageRole
   /** Whether this message is currently streaming. */
   isStreaming?: boolean
-  /** Cursor character shown while streaming. */
-  streamingCursor?: string
   /** Override the default background color. */
   backgroundColor?: string
   /** Compose sub-components: MessageContent, MessageText, etc. */
@@ -114,7 +99,6 @@ export interface MessageProps {
 export function Message({
   role,
   isStreaming = false,
-  streamingCursor = "\u258E",
   backgroundColor,
   children,
 }: MessageProps) {
@@ -122,8 +106,8 @@ export function Message({
   const isUser = role === "user"
   const bg = backgroundColor ?? (isUser ? theme.messageUser : theme.messageAssistant)
   const contextValue = useMemo<MessageContextValue>(
-    () => ({ role, isStreaming, streamingCursor, backgroundColor: bg, textColor: theme.foreground }),
-    [role, isStreaming, streamingCursor, bg, theme.foreground],
+    () => ({ role, isStreaming, backgroundColor: bg, textColor: theme.foreground }),
+    [role, isStreaming, bg, theme.foreground],
   )
 
   return (

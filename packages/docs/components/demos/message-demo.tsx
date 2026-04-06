@@ -50,7 +50,7 @@ function MessageWithInputApp() {
                 {msg.parts?.length
                   ? renderContentParts(msg.parts, msgStreaming)
                   : typeof msg.content === "string"
-                    ? <MessageText isLast={msgStreaming}>{msg.content}</MessageText>
+                    ? <MessageText>{msg.content}</MessageText>
                     : null
                 }
               </MessageContent>

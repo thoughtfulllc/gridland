@@ -66,7 +66,7 @@ export function MessageApp() {
           <Message role="assistant" isStreaming={isStreaming}>
             <MessageContent>
               {showText && (
-                <MessageMarkdown isLast>{isDone ? RESPONSE : streamedText}</MessageMarkdown>
+                <MessageMarkdown>{isDone ? RESPONSE : streamedText}</MessageMarkdown>
               )}
             </MessageContent>
           </Message>

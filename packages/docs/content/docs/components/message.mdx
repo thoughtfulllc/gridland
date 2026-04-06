@@ -6,7 +6,7 @@ description: An SDK-agnostic chat message with role-based styling and streaming 
 import { RunDemo } from '@/components/ui/run-demo'
 import MessageDemo, { MessageWithInputDemo } from '@/components/demos/message-demo'
 
-A chat message component with role-based styling and streaming cursor. Message
+A chat message component with role-based styling and streaming support. Message
 is a thin layout shell — it provides alignment, background color, and context.
 Content goes inside `MessageContent`, text inside `MessageText`. Other concerns
 (tool calls, sources, reasoning, footer) are separate components composed
@@ -56,25 +56,12 @@ Combine `Message` with `PromptInput` for a complete conversation view.
 
 ### Streaming
 
-Pass `isStreaming` to the message and `isLast` to the final text part to show a
-streaming cursor.
+Pass `isStreaming` to indicate the message is still being generated.
 
 ```tsx title="Streaming message"
 <Message role="assistant" isStreaming>
   <MessageContent>
-    <MessageText isLast>{partialText}</MessageText>
-  </MessageContent>
-</Message>
-```
-
-### Custom Streaming Cursor
-
-Override the default cursor character with `streamingCursor`.
-
-```tsx title="Custom streaming cursor"
-<Message role="assistant" isStreaming streamingCursor="_">
-  <MessageContent>
-    <MessageText isLast>{partialText}</MessageText>
+    <MessageText>{partialText}</MessageText>
   </MessageContent>
 </Message>
 ```
@@ -124,8 +111,8 @@ const { messages, status } = useChat({ api: "/api/chat" })
   return (
     <Message key={msg.id} role={msg.role} isStreaming={msgStreaming}>
       <MessageContent>
-        {msg.parts?.filter(p => p.type === "text").map((part, j, arr) => (
-          <MessageText key={j} isLast={j === arr.length - 1 && msgStreaming}>
+        {msg.parts?.filter(p => p.type === "text").map((part, j) => (
+          <MessageText key={j}>
             {part.text}
           </MessageText>
         ))}
@@ -143,7 +130,7 @@ All sub-components read shared state (role, streaming, background color) from
 | Component | Description |
 |-----------|-------------|
 | `MessageContent` | Bubble wrapper with role-based background color |
-| `MessageText` | Text with word wrap and optional streaming cursor |
+| `MessageText` | Text with word wrap |
 | `MessageMarkdown` | Markdown content via OpenTUI intrinsic |
 
 ### useMessage
@@ -166,8 +153,7 @@ function MyCustomStatus() {
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `role` | `"user" \| "assistant" \| "system"` | - | Message role — determines alignment and background |
-| `isStreaming` | `boolean` | `false` | Show streaming cursor on the last text part |
-| `streamingCursor` | `string` | `"▎"` | Cursor character shown while streaming |
+| `isStreaming` | `boolean` | `false` | Whether the message is currently streaming |
 | `backgroundColor` | `string` | - | Override the default role-based background color |
 | `children` | `ReactNode` | - | Sub-components |
 
@@ -182,14 +168,12 @@ function MyCustomStatus() {
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `children` | `string` | - | Text content |
-| `isLast` | `boolean` | `false` | Show the streaming cursor after this part |
 
 ### MessageMarkdown
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `children` | `string` | - | Markdown string to render |
-| `isLast` | `boolean` | `false` | Show the streaming cursor after this content |
 
 ### Migrating from v0
 
@@ -210,7 +194,6 @@ The following compound sub-components were removed in this version:
 interface MessageContextValue {
   role: MessageRole
   isStreaming: boolean
-  streamingCursor: string
   backgroundColor: string
   textColor: string
 }

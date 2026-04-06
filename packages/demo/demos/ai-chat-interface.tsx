@@ -260,7 +260,7 @@ function MessageArea({ messages, isStreaming, disabled = false }: {
           >
             <MessageContent>
               {typeof msg.content === "string" && (
-                <MessageText isLast={msgStreaming}>{msg.content}</MessageText>
+                <MessageText>{msg.content}</MessageText>
               )}
             </MessageContent>
           </Message>

@@ -123,7 +123,7 @@ function ChatPanel({ conversationId, selectedModelId, isInteracting }) {
                   {msg.parts?.map((part, j) => {
                     switch (part.type) {
                       case "text":
-                        return <MessageText key={j} isLast={j === msg.parts.length - 1 && msgStreaming}>{part.text}</MessageText>
+                        return <MessageText key={j}>{part.text}</MessageText>
                       default:
                         return null
                     }

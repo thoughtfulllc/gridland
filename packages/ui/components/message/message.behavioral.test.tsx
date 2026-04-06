@@ -73,56 +73,6 @@ describe("Message", () => {
     expect(text).toContain("Second paragraph")
   })
 
-  // ── Streaming ──────────────────────────────────────────────────────
-
-  it("shows streaming cursor when isLast and isStreaming", () => {
-    const { screen } = renderTui(
-      <Message role="assistant" isStreaming>
-        <MessageContent>
-          <MessageText isLast>Partial</MessageText>
-        </MessageContent>
-      </Message>,
-      { cols: 50, rows: 6 },
-    )
-    expect(screen.text()).toContain("\u258E")
-  })
-
-  it("does not show streaming cursor when not streaming", () => {
-    const { screen } = renderTui(
-      <Message role="assistant">
-        <MessageContent>
-          <MessageText isLast>Complete</MessageText>
-        </MessageContent>
-      </Message>,
-      { cols: 50, rows: 6 },
-    )
-    expect(screen.text()).not.toContain("\u258E")
-  })
-
-  it("does not show streaming cursor when isLast is false", () => {
-    const { screen } = renderTui(
-      <Message role="assistant" isStreaming>
-        <MessageContent>
-          <MessageText>Not last</MessageText>
-        </MessageContent>
-      </Message>,
-      { cols: 50, rows: 6 },
-    )
-    expect(screen.text()).not.toContain("\u258E")
-  })
-
-  it("renders custom streaming cursor", () => {
-    const { screen } = renderTui(
-      <Message role="assistant" isStreaming streamingCursor="_">
-        <MessageContent>
-          <MessageText isLast>Partial</MessageText>
-        </MessageContent>
-      </Message>,
-      { cols: 50, rows: 6 },
-    )
-    expect(screen.text()).toContain("_")
-  })
-
   // ── backgroundColor override ──────────────────────────────────────
 
   it("renders with custom backgroundColor", () => {
@@ -216,15 +166,4 @@ describe("Message", () => {
     }).not.toThrow()
   })
 
-  it("shows streaming cursor on markdown when isLast and isStreaming", () => {
-    const { screen } = renderTui(
-      <Message role="assistant" isStreaming>
-        <MessageContent>
-          <MessageMarkdown isLast>{"Partial content"}</MessageMarkdown>
-        </MessageContent>
-      </Message>,
-      { cols: 50, rows: 8 },
-    )
-    expect(screen.text()).toContain("\u258E")
-  })
 })
