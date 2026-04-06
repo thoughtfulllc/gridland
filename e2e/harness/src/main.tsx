@@ -13,6 +13,26 @@ import { TabBarFixture } from "./fixtures/tab-bar"
 import { StatusBarFixture } from "./fixtures/status-bar"
 import { ModalFixture } from "./fixtures/modal"
 import { ChatFixture } from "./fixtures/chat"
+import { SideNavFixture } from "./fixtures/side-nav"
+import { SideNavInteractiveFixture } from "./fixtures/side-nav-interactive"
+import { PromptInputFixture } from "./fixtures/prompt-input"
+import { PromptInputInteractiveFixture } from "./fixtures/prompt-input-interactive"
+import { MultiSelectFixture } from "./fixtures/multi-select"
+import { MultiSelectInteractiveFixture } from "./fixtures/multi-select-interactive"
+import { MessageFixture } from "./fixtures/message"
+import { ChainOfThoughtFixture } from "./fixtures/chain-of-thought"
+import { SpinnerFixture } from "./fixtures/spinner"
+import { AsciiFixture } from "./fixtures/ascii"
+import { GradientFixture } from "./fixtures/gradient"
+import { FocusLinearFixture } from "./fixtures/focus-linear"
+import { FocusSpatialFixture } from "./fixtures/focus-spatial"
+import { FocusScopeFixture } from "./fixtures/focus-scope"
+import { FocusDisabledFixture } from "./fixtures/focus-disabled"
+import { ModalInteractiveFixture } from "./fixtures/modal-interactive"
+import { OverflowFixture } from "./fixtures/overflow"
+import { EdgeCasesFixture } from "./fixtures/edge-cases"
+import { ThemeSwitchFixture } from "./fixtures/theme-switch"
+import { CompositionFixture } from "./fixtures/composition"
 
 const routes: Record<string, () => JSX.Element> = {
   "/table": TableFixture,
@@ -27,6 +47,26 @@ const routes: Record<string, () => JSX.Element> = {
   "/status-bar": StatusBarFixture,
   "/modal": ModalFixture,
   "/chat": ChatFixture,
+  "/side-nav": SideNavFixture,
+  "/side-nav-interactive": SideNavInteractiveFixture,
+  "/prompt-input": PromptInputFixture,
+  "/prompt-input-interactive": PromptInputInteractiveFixture,
+  "/multi-select": MultiSelectFixture,
+  "/multi-select-interactive": MultiSelectInteractiveFixture,
+  "/message": MessageFixture,
+  "/chain-of-thought": ChainOfThoughtFixture,
+  "/spinner": SpinnerFixture,
+  "/ascii": AsciiFixture,
+  "/gradient": GradientFixture,
+  "/focus-linear": FocusLinearFixture,
+  "/focus-spatial": FocusSpatialFixture,
+  "/focus-scope": FocusScopeFixture,
+  "/focus-disabled": FocusDisabledFixture,
+  "/modal-interactive": ModalInteractiveFixture,
+  "/overflow": OverflowFixture,
+  "/edge-cases": EdgeCasesFixture,
+  "/theme-switch": ThemeSwitchFixture,
+  "/composition": CompositionFixture,
 }
 
 function App() {

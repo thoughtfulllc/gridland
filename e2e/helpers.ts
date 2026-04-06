@@ -2,12 +2,52 @@ import { type Page, expect } from "@playwright/test"
 
 /**
  * Waits for the Gridland canvas to be fully initialized.
- * Polls for the data-gridland-ready attribute on the body element.
+ * Polls for the data-gridland-ready attribute on the body element,
+ * then waits for the renderer to complete a paint cycle.
  */
 export async function waitForReady(page: Page, timeout = 15000): Promise<void> {
   await page.waitForSelector("body[data-gridland-ready='true']", { timeout })
-  // Give the renderer one extra frame to paint
-  await page.waitForTimeout(200)
+  await waitForPaint(page)
+}
+
+/**
+ * Waits for the renderer to complete a paint cycle (two RAF ticks).
+ * Replaces arbitrary waitForTimeout calls after interactions.
+ */
+export async function waitForPaint(page: Page): Promise<void> {
+  await page.evaluate(() => window.__gridland__.waitForNextPaint())
+}
+
+/**
+ * Polls getBufferText() until the predicate returns true.
+ * Use after interactions to wait for specific content instead of arbitrary timeouts.
+ */
+export async function waitForBufferText(
+  page: Page,
+  predicate: (text: string) => boolean,
+  timeout = 5000,
+): Promise<string> {
+  const start = Date.now()
+  while (Date.now() - start < timeout) {
+    const text = await getBufferText(page)
+    if (predicate(text)) return text
+    await waitForPaint(page)
+  }
+  // Final attempt — let it fail with a useful message
+  const text = await getBufferText(page)
+  expect(predicate(text), `waitForBufferText timed out. Buffer:\n${text}`).toBe(true)
+  return text
+}
+
+/**
+ * Convenience: waits until buffer text contains the given substring.
+ */
+export async function waitForBufferContaining(
+  page: Page,
+  substring: string,
+  timeout = 5000,
+): Promise<string> {
+  return waitForBufferText(page, (text) => text.includes(substring), timeout)
 }
 
 /**

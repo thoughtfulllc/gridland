@@ -2,9 +2,6 @@ import { defineConfig, devices } from "@playwright/test"
 
 export default defineConfig({
   testDir: "./e2e",
-  // Visual/screenshot tests are skipped in CI because canvas rendering differs
-  // between macOS and Linux (font rendering, anti-aliasing), causing false failures.
-  testIgnore: process.env.CI ? ["**/visual/**", "**/table-borders*"] : [],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -16,7 +13,8 @@ export default defineConfig({
     screenshot: "only-on-failure",
     deviceScaleFactor: 1,
   },
-  snapshotPathTemplate: "{testDir}/screenshots/{testFilePath}/{arg}{ext}",
+  // Use linux suffix so baselines are generated in a Linux container and match CI
+  snapshotPathTemplate: "{testDir}/screenshots/{testFilePath}/{arg}-linux{ext}",
   expect: {
     toHaveScreenshot: {
       maxDiffPixelRatio: 0.01,

@@ -35,16 +35,16 @@ test.describe("Smoke Tests", () => {
   })
 
   test("all fixture routes load without errors", async ({ page }) => {
-    const routes = [
-      "/table",
-      "/select-input",
-      "/select-input-interactive",
-      "/text-input",
-      "/text-input-interactive",
-      "/link",
-      "/borders",
-      "/all-components",
-    ]
+    // Dynamically discover routes from the harness index page
+    await page.goto("/")
+    const links = await page.locator("a[href^='/']").all()
+    const routes: string[] = []
+    for (const link of links) {
+      const href = await link.getAttribute("href")
+      if (href) routes.push(href)
+    }
+
+    expect(routes.length).toBeGreaterThan(0)
 
     for (const route of routes) {
       const errors: string[] = []

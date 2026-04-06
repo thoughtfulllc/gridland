@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test"
-import { waitForReady, getBufferText, focusCanvas } from "../helpers"
+import { waitForReady, focusCanvas, waitForBufferContaining } from "../helpers"
 
 test.describe("Keyboard Event Handling", () => {
   test("canvas receives keyboard focus", async ({ page }) => {
@@ -19,11 +19,9 @@ test.describe("Keyboard Event Handling", () => {
     await waitForReady(page)
     await focusCanvas(page)
 
-    // Type with delay so each key is processed
     await page.keyboard.type("test123", { delay: 50 })
-    await page.waitForTimeout(300)
 
-    const text = await getBufferText(page)
+    const text = await waitForBufferContaining(page, "test123")
     expect(text).toContain("test123")
   })
 
@@ -32,15 +30,13 @@ test.describe("Keyboard Event Handling", () => {
     await waitForReady(page)
     await focusCanvas(page)
 
-    // The heading should be visible regardless
-    const text = await getBufferText(page)
+    const text = await waitForBufferContaining(page, "Choose a language:")
     expect(text).toContain("Choose a language:")
 
     // Press Enter to select, should show "Selected:" feedback
     await page.keyboard.press("Enter")
-    await page.waitForTimeout(200)
 
-    const afterEnter = await getBufferText(page)
+    const afterEnter = await waitForBufferContaining(page, "Selected:")
     expect(afterEnter).toContain("Selected:")
   })
 })

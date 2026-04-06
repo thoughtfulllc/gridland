@@ -14,6 +14,7 @@ declare global {
         bg: { r: number; g: number; b: number; a: number }
         attributes: number
       }
+      waitForNextPaint: () => Promise<void>
     }
   }
 }
@@ -31,6 +32,14 @@ export function FixtureWrapper({ cols, rows, children, fontSize = 14 }: FixtureW
 
     window.__gridland__ = {
       renderer,
+      waitForNextPaint() {
+        return new Promise<void>((resolve) => {
+          // Wait for the renderer's next RAF loop to complete a paint cycle
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => resolve())
+          })
+        })
+      },
       getBufferText() {
         const lines: string[] = []
         for (let row = 0; row < buffer.height; row++) {

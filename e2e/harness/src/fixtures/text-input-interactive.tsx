@@ -14,6 +14,7 @@ export function TextInputInteractiveFixture() {
           prompt="> "
           value={value}
           onChange={setValue}
+          focus
         />
         {value.length > 0 && <text fg="#a3be8c">You typed: {value}</text>}
       </box>
