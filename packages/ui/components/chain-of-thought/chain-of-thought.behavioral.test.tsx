@@ -201,4 +201,66 @@ describe("ChainOfThought behavior", () => {
     )
     expect(screen.text()).toContain("found 3 results")
   })
+
+  it("renders error step with filled dot", () => {
+    const { screen } = renderTui(
+      <ChainOfThought open={true}>
+        <ChainOfThoughtHeader />
+        <ChainOfThoughtContent>
+          <ChainOfThoughtStep label="Failed step" status="error" isLast />
+        </ChainOfThoughtContent>
+      </ChainOfThought>,
+      { cols: 50, rows: 8 },
+    )
+    expect(screen.text()).toContain("●")
+    expect(screen.text()).toContain("Failed step")
+  })
+
+  it("renders custom icon when provided", () => {
+    const { screen } = renderTui(
+      <ChainOfThought open={true}>
+        <ChainOfThoughtHeader />
+        <ChainOfThoughtContent>
+          <ChainOfThoughtStep label="Custom" icon="★" status="done" isLast />
+        </ChainOfThoughtContent>
+      </ChainOfThought>,
+      { cols: 50, rows: 8 },
+    )
+    expect(screen.text()).toContain("★")
+  })
+
+  // ── Controlled / uncontrolled ──────────────────────────────────────
+
+  it("fires onOpenChange in uncontrolled mode", () => {
+    const handler = { called: false, value: false }
+    const { screen } = renderTui(
+      <ChainOfThought defaultOpen={false} onOpenChange={(v) => { handler.called = true; handler.value = v }}>
+        <ChainOfThoughtHeader />
+        <ChainOfThoughtContent>
+          <text>content</text>
+        </ChainOfThoughtContent>
+      </ChainOfThought>,
+      { cols: 50, rows: 5 },
+    )
+    // Content should be hidden initially
+    expect(screen.text()).not.toContain("content")
+  })
+
+  it("hides pipe connector when isLast is true", () => {
+    const { screen } = renderTui(
+      <ChainOfThought open={true}>
+        <ChainOfThoughtHeader />
+        <ChainOfThoughtContent>
+          <ChainOfThoughtStep label="Only step" status="done" isLast />
+        </ChainOfThoughtContent>
+      </ChainOfThought>,
+      { cols: 50, rows: 8 },
+    )
+    const text = screen.text()
+    const lines = text.split("\n")
+    const stepLineIndex = lines.findIndex(l => l.includes("Only step"))
+    const linesAfterStep = lines.slice(stepLineIndex + 1)
+    const hasPipeAfter = linesAfterStep.some(l => l.trim() === "│")
+    expect(hasPipeAfter).toBe(false)
+  })
 })

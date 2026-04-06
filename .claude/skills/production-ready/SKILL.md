@@ -58,9 +58,11 @@ Check the implementation against these criteria, ordered by severity:
    - Props interface has JSDoc on every prop
    - Exported types are useful (not leaking internals)
    - Types that users need to work with the component API (data constraints, item shapes, column info) are exported from `index.ts` — check that every `interface` or `type` used in public props or utility function signatures is re-exported
+   - **Dead fields in exported types**: For each exported `interface`/`type`, verify every field is consumed by at least one component prop or internal logic path. Fields that exist in a data type but are never read by any component (e.g., a `tool` field on a step data type that no component renders) are dead API surface — they mislead consumers into thinking the field has an effect. Also check that type names are specific enough to avoid collisions (e.g., `Step` is too generic — prefer `ChainOfThoughtStepData`)
    - `useKeyboard` JSDoc references `@gridland/utils` (not `@opentui/react` or internal paths)
    - Generic type parameters: if compared by `===` or `Set.has`, document the equality constraint (primitives recommended) or add a type bound
    - Controlled/uncontrolled: if both modes are supported, warn on mode switching (check for `useRef` guard)
+   - **Controllable state correctness**: If a component accepts `open`/`defaultOpen`/`onOpenChange` (or any `value`/`defaultValue`/`onChange` triplet), trace ALL four prop combinations: (1) controlled only (`open`), (2) uncontrolled only (`defaultOpen`), (3) uncontrolled + callback (`defaultOpen` + `onOpenChange`), (4) controlled + callback (`open` + `onOpenChange`). For each, verify the callback fires AND internal state updates correctly. The pattern `const setter = onChangeCallback ?? setInternalState` is a known anti-pattern — it replaces the internal state updater with the callback instead of doing both. The correct pattern calls `onChangeCallback?.()` alongside `setInternalState()` (see Radix `useControllableState` for reference)
    - **Async callback contracts**: If a callback prop (e.g., `onSubmit`) accepts `Promise<void>` return types, trace the actual code path. Verify that documented semantics match implementation — e.g., if JSDoc says "clears on resolve, preserves on reject," confirm input is NOT cleared before the promise starts, only in the `.then()` resolve path. State mutations before `await`/`.then()` defeat the async contract
    - **Silent error swallowing**: If a Promise `.catch` or reject handler is empty or has only a comment, flag it. Errors should be surfaced via an `onError` callback or equivalent — silent swallowing hides failures from consumers
 
@@ -158,9 +160,12 @@ If the component has a shadcn/ui equivalent (Table, Tabs, Select, Modal/Dialog, 
 - Flag major expressiveness gaps where shadcn users would expect functionality that Gridland doesn't offer
 - This is about API design quality, not HTML/CSS parity — adapt the comparison to what makes sense for TUI
 
-If the component has an equivalent in `ai-elements` (at `/Users/jessicacheng/thoughtful/ai-elements`), compare for AI-specific patterns:
-- Does the ai-elements version handle error states, async flows, or multimodal inputs that Gridland's version doesn't?
-- Are there compound subcomponents (Footer, Tools, ActionMenu) that Gridland is missing for common use cases?
+If the component has an equivalent in `ai-elements` (at `/Users/jessicacheng/thoughtful/ai-elements`), do a line-by-line comparison:
+- **State management**: How does ai-elements handle controllable state? If it uses `useControllableState` or similar, compare the implementation logic — not just the prop names. Different solutions to the same problem often reveal bugs in one version
+- **Exported types**: Compare field-by-field. If ai-elements doesn't have a field that Gridland exports, ask whether that field is actually consumed by any component code. Dead fields are a sign of speculative API design
+- **Sub-components**: Are there compound subcomponents (Footer, Tools, ActionMenu) that Gridland is missing for common use cases? For browser-only sub-components (images, badges, click handlers), verify that Gridland's `children` prop covers the same use case in TUI
+- **Status/enum values**: Compare status strings (e.g., `"complete"` vs `"done"`, `"active"` vs `"running"`). Flag any difference as either a deliberate divergence (document why) or an accidental drift
+- **Prop abstractions**: If ai-elements doesn't require a prop that Gridland does (e.g., `isLast` for step connectors), investigate how ai-elements avoids it — the Gridland version may have a leaky abstraction
 - Flag gaps as API design suggestions (P2), not blockers — TUI and web have different requirements
 
 ## Phase 5 — Draft report (internal, do NOT present yet)

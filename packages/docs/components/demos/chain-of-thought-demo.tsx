@@ -34,7 +34,7 @@ export function ChainOfThoughtExpandedDemo() {
     <DemoWindow title="Chain of Thought (expanded)" tuiStyle={{ width: "100%", height: 240 }}>
       <box padding={1}>
         <ChainOfThought defaultOpen>
-          <ChainOfThoughtHeader duration="4.3s" />
+          <ChainOfThoughtHeader duration="4.3s">Build pipeline</ChainOfThoughtHeader>
           <ChainOfThoughtContent>
             <ChainOfThoughtStep label="Reading codebase" description="src/" status="done" />
             <ChainOfThoughtStep label="Planning changes" description="auth module" status="done" />
