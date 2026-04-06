@@ -16,6 +16,8 @@ export const darkTheme: Theme = {
   focusSelected: "#FF71CE",
   focusFocused: "#e065b8",
   focusIdle: "#33192a",
+  messageAssistant: "#2a2a4a",
+  messageUser: "#2a3a3a",
 }
 
 export const lightTheme: Theme = {
@@ -34,4 +36,6 @@ export const lightTheme: Theme = {
   focusSelected: "#FF6B2B",
   focusFocused: "#d45a24",
   focusIdle: "#f5e6d8",
+  messageAssistant: "#F1F5F9",
+  messageUser: "#E2E8F0",
 }

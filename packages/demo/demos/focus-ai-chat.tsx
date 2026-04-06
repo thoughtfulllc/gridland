@@ -1,6 +1,6 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState, useRef, useCallback } from "react"
-import { Message, PromptInput, StatusBar, useFocusBorderStyle, useFocusDividerStyle } from "@gridland/ui"
+import { Message, MessageContent, MessageText, PromptInput, StatusBar, useFocusBorderStyle, useFocusDividerStyle } from "@gridland/ui"
 import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 import { renderPartsWithReasoning, toChatStatus } from "./render-message-parts-demo-utils"
@@ -54,7 +54,7 @@ function MessageArea({ messages, isStreaming, expanded }: {
               isStreaming={msgStreaming}
             >
               {reasoning}
-              <Message.Content>{content}</Message.Content>
+              <MessageContent>{content}</MessageContent>
             </Message>
           )
         }
@@ -65,11 +65,11 @@ function MessageArea({ messages, isStreaming, expanded }: {
             role={msg.role as "user" | "assistant"}
             isStreaming={msgStreaming}
           >
-            <Message.Content>
+            <MessageContent>
               {typeof msg.content === "string" && (
-                <Message.Text isLast={msgStreaming}>{msg.content}</Message.Text>
+                <MessageText isLast={msgStreaming}>{msg.content}</MessageText>
               )}
-            </Message.Content>
+            </MessageContent>
           </Message>
         )
       })}

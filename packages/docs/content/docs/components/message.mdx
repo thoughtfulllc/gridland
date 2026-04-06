@@ -1,15 +1,16 @@
 ---
 title: Message
-description: An SDK-agnostic chat message with text, reasoning, tool calls, and sources
+description: An SDK-agnostic chat message with role-based styling and streaming support
 ---
 
 import { RunDemo } from '@/components/ui/run-demo'
 import MessageDemo, { MessageWithInputDemo } from '@/components/demos/message-demo'
 
-A compound chat message component. Sub-components take flat props — no
-SDK-specific types required. Works with Vercel AI SDK, Anthropic SDK, OpenAI SDK,
-LangChain, or any other provider. The consumer maps their SDK's output to
-sub-components.
+A chat message component with role-based styling and streaming cursor. Message
+is a thin layout shell — it provides alignment, background color, and context.
+Content goes inside `MessageContent`, text inside `MessageText`. Other concerns
+(tool calls, sources, reasoning, footer) are separate components composed
+alongside Message, not inside it.
 
 <div className="my-8">
   <MessageDemo />
@@ -26,21 +27,20 @@ bunx shadcn@latest add @gridland/message
 ## Usage
 
 ```tsx
-import { Message } from "@/components/ui/message"
+import { Message, MessageContent, MessageText } from "@gridland/ui"
 ```
 
 ```tsx
 <Message role="user">
-  <Message.Content>
-    <Message.Text>Hello, can you help me?</Message.Text>
-  </Message.Content>
+  <MessageContent>
+    <MessageText>Hello, can you help me?</MessageText>
+  </MessageContent>
 </Message>
 
 <Message role="assistant">
-  <Message.Content>
-    <Message.Text>Of course! What do you need?</Message.Text>
-  </Message.Content>
-  <Message.Footer model="claude-opus-4-6" />
+  <MessageContent>
+    <MessageText>Of course! What do you need?</MessageText>
+  </MessageContent>
 </Message>
 ```
 
@@ -61,56 +61,74 @@ streaming cursor.
 
 ```tsx title="Streaming message"
 <Message role="assistant" isStreaming>
-  <Message.Content>
-    <Message.Text isLast>{partialText}</Message.Text>
-  </Message.Content>
+  <MessageContent>
+    <MessageText isLast>{partialText}</MessageText>
+  </MessageContent>
 </Message>
 ```
 
-### Tool Calls
+### Custom Streaming Cursor
 
-Render tool calls with the generic 4-state model. Map your SDK's tool states
-to `pending`, `running`, `completed`, or `error`.
+Override the default cursor character with `streamingCursor`.
 
-```tsx title="Tool call states"
-<Message.ToolCall name="readFile" state="running" />
-<Message.ToolCall name="search" state="completed" result="3 results found" />
-<Message.ToolCall name="deploy" state="error" result="Permission denied" />
+```tsx title="Custom streaming cursor"
+<Message role="assistant" isStreaming streamingCursor="_">
+  <MessageContent>
+    <MessageText isLast>{partialText}</MessageText>
+  </MessageContent>
+</Message>
 ```
 
-### Reasoning
+### Markdown
 
-Render a collapsible reasoning/thinking block above the content bubble.
+Use `MessageMarkdown` to render markdown content via the OpenTUI markdown
+intrinsic.
 
-```tsx title="With reasoning"
+```tsx title="Markdown content"
+import { MessageMarkdown } from "@gridland/ui"
+
 <Message role="assistant">
-  <Message.Reasoning duration="1.2s" collapsed={false} />
-  <Message.Content>
-    <Message.Text>Here is the answer.</Message.Text>
-  </Message.Content>
+  <MessageContent>
+    <MessageMarkdown>{"# Hello\n\nThis is **bold** text."}</MessageMarkdown>
+  </MessageContent>
 </Message>
 ```
 
-### Sources
+### Custom Background Color
 
-Render numbered source citations.
+Override the default role-based background with `backgroundColor`.
 
-```tsx title="Source citations"
-<Message.Source title="API Reference" url="https://docs.example.com" index={0} />
-<Message.Source title="Tutorial" url="https://example.com/guide" index={1} />
+```tsx title="Custom background"
+<Message role="assistant" backgroundColor="#1a2b3c">
+  <MessageContent>
+    <MessageText>Custom styled message.</MessageText>
+  </MessageContent>
+</Message>
 ```
 
-### Footer
+### With ChainOfThought
 
-Show model attribution and timestamp below the bubble.
+Compose `ChainOfThought` as a **sibling** of `Message`, not inside it.
+ChainOfThought is a separate component — it renders above or alongside
+the message bubble.
 
-```tsx title="With footer"
-<Message role="assistant">
-  <Message.Content>
-    <Message.Text>Here is the answer.</Message.Text>
-  </Message.Content>
-  <Message.Footer model="claude-opus-4-6" timestamp="just now" />
-</Message>
+```tsx title="With ChainOfThought"
+import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep } from "@gridland/ui"
+
+<box flexDirection="column">
+  <ChainOfThought defaultOpen={false}>
+    <ChainOfThoughtHeader duration="1.2s" />
+    <ChainOfThoughtContent>
+      <ChainOfThoughtStep label="Analyzing question" status="done" />
+      <ChainOfThoughtStep label="Looking up docs" status="done" isLast />
+    </ChainOfThoughtContent>
+  </ChainOfThought>
+  <Message role="assistant">
+    <MessageContent>
+      <MessageText>Here is the answer.</MessageText>
+    </MessageContent>
+  </Message>
+</box>
 ```
 
 ### Mapping Vercel AI SDK Parts
@@ -120,6 +138,7 @@ mapping — the component has no SDK dependency.
 
 ```tsx title="Vercel AI SDK"
 import { useChat } from "@ai-sdk/react"
+import { Message, MessageContent, MessageText } from "@gridland/ui"
 
 const { messages, status } = useChat({ api: "/api/chat" })
 
@@ -129,86 +148,41 @@ const { messages, status } = useChat({ api: "/api/chat" })
 
   return (
     <Message key={msg.id} role={msg.role} isStreaming={msgStreaming}>
-      <Message.Content>
-        {msg.parts?.map((part, j) => {
-          const isLastPart = j === msg.parts.length - 1
-          switch (part.type) {
-            case "text":
-              return <Message.Text key={j} isLast={isLastPart && msgStreaming}>{part.text}</Message.Text>
-            case "dynamic-tool":
-              return (
-                <Message.ToolCall
-                  key={j}
-                  name={part.toolName}
-                  state={part.state === "output-available" ? "completed" : part.state === "output-error" ? "error" : "running"}
-                  result={part.state === "output-available" ? part.output : undefined}
-                />
-              )
-            case "source-url":
-              return <Message.Source key={j} title={part.title} url={part.url} index={j} />
-            default:
-              return null
-          }
-        })}
-      </Message.Content>
+      <MessageContent>
+        {msg.parts?.filter(p => p.type === "text").map((part, j, arr) => (
+          <MessageText key={j} isLast={j === arr.length - 1 && msgStreaming}>
+            {part.text}
+          </MessageText>
+        ))}
+      </MessageContent>
     </Message>
   )
 })}
 ```
 
-### Mapping Anthropic SDK
-
-```tsx title="Anthropic SDK"
-// Map Anthropic content blocks to sub-components
-msg.content.map((block, j) => {
-  switch (block.type) {
-    case "text":
-      return <Message.Text key={j}>{block.text}</Message.Text>
-    case "thinking":
-      return <Message.Reasoning key={j} collapsed={false}>{block.thinking}</Message.Reasoning>
-    case "tool_use":
-      return <Message.ToolCall key={j} name={block.name} state="running" />
-  }
-})
-```
-
-## Compound Components
+## Sub-components
 
 All sub-components read shared state (role, streaming, background color) from
 `Message` via context. No prop drilling needed.
 
 | Component | Description |
 |-----------|-------------|
-| `Message.Content` | Bubble wrapper with role-based background color |
-| `Message.Text` | Text with word wrap and optional streaming cursor |
-| `Message.Reasoning` | Collapsible Chain of Thought block |
-| `Message.ToolCall` | Tool call with status icon and result |
-| `Message.Source` | Numbered source citation |
-| `Message.Footer` | Model attribution and timestamp |
+| `MessageContent` | Bubble wrapper with role-based background color |
+| `MessageText` | Text with word wrap and optional streaming cursor |
+| `MessageMarkdown` | Markdown content via OpenTUI intrinsic |
 
 ### useMessage
 
 Access message context from within any sub-component.
 
 ```tsx title="Custom sub-component"
-import { useMessage } from "@/components/ui/message"
+import { useMessage } from "@gridland/ui"
 
 function MyCustomStatus() {
   const { role, isStreaming, textColor } = useMessage()
   return <text>{role}: {isStreaming ? "streaming..." : "done"}</text>
 }
 ```
-
-## Tool Call States
-
-The component uses 4 generic states that map to any SDK.
-
-| State | Icon | Color | Use case |
-|-------|------|-------|----------|
-| `pending` | • | muted | Input being prepared, waiting to execute |
-| `running` | ⠋ | warning | Tool is executing |
-| `completed` | ✓ | success | Tool finished with result |
-| `error` | ✕ | error | Tool execution failed |
 
 ## API Reference
 
@@ -220,47 +194,40 @@ The component uses 4 generic states that map to any SDK.
 | `isStreaming` | `boolean` | `false` | Show streaming cursor on the last text part |
 | `streamingCursor` | `string` | `"▎"` | Cursor character shown while streaming |
 | `backgroundColor` | `string` | - | Override the default role-based background color |
-| `children` | `ReactNode` | - | Compound sub-components |
+| `children` | `ReactNode` | - | Sub-components |
 
-### Message.Text
+### MessageContent
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Sub-components to render inside the message bubble |
+
+### MessageText
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `children` | `string` | - | Text content |
 | `isLast` | `boolean` | `false` | Show the streaming cursor after this part |
 
-### Message.Reasoning
+### MessageMarkdown
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `duration` | `string` | - | Duration label shown in the header |
-| `steps` | `Step[]` | - | Structured thinking steps |
-| `collapsed` | `boolean` | `true` | Whether the block starts collapsed |
-| `children` | `ReactNode` | - | Freeform content (used when steps are not provided) |
+| `children` | `string` | - | Markdown string to render |
+| `isLast` | `boolean` | `false` | Show the streaming cursor after this content |
 
-### Message.ToolCall
+### Migrating from v0
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `name` | `string` | - | Tool name |
-| `state` | `"pending" \| "running" \| "completed" \| "error"` | `"pending"` | Tool execution state |
-| `result` | `unknown` | - | Tool result (shown when completed or error) |
-| `color` | `string` | - | Override the default state color |
+The following compound sub-components were removed in this version:
 
-### Message.Source
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `title` | `string?` | Source title |
-| `url` | `string?` | Source URL |
-| `index` | `number` | Zero-based index for the citation number |
-
-### Message.Footer
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `model` | `string?` | Model name |
-| `timestamp` | `string?` | Timestamp label |
+| Removed | Replacement |
+|---------|-------------|
+| `Message.Content` | `MessageContent` (named export) |
+| `Message.Text` | `MessageText` (named export) |
+| `Message.Reasoning` | Compose `ChainOfThought` as a sibling — see example above |
+| `Message.ToolCall` | Build your own with `useMessage()` for context |
+| `Message.Source` | Build your own with `useMessage()` for context |
+| `Message.Footer` | Build your own with `useMessage()` for context |
 
 ### MessageContextValue
 
@@ -273,19 +240,3 @@ interface MessageContextValue {
   textColor: string
 }
 ```
-
-### Part Types (optional helpers)
-
-The component exports optional type definitions for consumers who want a
-standard intermediate format. Sub-components do NOT depend on these types.
-
-```tsx
-type MessagePart = TextPart | ReasoningPart | ToolCallPart | SourcePart
-```
-
-| Type | Fields |
-|------|--------|
-| `TextPart` | `type: "text"`, `text: string` |
-| `ReasoningPart` | `type: "reasoning"`, `text?`, `duration?`, `steps?`, `collapsed?` |
-| `ToolCallPart` | `type: "tool-call"`, `name`, `state`, `args?`, `result?` |
-| `SourcePart` | `type: "source"`, `title?`, `url?` |

@@ -81,19 +81,16 @@ export type { CommandProviderProps, CommandRegistryListener } from "./prompt-inp
 export { ChatPanel } from "./chat/chat"
 export type { ChatPanelProps, ChatMessage, ToolCallInfo } from "./chat/chat"
 
-export { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep } from "./chain-of-thought/chain-of-thought"
+export { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep, useChainOfThought } from "./chain-of-thought/chain-of-thought"
 export type { ChainOfThoughtProps, ChainOfThoughtHeaderProps, ChainOfThoughtContentProps, ChainOfThoughtStepProps, Step } from "./chain-of-thought/chain-of-thought"
 
-export { Message, useMessage } from "./message/message"
+export { Message, useMessage, MessageContent, MessageText, MessageMarkdown } from "./message/message"
 export type {
   MessageProps,
+  MessageContentProps,
+  MessageTextProps,
+  MessageMarkdownProps,
   MessageContextValue,
-  MessagePart,
-  TextPart,
-  ReasoningPart,
-  ToolCallPart,
-  ToolCallState,
-  SourcePart,
   MessageRole,
 } from "./message/message"
 

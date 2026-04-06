@@ -219,29 +219,6 @@ export class CanvasPainter {
     const cw = this.cellWidth
     const ch = this.cellHeight
 
-    // Pass 0: Rounded background rects (smooth corners via ctx.roundRect)
-    // Each entry may carry a clipRect captured from the scissor stack at draw time.
-    // When present, we apply ctx.clip() so the rounded rect respects overflow:hidden.
-    for (const rb of buffer.roundedBackgrounds) {
-      if (rb.color.a <= 0) continue
-      ctx.fillStyle = rgbaToCSS(rb.color.r, rb.color.g, rb.color.b, rb.color.a)
-
-      if (rb.clipRect) {
-        ctx.save()
-        ctx.beginPath()
-        ctx.rect(rb.clipRect.x * cw, rb.clipRect.y * ch, rb.clipRect.width * cw, rb.clipRect.height * ch)
-        ctx.clip()
-      }
-
-      ctx.beginPath()
-      ctx.roundRect(rb.x * cw, rb.y * ch, rb.width * cw, rb.height * ch, rb.radius)
-      ctx.fill()
-
-      if (rb.clipRect) {
-        ctx.restore()
-      }
-    }
-
     // Pass 1: Background rects — batch adjacent same-color cells per row
     for (let row = 0; row < rows; row++) {
       let runStartCol = 0

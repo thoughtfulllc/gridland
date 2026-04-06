@@ -79,6 +79,8 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react"
 import {
   SideNav,
   Message,
+  MessageContent,
+  MessageText,
   PromptInput,
   SelectInput,
   Modal,
@@ -117,18 +119,16 @@ function ChatPanel({ conversationId, selectedModelId, isInteracting }) {
 
             return (
               <Message key={msg.id} role={msg.role} isStreaming={msgStreaming}>
-                <Message.Content>
+                <MessageContent>
                   {msg.parts?.map((part, j) => {
                     switch (part.type) {
                       case "text":
-                        return <Message.Text key={j} isLast={j === msg.parts.length - 1 && msgStreaming}>{part.text}</Message.Text>
-                      case "reasoning":
-                        return <Message.Reasoning key={j} />
+                        return <MessageText key={j} isLast={j === msg.parts.length - 1 && msgStreaming}>{part.text}</MessageText>
                       default:
                         return null
                     }
                   })}
-                </Message.Content>
+                </MessageContent>
               </Message>
             )
           })}
@@ -205,18 +205,23 @@ const result = streamText({
 ### Adding ChainOfThought for reasoning models
 
 When using a model that supports extended thinking (e.g. `deepseek-r1`, `o1`),
-reasoning parts appear automatically. Render `Message.Reasoning` outside
-`Message.Content` to show it above the bubble, and control `collapsed` state:
+reasoning parts appear automatically. Compose `ChainOfThought` directly as a
+child of `Message`, above `MessageContent`:
 
 ```tsx
 const [expanded, setExpanded] = useState(false)
+const hasReasoning = msg.parts?.some(p => p.type === "reasoning")
 
-{msg.parts?.map((part, j) => {
-  if (part.type === "reasoning") {
-    return (
-      <Message.Reasoning key={j} collapsed={!expanded} />
-    )
-  }
-  // ... other part types inside Message.Content
-})}
+<Message role={msg.role} isStreaming={msgStreaming}>
+  {hasReasoning && (
+    <ChainOfThought defaultOpen={expanded}>
+      <ChainOfThoughtHeader />
+    </ChainOfThought>
+  )}
+  <MessageContent>
+    {msg.parts?.filter(p => p.type === "text").map((part, j) => (
+      <MessageText key={j}>{part.text}</MessageText>
+    ))}
+  </MessageContent>
+</Message>
 ```

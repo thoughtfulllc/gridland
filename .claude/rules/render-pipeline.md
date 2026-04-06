@@ -24,11 +24,10 @@ When adding a new buffer→painter data channel:
 
 | Channel | Scissor-aware | Notes |
 |---------|--------------|-------|
-| `roundedBackgrounds` | Yes (`clipRect`) | Rounded rect backgrounds for `borderRadius` |
 | `lineCursorPosition` | No (bounds-checked) | Editor cursor — always within grid bounds |
 
 ## Anti-Patterns
 
 - Adding a `public` array to `BrowserBuffer` consumed by `CanvasPainter` without `clipRect`
-- Drawing via `ctx.roundRect()`, `ctx.arc()`, `ctx.drawImage()` etc. in the painter without checking for a clip region
+- Drawing via `ctx.arc()`, `ctx.drawImage()` etc. in the painter without checking for a clip region
 - Assuming cell-grid bounds checking is sufficient — it prevents out-of-bounds but doesn't respect `overflow="hidden"` containers

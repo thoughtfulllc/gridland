@@ -4,7 +4,7 @@ import { SyntaxStyle, type StyleDefinition } from "../syntax-style"
 import type { TextChunk } from "../text-buffer"
 import { createTextAttributes } from "../utils"
 import type { BorderStyle } from "../lib/border"
-import type { ColorInput } from "../lib/RGBA"
+import { type ColorInput, type RGBA, parseColor } from "../lib/RGBA"
 import { type MarkedToken, type Token, type Tokens } from "marked"
 import { CodeRenderable, type OnChunksCallback } from "./Code"
 import {
@@ -62,6 +62,8 @@ export interface MarkdownTableOptions {
 
 export interface MarkdownOptions extends RenderableOptions<MarkdownRenderable> {
   content?: string
+  /** Default background color for text blocks and code blocks. */
+  bg?: ColorInput
   syntaxStyle: SyntaxStyle
   /** Controls concealment for markdown syntax markers in markdown text blocks. */
   conceal?: boolean
@@ -133,6 +135,7 @@ export type { ParseState }
 
 export class MarkdownRenderable extends Renderable {
   private _content: string = ""
+  private _bg: RGBA
   private _syntaxStyle: SyntaxStyle
   private _conceal: boolean
   private _concealCode: boolean
@@ -164,6 +167,7 @@ export class MarkdownRenderable extends Renderable {
       flexShrink: options.flexShrink ?? 0,
     })
 
+    this._bg = parseColor(options.bg ?? "transparent")
     this._syntaxStyle = options.syntaxStyle
     this._conceal = options.conceal ?? this._contentDefaultOptions.conceal
     this._concealCode = options.concealCode ?? this._contentDefaultOptions.concealCode
@@ -185,6 +189,23 @@ export class MarkdownRenderable extends Renderable {
     if (this._content !== value) {
       this._content = value
       this.updateBlocks()
+      this.requestRender()
+    }
+  }
+
+  get bg(): RGBA {
+    return this._bg
+  }
+
+  set bg(value: RGBA | string | undefined) {
+    const parsed = parseColor(value ?? "transparent")
+    if (this._bg !== parsed) {
+      this._bg = parsed
+      for (const state of this._blockStates) {
+        if (state.renderable instanceof CodeRenderable) {
+          state.renderable.bg = parsed
+        }
+      }
       this.requestRender()
     }
   }
@@ -429,6 +450,7 @@ export class MarkdownRenderable extends Renderable {
       id,
       content,
       filetype: "markdown",
+      bg: this._bg,
       syntaxStyle: this._syntaxStyle,
       conceal: this._conceal,
       drawUnstyledText: false,
@@ -445,6 +467,7 @@ export class MarkdownRenderable extends Renderable {
       id,
       content: token.text,
       filetype: token.lang || undefined,
+      bg: this._bg,
       syntaxStyle: this._syntaxStyle,
       conceal: this._concealCode,
       drawUnstyledText: !(this._streaming && this._concealCode),
@@ -458,6 +481,7 @@ export class MarkdownRenderable extends Renderable {
   private applyMarkdownCodeRenderable(renderable: CodeRenderable, content: string, marginBottom: number): void {
     renderable.content = content
     renderable.filetype = "markdown"
+    renderable.bg = this._bg
     renderable.syntaxStyle = this._syntaxStyle
     renderable.conceal = this._conceal
     renderable.drawUnstyledText = false
@@ -468,6 +492,7 @@ export class MarkdownRenderable extends Renderable {
   private applyCodeBlockRenderable(renderable: CodeRenderable, token: Tokens.Code, marginBottom: number): void {
     renderable.content = token.text
     renderable.filetype = token.lang || undefined
+    renderable.bg = this._bg
     renderable.syntaxStyle = this._syntaxStyle
     renderable.conceal = this._concealCode
     renderable.drawUnstyledText = !(this._streaming && this._concealCode)

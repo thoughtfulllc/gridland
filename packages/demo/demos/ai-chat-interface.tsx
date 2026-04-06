@@ -3,6 +3,8 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react"
 import {
   SideNav,
   Message,
+  MessageContent,
+  MessageText,
   PromptInput,
   SelectInput,
   Modal,
@@ -244,7 +246,7 @@ function MessageArea({ messages, isStreaming, disabled = false }: {
                 role={msg.role as "user" | "assistant"}
                 isStreaming={msgStreaming}
               >
-                <Message.Content>{content}</Message.Content>
+                <MessageContent>{content}</MessageContent>
               </Message>
             </box>
           )
@@ -256,11 +258,11 @@ function MessageArea({ messages, isStreaming, disabled = false }: {
             role={msg.role as "user" | "assistant"}
             isStreaming={msgStreaming}
           >
-            <Message.Content>
+            <MessageContent>
               {typeof msg.content === "string" && (
-                <Message.Text isLast={msgStreaming}>{msg.content}</Message.Text>
+                <MessageText isLast={msgStreaming}>{msg.content}</MessageText>
               )}
-            </Message.Content>
+            </MessageContent>
           </Message>
         )
       })}

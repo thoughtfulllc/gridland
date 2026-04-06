@@ -35,7 +35,7 @@ interface ChainOfThoughtContextValue {
 
 const ChainOfThoughtContext = createContext<ChainOfThoughtContextValue | null>(null)
 
-const useChainOfThought = () => {
+export const useChainOfThought = () => {
   const context = useContext(ChainOfThoughtContext)
   if (!context) {
     throw new Error("ChainOfThought components must be used within <ChainOfThought>")
@@ -140,6 +140,8 @@ export interface ChainOfThoughtStepProps {
   description?: string
   /** Current status. Defaults to "done". */
   status?: "done" | "running" | "pending" | "error"
+  /** Custom icon character. Defaults to status-based dot (● done, ○ pending, animated running). */
+  icon?: string
   /** Set to true to hide the vertical pipe connector below. */
   isLast?: boolean
   /** Output content rendered below the step with a pipe gutter. */
@@ -151,6 +153,7 @@ export const ChainOfThoughtStep = memo(({
   label,
   description,
   status = "done",
+  icon,
   isLast = false,
   children,
 }: ChainOfThoughtStepProps) => {
@@ -168,9 +171,9 @@ export const ChainOfThoughtStep = memo(({
     return () => clearInterval(id)
   }, [isActive])
 
-  const dot = isActive
+  const dot = icon ?? (isActive
     ? DOTS[frame % DOTS.length]!
-    : isPending ? "○" : "●"
+    : isPending ? "○" : "●")
 
   return (
     <box flexDirection="column" marginLeft={1}>

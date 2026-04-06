@@ -20,7 +20,6 @@ Read `packages/web/src/browser-buffer.ts` and find every `public` property or ar
 - Could be consumed by the painter for direct canvas rendering
 
 Known channels:
-- `roundedBackgrounds` — rounded rect backgrounds (should have `clipRect?` field)
 - `lineCursorPosition` — editor cursor position
 
 Flag any NEW channels that don't exist in this list.
@@ -82,14 +81,12 @@ Flag any channel from Step 1 that lacks these four test categories.
 ### Buffer→Painter Data Channels
 | Channel | Type | Scissor Capture | Painter Clipping | Tests |
 |---------|------|-----------------|------------------|-------|
-| roundedBackgrounds | Array | ✓ clipRect | ✓ save/clip/restore | ✓ 4 tests |
 | lineCursorPosition | Point | — bounds-checked | — no clip | — no tests |
 | (new channel) | ... | ✗ MISSING | ✗ MISSING | ✗ MISSING |
 
 ### Canvas Painter Passes
 | Pass | Data Source | Clipping | Status |
 |------|------------|----------|--------|
-| 0: Rounded backgrounds | roundedBackgrounds | ctx.clip() | ✓ Safe |
 | 1: Background rects | cell grid (bg[]) | Inherent | ✓ Safe |
 | ... | ... | ... | ... |
 

@@ -36,7 +36,6 @@ declare global {
         border?: boolean | string[]
         borderStyle?: "single" | "double" | "rounded" | "heavy"
         borderColor?: ColorInput
-        borderRadius?: number
         backgroundColor?: ColorInput
         shouldFill?: boolean
         title?: string

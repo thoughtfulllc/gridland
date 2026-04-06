@@ -13,7 +13,7 @@ export default function MessageDemo() {
 
 // ── Message + PromptInput demo (OpenRouter via Vercel, docs-only) ───────
 
-import { Message, PromptInput } from "@gridland/ui"
+import { Message, MessageContent, MessageText, PromptInput } from "@gridland/ui"
 import type { ChatStatus } from "@gridland/ui"
 import { useKeyboard } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
@@ -46,14 +46,14 @@ function MessageWithInputApp() {
               role={msg.role as "user" | "assistant"}
               isStreaming={msgStreaming}
             >
-              <Message.Content>
+              <MessageContent>
                 {msg.parts?.length
                   ? renderContentParts(msg.parts, msgStreaming)
                   : typeof msg.content === "string"
-                    ? <Message.Text isLast={msgStreaming}>{msg.content}</Message.Text>
+                    ? <MessageText isLast={msgStreaming}>{msg.content}</MessageText>
                     : null
                 }
-              </Message.Content>
+              </MessageContent>
             </Message>
           )
         })}

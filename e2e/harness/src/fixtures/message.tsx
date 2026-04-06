@@ -1,6 +1,6 @@
 // @ts-nocheck — Gridland intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
-import { Message } from "../../../../packages/ui/components/message/message"
+import { Message, MessageContent, MessageText } from "../../../../packages/ui/components/message/message"
 import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
 
 export function MessageFixture() {
@@ -9,11 +9,14 @@ export function MessageFixture() {
       <ThemeProvider theme={darkTheme}>
         <box flexDirection="column" gap={1}>
           <Message role="user">
-            <Message.Text>Hello, how are you?</Message.Text>
+            <MessageContent>
+              <MessageText>Hello, how are you?</MessageText>
+            </MessageContent>
           </Message>
           <Message role="assistant">
-            <Message.Text>I'm doing well! How can I help you today?</Message.Text>
-            <Message.Footer model="claude-3" timestamp="2m ago" />
+            <MessageContent>
+              <MessageText>I'm doing well! How can I help you today?</MessageText>
+            </MessageContent>
           </Message>
         </box>
       </ThemeProvider>

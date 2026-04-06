@@ -6,6 +6,8 @@ import {
   StatusBar,
   PromptInput,
   Message,
+  MessageContent,
+  MessageText,
   ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep,
   useFocusBorderStyle,
   useFocusDividerStyle,
@@ -93,15 +95,15 @@ export function FocusChatApp() {
         <box flexDirection="column" flexGrow={1}>
           <box flexDirection="column" paddingX={1} paddingTop={1} flexGrow={1}>
             <Message role="user">
-              <Message.Content>
-                <Message.Text>How do I set up keyboard navigation?</Message.Text>
-              </Message.Content>
+              <MessageContent>
+                <MessageText>How do I set up keyboard navigation?</MessageText>
+              </MessageContent>
             </Message>
             <CotSection />
             <Message role="assistant">
-              <Message.Content>
-                <Message.Text>Use the useKeyboard hook to listen for key events. Wrap your app in a FocusProvider to enable tab navigation between focusable components.</Message.Text>
-              </Message.Content>
+              <MessageContent>
+                <MessageText>Use the useKeyboard hook to listen for key events. Wrap your app in a FocusProvider to enable tab navigation between focusable components.</MessageText>
+              </MessageContent>
             </Message>
           </box>
           <PromptSection />

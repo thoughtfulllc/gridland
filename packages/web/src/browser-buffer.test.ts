@@ -135,67 +135,6 @@ describe("BrowserBuffer", () => {
     expect(buf.char[2 * 10 + 3]).toBe("B".codePointAt(0)!) // set
   })
 
-  it("roundedBackground has no clipRect when no scissor is active", () => {
-    const buf = BrowserBuffer.create(20, 10, "wcwidth")
-    buf.drawBox({
-      x: 2, y: 1, width: 8, height: 4,
-      border: false, borderStyle: "single",
-      borderColor: white, backgroundColor: blue,
-      shouldFill: true, borderRadius: 8,
-    })
-
-    expect(buf.roundedBackgrounds.length).toBe(1)
-    expect(buf.roundedBackgrounds[0].clipRect).toBeUndefined()
-  })
-
-  it("roundedBackground gets clipRect when scissor is active", () => {
-    const buf = BrowserBuffer.create(20, 10, "wcwidth")
-    buf.pushScissorRect(1, 1, 10, 6)
-    buf.drawBox({
-      x: 2, y: 2, width: 6, height: 3,
-      border: false, borderStyle: "single",
-      borderColor: white, backgroundColor: blue,
-      shouldFill: true, borderRadius: 8,
-    })
-    buf.popScissorRect()
-
-    expect(buf.roundedBackgrounds.length).toBe(1)
-    expect(buf.roundedBackgrounds[0].clipRect).toEqual({ x: 1, y: 1, width: 10, height: 6 })
-  })
-
-  it("fully-clipped roundedBackground is not pushed", () => {
-    const buf = BrowserBuffer.create(20, 10, "wcwidth")
-    buf.pushScissorRect(0, 0, 5, 5)
-    // Draw box entirely outside the scissor
-    buf.drawBox({
-      x: 10, y: 6, width: 6, height: 3,
-      border: false, borderStyle: "single",
-      borderColor: white, backgroundColor: blue,
-      shouldFill: true, borderRadius: 8,
-    })
-    buf.popScissorRect()
-
-    expect(buf.roundedBackgrounds.length).toBe(0)
-  })
-
-  it("nested scissors produce intersected clipRect for roundedBackground", () => {
-    const buf = BrowserBuffer.create(20, 10, "wcwidth")
-    buf.pushScissorRect(1, 1, 15, 8)
-    buf.pushScissorRect(3, 2, 10, 5)
-    // Intersection: x=3, y=2, width=10, height=5
-    buf.drawBox({
-      x: 4, y: 3, width: 5, height: 3,
-      border: false, borderStyle: "single",
-      borderColor: white, backgroundColor: blue,
-      shouldFill: true, borderRadius: 8,
-    })
-    buf.popScissorRect()
-    buf.popScissorRect()
-
-    expect(buf.roundedBackgrounds.length).toBe(1)
-    expect(buf.roundedBackgrounds[0].clipRect).toEqual({ x: 3, y: 2, width: 10, height: 5 })
-  })
-
   it("applies opacity", () => {
     const buf = BrowserBuffer.create(10, 5, "wcwidth")
     buf.pushOpacity(0.5)

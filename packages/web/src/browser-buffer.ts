@@ -25,7 +25,6 @@ export interface BorderDrawOptions {
   borderColor: RGBA
   backgroundColor: RGBA
   shouldFill?: boolean
-  borderRadius?: number
   title?: string
   titleAlignment?: "left" | "center" | "right"
 }
@@ -55,18 +54,6 @@ export class BrowserBuffer {
   public cursorStyleType: CursorStyle = "block"
   /** Line cursor position -- set by drawEditorView during pipeline, read by renderer after */
   public lineCursorPosition: { x: number; y: number } | null = null
-
-  /** Rounded background regions — populated by drawBox, consumed by CanvasPainter */
-  public roundedBackgrounds: Array<{
-    x: number
-    y: number
-    width: number
-    height: number
-    color: { r: number; g: number; b: number; a: number }
-    radius: number
-    /** Active scissor rect at draw time — painter applies ctx.clip() when present */
-    clipRect?: { x: number; y: number; width: number; height: number }
-  }> = []
 
   constructor(
     width: number,
@@ -174,7 +161,6 @@ export class BrowserBuffer {
     this.attributes.fill(0)
     this.linkRegistry.clear()
     this.nextLinkId = 1
-    this.roundedBackgrounds.length = 0
 
     if (bg) {
       for (let i = 0; i < size; i++) {
@@ -227,8 +213,30 @@ export class BrowserBuffer {
     bgColor: RGBA,
     attr: number = 0,
   ): void {
-    // For the PoC, same as setCell
-    this.setCell(x, y, char, fgColor, bgColor, attr)
+    if (x < 0 || x >= this._width || y < 0 || y >= this._height) return
+    if (!this.isInScissor(x, y)) return
+
+    const idx = y * this._width + x
+    const offset = idx * 4
+
+    const effectiveBg = this.applyOpacity(bgColor)
+    const effectiveFg = this.applyOpacity(fgColor)
+
+    this.char[idx] = char.codePointAt(0) ?? 0x20
+    this.attributes[idx] = attr
+
+    this.fg[offset] = effectiveFg.r
+    this.fg[offset + 1] = effectiveFg.g
+    this.fg[offset + 2] = effectiveFg.b
+    this.fg[offset + 3] = effectiveFg.a
+
+    // When overlay bg is fully transparent, preserve existing bg — matches native blendCells
+    if (effectiveBg.a > 0) {
+      this.bg[offset] = effectiveBg.r
+      this.bg[offset + 1] = effectiveBg.g
+      this.bg[offset + 2] = effectiveBg.b
+      this.bg[offset + 3] = effectiveBg.a
+    }
   }
 
   drawChar(charCode: number, x: number, y: number, fgColor: RGBA, bgColor: RGBA, attr: number = 0): void {
@@ -281,20 +289,34 @@ export class BrowserBuffer {
   }
 
   fillRect(x: number, y: number, width: number, height: number, bgColor: RGBA): void {
-    for (let row = y; row < y + height && row < this._height; row++) {
-      for (let col = x; col < x + width && col < this._width; col++) {
-        if (col < 0 || row < 0) continue
-        if (!this.isInScissor(col, row)) continue
+    const effectiveBg = this.applyOpacity(bgColor)
+    const hasAlpha = effectiveBg.a < 1.0
 
-        const idx = row * this._width + col
-        const offset = idx * 4
-        const effectiveBg = this.applyOpacity(bgColor)
+    if (hasAlpha) {
+      // Route through alpha blending — matches native buffer behavior.
+      // Transparent fills preserve existing bg instead of erasing it.
+      for (let row = y; row < y + height && row < this._height; row++) {
+        for (let col = x; col < x + width && col < this._width; col++) {
+          if (col < 0 || row < 0) continue
+          this.setCellWithAlphaBlending(col, row, " ", { r: 1, g: 1, b: 1, a: 1 } as RGBA, bgColor)
+        }
+      }
+    } else {
+      // Fast path for fully opaque fills — direct write
+      for (let row = y; row < y + height && row < this._height; row++) {
+        for (let col = x; col < x + width && col < this._width; col++) {
+          if (col < 0 || row < 0) continue
+          if (!this.isInScissor(col, row)) continue
 
-        this.char[idx] = 0x20
-        this.bg[offset] = effectiveBg.r
-        this.bg[offset + 1] = effectiveBg.g
-        this.bg[offset + 2] = effectiveBg.b
-        this.bg[offset + 3] = effectiveBg.a
+          const idx = row * this._width + col
+          const offset = idx * 4
+
+          this.char[idx] = 0x20
+          this.bg[offset] = effectiveBg.r
+          this.bg[offset + 1] = effectiveBg.g
+          this.bg[offset + 2] = effectiveBg.b
+          this.bg[offset + 3] = effectiveBg.a
+        }
       }
     }
   }
@@ -333,59 +355,7 @@ export class BrowserBuffer {
       const fillWidth = width - (sides.left ? 1 : 0) - (sides.right ? 1 : 0)
       const fillHeight = height - (sides.top ? 1 : 0) - (sides.bottom ? 1 : 0)
       if (fillWidth > 0 && fillHeight > 0) {
-        const borderRadius = options.borderRadius ?? 0
-        if (borderRadius > 0) {
-          // Register rounded region for canvas painter to draw with ctx.roundRect()
-          const effectiveBg = this.applyOpacity(backgroundColor)
-
-          // Capture current scissor rect so the canvas painter can clip the rounded background.
-          // Without this, ctx.roundRect() bypasses the cell-based scissor system entirely.
-          let clipRect: { x: number; y: number; width: number; height: number } | undefined
-          let fullyClipped = false
-          if (this.scissorStack.length > 0) {
-            const sr = this.scissorStack[this.scissorStack.length - 1]
-            if (fillStartX >= sr.x + sr.width || fillStartX + fillWidth <= sr.x ||
-                fillStartY >= sr.y + sr.height || fillStartY + fillHeight <= sr.y) {
-              fullyClipped = true
-            } else {
-              clipRect = { x: sr.x, y: sr.y, width: sr.width, height: sr.height }
-            }
-          }
-
-          if (!fullyClipped) {
-            this.roundedBackgrounds.push({
-              x: fillStartX,
-              y: fillStartY,
-              width: fillWidth,
-              height: fillHeight,
-              color: { r: effectiveBg.r, g: effectiveBg.g, b: effectiveBg.b, a: effectiveBg.a },
-              radius: borderRadius,
-              clipRect,
-            })
-          }
-          // Fill interior cells but skip corners so cell-based paint doesn't overwrite rounded edges
-          for (let row = fillStartY; row < fillStartY + fillHeight && row < this._height; row++) {
-            for (let col = fillStartX; col < fillStartX + fillWidth && col < this._width; col++) {
-              if (col < 0 || row < 0) continue
-              if (!this.isInScissor(col, row)) continue
-              const isCorner =
-                (row === fillStartY && col === fillStartX) ||
-                (row === fillStartY && col === fillStartX + fillWidth - 1) ||
-                (row === fillStartY + fillHeight - 1 && col === fillStartX) ||
-                (row === fillStartY + fillHeight - 1 && col === fillStartX + fillWidth - 1)
-              if (isCorner) continue
-              const idx = row * this._width + col
-              const offset = idx * 4
-              this.char[idx] = 0x20
-              this.bg[offset] = effectiveBg.r
-              this.bg[offset + 1] = effectiveBg.g
-              this.bg[offset + 2] = effectiveBg.b
-              this.bg[offset + 3] = effectiveBg.a
-            }
-          }
-        } else {
-          this.fillRect(fillStartX, fillStartY, fillWidth, fillHeight, backgroundColor)
-        }
+        this.fillRect(fillStartX, fillStartY, fillWidth, fillHeight, backgroundColor)
       }
     }
 
@@ -619,7 +589,7 @@ export class BrowserBuffer {
         for (const ch of text) {
           if (curX >= this._width) break
           if (curX >= 0 && y + lineIdx >= 0 && y + lineIdx < this._height) {
-            this.setCell(curX, y + lineIdx, ch, fgColor, bgColor, attr)
+            this.setCellWithAlphaBlending(curX, y + lineIdx, ch, fgColor, bgColor, attr)
           }
           curX++
         }

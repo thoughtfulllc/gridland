@@ -1,6 +1,6 @@
 ---
 name: audit-render
-description: Audit the browser rendering pipeline for scissor/clipping bypass bugs. Use when touching browser-buffer.ts, canvas-painter.ts, or adding visual features like borderRadius.
+description: Audit the browser rendering pipeline for scissor/clipping bypass bugs. Use when touching browser-buffer.ts, canvas-painter.ts, or adding new visual features.
 ---
 
 Audit the rendering pipeline to ensure every canvas-level drawing path respects the scissor (overflow:hidden) system.

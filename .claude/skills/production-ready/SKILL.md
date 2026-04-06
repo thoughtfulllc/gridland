@@ -163,9 +163,62 @@ If the component has an equivalent in `ai-elements` (at `/Users/jessicacheng/tho
 - Are there compound subcomponents (Footer, Tools, ActionMenu) that Gridland is missing for common use cases?
 - Flag gaps as API design suggestions (P2), not blockers — TUI and web have different requirements
 
-## Phase 5 — Produce report and fix plan
+## Phase 5 — Draft report (internal, do NOT present yet)
 
-Output a structured report:
+Draft the report internally. Do NOT show the user anything yet — you must self-verify first (Phase 6).
+
+## Phase 6 — Self-verification (REQUIRED before presenting)
+
+This phase exists because issues repeatedly slip through single-pass reviews. You MUST complete every step below before presenting the report to the user. The goal is to catch everything in ONE run.
+
+### Step 1: Checklist audit
+
+Walk through EVERY numbered item in the Phase 3 checklist (1–16) and confirm each one was actually checked against the code. For each item, write a one-line internal note:
+- `[checked — pass]` or `[checked — FAIL: <issue>]` or `[N/A — <reason>]`
+
+If any item shows `[not checked]`, go back and check it now. Do not skip items because they "probably" pass.
+
+### Step 2: Re-read the source file
+
+Re-read the component source file (`packages/ui/components/<name>/<name>.tsx`) one more time. On this read-through, focus specifically on:
+- Every `interface` and `type` — are they all exported from `index.ts`? Including props types for sub-components?
+- Every prop — does it have JSDoc? Is it in the docs API table?
+- Every conditional branch — is there a test for it?
+- Every `useMemo`/`useCallback`/`useEffect` — correct deps?
+- Any inline prop types (e.g., `{ children: ReactNode }`) that should be named interfaces?
+
+### Step 3: Cross-check exports
+
+Run this verification:
+1. List every `export` in the component source file
+2. For each export, grep `packages/ui/components/index.ts` to confirm it's re-exported
+3. For each exported `type`/`interface`, confirm it has a `export type { ... }` line in `index.ts`
+4. Flag any export that exists in the source but not in `index.ts`
+
+### Step 4: Cross-check docs against code
+
+For each prop in the component's `Props` interface:
+1. Verify it appears in the docs API Reference table with the correct type, default, and description
+2. Verify at least one code example uses it (for non-trivial props)
+
+For each code example in the docs:
+1. Verify the imports are valid (exist in `index.ts`)
+2. Verify all required props are passed
+3. Verify no removed/renamed props are used
+
+### Step 5: Verify fix plan completeness
+
+For every issue found (P0, P1, P2):
+1. Confirm the fix plan has a concrete action item with a file path
+2. Confirm the fix plan actions will actually resolve the issue (not just describe it)
+
+### Step 6: Final gate
+
+Ask yourself: "If I run `/production-ready <component>` again after these fixes, will I find zero new issues?" If the answer is no, you missed something — go back and find it.
+
+## Phase 7 — Present report
+
+Only after completing Phase 6, output the final report:
 
 ```
 ## Production Readiness: <ComponentName>

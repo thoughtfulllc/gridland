@@ -29,4 +29,8 @@ export interface Theme {
   focusFocused: string
   /** Dimmed focus color — idle hint that the component is selectable */
   focusIdle: string
+  /** Background color for assistant message bubbles */
+  messageAssistant: string
+  /** Background color for user message bubbles */
+  messageUser: string
 }
