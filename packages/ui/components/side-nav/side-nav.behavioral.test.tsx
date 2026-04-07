@@ -217,4 +217,120 @@ describe("SideNav behavior", () => {
     await settle(flush)
     expect(screen.text()).toContain("interacting:true")
   })
+
+  // ── requestedActiveId ─────────────────────────────────────────────
+
+  it("requestedActiveId switches the active item", async () => {
+    const { screen, flush, rerender } = renderTui(
+      <SideNav items={items}>{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+    expect(screen.text()).toContain("active:General")
+
+    rerender(
+      <SideNav items={items} requestedActiveId="keybinds">{renderPanel}</SideNav>,
+    )
+    await settle(flush)
+    expect(screen.text()).toContain("active:Keybinds")
+  })
+
+  it("requestedActiveId with invalid ID is a no-op", async () => {
+    const { screen, flush, rerender } = renderTui(
+      <SideNav items={items}>{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+    expect(screen.text()).toContain("active:General")
+
+    rerender(
+      <SideNav items={items} requestedActiveId="nonexistent">{renderPanel}</SideNav>,
+    )
+    await settle(flush)
+    expect(screen.text()).toContain("active:General")
+  })
+
+  // ── Edge cases ────────────────────────────────────────────────────
+
+  it("handles empty items array without crashing", () => {
+    const { flush } = renderTui(
+      <SideNav items={[]}>{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+    // Should not throw — renders null gracefully
+  })
+
+  it("requestedActiveId on initial mount syncs focus and panel", async () => {
+    const { screen, flush } = renderTui(
+      <SideNav items={items} requestedActiveId="keybinds">{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    await settle(flush)
+    expect(screen.text()).toContain("▸ Keybinds")
+    expect(screen.text()).toContain("active:Keybinds")
+  })
+
+  // ── onActiveItemChange ────────────────────────────────────────────
+
+  it("onActiveItemChange fires when active item changes via keyboard", async () => {
+    const changes: string[] = []
+    const { keys, flush } = renderTui(
+      <SideNav items={items} onActiveItemChange={(item) => changes.push(item.id)}>{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+    expect(changes).toEqual([])
+
+    keys.down()
+    await settle(flush)
+    expect(changes).toEqual(["theme"])
+
+    keys.down()
+    await settle(flush)
+    expect(changes).toEqual(["theme", "keybinds"])
+  })
+
+  it("onActiveItemChange fires when active item changes via requestedActiveId", async () => {
+    const changes: string[] = []
+    const { flush, rerender } = renderTui(
+      <SideNav items={items} onActiveItemChange={(item) => changes.push(item.id)}>{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+    expect(changes).toEqual([])
+
+    rerender(
+      <SideNav items={items} requestedActiveId="keybinds" onActiveItemChange={(item) => changes.push(item.id)}>{renderPanel}</SideNav>,
+    )
+    await settle(flush)
+    expect(changes).toEqual(["keybinds"])
+  })
+
+  it("clamps activeIndex when items shrink", async () => {
+    const longItems = [
+      { id: "a", name: "Alpha" },
+      { id: "b", name: "Beta" },
+      { id: "c", name: "Charlie" },
+    ]
+    const { screen, keys, flush, rerender } = renderTui(
+      <SideNav items={longItems}>{renderPanel}</SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+
+    // Navigate to last item
+    keys.down()
+    await settle(flush)
+    keys.down()
+    await settle(flush)
+    expect(screen.text()).toContain("active:Charlie")
+
+    // Shrink items — activeIndex should clamp
+    rerender(
+      <SideNav items={[longItems[0]]}>{renderPanel}</SideNav>,
+    )
+    await settle(flush)
+    expect(screen.text()).toContain("active:Alpha")
+  })
 })

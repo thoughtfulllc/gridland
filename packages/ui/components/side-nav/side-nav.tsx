@@ -50,6 +50,8 @@ export interface SideNavProps {
    * User navigation via arrow keys always overrides this after it fires.
    */
   requestedActiveId?: string
+  /** Called when the active item changes, whether by keyboard navigation or `requestedActiveId`. */
+  onActiveItemChange?: (item: SideNavItem) => void
 }
 
 // ── NavItem ───────────────────────────────────────────────────────────
@@ -64,12 +66,17 @@ function NavItemRow({ item, autoFocus, onFocus, onSelectChange, handlerRef }: {
   const theme = useTheme()
   const { isFocused, isSelected, focusId, focusRef } = useFocus({ id: item.id, autoFocus })
 
+  const onFocusRef = useRef(onFocus)
+  onFocusRef.current = onFocus
+  const onSelectChangeRef = useRef(onSelectChange)
+  onSelectChangeRef.current = onSelectChange
+
   useEffect(() => {
-    if (isFocused) onFocus()
+    if (isFocused) onFocusRef.current()
   }, [isFocused])
 
   useEffect(() => {
-    onSelectChange(isSelected)
+    onSelectChangeRef.current(isSelected)
   }, [isSelected])
 
   useKeyboard((event) => {
@@ -118,16 +125,27 @@ export function SideNav({
   showStatusBar = true,
   showHeader = true,
   requestedActiveId,
+  onActiveItemChange,
 }: SideNavProps) {
   const theme = useTheme()
-  const [activeIndex, setActiveIndex] = useState(0)
+  const initialIndex = requestedActiveId
+    ? Math.max(0, items.findIndex(i => i.id === requestedActiveId))
+    : 0
+  const [activeIndex, setActiveIndex] = useState(initialIndex)
   const [isInteracting, setIsInteracting] = useState(false)
   const handlerRef = useRef<((event: any) => void) | null>(null)
-  const lastRequestedActiveIdRef = useRef<string | undefined>()
+  const lastRequestedActiveIdRef = useRef<string | undefined>(requestedActiveId)
   // Tracks which nav item triggered the interaction, decoupled from activeIndex.
   // Without this, changing activeIndex programmatically breaks the isInteracting
   // update when that original item deselects (e.g. on Esc).
   const interactingItemIdRef = useRef<string | null>(null)
+
+  // Clamp activeIndex when items shrink to prevent out-of-bounds access.
+  useEffect(() => {
+    if (activeIndex >= items.length && items.length > 0) {
+      setActiveIndex(items.length - 1)
+    }
+  }, [activeIndex, items.length])
 
   // Switch active item when requestedActiveId changes to a new value.
   // Uses a ref to avoid re-processing the same ID if items re-render.
@@ -142,7 +160,18 @@ export function SideNav({
     handlerRef.current = handler
   }, [])
 
-  const activeItem = items[activeIndex]
+  const clampedIndex = Math.min(activeIndex, Math.max(0, items.length - 1))
+  const activeItem = items[clampedIndex]
+
+  const prevActiveIdRef = useRef(activeItem?.id)
+  useEffect(() => {
+    if (activeItem && activeItem.id !== prevActiveIdRef.current) {
+      prevActiveIdRef.current = activeItem.id
+      onActiveItemChange?.(activeItem)
+    }
+  }, [activeItem?.id])
+
+  if (!activeItem) return null
 
   return (
     <FocusProvider selectable>
@@ -151,7 +180,7 @@ export function SideNav({
         <box flexDirection="column" width={sidebarWidth} border={["right"]} borderColor={theme.borderMuted}>
           {title && (
             <box paddingX={2} paddingTop={1}>
-              <text style={textStyle({ bold: true, fg: theme.focusFocused })}>
+              <text style={textStyle({ bold: true, fg: theme.primary })}>
                 {title}
               </text>
             </box>
@@ -161,7 +190,7 @@ export function SideNav({
               <NavItemRow
                 key={item.id}
                 item={item}
-                autoFocus={i === 0}
+                autoFocus={i === initialIndex}
                 onFocus={() => setActiveIndex(i)}
                 onSelectChange={(selected) => {
                   if (selected) {
@@ -188,7 +217,7 @@ export function SideNav({
             >
               {showHeader && (
                 <box paddingX={1}>
-                  <text style={textStyle({ bold: true, fg: theme.focusSelected })}>
+                  <text style={textStyle({ bold: true, fg: theme.primary })}>
                     {activeItem.name}
                   </text>
                 </box>

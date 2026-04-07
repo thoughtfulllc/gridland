@@ -2,9 +2,9 @@
 import { SideNav, textStyle } from "@gridland/ui"
 
 const items = [
-  { id: "inbox", name: "Inbox" },
-  { id: "drafts", name: "Drafts" },
-  { id: "sent", name: "Sent" },
+  { id: "inbox", name: "Inbox", suffix: "(3)" },
+  { id: "drafts", name: "Drafts", suffix: "(1)" },
+  { id: "sent", name: "Sent", suffix: "(2)" },
   { id: "trash", name: "Trash" },
 ]
 

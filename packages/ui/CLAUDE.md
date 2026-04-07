@@ -4,7 +4,7 @@
 
 | Component | Key Props |
 |---|---|
-| `SideNav` | `items`, `requestedActiveId`, `sidebarWidth`, `title`, `showStatusBar`, `children({ activeItem, isInteracting, captureKeyboard })`. Colors from `useTheme()` — focus indicators from `theme.focusSelected`/`focusFocused`/`focusIdle`, structural border from `theme.border` |
+| `SideNav` | `items`, `requestedActiveId`, `onActiveItemChange`, `sidebarWidth`, `title`, `showStatusBar`, `children({ activeItem, isInteracting, captureKeyboard })`. Colors from `useTheme()` — focus indicators from `theme.focusSelected`/`focusFocused`/`focusIdle`, structural border from `theme.borderMuted`, title/header from `theme.primary` |
 | `PromptInput` | `onSubmit`, `onStop`, `status`, `value`, `onChange`, `placeholder`, `disabled`, `focus`, `useKeyboard`, `dividerColor`, `dividerDashed`, `showDividers`, `model`, `commands`, `skills`, `files`. Compound: `PromptInput.Textarea`, `.Suggestions`, `.Submit`, `.Divider`, `.StatusText`, `.Model` |
 | `Message` | `role`, `isStreaming`, `backgroundColor`. Named exports: `MessageContent`, `MessageText`, `MessageMarkdown` |
 | `Modal` | `title`, `useKeyboard`, `onClose`, `borderColor`, `borderStyle` |

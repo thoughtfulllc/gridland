@@ -96,10 +96,48 @@ function MyPanel({ isInteracting, captureKeyboard }) {
 </SideNav>
 ```
 
+### Item Suffixes
+
+Use `suffix` on items to show additional context like counts or badges.
+
+```tsx title="Suffixes"
+const items = [
+  { id: "inbox", name: "Inbox", suffix: "(3)" },
+  { id: "drafts", name: "Drafts", suffix: "(1)" },
+  { id: "sent", name: "Sent" },
+]
+
+<SideNav items={items} title="Mail">
+  {({ activeItem }) => <Content id={activeItem.id} />}
+</SideNav>
+```
+
+### Without Header
+
+```tsx title="No header"
+<SideNav items={items} showHeader={false}>
+  {({ activeItem }) => <Content id={activeItem.id} />}
+</SideNav>
+```
+
 ### Without Status Bar
 
 ```tsx title="No status bar"
 <SideNav items={items} showStatusBar={false}>
+  {({ activeItem }) => <Content id={activeItem.id} />}
+</SideNav>
+```
+
+### Programmatic Navigation
+
+Use `requestedActiveId` to switch the active item from outside the component.
+
+```tsx title="Programmatic navigation"
+const [activeId, setActiveId] = useState<string>()
+
+<button onClick={() => setActiveId("settings")}>Go to Settings</button>
+
+<SideNav items={items} requestedActiveId={activeId}>
   {({ activeItem }) => <Content id={activeItem.id} />}
 </SideNav>
 ```
@@ -123,9 +161,11 @@ function MyPanel({ isInteracting, captureKeyboard }) {
 | `sidebarWidth` | `number` | `20` | Width of the sidebar in columns |
 | `title` | `string` | - | Optional title above the sidebar |
 | `showStatusBar` | `boolean` | `true` | Show the keyboard shortcuts status bar |
+| `showHeader` | `boolean` | `true` | Show the active item name as a header in the main panel |
 | `requestedActiveId` | `string` | - | Programmatically switch active item by ID |
+| `onActiveItemChange` | `(item: SideNavItem) => void` | - | Called when the active item changes |
 
-Colors are derived from the theme (`useTheme()`): focus indicators use `theme.focusSelected`/`focusFocused`/`focusIdle`, structural borders use `theme.border`, and idle text uses `theme.muted`. Customize by providing a different theme via `ThemeProvider`.
+Colors are derived from the theme (`useTheme()`): focus indicators use `theme.focusSelected`/`focusFocused`/`focusIdle`, structural borders use `theme.borderMuted`, title and header use `theme.primary`, and idle text uses `theme.muted`. Customize by providing a different theme via `ThemeProvider`.
 
 ### SideNavItem
 
@@ -133,6 +173,7 @@ Colors are derived from the theme (`useTheme()`): focus indicators use `theme.fo
 |-------|------|-------------|
 | `id` | `string` | Unique identifier |
 | `name` | `string` | Display label in the sidebar |
+| `suffix` | `string` | Optional text appended after the item name |
 
 ### Children Render Context
 

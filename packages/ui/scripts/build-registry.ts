@@ -267,7 +267,7 @@ const ITEMS: ItemConfig[] = [
     type: "registry:ui",
     title: "Side Nav",
     description: "Sidebar navigation with focus system integration and keyboard-driven interaction",
-    registryDependencies: ["text-style", "status-bar"],
+    registryDependencies: ["theme", "text-style", "status-bar"],
     srcPath: "side-nav/side-nav.tsx",
     ext: ".tsx",
   },
