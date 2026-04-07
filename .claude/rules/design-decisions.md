@@ -54,6 +54,12 @@ The 4-state border affordance pattern (selected → sibling-selected → focused
 
 Structural borders (SideNav sidebar divider, Modal outline) use `theme.border`. Focus borders (4-state affordance) use `theme.focusSelected`/`focusFocused`/`focusIdle` via the hooks. These are distinct concerns — a structural border is always visible and stateless, while a focus border changes based on interaction state.
 
+## `isAnySelected` is scope-aware for global-scope components
+
+When `PUSH_SCOPE` fires, `selectedId` is cleared to `null` and the previous selection is saved in the scope's `savedSelectedId`. Without scope-awareness, `isAnySelected` (`selectedId !== null`) would return `false` for all components — causing sibling borders to drop to idle state instead of staying hidden. This broke the 4-state border affordance for components like SideNav items, where item A is "selected" behind a scope but item B's border incorrectly reappeared as dimmed.
+
+The fix: global-scope components (`scopeId == null`) additionally check `scopes.some(s => s.savedSelectedId !== null)`. This is intentionally limited to global-scope components. If inner-scope components also checked, they would all see `isAnySelected=true` with no corresponding `isSelected=true`, causing every border inside the scope to vanish (state 2: transparent). Components inside a `FocusScope` have their own independent affordance based solely on the active `selectedId`.
+
 ## AI SDK agnosticism — `ChatStatus` is our own type
 
 SDK-specific status types (e.g., from `@ai-sdk/react`) couple components to a specific vendor. Our `ChatStatus = "ready" | "submitted" | "streaming" | "error"` is defined in our codebase and mapped from whatever SDK the consumer uses.

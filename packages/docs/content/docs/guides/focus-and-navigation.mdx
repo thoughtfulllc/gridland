@@ -40,7 +40,7 @@ Gridland provides a unified focus and input system that works identically in bot
 
 ```tsx title="app.tsx"
 import { FocusProvider, useFocus, useKeyboard, useCapturedKeyboard, useShortcuts, useFocusedShortcuts, FocusScope } from "@gridland/utils"
-import { GridlandProvider, StatusBar } from "@gridland/ui"
+import { GridlandProvider, StatusBar, useFocusBorderStyle } from "@gridland/ui"
 
 // 1. Wrap your app with FocusProvider
 function App() {
@@ -60,7 +60,8 @@ function App() {
 
 // 2. Make components focusable with useFocus
 function Cell({ id, label, autoFocus }) {
-  const { isFocused, isSelected, focusId, focusRef } = useFocus({ id, autoFocus })
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id, autoFocus })
+  const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   // 3. Handle keyboard input when focused
   useKeyboard((e) => {
@@ -76,7 +77,7 @@ function Cell({ id, label, autoFocus }) {
   )
 
   return (
-    <box ref={focusRef} border borderColor={isSelected ? "blue" : isFocused ? "green" : "gray"}>
+    <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor}>
       <text>{label}</text>
       <text>{isSelected ? "selected" : "not selected"}</text>
     </box>
@@ -96,7 +97,7 @@ function AppStatusBar() {
 
 **`useFocus`** makes a component focusable. It returns:
 
-- `isFocused` / `isSelected` / `isAnySelected` for styling based on focus state
+- `isFocused` / `isSelected` / `isAnySelected` for styling based on focus state. `isAnySelected` is scope-aware: it stays true for global-scope components even when the selection is saved behind a `FocusScope`
 - `focusId` to pass to other hooks like `useKeyboard` and `useShortcuts`
 - `focusRef` to attach to the root element so arrow-key navigation can measure positions
 - `focus()` / `blur()` to imperatively move focus

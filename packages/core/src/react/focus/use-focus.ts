@@ -16,7 +16,9 @@ export interface UseFocusReturn {
   isFocused: boolean
   /** Whether this component is currently selected (entered for interaction). */
   isSelected: boolean
-  /** Whether any component in the focus tree is currently selected. */
+  /** Whether any component in the focus tree is currently selected.
+   * For global-scope components, this also returns true when a selection is saved
+   * behind a FocusScope (e.g., after PUSH_SCOPE), so sibling borders correctly hide. */
   isAnySelected: boolean
   focus: () => void
   blur: () => void
@@ -86,9 +88,19 @@ export function useFocus(options: UseFocusOptions = {}): UseFocusReturn {
     dispatch({ type: "PATCH_ENTRY", id, patch: { tabIndex, disabled, scopeId, selectable } })
   }, [tabIndex, disabled, scopeId, selectable])
 
+  // Check if any scope has a saved selection — means a peer at this level is still
+  // logically selected even though selectedId was cleared by PUSH_SCOPE.
+  // Only relevant for components outside the pushed scope (scopeId matches their level).
+  const hasScopeSavedSelection = useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    () => store?.getState().scopes.some(s => s.savedSelectedId !== null) ?? false,
+    () => false,
+  )
+
   const isFocused = focusedId === id
   const isSelected = selectedId === id || isScopeSelected
   const isAnySelected = selectedId !== null
+    || (scopeId == null && hasScopeSavedSelection)
 
   const focus = useCallback(() => {
     dispatch({ type: "FOCUS", id })

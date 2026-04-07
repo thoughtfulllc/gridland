@@ -21,6 +21,7 @@ Props: `trap`, `selectable`, `autoFocus`, `autoSelect`, `restoreOnUnmount`
 **`useFocus`** — Registers a focusable element.
 Options: `id`, `tabIndex`, `autoFocus`, `disabled`, `scopeId`, `selectable`
 Returns: `isFocused`, `isSelected`, `isAnySelected`, `focusId`, `focusRef`, `focus`, `blur`, `select`, `deselect`
+- `isAnySelected` is scope-aware for global-scope components: it returns true when a selection is saved behind a `FocusScope` (via `PUSH_SCOPE`), so sibling borders correctly hide even when `selectedId` is cleared inside the scope
 
 **`useShortcuts(shortcuts, focusId)`** — Registers keyboard shortcut hints shown in StatusBar.
 
@@ -47,7 +48,7 @@ Every selectable component must show visual affordance via borders or dividers. 
 | # | State | Condition | Border | Divider |
 |---|-------|-----------|--------|---------|
 | 1 | Selected | `isSelected` | bright, rounded | bright, solid |
-| 2 | Sibling selected | `isAnySelected` | transparent (hidden) | `undefined` (design border shows) |
+| 2 | Sibling selected | `isAnySelected` (scope-aware) | transparent (hidden) | `undefined` (design border shows) |
 | 3 | Focused | `isFocused` | bright, dashed | bright, dashed |
 | 4 | Idle | none | dimmed, rounded | dimmed, solid |
 
