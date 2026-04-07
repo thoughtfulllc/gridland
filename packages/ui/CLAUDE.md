@@ -16,7 +16,6 @@
 | `Table` | Compound: `TableRoot`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption` |
 | `TabBar` | `options`, `selectedIndex` |
 | `Tabs` | Compound: `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` |
-| `ChatPanel` | `messages`, `status`, `onSendMessage`, `onStop`, `placeholder`, `focus`, `useKeyboard` |
 | `Link` | `url`, `children`, `underline`, `color` |
 | `Ascii` | `text`, `font`, `color` |
 | `Spinner` | `variant`, `text`, `color`, `status` |

@@ -78,9 +78,6 @@ export type {
 export { CommandProvider, CommandRegistry, useCommandRegistry, useOptionalCommandRegistry, useRegisterCommand, useRegisterCommands, useRegistryCommands } from "./prompt-input/command-registry"
 export type { CommandProviderProps, CommandRegistryListener } from "./prompt-input/command-registry"
 
-export { ChatPanel } from "./chat/chat"
-export type { ChatPanelProps, ChatMessage, ToolCallInfo } from "./chat/chat"
-
 export { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep, useChainOfThought } from "./chain-of-thought/chain-of-thought"
 export type { ChainOfThoughtProps, ChainOfThoughtHeaderProps, ChainOfThoughtContentProps, ChainOfThoughtStepProps, ChainOfThoughtStepData, Step } from "./chain-of-thought/chain-of-thought"
 

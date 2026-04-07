@@ -137,15 +137,6 @@ const ITEMS: ItemConfig[] = [
     ext: ".tsx",
   },
   {
-    name: "chat",
-    type: "registry:ui",
-    title: "Chat",
-    description: "Vertical chat interface with messages, tool calls, streaming, and input",
-    registryDependencies: ["theme", "text-style", "prompt-input"],
-    srcPath: "chat/chat.tsx",
-    ext: ".tsx",
-  },
-  {
     name: "gradient",
     type: "registry:ui",
     title: "Gradient",

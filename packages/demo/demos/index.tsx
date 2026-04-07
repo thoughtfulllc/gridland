@@ -13,7 +13,6 @@ import { TabBarApp } from "./tabs"
 import { StatusBarApp } from "./status-bar"
 import { ModalApp } from "./modal"
 import { PrimitivesApp } from "./primitives"
-import { ChatApp } from "./chat"
 import { ChainOfThoughtApp } from "./chain-of-thought"
 import { MessageApp } from "./message"
 import { TerminalWindowApp } from "./terminal-window"
@@ -44,7 +43,6 @@ export {
   StatusBarApp,
   ModalApp,
   PrimitivesApp,
-  ChatApp,
   ChainOfThoughtApp,
   MessageApp,
   TerminalWindowApp,
@@ -81,7 +79,6 @@ export const demos: Demo[] = [
   { name: "status-bar", app: () => <StatusBarApp /> },
   { name: "modal", app: () => <ModalApp /> },
   { name: "primitives", app: () => <PrimitivesApp /> },
-  { name: "chat", app: () => <ChatApp /> },
   { name: "chain-of-thought", app: () => <ChainOfThoughtApp /> },
   { name: "message", app: () => <MessageApp /> },
   { name: "terminal-window", app: () => <TerminalWindowApp /> },

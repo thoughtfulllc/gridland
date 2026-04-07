@@ -21,7 +21,7 @@ function readDistBundle(): string {
 const AVAILABLE_DEMOS = [
   "gradient", "ascii", "table", "spinner", "select-input",
   "multi-select", "prompt-input", "text-input", "link", "tabs", "status-bar",
-  "modal", "primitives", "chat", "chain-of-thought", "message", "terminal-window",
+  "modal", "primitives", "chain-of-thought", "message", "terminal-window",
   "focus-grid", "focus-chat", "focus", "pointer", "cursor-highlight", "text-style",
   "headless", "theming", "landing", "ripple", "puzzle", "side-nav",
 ]
@@ -96,7 +96,6 @@ describe("bundle", () => {
     expect(source).toContain("Spinner")
     expect(source).toContain("SelectInput")
     expect(source).toContain("Modal")
-    expect(source).toContain("ChatPanel")
     expect(source).toContain("TextInput")
     expect(source).toContain("TabBar")
   })

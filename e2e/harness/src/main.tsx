@@ -12,7 +12,6 @@ import { AllComponentsFixture } from "./fixtures/all-components"
 import { TabBarFixture } from "./fixtures/tab-bar"
 import { StatusBarFixture } from "./fixtures/status-bar"
 import { ModalFixture } from "./fixtures/modal"
-import { ChatFixture } from "./fixtures/chat"
 import { SideNavFixture } from "./fixtures/side-nav"
 import { SideNavInteractiveFixture } from "./fixtures/side-nav-interactive"
 import { PromptInputFixture } from "./fixtures/prompt-input"
@@ -46,7 +45,6 @@ const routes: Record<string, () => JSX.Element> = {
   "/tab-bar": TabBarFixture,
   "/status-bar": StatusBarFixture,
   "/modal": ModalFixture,
-  "/chat": ChatFixture,
   "/side-nav": SideNavFixture,
   "/side-nav-interactive": SideNavInteractiveFixture,
   "/prompt-input": PromptInputFixture,
