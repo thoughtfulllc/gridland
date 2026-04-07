@@ -131,7 +131,7 @@ const ITEMS: ItemConfig[] = [
     name: "ascii",
     type: "registry:ui",
     title: "Ascii",
-    description: "ASCII art text renderer using figlet fonts",
+    description: "ASCII art text renderer with built-in font styles",
     registryDependencies: ["theme"],
     srcPath: "ascii/ascii.tsx",
     ext: ".tsx",

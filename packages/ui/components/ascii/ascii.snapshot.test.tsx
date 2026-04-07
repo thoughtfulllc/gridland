@@ -1,25 +1,38 @@
 // @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
-import figlet from "figlet"
-// @ts-ignore
-import ansiShadow from "figlet/importable-fonts/ANSI Shadow.js"
-
-figlet.parseFont("ANSI Shadow", ansiShadow)
+import { Ascii } from "./ascii"
 
 afterEach(() => cleanup())
 
 describe("Ascii snapshots", () => {
-  it("renders figlet text", () => {
-    const art = figlet.textSync("Hello", { font: "ANSI Shadow" as any })
-    const lines = art.split("\n").filter((l: string) => l.trimEnd().length > 0)
-
+  it("renders tiny font", () => {
     const { screen } = renderTui(
-      <box flexDirection="column">
-        {lines.map((line: string, i: number) => (
-          <text key={i} fg="#88c0d0" bold>{line}</text>
-        ))}
-      </box>,
+      <Ascii text="Hello" font="tiny" />,
+      { cols: 60, rows: 12 },
+    )
+    expect(screen.text()).toMatchSnapshot()
+  })
+
+  it("renders block font", () => {
+    const { screen } = renderTui(
+      <Ascii text="Hello" font="block" />,
+      { cols: 60, rows: 12 },
+    )
+    expect(screen.text()).toMatchSnapshot()
+  })
+
+  it("renders slick font", () => {
+    const { screen } = renderTui(
+      <Ascii text="Hello" font="slick" />,
+      { cols: 60, rows: 12 },
+    )
+    expect(screen.text()).toMatchSnapshot()
+  })
+
+  it("renders shade font", () => {
+    const { screen } = renderTui(
+      <Ascii text="Hello" font="shade" />,
       { cols: 60, rows: 12 },
     )
     expect(screen.text()).toMatchSnapshot()

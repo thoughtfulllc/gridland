@@ -21,7 +21,7 @@ paths:
 | **Input** | `<input>`, `<textarea>` | Require Zig FFI (EditBuffer). `<input>` = single-line, `<textarea>` = multi-line |
 | **Selection** | `<select>`, `<tab-select>` | Dropdown and tab-style selectors |
 | **Content** | `<code>`, `<markdown>`, `<diff>` | Syntax-highlighted code, markdown rendering, diff viewer |
-| **Display** | `<ascii-font>`, `<line-number>` | ASCII art text, line number gutter |
+| **Display** | `<ascii-font>`, `<line-number>` | Require Zig FFI (FrameBuffer). ASCII art text, line number gutter |
 
 ## Layout Rules
 
@@ -56,6 +56,19 @@ import { textStyle } from "@gridland/ui"
 
 - `<span style={{ bold: true }}>` — bold/dim/inverse as style keys are silently ignored; use `textStyle()` helper or semantic elements
 
+## Zig FFI Intrinsics — Browser Limitations
+
+The following intrinsics require the Zig FFI native library and **cannot render in the browser (docs site, `@gridland/web`):**
+
+| Intrinsic | Zig dependency | Workaround for browser/demos |
+|-----------|---------------|------------------------------|
+| `<input>`, `<textarea>` | EditBuffer | N/A — these components are terminal-only |
+| `<ascii-font>`, `<line-number>` | FrameBuffer | Use a pure-JS alternative (e.g., `figlet` + `<text>` elements) |
+
+**This means:** Components wrapping these intrinsics (e.g., `Ascii` wraps `<ascii-font>`) will crash in the browser with a `resolveRenderLib` error from `zig-registry.ts`. Demos embedded in the docs site **must not** render these intrinsics directly. Instead, use pure-JS libraries to achieve the same visual effect with safe intrinsics like `<text>` and `<span>`.
+
+Example: The Ascii demo uses `figlet` (a JS ASCII art library) with `<text>` elements instead of the `Ascii` component, because `<ascii-font>` requires Zig FFI.
+
 ## Snapshot Testing
 
-Components using the `<input>` intrinsic (e.g. TextInput) cannot render in the test environment because the underlying EditBuffer requires the Zig FFI library. Their snapshots capture the ErrorBoundary fallback instead.
+Components using Zig FFI intrinsics (e.g. `<input>`, `<ascii-font>`) cannot render in the test environment because the underlying native libraries require the Zig FFI. Their snapshots capture the ErrorBoundary fallback instead.

@@ -3,7 +3,7 @@ import { useTheme } from "./theme"
 export interface AsciiProps {
   /** The text string to render as ASCII art. */
   text: string
-  /** Font variant for the ASCII rendering. */
+  /** Font variant for the ASCII rendering. Available fonts: tiny, block, slick, shade. Defaults to "tiny". */
   font?: "tiny" | "block" | "slick" | "shade"
   /** Override the text color. Defaults to theme.primary. */
   color?: string
