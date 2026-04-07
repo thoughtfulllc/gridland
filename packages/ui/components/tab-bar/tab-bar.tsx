@@ -224,12 +224,16 @@ export interface TabBarProps {
   options: string[]
   /** Zero-based index of the currently selected option. */
   selectedIndex: number
+  /** Called when the active tab changes via keyboard navigation. Receives the new zero-based index. */
+  onValueChange?: (index: number) => void
   /** Whether the tab bar appears focused. */
   focused?: boolean
   /** The foreground color applied to the selected option when focused. */
   activeColor?: string
   /** Whether to show the horizontal separator below tabs. */
   separator?: boolean
+  /** Keyboard handler — pass useKeyboard from @gridland/utils */
+  useKeyboard?: (handler: (event: any) => void) => void
 }
 
 /** Simple tab bar API wrapping the compound Tabs components. */
@@ -237,13 +241,15 @@ export function TabBar({
   label,
   options,
   selectedIndex,
+  onValueChange,
   focused = true,
   activeColor,
   separator = true,
+  useKeyboard,
 }: TabBarProps) {
   return (
-    <Tabs value={String(selectedIndex)}>
-      <TabsList label={label} focused={focused} activeColor={activeColor} separator={separator}>
+    <Tabs value={String(selectedIndex)} onValueChange={(v) => onValueChange?.(Number(v))}>
+      <TabsList label={label} focused={focused} activeColor={activeColor} separator={separator} useKeyboard={useKeyboard}>
         {options.map((option, i) => (
           <TabsTrigger key={i} value={String(i)}>
             {option}

@@ -562,7 +562,7 @@ export function PromptInput({
     // Handle async onSubmit: clear on resolve, preserve on reject
     if (result instanceof Promise) {
       result.then(
-        () => clearInput(),
+        () => { if (valueRef.current === text) clearInput() },
         (err: unknown) => { onError?.(err) },
       )
     } else {
