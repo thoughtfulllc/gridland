@@ -1,138 +1,109 @@
 # Gridland
 
-Gridland renders [opentui](https://github.com/nicosalm/opentui) React apps directly in the browser using HTML5 `<canvas>`, bypassing any terminal emulator. Gridland is built on the opentui engine.
+[![Build](https://github.com/thoughtfulllc/gridland/actions/workflows/test.yml/badge.svg)](https://github.com/thoughtfulllc/gridland/actions/workflows/test.yml)
 
-![Screenshot](screenshot.png)
+**[Website](https://gridland.io)** | **[Docs](https://gridland.io/docs)** | **[npm](https://www.npmjs.com/org/gridland)**
 
-## Architecture
+Build terminal apps that run in the browser (and the terminal) with React. The [Gridland website](https://www.gridland.io) is built with Gridland.
 
-```
-React JSX  ->  @opentui/react reconciler  ->  Renderable tree  ->  Yoga layout
-  ->  renderSelf() calls buffer.drawText / drawBox / setCell
-  ->  BrowserBuffer (pure JS TypedArrays) stores cell grid
-  ->  CanvasPainter reads buffer  ->  ctx.fillRect + ctx.fillText
-```
+Gridland is built on the [OpenTUI](https://opentui.com) rendering engine.
 
-The key insight: OpenTUI renderables never call Zig directly. They call `OptimizedBuffer` methods. By replacing the buffer + renderer with pure-JS implementations, the entire renderable/reconciler layer works unchanged.
+![Gridland](.github/gridland.gif)
 
-## What's implemented
+## Quick Start
 
-- **BrowserBuffer** — Pure-JS replacement for `OptimizedBuffer` using `Uint32Array`/`Float32Array` typed arrays. Same API: `setCell`, `drawText`, `drawBox`, `fillRect`, scissor rect stack, opacity stack.
-- **BrowserTextBuffer / BrowserTextBufferView** — Pure-JS replacements for the Zig-backed text storage and word/char wrapping.
-- **CanvasPainter** — Two-pass canvas renderer: background rects, then foreground chars with font style attributes (bold/italic/underline).
-- **BrowserRenderer** — Orchestrator running `requestAnimationFrame` loop: lifecycle passes -> Yoga layout -> render commands -> paint.
-- **BrowserRenderContext** — Implements the `RenderContext` interface (event emitter, lifecycle pass registry, focus management).
-- **Vite plugin** — Custom `resolveId` plugin that intercepts all Zig/FFI/Node.js imports from the opentui source tree and redirects them to browser shims.
-- **React integration** — `createBrowserRoot()` wires the @opentui/react reconciler to the browser renderer.
-
-## Getting started
+Create a new project:
 
 ```bash
-git clone https://github.com/<org>/gridland.git
-cd gridland
-bun setup
+bunx create-gridland my-app
 ```
 
-This installs all dependencies and builds the packages.
+> **Note:** Terminal apps require [Bun](https://bun.sh) to run in development. However, you can [compile to a standalone binary](#compile-to-binary) that requires no runtime at all — users don't need Bun, Node, or npm installed.
 
-## Running
+## Try the Demos
+
+Run interactive demos in your terminal:
 
 ```bash
-# Dev server
-bun run dev
-# -> http://localhost:5173
-
-# Tests
-bun run test
-
-# Production build
-bun run build
+bunx @gridland/demo landing
+bunx @gridland/demo gradient
+bunx @gridland/demo chat
 ```
 
-### AI chat demo (Cloudflare Worker)
+## Add to an Existing Project
 
-The docs site AI chat demo connects to a Cloudflare Worker that proxies requests to [OpenRouter](https://openrouter.ai/). The API key never lives in the repo — it's stored as a Cloudflare Workers secret.
-
-**Local development:**
+### Vite
 
 ```bash
-# 1. Create a local secrets file (gitignored)
-echo "OPENROUTER_API_KEY=sk-or-..." > packages/chat-worker/.dev.vars
-
-# 2. Start the Worker (localhost:8787)
-bun run chat:dev
-
-# 3. In another terminal, start the docs site
-bun run dev
+bun add @gridland/web
 ```
 
-The `.env` at the repo root sets `NEXT_PUBLIC_CHAT_API_URL=http://localhost:8787/chat` so the docs site points at the local Worker.
+```ts
+// vite.config.ts
+import { gridlandWebPlugin } from "@gridland/web/vite-plugin";
 
-**Production deployment:**
+export default defineConfig({
+  plugins: [gridlandWebPlugin()],
+});
+```
+
+### Next.js
 
 ```bash
-# Set the secret in Cloudflare (one-time, encrypted at rest)
-cd packages/chat-worker && npx wrangler secret put OPENROUTER_API_KEY
-
-# Deploy the Worker
-bun run chat:deploy
+bun add @gridland/web
 ```
 
-Then set `NEXT_PUBLIC_CHAT_API_URL` to the deployed Worker URL in your static hosting environment (e.g. Render dashboard). This env var is baked into the static bundle at build time.
+```ts
+// next.config.ts
+import { withGridland } from "@gridland/web/next-plugin";
 
-## Project structure
-
-```
-packages/
-  web/              # Core browser runtime (npm: @gridland/web)
-    src/
-      index.ts               # Main exports (bundled mode)
-      core.ts                # Core exports (external mode for Vite plugin users)
-      TUI.tsx                # Single React component — THE mounting layer
-      mount.ts               # Imperative mount API: mountGridland(canvas, element)
-      browser-buffer.ts
-      browser-text-buffer.ts
-      browser-text-buffer-view.ts
-      browser-renderer.ts
-      browser-render-context.ts
-      canvas-painter.ts
-      selection-manager.ts
-      vite-plugin.ts         # Vite plugin for shim resolution
-      next.ts                # Next.js export (thin — just "use client" re-export)
-      next-plugin.ts         # Next.js webpack plugin
-      utils.ts               # SSR-safe utilities
-      core-shims/            # @opentui/core browser replacements
-      shims/                 # Node.js built-in stubs
-    __tests__/               # Unit + integration tests
-
-  core/             # Hard-forked opentui engine (private)
-
-  ui/               # UI component library (npm: @gridland/ui)
-    components/              # Components with tests
-
-  testing/           # Testing utilities (npm: @gridland/testing)
-    src/
-
-  utils/            # Portable hooks & utilities (npm: @gridland/utils)
-
-  chat-worker/      # Cloudflare Worker — AI chat proxy
-    src/index.ts             # CORS + streaming via OpenRouter
-    wrangler.toml            # Worker configuration
-
-  bun/              # Native Bun runtime for CLI (npm: @gridland/bun)
-  demo/             # CLI demo runner (npm: @gridland/demo)
-  create-gridland/  # Project scaffolder CLI
-  container/        # Docker sandbox runner
-  docs/             # Fumadocs documentation site (static export)
-
-e2e/                         # Playwright E2E tests
+export default withGridland({});
 ```
 
-## How the Vite plugin works
+## Components
 
-The opentui source tree (`packages/core/`) is loaded directly. A custom plugin intercepts imports at resolution time:
+UI components are distributed via a [shadcn](https://ui.shadcn.com) registry. Install them individually so you own the code:
 
-1. **File-level redirects** — Relative imports that resolve to zig-dependent files (buffer, text-buffer, text-buffer-view, syntax-style, renderer, etc.) are redirected to browser shims.
-2. **Pattern-based interception** — tree-sitter, hast, and Node.js builtin imports are caught by string matching and redirected to stubs.
-3. **Barrel routing** — `@opentui/core` is routed to the real opentui barrel when imported from the react package (to preserve the original module evaluation order), and to our core-shims barrel when imported from our own code.
-4. **Circular dep fix** — `Slider.ts`'s import of `../index` is redirected to a minimal deps file to break a barrel-level circular dependency that causes TDZ errors in strict ESM.
+```bash
+bunx shadcn@latest add @gridland/chat
+bunx shadcn@latest add @gridland/spinner
+bunx shadcn@latest add @gridland/table
+```
+
+## Sandboxed Execution
+
+Run any app in an isolated Docker container:
+
+```bash
+bunx @gridland/container @gridland/demo -- landing
+```
+
+Supports npm packages, GitHub repos, and local directories as sources.
+
+## Compile to Binary
+
+Build a standalone executable with no runtime required:
+
+```bash
+bun build --compile src/cli.tsx --outfile my-app
+```
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| [`@gridland/web`](https://www.npmjs.com/package/@gridland/web) | Core canvas renderer and React integration |
+| [`@gridland/utils`](https://www.npmjs.com/package/@gridland/utils) | Portable hooks (useKeyboard, useTerminalDimensions) |
+| [`@gridland/bun`](https://www.npmjs.com/package/@gridland/bun) | Bun-native runtime for CLI apps |
+| [`@gridland/ui`](https://www.npmjs.com/package/@gridland/ui) | Pre-built UI components via shadcn registry |
+| [`@gridland/testing`](https://www.npmjs.com/package/@gridland/testing) | Test utilities for TUI components |
+| [`@gridland/demo`](https://www.npmjs.com/package/@gridland/demo) | Interactive demo runner |
+| [`@gridland/container`](https://www.npmjs.com/package/@gridland/container) | Docker sandbox runner |
+
+## Documentation
+
+Full docs at [gridland.io/docs](https://gridland.io/docs)
+
+---
+
+Made with ❤️ by [Chris Roth](https://cjroth.com) and [Jessica Cheng](https://jessicacheng.studio)
