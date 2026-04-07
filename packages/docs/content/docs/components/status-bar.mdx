@@ -60,6 +60,10 @@ Render custom inline content to the left of the hints. A dim `│` separator
 appears between the extra content and the keybinding items.
 
 ```tsx title="With extra"
+import { StatusBar, textStyle, useTheme } from "@gridland/ui"
+
+const theme = useTheme()
+
 <StatusBar
   items={[{ key: "←→", label: "change type" }]}
   extra={<span style={textStyle({ fg: theme.accent, bold: true })}>dots</span>}

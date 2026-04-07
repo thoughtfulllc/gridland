@@ -48,14 +48,14 @@ describe("StatusBar behavior", () => {
     expect(text).toBe("")
   })
 
-  it("renders extra with pipe even when items are empty", () => {
+  it("renders extra without pipe when items are empty", () => {
     const { screen } = renderTui(
       <StatusBar extra="Info" items={[]} />,
       { cols: 40, rows: 3 },
     )
     const text = screen.text()
     expect(text).toContain("Info")
-    expect(text).toContain("\u2502")
+    expect(text).not.toContain("\u2502")
   })
 
   it("renders single item", () => {
@@ -74,6 +74,26 @@ describe("StatusBar behavior", () => {
       { cols: 40, rows: 3 },
     )
     expect(screen.text()).toContain("←→")
+  })
+
+  it("renders nothing when extra is null and items are empty", () => {
+    const { screen } = renderTui(
+      <StatusBar extra={null} items={[]} />,
+      { cols: 40, rows: 3 },
+    )
+    expect(screen.text().trim()).toBe("")
+  })
+
+  it("renders extra as JSX element", () => {
+    const { screen } = renderTui(
+      <StatusBar
+        extra={<span>Ready</span>}
+        items={[{ key: "q", label: "quit" }]}
+      />,
+      { cols: 50, rows: 3 },
+    )
+    expect(screen.text()).toContain("Ready")
+    expect(screen.text()).toContain("q")
   })
 
   it("extra and items on same line", () => {
