@@ -97,4 +97,21 @@ export class Screen {
   get height(): number {
     return this.buffer.height
   }
+
+  /** Get the raw attributes u32 at a cell position (0-indexed row, col) */
+  attributeAt(row: number, col: number): number {
+    const idx = row * this.buffer.width + col
+    return this.buffer.attributes[idx] ?? 0
+  }
+
+  /** Get the raw fg RGBA floats at a cell position as [r, g, b, a] */
+  fgAt(row: number, col: number): [number, number, number, number] {
+    const idx = (row * this.buffer.width + col) * 4
+    return [
+      this.buffer.fg[idx] ?? 0,
+      this.buffer.fg[idx + 1] ?? 0,
+      this.buffer.fg[idx + 2] ?? 0,
+      this.buffer.fg[idx + 3] ?? 0,
+    ]
+  }
 }
