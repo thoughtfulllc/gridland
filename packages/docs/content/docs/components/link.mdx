@@ -56,6 +56,28 @@ Override the default theme color.
 <Link url="https://example.com" color="cyan">Cyan link</Link>
 ```
 
+### Inline with Text
+
+Embed a link within a line of text using `<span>` siblings.
+
+```tsx title="Inline link"
+<text>
+  <span>Check out </span>
+  <Link url="https://opentui.com">opentui.com</Link>
+  <span> for more info.</span>
+</text>
+```
+
+### Multiple Links
+
+```tsx title="Navigation links"
+<box flexDirection="row" gap={2}>
+  <Link url="https://github.com" underline="solid">GitHub</Link>
+  <Link url="https://docs.example.com" underline="dashed" color="cyan">Docs</Link>
+  <Link url="mailto:team@example.com" underline="dotted" color="#feca57">Contact</Link>
+</box>
+```
+
 ## API Reference
 
 ### Link

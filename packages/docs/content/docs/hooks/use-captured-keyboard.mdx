@@ -37,6 +37,57 @@ The returned `capture` function is passed as the `useKeyboard` prop to a child c
 The child registers its key handler via the capture function, and `useCapturedKeyboard`
 forwards keyboard events to it only when the parent element is selected.
 
+## Examples
+
+### With TextInput
+
+Forward keyboard to a `TextInput` inside a focusable panel.
+
+```tsx title="Captured TextInput"
+function EditablePanel() {
+  const { isFocused, isSelected, focusId, focusRef } = useFocus({ id: "editor" })
+  const captureKeyboard = useCapturedKeyboard(focusId)
+  const [value, setValue] = useState("")
+
+  return (
+    <box ref={focusRef} border>
+      <TextInput
+        label="Name"
+        value={value}
+        onChange={setValue}
+        focus={isSelected}
+        useKeyboard={captureKeyboard}
+      />
+    </box>
+  )
+}
+```
+
+### With SelectInput
+
+Use the same pattern for any interactive child.
+
+```tsx title="Captured SelectInput"
+function ModelPicker() {
+  const { isSelected, focusId, focusRef } = useFocus({ id: "model" })
+  const captureKeyboard = useCapturedKeyboard(focusId)
+
+  return (
+    <box ref={focusRef} border>
+      <SelectInput
+        items={[
+          { label: "Sonnet", value: "sonnet" },
+          { label: "Opus", value: "opus" },
+        ]}
+        focus={isSelected}
+        useKeyboard={captureKeyboard}
+        onSubmit={(v) => console.log("Selected:", v)}
+      />
+    </box>
+  )
+}
+```
+
 ## Parameters
 
 | Param | Type | Description |

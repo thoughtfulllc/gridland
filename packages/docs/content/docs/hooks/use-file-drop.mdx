@@ -27,6 +27,58 @@ function FileDropZone() {
 }
 ```
 
+## Examples
+
+### File Type Filtering
+
+Check the MIME type before processing.
+
+```tsx title="Accept only JSON"
+function JsonDropZone() {
+  const [data, setData] = useState<string | null>(null)
+
+  const { isDragOver } = useFileDrop((file) => {
+    if (file.type === "application/json") {
+      setData(file.content)
+    }
+  })
+
+  return (
+    <box border borderColor={isDragOver ? "cyan" : "gray"}>
+      <text>{isDragOver ? "Drop JSON file..." : data ?? "Drop a .json file here"}</text>
+    </box>
+  )
+}
+```
+
+### Show File Info
+
+Display metadata about the dropped file.
+
+```tsx title="File info"
+function FileInfo() {
+  const [file, setFile] = useState<DroppedFile | null>(null)
+
+  const { isDragOver } = useFileDrop((dropped) => {
+    setFile(dropped)
+  })
+
+  return (
+    <box border borderColor={isDragOver ? "green" : "gray"} padding={1}>
+      {file ? (
+        <>
+          <text>Name: {file.name}</text>
+          <text>Type: {file.type}</text>
+          <text>Size: {file.size} bytes</text>
+        </>
+      ) : (
+        <text>{isDragOver ? "Release to drop" : "Drag a file here"}</text>
+      )}
+    </box>
+  )
+}
+```
+
 ## Parameters
 
 | Param | Type | Description |

@@ -9,67 +9,35 @@ Individual components can be installed via the shadcn CLI. See the [Installing C
 bunx shadcn@latest add @gridland/<component-name>
 ```
 
-## Gradient
+## Components
 
-Renders color gradients across text or backgrounds.
+| Component | Description | Docs |
+|-----------|-------------|------|
+| `Ascii` | ASCII art text with multiple font styles | [Ascii](/docs/components/ascii) |
+| `ChainOfThought` | Expandable reasoning blocks with step status | [ChainOfThought](/docs/components/chain-of-thought) |
+| `Gradient` | Color gradients across text characters | [Gradient](/docs/components/gradient) |
+| `Link` | Clickable hyperlink with configurable underline | [Link](/docs/components/link) |
+| `Message` | Chat message with role-based styling and streaming | [Message](/docs/components/message) |
+| `Modal` | Overlay dialog with border styles | [Modal](/docs/components/modal) |
+| `MultiSelect` | Multi-selection input with groups and validation | [MultiSelect](/docs/components/multi-select) |
+| `PromptInput` | Chat input with slash commands and AI SDK integration | [PromptInput](/docs/components/prompt-input) |
+| `SelectInput` | Single-selection dropdown with groups | [SelectInput](/docs/components/select-input) |
+| `SideNav` | Sidebar navigation with keyboard-driven focus | [SideNav](/docs/components/side-nav) |
+| `Spinner` | Animated loading indicators | [Spinner](/docs/components/spinner) |
+| `StatusBar` | Horizontal bar displaying keybinding hints | [StatusBar](/docs/components/status-bar) |
+| `Table` | Data table with compound sub-components | [Table](/docs/components/table) |
+| `Tabs` | Tabbed content with keyboard navigation | [Tabs](/docs/components/tabs) |
+| `TerminalWindow` | macOS-style terminal window chrome | [TerminalWindow](/docs/components/terminal-window) |
+| `TextInput` | Single-line text input with validation | [TextInput](/docs/components/text-input) |
 
-```tsx
-import { Gradient } from "@/components/ui/gradient"
-```
-
-See [Gradient component docs](/docs/components/gradient) for usage examples.
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `colors` | `string[]` | required | Hex color stops |
-| `direction` | `"horizontal" \| "vertical"` | `"horizontal"` | Gradient direction |
-| `mode` | `"foreground" \| "background"` | `"foreground"` | Where to apply colors |
-| `children` | `ReactNode` | required | Content to render |
-
-### `interpolateColor(color1, color2, t)`
-
-Interpolate between two hex colors.
-
-- `color1` - Start color (hex string)
-- `color2` - End color (hex string)
-- `t` - Interpolation factor (0 to 1)
-- **Returns:** Hex color string
-
-### `generateGradient(colors, steps)`
-
-Generate an array of interpolated colors.
-
-- `colors` - Array of hex color stops
-- `steps` - Number of output colors
-- **Returns:** Array of hex color strings
-
-## Table
-
-Renders structured data in a table layout.
+## Utility Functions
 
 ```tsx
-import { Table } from "@/components/ui/table"
+import { generateGradient, hexToRgb, rgbToHex } from "@/components/ui/gradient"
 ```
 
-See [Table component docs](/docs/components/table) for usage examples.
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `columns` | `Column[]` | required | Column definitions |
-| `data` | `Record<string, any>[]` | required | Row data |
-| `borderStyle` | `string` | `"single"` | Table border style |
-| `headerColor` | `string` | `"#ffffff"` | Header text color |
-
-### Column
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `header` | `string` | required | Display header |
-| `key` | `string` | required | Data key |
-| `width` | `number` | auto | Column width |
-| `align` | `"left" \| "center" \| "right"` | `"left"` | Alignment |
-| `color` | `string` | inherited | Cell text color |
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `generateGradient` | `(colors: string[], steps: number) => string[]` | Generate an array of interpolated hex colors |
+| `hexToRgb` | `(hex: string) => { r, g, b }` | Convert hex to RGB |
+| `rgbToHex` | `(rgb: { r, g, b }) => string` | Convert RGB to hex |

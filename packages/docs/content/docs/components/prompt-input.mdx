@@ -216,7 +216,7 @@ import { PromptInput } from "@/components/ui/prompt-input"
 </PromptInput>
 ```
 
-### Subcomponents
+### Compound Components
 
 | Component | Description |
 |-----------|-------------|
@@ -272,6 +272,67 @@ function MyCustomStatus() {
   return <text>{status}: {value.length} chars</text>
 }
 ```
+
+## Command Registry
+
+Wrap your app in `CommandProvider` to let sibling components register slash
+commands that automatically appear in `PromptInput`'s autocomplete — without
+passing `commands` as a prop.
+
+```tsx title="Command Registry"
+import { CommandProvider, useRegisterCommand } from "@/components/ui/prompt-input"
+
+function ModelSwitcher() {
+  useRegisterCommand({ cmd: "/model", desc: "Switch model" })
+  return null
+}
+
+function ClearButton() {
+  useRegisterCommand({ cmd: "/clear", desc: "Clear conversation", onExecute: () => clearChat() })
+  return null
+}
+
+<CommandProvider>
+  <ModelSwitcher />
+  <ClearButton />
+  <PromptInput useKeyboard={useKeyboard} onSubmit={handleSubmit} />
+</CommandProvider>
+```
+
+### useRegisterCommand
+
+Register a single command. Automatically unregisters on unmount.
+
+```tsx title="Single command"
+useRegisterCommand({ cmd: "/help", desc: "Show commands" })
+```
+
+### useRegisterCommands
+
+Register multiple commands at once. Automatically unregisters on unmount.
+
+```tsx title="Multiple commands"
+useRegisterCommands([
+  { cmd: "/model", desc: "Switch model" },
+  { cmd: "/clear", desc: "Clear conversation" },
+])
+```
+
+### useRegistryCommands
+
+Subscribe to all registered commands. Returns the current command list reactively.
+
+```tsx title="Consuming commands"
+const commands = useRegistryCommands()
+// Returns PromptInputCommand[] — updates when commands are added/removed
+```
+
+### CommandProvider
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Components that can register and consume commands |
+| `registry` | `CommandRegistry` | - | Use an existing registry instance. If omitted, a new one is created. |
 
 ## Controls
 

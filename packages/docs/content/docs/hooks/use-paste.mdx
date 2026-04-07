@@ -23,6 +23,50 @@ function Editor() {
 }
 ```
 
+## Examples
+
+### Append to Input
+
+```tsx title="Append pasted text"
+function Editor() {
+  const [text, setText] = useState("")
+
+  usePaste((pasted) => {
+    setText((prev) => prev + pasted)
+  })
+
+  return <text>{text}</text>
+}
+```
+
+### Paste Validation
+
+Filter or transform pasted content before using it.
+
+```tsx title="Validate paste"
+function UrlInput() {
+  const [url, setUrl] = useState("")
+  const [error, setError] = useState("")
+
+  usePaste((pasted) => {
+    const trimmed = pasted.trim()
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      setUrl(trimmed)
+      setError("")
+    } else {
+      setError("Only URLs are accepted")
+    }
+  })
+
+  return (
+    <box>
+      <text>{url || "Paste a URL..."}</text>
+      {error && <text color="red">{error}</text>}
+    </box>
+  )
+}
+```
+
 ## Parameters
 
 | Param | Type | Description |

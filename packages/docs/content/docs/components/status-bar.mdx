@@ -60,7 +60,9 @@ Render custom inline content to the left of the hints. A dim `│` separator
 appears between the extra content and the keybinding items.
 
 ```tsx title="With extra"
-import { StatusBar, textStyle, useTheme } from "@gridland/ui"
+import { StatusBar } from "@/components/ui/status-bar"
+import { textStyle } from "@/components/ui/text-style"
+import { useTheme } from "@/components/ui/theme"
 
 const theme = useTheme()
 
@@ -68,6 +70,48 @@ const theme = useTheme()
   items={[{ key: "←→", label: "change type" }]}
   extra={<span style={textStyle({ fg: theme.accent, bold: true })}>dots</span>}
 />
+```
+
+### Dynamic Items
+
+Build items based on component state.
+
+```tsx title="Dynamic items"
+const items: StatusBarItem[] = [
+  { key: "↑↓", label: "navigate" },
+  { key: "Enter", label: "select" },
+]
+
+if (isEditing) {
+  items.push({ key: "Esc", label: "cancel" })
+}
+
+<StatusBar items={items} />
+```
+
+### With Theme Colors
+
+Style the extra content using theme tokens.
+
+```tsx title="Themed extra"
+import { StatusBar } from "@/components/ui/status-bar"
+import { textStyle } from "@/components/ui/text-style"
+import { useTheme } from "@/components/ui/theme"
+
+function MyStatusBar({ model }: { model: string }) {
+  const theme = useTheme()
+
+  return (
+    <StatusBar
+      items={[{ key: "Tab", label: "switch focus" }]}
+      extra={
+        <span style={textStyle({ fg: theme.secondary, dim: true })}>
+          {model}
+        </span>
+      }
+    />
+  )
+}
 ```
 
 ## API Reference

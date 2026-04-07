@@ -56,6 +56,30 @@ Override the default theme color.
 <Ascii text="Hello" font="block" color="cyan" />
 ```
 
+### With Theme Color
+
+Use `useTheme()` for semantic coloring.
+
+```tsx title="Theme color"
+import { useTheme } from "@/components/ui/theme"
+
+const theme = useTheme()
+
+<Ascii text="OK" font="block" color={theme.success} />
+<Ascii text="ERROR" font="block" color={theme.error} />
+```
+
+### As a Header
+
+ASCII art works well as a splash header for CLI apps.
+
+```tsx title="App header"
+<box>
+  <Ascii text="myapp" font="slick" color="#88c0d0" />
+  <text>v1.2.0 — A tool for doing things</text>
+</box>
+```
+
 ## API Reference
 
 ### Ascii

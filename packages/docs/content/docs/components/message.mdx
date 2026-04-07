@@ -27,7 +27,7 @@ bunx shadcn@latest add @gridland/message
 ## Usage
 
 ```tsx
-import { Message, MessageContent, MessageText } from "@gridland/ui"
+import { Message, MessageContent, MessageText } from "@/components/ui/message"
 ```
 
 ```tsx
@@ -122,9 +122,9 @@ const { messages, status } = useChat({ api: "/api/chat" })
 })}
 ```
 
-## Sub-components
+## Compound Components
 
-All sub-components read shared state (role, streaming, background color) from
+All compound components read shared state (role, streaming, background color) from
 `Message` via context. No prop drilling needed.
 
 | Component | Description |
@@ -161,7 +161,7 @@ function MyCustomStatus() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | - | Sub-components to render inside the message bubble |
+| `children` | `ReactNode` | - | Compound components to render inside the message bubble |
 
 ### MessageText
 
