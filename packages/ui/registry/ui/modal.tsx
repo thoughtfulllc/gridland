@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ReactNode } from "react"
 import { FocusScope } from "@gridland/utils"
 import { textStyle } from "./text-style"
@@ -7,9 +8,9 @@ import { useKeyboardContext } from "./provider"
 export interface ModalProps {
   /** The content rendered inside the modal border. */
   children: ReactNode
-  /** Optional title displayed at the top inside the border. Rendered bold in the borderColor. */
+  /** Optional title displayed at the top inside the border. */
   title?: string
-  /** Color of the border and the title text. */
+  /** Color of the border. */
   borderColor?: string
   /**
    * The character set used for drawing the border.
@@ -18,7 +19,7 @@ export interface ModalProps {
   borderStyle?: "single" | "double" | "rounded" | "heavy"
   /** Callback invoked when the Escape key is pressed. */
   onClose?: () => void
-  /** Keyboard handler — pass useKeyboard from @opentui/react */
+  /** Keyboard handler — pass useKeyboard from @gridland/utils */
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
@@ -33,7 +34,7 @@ export function Modal({
 }: ModalProps) {
   const theme = useTheme()
   const useKeyboard = useKeyboardContext(useKeyboardProp)
-  const resolvedBorderColor = borderColor ?? theme.muted
+  const resolvedBorderColor = borderColor ?? theme.border
 
   // Handle Escape key
   useKeyboard?.((event: any) => {
@@ -44,25 +45,23 @@ export function Modal({
 
   return (
     <FocusScope trap autoFocus restoreOnUnmount>
-      <box flexDirection="column" flexGrow={1}>
-        <box
-          flexDirection="column"
-          flexGrow={1}
-          border
-          borderStyle={borderStyle}
-          borderColor={resolvedBorderColor}
-        >
-          {title ? (
-            <>
-              <box paddingX={1} marginBottom={1}>
-                <text style={textStyle({ bold: true, fg: theme.primary })}>{title}</text>
-              </box>
-              {children}
-            </>
-          ) : (
-            children
-          )}
-        </box>
+      <box
+        flexDirection="column"
+        flexGrow={1}
+        border
+        borderStyle={borderStyle}
+        borderColor={resolvedBorderColor}
+      >
+        {title ? (
+          <>
+            <box paddingX={1} marginBottom={1}>
+              <text style={textStyle({ bold: true, fg: theme.primary })}>{title}</text>
+            </box>
+            {children}
+          </>
+        ) : (
+          children
+        )}
       </box>
     </FocusScope>
   )

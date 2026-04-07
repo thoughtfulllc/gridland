@@ -12,7 +12,7 @@ const KeyboardContext = createContext<UseKeyboardHook | null>(null)
 export interface GridlandProviderProps {
   /** Theme object. Defaults to darkTheme. */
   theme?: Theme
-  /** Keyboard hook from @opentui/react. Provided once here so components don't need it as a prop. */
+  /** Keyboard hook from @gridland/utils. Provided once here so components don't need it as a prop. */
   useKeyboard?: UseKeyboardHook
   children: ReactNode
 }

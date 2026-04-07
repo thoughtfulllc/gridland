@@ -64,7 +64,7 @@ export interface ChatPanelProps {
   loadingText?: string
   /** Whether the input is focused and accepting keystrokes */
   focus?: boolean
-  /** Keyboard handler — pass useKeyboard from @opentui/react */
+  /** Keyboard handler — pass useKeyboard from @gridland/utils */
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
