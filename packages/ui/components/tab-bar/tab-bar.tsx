@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, Children, isValidElement } from "react"
+// @ts-nocheck
+import { createContext, useContext, useState, useCallback, useRef, Children, isValidElement } from "react"
 import type { ReactNode } from "react"
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
@@ -39,8 +40,16 @@ export function Tabs({
   children,
 }: TabsProps) {
   const [internalValue, setInternalValue] = useState(defaultValue)
+  const isControlled = controlledValue !== undefined
+  const controlledRef = useRef(isControlled)
+  if (controlledRef.current !== isControlled) {
+    console.warn("Tabs: switching between controlled and uncontrolled is not supported.")
+  }
   const value = controlledValue ?? internalValue
-  const handleChange = onValueChange ?? setInternalValue
+  const handleChange = useCallback((newValue: string) => {
+    if (controlledValue === undefined) setInternalValue(newValue)
+    onValueChange?.(newValue)
+  }, [controlledValue, onValueChange])
 
   return (
     <TabsContext.Provider value={{ value, onValueChange: handleChange }}>
@@ -79,25 +88,44 @@ export function TabsList({
   const useKeyboard = useKeyboardContext(useKeyboardProp)
   const color = activeColor ?? theme.accent
 
-  // Extract trigger values and labels from children
-  const triggers: { value: string; label: ReactNode }[] = []
+  // Extract trigger values, labels, and disabled state from children
+  const triggers: { value: string; label: ReactNode; disabled: boolean }[] = []
   Children.forEach(children, (child) => {
     if (isValidElement(child) && "value" in child.props) {
-      triggers.push({ value: child.props.value as string, label: child.props.children })
+      triggers.push({ value: child.props.value as string, label: child.props.children, disabled: !!child.props.disabled })
     }
   })
 
+  // Refs for stable access inside keyboard handler
+  const triggersRef = useRef(triggers)
+  triggersRef.current = triggers
+  const valueRef = useRef(value)
+  valueRef.current = value
+
   // Keyboard navigation: left/right arrows switch tabs
   useKeyboard?.((event: any) => {
-    if (triggers.length === 0) return
-    const currentIndex = triggers.findIndex((t) => t.value === value)
+    const t = triggersRef.current
+    if (t.length === 0) return
+    const currentIndex = t.findIndex((x) => x.value === valueRef.current)
+
+    const findNextEnabled = (from: number, direction: 1 | -1): number => {
+      let next = from
+      for (let i = 0; i < t.length; i++) {
+        next += direction
+        if (next < 0) next = t.length - 1
+        if (next >= t.length) next = 0
+        if (!t[next].disabled) return next
+      }
+      return from // all disabled
+    }
+
     if (event.name === "left" || event.name === "h") {
-      const next = currentIndex <= 0 ? triggers.length - 1 : currentIndex - 1
-      onValueChange(triggers[next].value)
+      const next = findNextEnabled(currentIndex, -1)
+      onValueChange(t[next].value)
       event.preventDefault?.()
     } else if (event.name === "right" || event.name === "l") {
-      const next = currentIndex >= triggers.length - 1 ? 0 : currentIndex + 1
-      onValueChange(triggers[next].value)
+      const next = findNextEnabled(currentIndex, 1)
+      onValueChange(t[next].value)
       event.preventDefault?.()
     }
   })
@@ -119,13 +147,15 @@ export function TabsList({
     const isSelected = trigger.value === value
     const padded = ` ${trigger.label} `
 
-    const style = isSelected
-      ? focused
-        ? textStyle({ bold: true, fg: theme.background, bg: color })
-        : textStyle({ bold: true, fg: theme.background, bg: theme.muted, dim: true })
-      : focused
-        ? textStyle({ fg: theme.foreground })
-        : textStyle({ dim: true, fg: theme.muted })
+    const style = trigger.disabled
+      ? textStyle({ dim: true, fg: theme.muted })
+      : isSelected
+        ? focused
+          ? textStyle({ bold: true, fg: theme.background, bg: color })
+          : textStyle({ bold: true, fg: theme.background, bg: theme.muted, dim: true })
+        : focused
+          ? textStyle({ fg: theme.foreground })
+          : textStyle({ dim: true, fg: theme.muted })
 
     if (i > 0) {
       parts.push(
@@ -157,6 +187,8 @@ export function TabsList({
 export interface TabsTriggerProps {
   /** Unique value that links this trigger to its TabsContent. */
   value: string
+  /** Whether this tab trigger is disabled. Disabled tabs are skipped during keyboard navigation. */
+  disabled?: boolean
   children: ReactNode
 }
 
@@ -198,8 +230,6 @@ export interface TabBarProps {
   activeColor?: string
   /** Whether to show the horizontal separator below tabs. */
   separator?: boolean
-  /** Keyboard handler — pass useKeyboard from @gridland/utils */
-  useKeyboard?: (handler: (event: any) => void) => void
 }
 
 /** Simple tab bar API wrapping the compound Tabs components. */
@@ -210,13 +240,12 @@ export function TabBar({
   focused = true,
   activeColor,
   separator = true,
-  useKeyboard,
 }: TabBarProps) {
   return (
-    <Tabs value={options[selectedIndex]}>
-      <TabsList label={label} focused={focused} activeColor={activeColor} separator={separator} useKeyboard={useKeyboard}>
-        {options.map((option) => (
-          <TabsTrigger key={option} value={option}>
+    <Tabs value={String(selectedIndex)}>
+      <TabsList label={label} focused={focused} activeColor={activeColor} separator={separator}>
+        {options.map((option, i) => (
+          <TabsTrigger key={i} value={String(i)}>
             {option}
           </TabsTrigger>
         ))}

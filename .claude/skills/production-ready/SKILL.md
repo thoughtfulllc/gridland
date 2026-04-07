@@ -67,8 +67,8 @@ Check the implementation against these criteria, ordered by severity:
    - **Silent error swallowing**: If a Promise `.catch` or reject handler is empty or has only a comment, flag it. Errors should be surfaced via an `onError` callback or equivalent — silent swallowing hides failures from consumers
 
 2. **Keyboard handler correctness**
-   - Values read inside `useKeyboard` handler that change between renders should use refs (cursor position, selected state, submitted flag)
-   - Verify the handler reads from refs for rapidly-changing state and closure-captures for stable props (consistent with SelectInput/PromptInput pattern)
+   - **Every value read inside a `useKeyboard` handler that can change between renders must use a ref** — this includes state variables (cursor, selected, submitted), derived arrays rebuilt each render (e.g., trigger lists extracted from children via `Children.forEach`), and context values. The test is simple: "can this value differ between the render that registered the handler and the render when the handler fires?" If yes, use a ref. Don't limit this check to "rapidly-changing" values — even values that change infrequently (like the active tab) cause bugs when the handler captures a stale closure
+   - Verify the handler reads from refs for any render-dependent value and closure-captures only for truly stable props (consistent with SelectInput/PromptInput pattern)
    - All keyboard bindings documented in the Controls section of the docs
    - **Dead handlers**: Flag any `useKeyboard`, `useCallback`, or `useEffect` whose body is empty or contains only a guard clause (`if (disabled) return`) with no actual logic. These are no-ops that bloat the component and mislead readers
    - **Duplicated handler logic**: If the component has multiple code paths handling the same keys (e.g., a focused `<input>` path and an unfocused `useKeyboard` fallback), verify the logic is shared via a single function — not copy-pasted. Duplicated branches diverge silently over time
@@ -102,10 +102,11 @@ Check the implementation against these criteria, ordered by severity:
    - `useMemo` dep arrays are correct (no missing deps, no over-deps)
    - No unnecessary allocations in the render path (e.g., `new Set()` on every render)
 
-9. **React key stability**
+9. **React key stability and data-driven value uniqueness**
    - Keys in `.map()` calls are stable across re-renders
    - Scroll-windowed lists use absolute indices, not relative window indices
    - Group/separator keys won't collide
+   - **Duplicate values in user-provided arrays**: When a component accepts an array prop (e.g., `options: string[]`, `items: Item[]`), check what happens if two entries have the same display value or the same identity value. If the array values are used as both React keys AND internal routing values (e.g., `<Tabs value={options[i]}>`), duplicate strings will cause wrong-item-selected bugs. The fix is to use indices or unique IDs as internal values, keeping display labels separate
 
 10. **Edge cases**
    - Empty items array handled gracefully
@@ -113,6 +114,7 @@ Check the implementation against these criteria, ordered by severity:
    - Disabled state blocks all interaction
    - Component handles controlled prop changes (re-render sync)
    - Cursor/index clamping when list size changes
+   - **Convenience wrapper correctness**: If the component provides both a full API and a simplified wrapper (e.g., `TabBar` wrapping `Tabs`, or a simple `items` prop wrapping a compound component), trace the wrapper's internal translation logic. Common bugs: using display strings as identity values, index-to-value mappings that break with duplicates, missing prop forwarding. Test the wrapper with adversarial inputs (duplicate values, out-of-range indices, empty arrays)
    - **ReactNode nullability**: For every optional `ReactNode` prop that gates a conditional branch (e.g., `if (extra !== undefined)`), verify the guard uses `!= null` — not `!== undefined`. Consumers commonly pass `condition ? <content> : null`, and `null !== undefined` is `true`, causing empty render artifacts instead of nothing
    - **Extension point edge cases**: When a component offers override callbacks (e.g., `getSuggestions`, custom renderers), trace what happens when the override returns values that differ from built-in assumptions. For example, if the default path assumes a trigger character like `@`, verify the custom path still works with a different trigger. Hardcoded `lastIndexOf("@")` or similar assumptions that break custom usage are P1 bugs
 
@@ -123,6 +125,8 @@ Check the implementation against these criteria, ordered by severity:
 
 12. **Test coverage by code path**
     - For each conditional branch in the render function, verify a corresponding test exists. Enumerate branches explicitly: disabled rendering, focused vs unfocused, label present vs absent, error vs description vs neither, empty value vs filled, maxLength counter shown vs hidden
+    - **Every prop with a fallback or default**: If a prop has a fallback (e.g., `activeColor ?? theme.accent`), test that passing a custom value exercises the non-default path. Props with code paths but no tests are invisible features that can silently regress
+    - **Every prop-injection override**: If a prop overrides a context value (e.g., `useKeyboard` prop vs `useKeyboardContext`), test that the prop takes precedence over context
     - No duplicate tests (same setup + assertions)
     - Shared test helpers for repeated patterns (e.g., mock keyboard setup)
     - Test file has `// @ts-nocheck` if using OpenTUI intrinsics
@@ -164,6 +168,7 @@ If the component has a shadcn/ui equivalent (Table, Tabs, Select, Modal/Dialog, 
 - For each common use case of that component type, can users achieve it with the current props?
 - Examples: right-aligning a column, coloring a status cell, spanning columns, disabling a row
 - Flag major expressiveness gaps where shadcn users would expect functionality that Gridland doesn't offer
+- **Standard props that shadcn/Radix expose**: Check specifically for `disabled` on interactive sub-components (triggers, items, options), `asChild` composition patterns, `orientation` for directional components, and `loop` for wrap-around behavior. If shadcn's equivalent has a prop that covers a common use case and Gridland doesn't, flag it as P1 (not P2) — these are expected features, not nice-to-haves
 - This is about API design quality, not HTML/CSS parity — adapt the comparison to what makes sense for TUI
 
 If the component has an equivalent in `ai-elements` (at `/Users/jessicacheng/thoughtful/ai-elements`), do a line-by-line comparison:
