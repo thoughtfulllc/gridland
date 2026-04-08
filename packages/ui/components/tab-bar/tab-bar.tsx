@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createContext, useContext, useState, useCallback, useRef, Children, isValidElement } from "react"
 import type { ReactNode } from "react"
 import { textStyle } from "../text-style"
@@ -91,7 +90,7 @@ export function TabsList({
   // Extract trigger values, labels, and disabled state from children
   const triggers: { value: string; label: ReactNode; disabled: boolean }[] = []
   Children.forEach(children, (child) => {
-    if (isValidElement(child) && "value" in child.props) {
+    if (isValidElement<TabsTriggerProps>(child) && "value" in child.props) {
       triggers.push({ value: child.props.value as string, label: child.props.children, disabled: !!child.props.disabled })
     }
   })

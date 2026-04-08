@@ -1,4 +1,3 @@
-// @ts-nocheck — Gridland intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
 import { useFocus, FocusProvider } from "@gridland/utils"
 import { ThemeProvider, darkTheme, useFocusBorderStyle } from "../../../../packages/ui/components/theme"

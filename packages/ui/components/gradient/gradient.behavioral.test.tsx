@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { Gradient } from "./gradient"
@@ -62,7 +61,7 @@ describe("Gradient behavior", () => {
   })
 
   it("renders with each named gradient without error", () => {
-    const names = ["cristal", "teen", "mind", "morning", "vice", "passion", "fruit", "instagram", "atlas", "retro", "summer", "pastel", "rainbow"]
+    const names = ["cristal", "teen", "mind", "morning", "vice", "passion", "fruit", "instagram", "atlas", "retro", "summer", "pastel", "rainbow"] as const
     for (const name of names) {
       const { screen, unmount } = renderTui(
         <Gradient name={name}>Test</Gradient>,

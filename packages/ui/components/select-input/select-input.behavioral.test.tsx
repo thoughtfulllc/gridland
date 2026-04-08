@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { SelectInput } from "./select-input"
@@ -146,9 +145,9 @@ describe("SelectInput behavior", () => {
   // ── Keyboard interactions (verified via callbacks) ────────────────────
 
   it("selects on move down", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <SelectInput
         items={items}
@@ -158,14 +157,14 @@ describe("SelectInput behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "down" })
+    savedHandler!({ name: "down" })
     expect(changed).toBe("js")
   })
 
   it("selects on move up", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <SelectInput
         items={items}
@@ -175,14 +174,14 @@ describe("SelectInput behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "up" })
+    savedHandler!({ name: "up" })
     expect(changed).toBe("rs")
   })
 
   it("submits with enter (uncontrolled)", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <SelectInput
         items={items}
@@ -192,14 +191,14 @@ describe("SelectInput behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("py")
   })
 
   it("submits with enter (controlled)", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <SelectInput
         items={items}
@@ -209,14 +208,14 @@ describe("SelectInput behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("rs")
   })
 
   it("ignores keys when disabled", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <SelectInput
         items={items}
@@ -227,7 +226,7 @@ describe("SelectInput behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "down" })
+    savedHandler!({ name: "down" })
     expect(changed).toBeNull()
   })
 
@@ -237,9 +236,9 @@ describe("SelectInput behavior", () => {
       { label: "JavaScript", value: "js", disabled: true },
       { label: "Python", value: "py" },
     ]
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <SelectInput
         items={disabledItems}
@@ -250,16 +249,16 @@ describe("SelectInput behavior", () => {
       { cols: 40, rows: 10 },
     )
     // Move down — should skip disabled "js" and land on "py"
-    savedHandler({ name: "down" })
+    savedHandler!({ name: "down" })
     expect(changed).toBe("py")
   })
 
   // ── j/k navigation ──────────────────────────────────────────────────
 
   it("selects on j key (move down)", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <SelectInput
         items={items}
@@ -269,14 +268,14 @@ describe("SelectInput behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "j" })
+    savedHandler!({ name: "j" })
     expect(changed).toBe("js")
   })
 
   it("selects on k key (move up)", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <SelectInput
         items={items}
@@ -286,15 +285,15 @@ describe("SelectInput behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "k" })
+    savedHandler!({ name: "k" })
     expect(changed).toBe("rs")
   })
 
   // ── Submitted state ─────────────────────────────────────────────────
 
   it("renders submitted state after enter", () => {
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     const { screen, rerender } = renderTui(
       <SelectInput
         items={items}
@@ -303,7 +302,7 @@ describe("SelectInput behavior", () => {
       />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "return" })
     rerender(
       <SelectInput
         items={items}
@@ -317,13 +316,13 @@ describe("SelectInput behavior", () => {
   })
 
   it("ignores keys after submission", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     const props = {
       items,
       value: "ts" as const,
-      onChange: (value) => { changed = value },
+      onChange: (value: string) => { changed = value },
       useKeyboard: mockUseKeyboard,
       onSubmit: () => {},
     }
@@ -331,10 +330,10 @@ describe("SelectInput behavior", () => {
       <SelectInput {...props} />,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "return" })
     // Re-render to flush submitted state into ref
     rerender(<SelectInput {...props} />)
-    savedHandler({ name: "down" })
+    savedHandler!({ name: "down" })
     expect(changed).toBeNull()
   })
 

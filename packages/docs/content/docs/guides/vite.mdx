@@ -59,6 +59,19 @@ export default defineConfig({
 </Step>
 <Step>
 
+## TypeScript Setup
+
+Add the Gridland JSX type declarations so TypeScript recognizes custom elements like `<box>` and `<text>`:
+
+```json title="tsconfig.json"
+{
+  "include": ["src", "node_modules/@gridland/web/src/gridland-jsx.d.ts"]
+}
+```
+
+</Step>
+<Step>
+
 ## Create Your Component
 
 Wrap your TUI content in `TUI`:

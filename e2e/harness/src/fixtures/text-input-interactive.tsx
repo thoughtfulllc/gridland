@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState } from "react"
 import { FixtureWrapper } from "../fixture-wrapper"
 import { TextInput } from "../../../../packages/ui/components/text-input/text-input"

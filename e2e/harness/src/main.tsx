@@ -1,5 +1,6 @@
 import "@fontsource/jetbrains-mono/400.css"
 import "@fontsource/jetbrains-mono/700.css"
+import React from "react"
 import { createRoot } from "react-dom/client"
 import { TableFixture } from "./fixtures/table"
 import { SelectInputFixture } from "./fixtures/select-input"
@@ -33,7 +34,7 @@ import { EdgeCasesFixture } from "./fixtures/edge-cases"
 import { ThemeSwitchFixture } from "./fixtures/theme-switch"
 import { CompositionFixture } from "./fixtures/composition"
 
-const routes: Record<string, () => JSX.Element> = {
+const routes: Record<string, () => React.JSX.Element> = {
   "/table": TableFixture,
   "/select-input": SelectInputFixture,
   "/select-input-interactive": SelectInputInteractiveFixture,

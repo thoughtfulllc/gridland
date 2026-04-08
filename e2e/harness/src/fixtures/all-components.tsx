@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
 import { Table } from "../../../../packages/ui/components/table/table"
 import { SelectInput } from "../../../../packages/ui/components/select-input/select-input"
@@ -31,7 +30,7 @@ export function AllComponentsFixture() {
 
         <box flexDirection="column" gap={1}>
           <text fg="#d8dee9" bold>Input:</text>
-          <TextInput placeholder="Type here..." prompt="> " />
+          <TextInput value="" placeholder="Type here..." prompt="> " />
         </box>
 
         <Link url="https://opentui.com">Visit opentui.com</Link>

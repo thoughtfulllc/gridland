@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react"
 import { Link, type UnderlineStyle } from "./link"
 import { StatusBar } from "../status-bar/status-bar"

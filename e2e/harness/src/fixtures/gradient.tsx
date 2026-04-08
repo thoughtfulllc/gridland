@@ -1,4 +1,3 @@
-// @ts-nocheck — Gridland intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
 import { Gradient } from "../../../../packages/ui/components/gradient/gradient"
 import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"

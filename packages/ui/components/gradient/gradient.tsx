@@ -1,4 +1,3 @@
-// @ts-nocheck
 export type GradientName =
   | "cristal" | "teen" | "mind" | "morning" | "vice" | "passion"
   | "fruit" | "instagram" | "atlas" | "retro" | "summer" | "pastel" | "rainbow"

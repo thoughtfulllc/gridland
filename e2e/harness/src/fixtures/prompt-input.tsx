@@ -1,4 +1,3 @@
-// @ts-nocheck — Gridland intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
 import { PromptInput } from "../../../../packages/ui/components/prompt-input/prompt-input"
 import { GridlandProvider } from "../../../../packages/ui/components/provider/provider"

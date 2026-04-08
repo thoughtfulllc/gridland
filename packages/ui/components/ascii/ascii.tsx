@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useTheme } from "../theme/index"
 
 export interface AsciiProps {

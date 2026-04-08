@@ -5,6 +5,27 @@ description: Core package API reference
 
 import { Callout } from 'fumadocs-ui/components/callout'
 
+## TypeScript Setup
+
+Gridland uses custom JSX elements (`<box>`, `<text>`, `<span>`, etc.) that aren't standard HTML. To get type-checking and autocomplete, add the JSX type declarations to your `tsconfig.json`:
+
+```json
+{
+  "include": ["src", "node_modules/@gridland/web/src/gridland-jsx.d.ts"]
+}
+```
+
+Or add a triple-slash reference in any `.d.ts` file in your project:
+
+```ts
+/// <reference types="@gridland/web/jsx" />
+```
+
+<Callout type="info">
+This is required for TypeScript projects using React 19. The declarations handle
+conflicts with React's built-in `IntrinsicElements` automatically.
+</Callout>
+
 ## TUI
 
 The main mounting component. See [TUI](/docs/components/tui) for

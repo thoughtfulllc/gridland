@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { FocusProvider, useFocus } from "@gridland/utils"
@@ -65,8 +64,8 @@ describe("Modal behavior", () => {
 
   it("calls onClose when Escape is pressed", () => {
     let closed = false
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     const tui = renderTui(
       <Modal
         onClose={() => { closed = true }}
@@ -76,14 +75,14 @@ describe("Modal behavior", () => {
       </Modal>,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "escape" })
+    savedHandler!({ name: "escape" })
     tui.flush()
     expect(closed).toBe(true)
   })
 
   it("does not crash when Escape pressed without onClose", () => {
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     const tui = renderTui(
       <Modal useKeyboard={mockUseKeyboard}>
         <text>Content</text>
@@ -91,15 +90,15 @@ describe("Modal behavior", () => {
       { cols: 40, rows: 10 },
     )
     // Should not throw
-    savedHandler({ name: "escape" })
+    savedHandler!({ name: "escape" })
     tui.flush()
     expect(true).toBe(true)
   })
 
   it("ignores non-escape keys", () => {
     let closed = false
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     const tui = renderTui(
       <Modal
         onClose={() => { closed = true }}
@@ -109,7 +108,7 @@ describe("Modal behavior", () => {
       </Modal>,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "a" })
+    savedHandler!({ name: "a" })
     tui.flush()
     expect(closed).toBe(false)
   })
@@ -166,8 +165,8 @@ describe("Modal behavior", () => {
   })
 
   it("receives keyboard handler from context when useKeyboard prop is omitted", () => {
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let savedHandler: ((event: any) => void) | null = null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     let closed = false
 
     const { GridlandProvider } = require("../provider/provider")
@@ -179,7 +178,7 @@ describe("Modal behavior", () => {
       </GridlandProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler({ name: "escape" })
+    savedHandler!({ name: "escape" })
     tui.flush()
     expect(closed).toBe(true)
   })

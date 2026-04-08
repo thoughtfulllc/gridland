@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useSyncExternalStore, useEffect, createContext, useContext, useMemo, useRef, type ReactNode } from "react"
 
 // ============================================================================

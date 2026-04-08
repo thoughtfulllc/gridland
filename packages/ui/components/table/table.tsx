@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { createContext, useContext, Children, isValidElement, Fragment } from "react"
-import type { ReactNode, ReactElement } from "react"
+import type { ReactNode } from "react"
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
 
@@ -83,7 +82,7 @@ function extractCellText(node: ReactNode): string {
   if (typeof node === "string") return node
   if (typeof node === "number" || typeof node === "boolean") return String(node)
   if (Array.isArray(node)) return node.map(extractCellText).join("")
-  if (isValidElement(node)) return extractCellText((node as ReactElement<{ children?: ReactNode }>).props.children)
+  if (isValidElement<{ children?: ReactNode }>(node)) return extractCellText(node.props.children)
   return ""
 }
 
@@ -91,15 +90,15 @@ function collectColumnWidths(children: ReactNode, padding: number): number[] {
   const columnMaxWidths: number[] = []
 
   Children.forEach(children, (section) => {
-    if (!isValidElement(section)) return
+    if (!isValidElement<{ children?: ReactNode }>(section)) return
     if (section.type === TableCaption) return
 
     Children.forEach(section.props.children, (row: ReactNode) => {
-      if (!isValidElement(row)) return
+      if (!isValidElement<{ children?: ReactNode }>(row)) return
 
       let colIdx = 0
       Children.forEach(row.props.children, (cell: ReactNode) => {
-        if (!isValidElement(cell)) return
+        if (!isValidElement<{ children?: ReactNode; colSpan?: number }>(cell)) return
         const span = cell.props.colSpan ?? 1
         if (span === 1) {
           const text = extractCellText(cell.props.children)
@@ -244,7 +243,7 @@ export function TableRow({ children }: TableRowProps) {
   let colIdx = 0
 
   Children.forEach(children, (child) => {
-    if (!isValidElement(child)) return
+    if (!isValidElement<TableCellProps>(child)) return
 
     const text = extractCellText(child.props.children)
     const span = child.props.colSpan ?? 1

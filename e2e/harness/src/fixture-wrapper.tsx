@@ -1,4 +1,3 @@
-// @ts-nocheck — Gridland intrinsic elements conflict with React's HTML/SVG types
 import { type ReactNode, useCallback } from "react"
 import { TUI } from "../../../packages/web/src/TUI"
 import type { BrowserRenderer } from "../../../packages/web/src/browser-renderer"

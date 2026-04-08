@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { TextInput } from "./text-input"

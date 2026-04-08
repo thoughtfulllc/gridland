@@ -1,4 +1,3 @@
-// @ts-nocheck — Gridland intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
 import { SideNav } from "../../../../packages/ui/components/side-nav/side-nav"
 import { GridlandProvider } from "../../../../packages/ui/components/provider/provider"

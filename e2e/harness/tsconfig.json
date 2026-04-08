@@ -14,5 +14,5 @@
       "@opentui/react": ["../../packages/core/src/react/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "gridland-jsx.d.ts"]
 }

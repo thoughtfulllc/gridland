@@ -23,13 +23,17 @@
     "./utils": {
       "import": "./dist/utils.js",
       "types": "./dist/utils.d.ts"
+    },
+    "./jsx": {
+      "types": "./src/gridland-jsx.d.ts"
     }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src/shims"
+    "src/shims",
+    "src/gridland-jsx.d.ts"
   ],
   "scripts": {
     "build": "tsup; node build-browser.mjs",

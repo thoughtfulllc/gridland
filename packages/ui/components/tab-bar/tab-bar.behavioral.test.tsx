@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
 import { useState } from "react"
 import { renderTui, cleanup } from "../../../testing/src/index"

@@ -1,4 +1,3 @@
-// @ts-nocheck — Gridland intrinsic elements conflict with React's HTML/SVG types
 import { useState } from "react"
 import { useKeyboard } from "@gridland/utils"
 import { FixtureWrapper } from "../fixture-wrapper"

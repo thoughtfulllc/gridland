@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState, useRef, useCallback, useEffect, type ReactNode } from "react"
 import {
   useFocus,

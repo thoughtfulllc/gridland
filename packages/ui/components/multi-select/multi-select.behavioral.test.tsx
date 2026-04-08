@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { MultiSelect } from "./multi-select"
@@ -179,7 +178,7 @@ describe("MultiSelect behavior", () => {
   // ── Keyboard interactions (verified via callbacks) ────────────────────
 
   it("toggles selection with enter", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -196,7 +195,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("toggles selection with space", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -213,7 +212,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("selects all with a key", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -229,7 +228,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("clears all with x key", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -245,7 +244,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("submits via submit row (uncontrolled)", () => {
-    let submitted = null
+    let submitted = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -268,7 +267,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("submits via submit row (controlled)", () => {
-    let submitted = null
+    let submitted = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -291,7 +290,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("ignores keys when disabled", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -313,7 +312,7 @@ describe("MultiSelect behavior", () => {
       { label: "JavaScript", value: "js" },
       { label: "Python", value: "py" },
     ]
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -336,7 +335,7 @@ describe("MultiSelect behavior", () => {
       { label: "Python", value: "py" },
       { label: "Rust", value: "rs" },
     ]
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -353,7 +352,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("respects maxCount on toggle", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -372,7 +371,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("blocks selection beyond maxCount", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     // Arrange items so the first (cursor default) is unselected while 2 others are selected
     const reordered = [
@@ -397,7 +396,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("maxCount limits select all", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -414,7 +413,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("disables select all when enableSelectAll is false", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -447,7 +446,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("submits empty selection when allowEmpty is true", () => {
-    let submitted = null
+    let submitted = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -468,7 +467,7 @@ describe("MultiSelect behavior", () => {
   })
 
   it("disables clear when enableClear is false", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -534,7 +533,7 @@ describe("MultiSelect behavior", () => {
   // ── Navigation wrapping ──────────────────────────────────────────────
 
   it("wraps cursor from first to last item on up", () => {
-    let submitted = null
+    let submitted = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -592,7 +591,7 @@ describe("MultiSelect behavior", () => {
       { label: "Python", value: "py", group: "Languages" },
       { label: "React", value: "react", group: "Frameworks" },
     ]
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -633,7 +632,7 @@ describe("MultiSelect behavior", () => {
   // ── Submitted state rendering ────────────────────────────────────────
 
   it("passes correct values to onSubmit and ignores subsequent presses", () => {
-    let submitted = null
+    let submitted = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
@@ -662,7 +661,7 @@ describe("MultiSelect behavior", () => {
   // ── onChange fires in uncontrolled mode ───────────────────────────────
 
   it("fires onChange in uncontrolled mode", () => {
-    let changed = null
+    let changed = null as string[] | null
     const { useKeyboard, fire } = createMockKeyboard()
     renderTui(
       <MultiSelect
