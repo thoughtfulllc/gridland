@@ -39,6 +39,7 @@
     "build": "tsup; node build-browser.mjs",
     "dev": "vite",
     "test": "bun test --preload ./test/preload.ts",
+    "types:check": "tsc --noEmit --project test/type-check",
     "test:ci": "bun test --preload ./test/preload.ts --randomize --rerun-each 3"
   },
   "dependencies": {

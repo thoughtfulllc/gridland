@@ -101,6 +101,7 @@
         "react": "^19.0.0",
       },
       "devDependencies": {
+        "@gridland/ui": "workspace:*",
         "tsup": "^8.4.0",
         "typescript": "^5.7.0",
       },
