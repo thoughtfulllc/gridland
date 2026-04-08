@@ -14,7 +14,7 @@ function flushN(flush: () => void) {
 /** Let React effects run, then flush to update the screen. */
 async function settle(flush: () => void) {
   flushN(flush)
-  await new Promise(resolve => setTimeout(resolve, 20))
+  await new Promise(resolve => setTimeout(resolve, 50))
   flushN(flush)
 }
 
