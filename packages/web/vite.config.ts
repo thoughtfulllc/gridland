@@ -7,15 +7,4 @@ export default defineConfig({
     ...gridlandWebPlugin(),
     react(),
   ],
-  build: {
-    target: "esnext",
-  },
-  esbuild: {
-    target: "esnext",
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      target: "esnext",
-    },
-  },
 })
