@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import {
   useState,
   useRef,
@@ -13,7 +12,7 @@ import {
 import { textStyle } from "./text-style"
 import { useTheme } from "./theme"
 import { useKeyboardContext } from "./provider"
-import { useRegistryCommands } from "./command-registry"
+import { useRegistryCommands, type PromptInputCommand } from "./command-registry"
 export type { PromptInputCommand } from "./command-registry"
 
 /** Chat lifecycle status. Compatible with any AI SDK. */
@@ -562,7 +561,7 @@ export function PromptInput({
     // Handle async onSubmit: clear on resolve, preserve on reject
     if (result instanceof Promise) {
       result.then(
-        () => clearInput(),
+        () => { if (valueRef.current === text) clearInput() },
         (err: unknown) => { onError?.(err) },
       )
     } else {

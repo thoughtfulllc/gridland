@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { textStyle } from './text-style'
 import { useTheme } from './theme'
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { ReactNode } from "react"
 import { textStyle } from "./text-style"
 import { useTheme } from "./theme"

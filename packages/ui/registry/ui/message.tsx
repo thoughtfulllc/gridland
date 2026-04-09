@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createContext, memo, useContext, useMemo } from "react"
 import type { ReactNode } from "react"
 import { textStyle } from "./text-style"

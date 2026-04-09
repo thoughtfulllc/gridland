@@ -171,7 +171,7 @@ If the component has a shadcn/ui equivalent (Table, Tabs, Select, Modal/Dialog, 
 - **Standard props that shadcn/Radix expose**: Check specifically for `disabled` on interactive sub-components (triggers, items, options), `asChild` composition patterns, `orientation` for directional components, and `loop` for wrap-around behavior. If shadcn's equivalent has a prop that covers a common use case and Gridland doesn't, flag it as P1 (not P2) — these are expected features, not nice-to-haves
 - This is about API design quality, not HTML/CSS parity — adapt the comparison to what makes sense for TUI
 
-If the component has an equivalent in `ai-elements` (at `/Users/jessicacheng/thoughtful/ai-elements`), do a line-by-line comparison:
+If the component has an equivalent in `ai-elements`, do a line-by-line comparison:
 - **State management**: How does ai-elements handle controllable state? If it uses `useControllableState` or similar, compare the implementation logic — not just the prop names. Different solutions to the same problem often reveal bugs in one version
 - **Exported types**: Compare field-by-field. If ai-elements doesn't have a field that Gridland exports, ask whether that field is actually consumed by any component code. Dead fields are a sign of speculative API design
 - **Sub-components**: Are there compound subcomponents (Footer, Tools, ActionMenu) that Gridland is missing for common use cases? For browser-only sub-components (images, badges, click handlers), verify that Gridland's `children` prop covers the same use case in TUI

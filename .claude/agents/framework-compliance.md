@@ -1,6 +1,6 @@
 ---
 name: framework-compliance
-description: Checks that code follows Gridland framework patterns — correct useFocus usage, FocusRing for block components, FocusScope placement, keyboard/focus coverage for every interactive component, naming conventions, vendor boundary, and anti-patterns. Use on any changed component or hook file.
+description: Checks that code follows Gridland framework patterns — correct useFocus usage, useFocusBorderStyle / useFocusDividerStyle for border affordance, FocusScope placement, keyboard/focus coverage for every interactive component, naming conventions, vendor boundary, and anti-patterns. Use on any changed component or hook file.
 tools: Read, Glob, Grep, Bash
 model: claude-sonnet-4-5
 ---
@@ -45,9 +45,9 @@ For every new component that is interactive (has onClick-equivalent, is expandab
 
 ## Step 4 — Naming conventions
 
-- Components: PascalCase (`FocusRing`, `SideNav`)
+- Components: PascalCase (`SideNav`, `Modal`)
 - Hooks: `use` prefix (`useFocus`, `useKeyboard`)
-- Prop interfaces: `{ComponentName}Props` (`FocusRingProps`, `SideNavProps`)
+- Prop interfaces: `{ComponentName}Props` (`SideNavProps`, `ModalProps`)
 - Constants: SCREAMING_SNAKE or descriptive camelCase object (`FOCUS_COLORS`, `darkTheme`)
 
 ## Step 5 — Package boundary violations
@@ -86,7 +86,7 @@ For every `{ComponentName}Props` interface in changed files:
 - [file:line] Issue — suggested fix
 
 ### Missing Keyboard/Focus Coverage
-- [component] Missing: useFocus | focusRef | useShortcuts | FocusRing
+- [component] Missing: useFocus | focusRef | useShortcuts | useFocusBorderStyle
 
 ### Naming Violations
 - [file:line] Issue
