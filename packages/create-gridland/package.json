@@ -1,6 +1,6 @@
 {
   "name": "create-gridland",
-  "version": "0.2.53",
+  "version": "0.2.54",
   "description": "Create a new Gridland project",
   "type": "module",
   "bin": {
@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsup",
     "test": "bun test src/scaffold.test.ts src/helpers.test.ts src/cli.test.ts",
-    "test:e2e": "bun test src/e2e.test.ts --timeout 120000"
+    "test:e2e": "bun test src/e2e.test.ts --timeout 120000",
+    "prepublishOnly": "bun ../../scripts/check-versions.mjs"
   },
   "dependencies": {
     "commander": "^13.0.0"

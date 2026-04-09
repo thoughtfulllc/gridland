@@ -21,7 +21,9 @@
     "chat:deploy": "bun run --cwd packages/chat-worker deploy",
     "docs:build": "bun run --cwd packages/docs build",
     "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
-    "setup": "bun install && bun run build"
+    "setup": "bun install && bun run build",
+    "bump": "bun scripts/bump-version.mjs",
+    "check:versions": "bun scripts/check-versions.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",

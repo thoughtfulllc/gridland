@@ -40,7 +40,8 @@
     "dev": "vite",
     "test": "bun test --preload ./test/preload.ts",
     "types:check": "tsc --noEmit --project test/type-check",
-    "test:ci": "bun test --preload ./test/preload.ts --randomize --rerun-each 3"
+    "test:ci": "bun test --preload ./test/preload.ts --randomize --rerun-each 3",
+    "prepublishOnly": "bun ../../scripts/check-versions.mjs"
   },
   "dependencies": {
     "@gridland/utils": "workspace:*",

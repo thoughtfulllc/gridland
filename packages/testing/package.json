@@ -1,6 +1,6 @@
 {
   "name": "@gridland/testing",
-  "version": "0.2.53",
+  "version": "0.2.54",
   "type": "module",
   "exports": {
     ".": {
@@ -16,7 +16,8 @@
   "scripts": {
     "build": "tsup",
     "test": "bun test --preload ../web/test/preload.ts",
-    "test:ci": "bun test --preload ../web/test/preload.ts --randomize --rerun-each 3"
+    "test:ci": "bun test --preload ../web/test/preload.ts --randomize --rerun-each 3",
+    "prepublishOnly": "bun ../../scripts/check-versions.mjs"
   },
   "dependencies": {
     "@gridland/utils": "workspace:*",
