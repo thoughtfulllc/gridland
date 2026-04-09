@@ -170,7 +170,7 @@
     },
     "packages/utils": {
       "name": "@gridland/utils",
-      "version": "0.2.53",
+      "version": "0.2.54",
       "dependencies": {
         "react": "^19.0.0",
       },
@@ -186,14 +186,13 @@
     },
     "packages/web": {
       "name": "@gridland/web",
-      "version": "0.2.53",
+      "version": "0.2.54",
       "dependencies": {
         "@gridland/utils": "workspace:*",
         "diff": "^8.0.3",
         "events": "^3.3.0",
         "marked": "^17.0.3",
         "react": "^19.0.0",
-        "react-reconciler": "0.33.0",
         "yoga-layout": "^3.2.1",
       },
       "devDependencies": {
@@ -209,6 +208,7 @@
       },
       "peerDependencies": {
         "react": ">=19.0.0",
+        "react-reconciler": "0.33.0",
       },
     },
   },
