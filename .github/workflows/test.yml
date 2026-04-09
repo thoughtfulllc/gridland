@@ -54,6 +54,20 @@ jobs:
       - name: Run E2E tests
         run: bun run test:e2e
 
+      - name: Update screenshots and push if they changed
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          PR_HEAD_REF: ${{ github.head_ref }}
+        run: |
+          bun run test:e2e:update
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add e2e/screenshots/
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: regenerate e2e screenshot baselines"
+            git push origin "HEAD:$PR_HEAD_REF"
+          fi
+
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: failure()
