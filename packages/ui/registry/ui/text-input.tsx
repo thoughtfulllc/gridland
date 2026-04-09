@@ -1,5 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
-import { useCallback, useRef, useState } from 'react'
 import { textStyle } from './text-style'
 import { useTheme } from './theme'
 
@@ -14,8 +12,8 @@ export interface TextInputProps {
   required?: boolean
   /** Whether the input is disabled */
   disabled?: boolean
-  /** Controlled value */
-  value?: string
+  /** Current value of the input */
+  value: string
   /** Called on every keystroke */
   onChange?: (value: string) => void
   /** Called when Enter is pressed */
@@ -30,35 +28,12 @@ export interface TextInputProps {
   maxLength?: number
 }
 
-export function TextInput({ label, description, error, required = false, disabled = false, value: controlledValue, onChange, onSubmit, placeholder, prompt, focus = true, maxLength }: TextInputProps) {
+/** Form text input with label, validation, and controlled mode. */
+export function TextInput({ label, description, error, required = false, disabled = false, value, onChange, onSubmit, placeholder, prompt, focus = false, maxLength }: TextInputProps) {
   const theme = useTheme()
-  const [internalValue, setInternalValue] = useState('')
-  const isControlled = controlledValue !== undefined
-  const controlledRef = useRef(isControlled)
-  if (controlledRef.current !== isControlled) {
-    console.warn('TextInput: switching between controlled and uncontrolled is not supported.')
-    controlledRef.current = isControlled
-  }
-  const current = isControlled ? controlledValue : internalValue
   const isFocused = focus && !disabled
 
-  const handleInput = useCallback(
-    (v: string) => {
-      if (!isControlled) setInternalValue(v)
-      onChange?.(v)
-    },
-    [isControlled, onChange],
-  )
-
-  const handleSubmit = useCallback(
-    (v: string) => {
-      onSubmit?.(v)
-      if (!isControlled) setInternalValue('')
-    },
-    [isControlled, onSubmit],
-  )
-
-  const empty = !current
+  const empty = !value
   const showLabel = label != null
   const message = error ?? description
 
@@ -71,10 +46,10 @@ export function TextInput({ label, description, error, required = false, disable
             {label}
           </span>
           {required && <span style={textStyle({ fg: theme.error })}>{' *'}</span>}
-          {current && maxLength != null && (
+          {value && maxLength != null && (
             <span style={textStyle({ dim: true, fg: theme.muted })}>
               {' '}
-              {current.length}/{maxLength}
+              {value.length}/{maxLength}
             </span>
           )}
           {message != null && (
@@ -86,22 +61,22 @@ export function TextInput({ label, description, error, required = false, disable
         </text>
       )}
       <box flexDirection="row" marginLeft={showLabel ? 2 : 0}>
-        {prompt != null && <text style={{ fg: isFocused ? theme.primary : theme.muted }}>{prompt}</text>}
+        {prompt != null && <text style={{ fg: error ? theme.error : isFocused ? theme.primary : theme.muted }}>{prompt}</text>}
         {isFocused ? (
           <input
-            value={current}
+            value={value}
             placeholder={placeholder}
             maxLength={maxLength}
             focused
-            onInput={handleInput}
-            onSubmit={handleSubmit}
-            cursorColor={theme.muted}
+            onInput={onChange}
+            onSubmit={onSubmit}
+            cursorColor={error ? theme.error : theme.muted}
             cursorStyle={{ style: "line", blinking: empty }}
             placeholderColor={theme.placeholder}
             textColor={theme.foreground}
           />
         ) : (
-          <text style={{ fg: empty ? theme.placeholder : disabled ? theme.muted : theme.foreground, dim: disabled }}>{empty ? placeholder : current}</text>
+          <text style={{ fg: empty ? theme.placeholder : disabled ? theme.muted : theme.foreground, dim: disabled }}>{empty ? placeholder : value}</text>
         )}
       </box>
     </box>

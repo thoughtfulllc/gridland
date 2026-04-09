@@ -1,4 +1,4 @@
-import { createContext, memo, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import type { ReactNode } from "react"
 import { textStyle } from "./text-style"
 import { useTheme } from "./theme"
@@ -6,24 +6,41 @@ import type { Theme } from "./theme"
 
 // ── Constants ──────────────────────────────────────────────────────
 
-const DOTS = ["○", "◔", "◑", "◕", "●"] as const
-const SPINNER_INTERVAL = 150
+const DOTS = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"] as const
+const SPINNER_INTERVAL = 80
 
 // ── Step data type (for data-driven usage) ─────────────────────────
 
-export interface Step {
-  /** Tool or operation name (e.g. "Think", "Search", "Read"). */
-  tool: string
+export interface ChainOfThoughtStepData {
   /** Primary label for the step. */
   label: string
   /** Secondary detail shown dimmed after the label. */
   description?: string
-  /** Duration string (e.g. "0.6s", "400ms"). */
-  duration?: string
   /** Current status. */
   status: "done" | "running" | "pending" | "error"
-  /** Output or detail text shown below the step. */
+  /** Custom icon character. */
+  icon?: string
+  /** Output text shown below the step. */
   output?: string
+}
+
+/** @deprecated Use ChainOfThoughtStepData instead. */
+export type Step = ChainOfThoughtStepData
+
+// ── Controllable state helper ──────────────────────────────────────
+
+function useControllableOpen(
+  controlledOpen: boolean | undefined,
+  defaultOpen: boolean,
+  onOpenChange: ((open: boolean) => void) | undefined,
+): [boolean, (open: boolean) => void] {
+  const [internalOpen, setInternalOpen] = useState(defaultOpen)
+  const isOpen = controlledOpen ?? internalOpen
+  const setOpen = useCallback((value: boolean) => {
+    if (controlledOpen === undefined) setInternalOpen(value)
+    onOpenChange?.(value)
+  }, [controlledOpen, onOpenChange])
+  return [isOpen, setOpen]
 }
 
 // ── Context ────────────────────────────────────────────────────────
@@ -35,7 +52,7 @@ interface ChainOfThoughtContextValue {
 
 const ChainOfThoughtContext = createContext<ChainOfThoughtContextValue | null>(null)
 
-const useChainOfThought = () => {
+export const useChainOfThought = () => {
   const context = useContext(ChainOfThoughtContext)
   if (!context) {
     throw new Error("ChainOfThought components must be used within <ChainOfThought>")
@@ -67,15 +84,14 @@ export interface ChainOfThoughtProps {
   children: ReactNode
 }
 
+/** Collapsible chain-of-thought container with controlled or uncontrolled open state. */
 export const ChainOfThought = memo(({
   open,
   defaultOpen = false,
   onOpenChange,
   children,
 }: ChainOfThoughtProps) => {
-  const [internalOpen, setInternalOpen] = useState(defaultOpen)
-  const isOpen = open ?? internalOpen
-  const setIsOpen = onOpenChange ?? setInternalOpen
+  const [isOpen, setIsOpen] = useControllableOpen(open, defaultOpen, onOpenChange)
 
   const context = useMemo(
     () => ({ isOpen, setIsOpen }),
@@ -100,6 +116,7 @@ export interface ChainOfThoughtHeaderProps {
   children?: ReactNode
 }
 
+/** Header row with collapse arrow and optional duration label. */
 export const ChainOfThoughtHeader = memo(({
   duration,
   children = "Thought for",
@@ -122,6 +139,7 @@ export interface ChainOfThoughtContentProps {
   children: ReactNode
 }
 
+/** Content region that renders only when the chain is open. */
 export const ChainOfThoughtContent = memo(({ children }: ChainOfThoughtContentProps) => {
   const { isOpen } = useChainOfThought()
   if (!isOpen) return null
@@ -137,16 +155,20 @@ export interface ChainOfThoughtStepProps {
   description?: string
   /** Current status. Defaults to "done". */
   status?: "done" | "running" | "pending" | "error"
-  /** Set to true to hide the vertical pipe connector below. */
+  /** Custom icon character. Defaults to status-based dot (● done, ○ pending, animated running). */
+  icon?: string
+  /** @deprecated Will be auto-detected in a future version. Safe to continue using. */
   isLast?: boolean
   /** Output content rendered below the step with a pipe gutter. */
   children?: ReactNode
 }
 
+/** Individual step with status icon, label, and optional output content. */
 export const ChainOfThoughtStep = memo(({
   label,
   description,
   status = "done",
+  icon,
   isLast = false,
   children,
 }: ChainOfThoughtStepProps) => {
@@ -164,9 +186,9 @@ export const ChainOfThoughtStep = memo(({
     return () => clearInterval(id)
   }, [isActive])
 
-  const dot = isActive
+  const dot = icon ?? (isActive
     ? DOTS[frame % DOTS.length]!
-    : isPending ? "○" : "●"
+    : isPending ? "○" : "●")
 
   return (
     <box flexDirection="column" marginLeft={1}>

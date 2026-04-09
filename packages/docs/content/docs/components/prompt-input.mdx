@@ -216,7 +216,7 @@ import { PromptInput } from "@/components/ui/prompt-input"
 </PromptInput>
 ```
 
-### Subcomponents
+### Compound Components
 
 | Component | Description |
 |-----------|-------------|
@@ -273,6 +273,67 @@ function MyCustomStatus() {
 }
 ```
 
+## Command Registry
+
+Wrap your app in `CommandProvider` to let sibling components register slash
+commands that automatically appear in `PromptInput`'s autocomplete — without
+passing `commands` as a prop.
+
+```tsx title="Command Registry"
+import { CommandProvider, useRegisterCommand } from "@/components/ui/prompt-input"
+
+function ModelSwitcher() {
+  useRegisterCommand({ cmd: "/model", desc: "Switch model" })
+  return null
+}
+
+function ClearButton() {
+  useRegisterCommand({ cmd: "/clear", desc: "Clear conversation", onExecute: () => clearChat() })
+  return null
+}
+
+<CommandProvider>
+  <ModelSwitcher />
+  <ClearButton />
+  <PromptInput useKeyboard={useKeyboard} onSubmit={handleSubmit} />
+</CommandProvider>
+```
+
+### useRegisterCommand
+
+Register a single command. Automatically unregisters on unmount.
+
+```tsx title="Single command"
+useRegisterCommand({ cmd: "/help", desc: "Show commands" })
+```
+
+### useRegisterCommands
+
+Register multiple commands at once. Automatically unregisters on unmount.
+
+```tsx title="Multiple commands"
+useRegisterCommands([
+  { cmd: "/model", desc: "Switch model" },
+  { cmd: "/clear", desc: "Clear conversation" },
+])
+```
+
+### useRegistryCommands
+
+Subscribe to all registered commands. Returns the current command list reactively.
+
+```tsx title="Consuming commands"
+const commands = useRegistryCommands()
+// Returns PromptInputCommand[] — updates when commands are added/removed
+```
+
+### CommandProvider
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Components that can register and consume commands |
+| `registry` | `CommandRegistry` | - | Use an existing registry instance. If omitted, a new one is created. |
+
 ## Controls
 
 - **Enter**: Submit message (or accept suggestion)
@@ -297,20 +358,25 @@ function MyCustomStatus() {
 | `promptColor` | `string` | `theme.muted` | Color of the prompt character |
 | `status` | `ChatStatus` | - | AI chat status. Drives disabled state and hint text. |
 | `onStop` | `() => void` | - | Called when Escape is pressed during streaming |
+| `onError` | `(error: unknown) => void` | - | Called when async `onSubmit` rejects |
 | `submittedText` | `string` | `"Thinking..."` | Hint text when status is `"submitted"` |
 | `streamingText` | `string` | `"Generating..."` | Hint text when status is `"streaming"` |
 | `errorText` | `string` | `"An error occurred. Try again."` | Text shown when status is `"error"` |
 | `disabled` | `boolean` | `false` | Disable input. Ignored when `status` is provided. |
 | `disabledText` | `string` | `"Generating..."` | Text shown when disabled. Ignored when `status` is provided. |
-| `commands` | `{ cmd: string; desc?: string }[]` | `[]` | Slash commands for autocomplete |
+| `commands` | `PromptInputCommand[]` | `[]` | Slash commands for autocomplete |
+| `skills` | `PromptInputCommand[]` | `[]` | Dynamically-provided skills merged into autocomplete alongside commands |
 | `files` | `string[]` | `[]` | File paths for `@` mention autocomplete |
 | `getSuggestions` | `(value: string) => Suggestion[]` | - | Custom suggestion provider — overrides commands/files |
 | `maxSuggestions` | `number` | `5` | Max visible suggestions |
 | `enableHistory` | `boolean` | `true` | Enable command history with ↑/↓ |
 | `model` | `string` | - | Model name displayed below the input |
+| `focus` | `boolean` | `false` | Whether the input is focused and accepting keystrokes |
 | `showDividers` | `boolean` | `true` | Show horizontal dividers above and below input |
 | `autoFocus` | `boolean` | `false` | Auto-focus the canvas on mount for keyboard events |
-| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@opentui/react` |
+| `dividerColor` | `string` | - | Override divider line color (e.g. for focus indicators) |
+| `dividerDashed` | `boolean` | - | Use dashed divider lines (`╌`) instead of solid (`─`) |
+| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@gridland/utils` |
 | `children` | `ReactNode` | - | When provided, enables compound mode |
 
 ### PromptInputProvider
@@ -320,12 +386,23 @@ function MyCustomStatus() {
 | `initialInput` | `string` | `""` | Initial text input value |
 | `children` | `ReactNode` | - | Components that can access the provider context |
 
+### PromptInputCommand
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `cmd` | `string` | Slash command string (e.g. `"/help"`) |
+| `desc` | `string?` | Description shown in autocomplete |
+| `group` | `string?` | Group name for categorization in autocomplete |
+| `onExecute` | `() => void?` | When provided, PromptInput calls this directly instead of `onSubmit` |
+| `hidden` | `boolean?` | Hide from autocomplete suggestions but still executable |
+
 ### Suggestion
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `text` | `string` | Suggestion text |
 | `desc` | `string?` | Optional description |
+| `trigger` | `string?` | Character that triggered this suggestion (e.g. `"@"`, `"#"`). Used to determine replacement range. |
 
 ### ChatStatus
 

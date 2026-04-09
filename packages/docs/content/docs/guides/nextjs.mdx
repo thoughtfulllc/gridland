@@ -56,6 +56,19 @@ Your config runs first, then opentui aliases and shims are applied on top.
 </Step>
 <Step>
 
+## TypeScript Setup
+
+Add the Gridland JSX type declarations so TypeScript recognizes custom elements like `<box>` and `<text>`:
+
+```json title="tsconfig.json"
+{
+  "include": ["next-env.d.ts", "node_modules/@gridland/web/src/gridland-jsx.d.ts", "**/*.ts", "**/*.tsx"]
+}
+```
+
+</Step>
+<Step>
+
 ## Create Your Component
 
 Mark your page as a client component and use `TUI`:

@@ -11,6 +11,32 @@ interface Rect {
 const SECONDARY_WEIGHT = 4
 
 /**
+ * Ensure yoga layout positions are computed for the tree containing `ref`.
+ * The browser render pipeline may not have called calculateLayout() yet
+ * when React reconciliation completes after the initial render frame.
+ */
+function ensureLayoutComputed(ref: any): void {
+  let root = ref
+  while (root.parent) root = root.parent
+
+  const yogaNode = root.yogaNode
+  if (!yogaNode || !yogaNode.isDirty()) return
+
+  root.calculateLayout()
+
+  function applyLayout(node: any): void {
+    node.updateFromLayout()
+    const children = node._childrenInZIndexOrder
+    if (children) {
+      for (const child of children) {
+        applyLayout(child)
+      }
+    }
+  }
+  applyLayout(root)
+}
+
+/**
  * Find the best spatial navigation target for a given direction.
  * Uses edge-based direction checks so elements in the same row/column
  * (even with slight pixel offsets) aren't considered wrong-direction candidates.
@@ -24,6 +50,8 @@ export function findSpatialTarget(
 ): string | null {
   const currentRef = refs.get(currentId)
   if (!currentRef) return null
+
+  ensureLayoutComputed(currentRef)
 
   const current = getRect(currentRef)
   if (!current) return null

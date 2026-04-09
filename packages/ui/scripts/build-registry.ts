@@ -29,6 +29,7 @@ const IMPORT_REWRITES: [RegExp, string][] = [
   [/(from\s+["'])\.\.\/theme\/types(["'])/g, "$1./theme$2"],
   [/(from\s+["'])\.\.\/theme\/themes(["'])/g, "$1./theme$2"],
   [/(from\s+["'])\.\.\/theme\/theme-context(["'])/g, "$1./theme$2"],
+  [/(from\s+["'])\.\.\/theme\/use-focus-styles(["'])/g, "$1./theme$2"],
   [/(from\s+["'])\.\.\/theme(["'])/g, "$1./theme$2"],
   // Utilities
   [/(from\s+["'])\.\.\/text-style(["'])/g, "$1./text-style$2"],
@@ -37,6 +38,9 @@ const IMPORT_REWRITES: [RegExp, string][] = [
   // Cross-component
   [/(from\s+["'])\.\.\/prompt-input\/prompt-input(["'])/g, "$1./prompt-input$2"],
   [/(from\s+["'])\.\.\/chain-of-thought\/chain-of-thought(["'])/g, "$1./chain-of-thought$2"],
+  [/(from\s+["'])\.\.\/status-bar\/status-bar(["'])/g, "$1./status-bar$2"],
+  // External packages (keep as-is, but normalize command-registry)
+  [/(from\s+["'])\.\/command-registry(["'])/g, "$1./command-registry$2"],
 ]
 
 function rewriteImports(source: string): string {
@@ -54,6 +58,7 @@ function buildThemeSource(): string {
   const types = readFileSync(join(COMPONENTS_DIR, "theme/types.ts"), "utf-8")
   const themes = readFileSync(join(COMPONENTS_DIR, "theme/themes.ts"), "utf-8")
   const context = readFileSync(join(COMPONENTS_DIR, "theme/theme-context.tsx"), "utf-8")
+  const focusStyles = readFileSync(join(COMPONENTS_DIR, "theme/use-focus-styles.ts"), "utf-8")
 
   // Strip local imports that reference sibling files (now merged)
   const cleanThemes = themes
@@ -63,7 +68,10 @@ function buildThemeSource(): string {
     .replace(/import\s+type\s+\{[^}]+\}\s+from\s+["']\.\/types["']\s*\n?/g, "")
     .replace(/import\s+\{[^}]+\}\s+from\s+["']\.\/themes["']\s*\n?/g, "")
 
-  return [types.trim(), cleanThemes.trim(), cleanContext.trim()].join("\n\n")
+  const cleanFocusStyles = focusStyles
+    .replace(/import\s+\{[^}]+\}\s+from\s+["']\.\/theme-context["']\s*\n?/g, "")
+
+  return [types.trim(), cleanThemes.trim(), cleanContext.trim(), cleanFocusStyles.trim()].join("\n\n")
 }
 
 // ── Registry item configs ─────────────────────────────────────────────
@@ -123,18 +131,9 @@ const ITEMS: ItemConfig[] = [
     name: "ascii",
     type: "registry:ui",
     title: "Ascii",
-    description: "ASCII art text renderer using figlet fonts",
+    description: "ASCII art text renderer with built-in font styles",
     registryDependencies: ["theme"],
     srcPath: "ascii/ascii.tsx",
-    ext: ".tsx",
-  },
-  {
-    name: "chat",
-    type: "registry:ui",
-    title: "Chat",
-    description: "Vertical chat interface with messages, tool calls, streaming, and input",
-    registryDependencies: ["theme", "text-style", "prompt-input"],
-    srcPath: "chat/chat.tsx",
     ext: ".tsx",
   },
   {
@@ -159,8 +158,8 @@ const ITEMS: ItemConfig[] = [
     name: "message",
     type: "registry:ui",
     title: "Message",
-    description: "AI chat message with text, reasoning, tool invocations, and sources",
-    registryDependencies: ["theme", "text-style", "chain-of-thought"],
+    description: "AI chat message with role-based styling and streaming support",
+    registryDependencies: ["theme", "text-style"],
     srcPath: "message/message.tsx",
     ext: ".tsx",
   },
@@ -168,7 +167,7 @@ const ITEMS: ItemConfig[] = [
     name: "modal",
     type: "registry:ui",
     title: "Modal",
-    description: "Bordered overlay container with optional title and Escape key handling",
+    description: "Bordered overlay container with focus trapping, optional title, and Escape key handling",
     registryDependencies: ["theme", "text-style", "provider"],
     srcPath: "modal/modal.tsx",
     ext: ".tsx",
@@ -222,8 +221,8 @@ const ITEMS: ItemConfig[] = [
     name: "tab-bar",
     type: "registry:ui",
     title: "Tab Bar",
-    description: "Tabbed navigation with compound component API",
-    registryDependencies: ["theme", "text-style"],
+    description: "Tabbed navigation with compound component API and keyboard support",
+    registryDependencies: ["theme", "text-style", "provider"],
     srcPath: "tab-bar/tab-bar.tsx",
     ext: ".tsx",
   },
@@ -261,6 +260,15 @@ const ITEMS: ItemConfig[] = [
     description: "Step-by-step progress chain of thought with animated status indicators",
     registryDependencies: ["theme", "text-style"],
     srcPath: "chain-of-thought/chain-of-thought.tsx",
+    ext: ".tsx",
+  },
+  {
+    name: "side-nav",
+    type: "registry:ui",
+    title: "Side Nav",
+    description: "Sidebar navigation with focus system integration and keyboard-driven interaction",
+    registryDependencies: ["theme", "text-style", "status-bar"],
+    srcPath: "side-nav/side-nav.tsx",
     ext: ".tsx",
   },
 ]

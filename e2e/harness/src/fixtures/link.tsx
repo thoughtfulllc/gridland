@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { FixtureWrapper } from "../fixture-wrapper"
 import { Link } from "../../../../packages/ui/components/link/link"
 

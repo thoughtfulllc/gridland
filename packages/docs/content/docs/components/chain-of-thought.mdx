@@ -7,7 +7,7 @@ import { RunDemo } from '@/components/ui/run-demo'
 import ChainOfThoughtDemo, { ChainOfThoughtCollapsedDemo, ChainOfThoughtExpandedDemo, ChainOfThoughtWithOutputDemo } from '@/components/demos/chain-of-thought-demo'
 
 A collapsible compound component that visualizes AI reasoning steps with
-animated circle-filling spinners, status indicators, and optional output
+animated spinners, status indicators, and optional output
 content. SDK-agnostic — works with any provider that exposes thinking/reasoning
 data.
 
@@ -117,6 +117,20 @@ Pass children to the header to replace the default "Thought for" label.
 </ChainOfThought>
 ```
 
+### Custom Icon
+
+Override the default status dot with a custom character.
+
+```tsx title="Custom icon"
+<ChainOfThought defaultOpen>
+  <ChainOfThoughtHeader duration="2.0s" />
+  <ChainOfThoughtContent>
+    <ChainOfThoughtStep label="Fetching data" icon="↓" status="done" />
+    <ChainOfThoughtStep label="Transforming" icon="⚙" status="done" isLast />
+  </ChainOfThoughtContent>
+</ChainOfThought>
+```
+
 ### Controlled
 
 Use `open` and `onOpenChange` to control the collapsed state externally.
@@ -172,14 +186,29 @@ const [open, setOpen] = useState(false)
 | `label` | `string` | - | Primary label for the step |
 | `description` | `string` | - | Secondary detail shown dimmed after the label |
 | `status` | `"done" \| "running" \| "pending" \| "error"` | `"done"` | Step status |
+| `icon` | `string` | - | Custom icon character. Overrides the status-based default |
 | `isLast` | `boolean` | `false` | Hide the vertical pipe connector below |
 | `children` | `ReactNode` | - | Output content rendered below the step |
+
+### ChainOfThoughtStepData
+
+Data type for driving steps from an array (e.g. via `.map()`).
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `label` | `string` | Primary label for the step |
+| `description` | `string` | Secondary detail shown dimmed after the label |
+| `status` | `"done" \| "running" \| "pending" \| "error"` | Step status |
+| `icon` | `string` | Custom icon character |
+| `output` | `string` | Output text shown below the step |
+
+> **Note:** The `Step` type alias is deprecated. Use `ChainOfThoughtStepData` instead.
 
 ### Status Indicators
 
 | Status | Dot | Color | Style |
 |--------|-----|-------|-------|
 | `done` | ● | `theme.success` | Normal |
-| `running` | ○◔◑◕● | `theme.primary` | Bold, animated |
+| `running` | ⠋⠙⠹… | `theme.primary` | Bold, animated |
 | `pending` | ○ | `theme.muted` | Dim |
 | `error` | ● | `theme.error` | Normal |

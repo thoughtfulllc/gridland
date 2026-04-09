@@ -1,0 +1,133 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Ascii behavior renders with shade font 1`] = `
+"░░░░ ░░░
+█░░█ ███
+█░░█  █
+████ ░█░
+█  █ ░█░
+█░░█ ███
+ ░░
+░░░░ ░░░"
+`;
+
+exports[`Ascii behavior renders with block font 1`] = `
+"██╗  ██╗ ██╗
+██║  ██║ ██║
+███████║ ██║
+██╔══██║ ██║
+██║  ██║ ██║
+╚═╝  ╚═╝ ╚═╝"
+`;
+
+exports[`Ascii behavior renders with custom color 1`] = `
+"█ █ █
+█▀█ █"
+`;
+
+exports[`Ascii behavior renders with tiny font 1`] = `
+"█ █ █
+█▀█ █"
+`;
+
+exports[`Ascii behavior renders with slick font 1`] = `
+"╭╮╱╭╮ ╭━━╮
+┃┃╱┃┃ ╰┫┣╯
+┃╰━╯┃ ╱┃┃╱
+┃╭━╮┃ ╱┃┃╱
+┃┃╱┃┃ ╭┫┣╮
+╰╯╱╰╯ ╰━━╯"
+`;
+
+exports[`Ascii behavior renders with default font when font is omitted 1`] = `
+"█ █ █
+█▀█ █"
+`;
+
+exports[`Ascii behavior renders with custom color 2`] = `
+"█ █ █
+█▀█ █"
+`;
+
+exports[`Ascii behavior renders with tiny font 2`] = `
+"█ █ █
+█▀█ █"
+`;
+
+exports[`Ascii behavior renders with shade font 2`] = `
+"░░░░ ░░░
+█░░█ ███
+█░░█  █
+████ ░█░
+█  █ ░█░
+█░░█ ███
+ ░░
+░░░░ ░░░"
+`;
+
+exports[`Ascii behavior renders with slick font 2`] = `
+"╭╮╱╭╮ ╭━━╮
+┃┃╱┃┃ ╰┫┣╯
+┃╰━╯┃ ╱┃┃╱
+┃╭━╮┃ ╱┃┃╱
+┃┃╱┃┃ ╭┫┣╮
+╰╯╱╰╯ ╰━━╯"
+`;
+
+exports[`Ascii behavior renders with block font 2`] = `
+"██╗  ██╗ ██╗
+██║  ██║ ██║
+███████║ ██║
+██╔══██║ ██║
+██║  ██║ ██║
+╚═╝  ╚═╝ ╚═╝"
+`;
+
+exports[`Ascii behavior renders with default font when font is omitted 2`] = `
+"█ █ █
+█▀█ █"
+`;
+
+exports[`Ascii behavior renders with tiny font 3`] = `
+"█ █ █
+█▀█ █"
+`;
+
+exports[`Ascii behavior renders with slick font 3`] = `
+"╭╮╱╭╮ ╭━━╮
+┃┃╱┃┃ ╰┫┣╯
+┃╰━╯┃ ╱┃┃╱
+┃╭━╮┃ ╱┃┃╱
+┃┃╱┃┃ ╭┫┣╮
+╰╯╱╰╯ ╰━━╯"
+`;
+
+exports[`Ascii behavior renders with block font 3`] = `
+"██╗  ██╗ ██╗
+██║  ██║ ██║
+███████║ ██║
+██╔══██║ ██║
+██║  ██║ ██║
+╚═╝  ╚═╝ ╚═╝"
+`;
+
+exports[`Ascii behavior renders with custom color 3`] = `
+"█ █ █
+█▀█ █"
+`;
+
+exports[`Ascii behavior renders with default font when font is omitted 3`] = `
+"█ █ █
+█▀█ █"
+`;
+
+exports[`Ascii behavior renders with shade font 3`] = `
+"░░░░ ░░░
+█░░█ ███
+█░░█  █
+████ ░█░
+█  █ ░█░
+█░░█ ███
+ ░░
+░░░░ ░░░"
+`;

@@ -7,11 +7,17 @@ export const darkTheme: Theme = {
   muted: "#A69CBD",
   placeholder: "#CEC7DE",
   border: "#B967FF",
+  borderMuted: "#2A2A2A",
   foreground: "#F0E6FF",
   background: "#0D0B10",
   success: "#05FFA1",
   error: "#FF6B6B",
   warning: "#FFC164",
+  focusSelected: "#FF71CE",
+  focusFocused: "#e065b8",
+  focusIdle: "#33192a",
+  messageAssistant: "#2a2a4a",
+  messageUser: "#2a3a3a",
 }
 
 export const lightTheme: Theme = {
@@ -21,9 +27,15 @@ export const lightTheme: Theme = {
   muted: "#64748B",
   placeholder: "#475569",
   border: "#E2E8F0",
+  borderMuted: "#D9D9D9",
   foreground: "#1E293B",
   background: "#FFFFFF",
   success: "#0B8438",
   error: "#E11D48",
   warning: "#B45309",
+  focusSelected: "#FF6B2B",
+  focusFocused: "#d45a24",
+  focusIdle: "#f5e6d8",
+  messageAssistant: "#F1F5F9",
+  messageUser: "#E2E8F0",
 }

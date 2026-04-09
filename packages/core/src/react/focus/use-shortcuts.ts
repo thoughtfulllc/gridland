@@ -18,13 +18,15 @@ export function useShortcuts(shortcuts: ShortcutEntry[], focusId: string): void 
     if (key === prevKey.current) return
     prevKey.current = key
 
-    const parsed: ShortcutEntry[] = JSON.parse(key)
-    if (parsed.length > 0) {
-      dispatch({ type: "SET_SHORTCUTS", focusId, shortcuts: parsed })
+    if (shortcuts.length > 0) {
+      dispatch({ type: "SET_SHORTCUTS", focusId, shortcuts })
     }
+  }, [focusId, key])
 
+  // Only clear on final unmount, not between shortcut changes
+  useEffect(() => {
     return () => {
       dispatch({ type: "CLEAR_SHORTCUTS", focusId })
     }
-  }, [focusId, key])
+  }, [focusId])
 }

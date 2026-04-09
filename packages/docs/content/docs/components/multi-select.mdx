@@ -194,7 +194,7 @@ Disable the entire component. Navigation and selection are blocked.
 ## Controls
 
 - **↑/↓** or **j/k**: Navigate items
-- **Enter**: Toggle item selection (or submit when on the Submit row)
+- **Enter** or **Space**: Toggle item selection (or submit when on the Submit row)
 - **a**: Select all
 - **x**: Clear all
 
@@ -210,6 +210,7 @@ Disable the entire component. Navigation and selection are blocked.
 | `onChange` | `(values: V[]) => void` | - | Called when the selection changes |
 | `disabled` | `boolean` | `false` | Disable the entire component |
 | `invalid` | `boolean` | `false` | Show error state with destructive styling |
+| `errorMessage` | `string` | `"Please select at least one option"` | Custom error message when invalid |
 | `required` | `boolean` | `false` | Show required indicator (`*`) next to title |
 | `placeholder` | `string` | - | Placeholder text when items list is empty |
 | `maxCount` | `number` | - | Maximum number of selectable items |
@@ -222,7 +223,7 @@ Disable the entire component. Navigation and selection are blocked.
 | `checkboxColor` | `string` | `theme.accent` | Color of the selection indicator |
 | `allowEmpty` | `boolean` | `false` | Show Submit row even when nothing is selected |
 | `onSubmit` | `(values: V[]) => void` | - | Called when the Submit row is selected |
-| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@opentui/react` |
+| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@gridland/utils` |
 
 ### MultiSelectItem
 

@@ -169,7 +169,7 @@ export function TUI({
       root.unmount()
     }
     return (
-      <div style={style} className={className}>
+      <div style={{ backgroundColor, ...style }} className={className}>
         <pre
           suppressHydrationWarning
           aria-hidden
@@ -199,6 +199,7 @@ export function TUI({
         position: "relative",
         overflow: "hidden",
         cursor: "default",
+        backgroundColor,
         ...style,
       }}
       className={className}

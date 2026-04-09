@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test"
-import { waitForReady, getBufferText, focusCanvas } from "../helpers"
+import { waitForReady, getBufferText, focusCanvas, waitForBufferContaining, waitForBufferText, waitForPaint } from "../helpers"
 
 test.describe("TextInput Interaction", () => {
   test("typing text appears in buffer", async ({ page }) => {
@@ -7,11 +7,9 @@ test.describe("TextInput Interaction", () => {
     await waitForReady(page)
     await focusCanvas(page)
 
-    // Type with delay so the renderer can process each keystroke
     await page.keyboard.type("hello", { delay: 50 })
-    await page.waitForTimeout(300)
 
-    const text = await getBufferText(page)
+    const text = await waitForBufferContaining(page, "hello")
     expect(text).toContain("hello")
   })
 
@@ -20,16 +18,17 @@ test.describe("TextInput Interaction", () => {
     await waitForReady(page)
     await focusCanvas(page)
 
-    // Type then delete
     await page.keyboard.type("abc", { delay: 50 })
-    await page.waitForTimeout(200)
-    await page.keyboard.press("Backspace")
-    await page.waitForTimeout(200)
+    await waitForBufferContaining(page, "You typed: abc")
 
-    const text = await getBufferText(page)
-    expect(text).toContain("ab")
-    // The "c" should be removed
-    expect(text).not.toContain("abc")
+    await page.keyboard.press("Backspace")
+
+    // Wait for the feedback line to reflect deletion
+    const text = await waitForBufferText(
+      page,
+      (t) => t.includes("You typed: ab") && !t.includes("You typed: abc"),
+    )
+    expect(text).toContain("> ab")
   })
 
   test("prompt is visible", async ({ page }) => {
@@ -48,10 +47,8 @@ test.describe("TextInput Interaction", () => {
     await focusCanvas(page)
 
     await page.keyboard.type("world", { delay: 50 })
-    await page.waitForTimeout(300)
 
-    const text = await getBufferText(page)
-    // The onChange handler renders "You typed: world"
+    const text = await waitForBufferContaining(page, "You typed: world")
     expect(text).toContain("You typed: world")
   })
 })

@@ -117,6 +117,26 @@ Set `focused={false}` on `TabsList` to render in a dimmed, unfocused style.
 </Tabs>
 ```
 
+### Disabled Tab
+
+Disable individual tabs to prevent keyboard navigation to them.
+
+```tsx title="Disabled tab"
+<Tabs defaultValue="code">
+  <TabsList>
+    <TabsTrigger value="code">Code</TabsTrigger>
+    <TabsTrigger value="preview" disabled>Preview</TabsTrigger>
+    <TabsTrigger value="settings">Settings</TabsTrigger>
+  </TabsList>
+  <TabsContent value="code">
+    <text>Source code</text>
+  </TabsContent>
+  <TabsContent value="settings">
+    <text>Settings panel</text>
+  </TabsContent>
+</Tabs>
+```
+
 ### No Separator
 
 Hide the horizontal separator line below the tab bar.
@@ -159,14 +179,16 @@ Hide the horizontal separator line below the tab bar.
 | `focused` | `boolean` | `true` | Whether the tab bar appears focused |
 | `activeColor` | `string` | `theme.accent` | Foreground color of the active trigger |
 | `separator` | `boolean` | `true` | Show horizontal separator below triggers |
+| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard handler from `@gridland/utils`. Enables arrow/h/l navigation. |
 | `children` | `ReactNode` | - | `TabsTrigger` components |
 
 ### TabsTrigger
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `value` | `string` | Unique value linking this trigger to its `TabsContent` |
-| `children` | `ReactNode` | Label text displayed in the tab bar |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `string` | - | Unique value linking this trigger to its `TabsContent` |
+| `disabled` | `boolean` | `false` | Disables the tab — skipped during keyboard navigation and rendered dimmed |
+| `children` | `ReactNode` | - | Label text displayed in the tab bar |
 
 ### TabsContent
 
@@ -185,3 +207,10 @@ Hide the horizontal separator line below the tab bar.
 | `focused` | `boolean` | `true` | Whether the tab bar appears focused |
 | `activeColor` | `string` | `theme.accent` | Foreground color of the selected option |
 | `separator` | `boolean` | `true` | Show horizontal separator below tabs |
+
+## Controls
+
+| Key | Action |
+|-----|--------|
+| `←` / `h` | Previous tab (wraps around) |
+| `→` / `l` | Next tab (wraps around) |

@@ -4,27 +4,50 @@ import { useTheme } from "../theme/index"
 import { useKeyboardContext } from "../provider/provider"
 
 export type SelectInputItem<V> = {
+  /** Unique key for React reconciliation. Falls back to stringified value. */
   key?: string
+  /** Display label for this option. */
   label: string
+  /** The value returned when this item is selected. Compared by `===`; use primitives. */
   value: V
+  /** Optional group heading this item belongs to. */
   group?: string
+  /** Whether this item is non-selectable. */
   disabled?: boolean
 }
 
 export interface SelectInputProps<V> {
+  /** Available options. @default [] */
   items?: SelectInputItem<V>[]
+  /** Initially selected value (uncontrolled). */
   defaultValue?: V
+  /** Controlled selected value. */
   value?: V
+  /** Called when the highlighted item changes (controlled mode). */
   onChange?: (value: V) => void
+  /** Disable all interaction. */
   disabled?: boolean
+  /** Show validation error state. */
   invalid?: boolean
+  /** Custom error message when invalid. @default "Please select an option" */
+  errorMessage?: string
+  /** Show required indicator on the title. */
   required?: boolean
+  /** Text shown when no items are available. */
   placeholder?: string
+  /** Heading text above the list. @default "Select" */
   title?: string
+  /** Status text shown after submission. @default "submitted" */
   submittedStatus?: string
+  /** Maximum visible rows before scrolling. @default 12 */
   limit?: number
+  /** Override the cursor/highlight color. Defaults to theme.primary. */
   highlightColor?: string
+  /** Override the radio indicator color. Defaults to theme.muted. */
+  radioColor?: string
+  /** Called when the user confirms selection via Enter. */
   onSubmit?: (value: V) => void
+  /** Keyboard handler — pass useKeyboard from @gridland/utils. */
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
@@ -34,17 +57,13 @@ type State = {
 }
 
 type Action =
-  | { type: "MOVE"; direction: 1 | -1; max: number }
+  | { type: "SET_CURSOR"; cursor: number }
   | { type: "SUBMIT" }
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case "MOVE": {
-      let next = state.cursor + action.direction
-      if (next < 0) next = action.max - 1
-      if (next >= action.max) next = 0
-      return { ...state, cursor: next }
-    }
+    case "SET_CURSOR":
+      return { ...state, cursor: action.cursor }
     case "SUBMIT":
       return { ...state, submitted: true }
     default:
@@ -63,6 +82,7 @@ type Row<V> =
   | { type: "separator" }
   | { type: "item"; item: SelectInputItem<V>; index: number }
 
+/** Single-select list with grouping and keyboard navigation. */
 export function SelectInput<V>({
   items = [],
   defaultValue,
@@ -70,18 +90,21 @@ export function SelectInput<V>({
   onChange,
   disabled = false,
   invalid = false,
+  errorMessage = "Please select an option",
   required = false,
   placeholder,
   title = "Select",
   submittedStatus = "submitted",
   limit,
   highlightColor,
+  radioColor,
   onSubmit,
   useKeyboard: useKeyboardProp,
 }: SelectInputProps<V>) {
   const theme = useTheme()
   const useKeyboard = useKeyboardContext(useKeyboardProp)
   const resolvedHighlight = highlightColor ?? theme.primary
+  const resolvedRadio = radioColor ?? theme.muted
 
   const isControlled = controlledValue !== undefined
   const controlledRef = useRef(isControlled)
@@ -123,9 +146,22 @@ export function SelectInput<V>({
     return { flatRows: rows, selectableItems: selectable }
   }, [items])
 
+  const cursor = selectableItems.length > 0
+    ? Math.min(state.cursor, selectableItems.length - 1)
+    : 0
+
+  const cursorRef = useRef(cursor)
+  cursorRef.current = cursor
+
+  const submittedRef = useRef(state.submitted)
+  submittedRef.current = state.submitted
+
+  const selectableItemsRef = useRef(selectableItems)
+  selectableItemsRef.current = selectableItems
+
   const visibleCount = limit ?? VISIBLE
-  const cursorRowIndex = flatRows.findIndex((r) => r.type === "item" && r.index === state.cursor)
-  const scrollOffset = Math.max(0, Math.min(cursorRowIndex - Math.floor(visibleCount / 2), flatRows.length - visibleCount))
+  const cursorRowIndex = flatRows.findIndex((r) => r.type === "item" && r.index === cursor)
+  const scrollOffset = Math.max(0, Math.min(cursorRowIndex - Math.floor(visibleCount / 2), Math.max(0, flatRows.length - visibleCount)))
   const visibleRows = flatRows.slice(scrollOffset, scrollOffset + visibleCount)
 
   const diamondColor = invalid ? theme.error
@@ -133,39 +169,49 @@ export function SelectInput<V>({
     : theme.accent
 
   useKeyboard?.((event: any) => {
-    if (state.submitted || disabled) return
+    if (submittedRef.current || disabled) return
+    const items = selectableItemsRef.current
+    const total = items.length
+
+    const findNextEnabled = (from: number, direction: 1 | -1): number => {
+      let next = from
+      for (let i = 0; i < total; i++) {
+        next += direction
+        if (next < 0) next = total - 1
+        if (next >= total) next = 0
+        if (!items[next]?.item.disabled) return next
+      }
+      return from // all disabled — stay put
+    }
 
     if (event.name === "up" || event.name === "k") {
-      const direction = -1
-      let next = state.cursor + direction
-      if (next < 0) next = selectableItems.length - 1
-      dispatch({ type: "MOVE", direction, max: selectableItems.length })
-      const nextItem = selectableItems[next]
-      if (nextItem && !nextItem.item.disabled) {
-        onChange?.(nextItem.item.value)
-      }
+      const next = findNextEnabled(cursorRef.current, -1)
+      cursorRef.current = next
+      dispatch({ type: "SET_CURSOR", cursor: next })
+      const nextItem = items[next]
+      if (nextItem) onChange?.(nextItem.item.value)
+      event.preventDefault?.()
     } else if (event.name === "down" || event.name === "j") {
-      const direction = 1
-      let next = state.cursor + direction
-      if (next >= selectableItems.length) next = 0
-      dispatch({ type: "MOVE", direction, max: selectableItems.length })
-      const nextItem = selectableItems[next]
-      if (nextItem && !nextItem.item.disabled) {
-        onChange?.(nextItem.item.value)
-      }
+      const next = findNextEnabled(cursorRef.current, 1)
+      cursorRef.current = next
+      dispatch({ type: "SET_CURSOR", cursor: next })
+      const nextItem = items[next]
+      if (nextItem) onChange?.(nextItem.item.value)
+      event.preventDefault?.()
     } else if (event.name === "return") {
-      const current = selectableItems[state.cursor]
+      const current = items[cursorRef.current]
       if (current && !current.item.disabled) {
         dispatch({ type: "SUBMIT" })
         onSubmit?.(isControlled ? controlledValue : current.item.value)
       }
+      event.preventDefault?.()
     }
   })
 
   if (state.submitted) {
     const selectedItem = isControlled
       ? items.find((i) => i.value === controlledValue)
-      : selectableItems[state.cursor]?.item
+      : selectableItems[cursor]?.item
     return (
       <box flexDirection="column">
         <text>
@@ -200,7 +246,7 @@ export function SelectInput<V>({
       {invalid && (
         <text>
           <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
-          <span style={textStyle({ fg: theme.error })}>{"  Please select an option"}</span>
+          <span style={textStyle({ fg: theme.error })}>{"  "}{errorMessage}</span>
         </text>
       )}
       {!hasItems && placeholder && (
@@ -212,7 +258,7 @@ export function SelectInput<V>({
       {visibleRows.map((row, i) => {
         if (row.type === "separator") {
           return (
-            <text key={`sep-${i}`}>
+            <text key={`sep-${scrollOffset + i}`}>
               <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
               <span style={textStyle({ fg: theme.muted })}>{"  "}{SEPARATOR.repeat(20)}</span>
             </text>
@@ -229,7 +275,7 @@ export function SelectInput<V>({
         }
 
         const { item, index: itemIndex } = row
-        const isHighlighted = !disabled && itemIndex === state.cursor
+        const isHighlighted = !disabled && itemIndex === cursor
         const isItemDisabled = disabled || !!item.disabled
         const itemColor = isItemDisabled ? theme.muted
           : isHighlighted ? resolvedHighlight
@@ -241,7 +287,7 @@ export function SelectInput<V>({
             <span style={textStyle({ fg: isHighlighted ? resolvedHighlight : undefined })}>
               {isHighlighted ? CURSOR : " "}{" "}
             </span>
-            <span style={textStyle({ fg: theme.muted, dim: isItemDisabled })}>
+            <span style={textStyle({ fg: resolvedRadio, dim: isItemDisabled })}>
               {RADIO}{" "}
             </span>
             <span style={textStyle({ fg: itemColor, dim: isItemDisabled })}>

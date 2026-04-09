@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "docs-dev",
+      "runtimeExecutable": "${workspaceFolder}/packages/docs/node_modules/.bin/next",
+      "runtimeArgs": ["dev", "--dir", "${workspaceFolder}/packages/docs"],
+      "port": 3000
+    }
+  ]
+}

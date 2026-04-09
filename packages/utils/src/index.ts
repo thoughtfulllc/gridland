@@ -3,6 +3,7 @@
 // Shared singleton: AppContext is the bridge between utils, @gridland/bun, and @gridland/web.
 
 // Hooks
+export { useCapturedKeyboard } from "../../core/src/react/hooks/use-captured-keyboard"
 export { useKeyboard, type UseKeyboardOptions } from "../../core/src/react/hooks/use-keyboard"
 export { useOnResize } from "../../core/src/react/hooks/use-resize"
 export { useRenderer } from "../../core/src/react/hooks/use-renderer"
@@ -85,6 +86,17 @@ export {
   type RuntimeType,
   type RuntimeProviderProps,
 } from "../../core/src/react/runtime/runtime-context"
+
+// Focus border affordance
+export {
+  getFocusBorderStyle,
+  getFocusDividerStyle,
+  FOCUS_BORDER_COLORS,
+  type FocusBorderColors,
+  type FocusBorderState,
+  type FocusBorderResult,
+  type FocusDividerResult,
+} from "./focus-border"
 
 // Browser utilities
 export { isBrowser, isCanvasSupported, calculateGridSize } from "./browser-utils"

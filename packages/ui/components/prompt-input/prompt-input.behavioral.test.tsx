@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { PromptInput } from "./prompt-input"
@@ -45,9 +44,9 @@ describe("PromptInput behavior", () => {
   // ── Keyboard interactions ─────────────────────────────────────────────
 
   it("submits on enter", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -56,16 +55,16 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "i" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("hi")
   })
 
   it("does not submit empty input", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -74,14 +73,14 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBeNull()
   })
 
   it("clears input after submit", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -91,16 +90,16 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "i" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    savedHandler!({ name: "return" })
     expect(changed).toBe("")
   })
 
   it("handles backspace", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -109,16 +108,16 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "a" })
-    savedHandler({ name: "b" })
-    savedHandler({ name: "backspace" })
+    savedHandler!({ name: "a" })
+    savedHandler!({ name: "b" })
+    savedHandler!({ name: "backspace" })
     expect(changed).toBe("a")
   })
 
   it("handles space key", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -127,16 +126,16 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "i" })
-    savedHandler({ name: "space" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    savedHandler!({ name: "space" })
     expect(changed).toBe("hi ")
   })
 
   it("ignores keys when disabled", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         disabled
@@ -145,15 +144,15 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBeNull()
   })
 
   it("ignores ctrl/meta modified keys", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -162,16 +161,16 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "c", ctrl: true })
+    savedHandler!({ name: "c", ctrl: true })
     expect(changed).toBeNull()
   })
 
   // ── Slash command suggestions (verified via callbacks) ─────────────────
 
   it("submits slash command suggestion on enter", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -184,16 +183,16 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 8 },
     )
-    savedHandler({ name: "/" })
+    savedHandler!({ name: "/" })
     // Suggestions are now active, enter submits first one
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("/help")
   })
 
   it("submits filtered slash command suggestion", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -206,17 +205,17 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 8 },
     )
-    savedHandler({ name: "/" })
-    savedHandler({ name: "c" })
+    savedHandler!({ name: "/" })
+    savedHandler!({ name: "c" })
     // Only /clear matches now, enter submits it
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("/clear")
   })
 
   it("submits normally when no suggestions match", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -226,16 +225,16 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 8 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "i" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("hi")
   })
 
   it("dismisses suggestions on escape", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -246,19 +245,19 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 8 },
     )
-    savedHandler({ name: "/" })
-    savedHandler({ name: "escape" })
+    savedHandler!({ name: "/" })
+    savedHandler!({ name: "escape" })
     // After escape, enter should submit "/" instead of accepting suggestion
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "return" })
     expect(changed).toBe("")
   })
 
   // ── File mention suggestions ──────────────────────────────────────────
 
   it("accepts file mention suggestion on enter", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -268,17 +267,17 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 8 },
     )
-    savedHandler({ name: "@" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "@" })
+    savedHandler!({ name: "return" })
     expect(changed).toBe("@src/index.ts ")
   })
 
   // ── Command history ───────────────────────────────────────────────────
 
   it("navigates history with up/down", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -289,27 +288,27 @@ describe("PromptInput behavior", () => {
       { cols: 40, rows: 4 },
     )
     // Submit two messages
-    savedHandler({ name: "h" })
-    savedHandler({ name: "i" })
-    savedHandler({ name: "return" })
-    savedHandler({ name: "y" })
-    savedHandler({ name: "o" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    savedHandler!({ name: "return" })
+    savedHandler!({ name: "y" })
+    savedHandler!({ name: "o" })
+    savedHandler!({ name: "return" })
     // Navigate history
-    savedHandler({ name: "up" })
+    savedHandler!({ name: "up" })
     expect(changed).toBe("yo")
-    savedHandler({ name: "up" })
+    savedHandler!({ name: "up" })
     expect(changed).toBe("hi")
-    savedHandler({ name: "down" })
+    savedHandler!({ name: "down" })
     expect(changed).toBe("yo")
-    savedHandler({ name: "down" })
+    savedHandler!({ name: "down" })
     expect(changed).toBe("")
   })
 
   it("disables history when enableHistory is false", () => {
-    let changed = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -320,20 +319,20 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "i" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    savedHandler!({ name: "return" })
     changed = null
-    savedHandler({ name: "up" })
+    savedHandler!({ name: "up" })
     expect(changed).toBeNull()
   })
 
   // ── Status-driven behavior ─────────────────────────────────────────
 
   it("disables input when status is submitted", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         status="submitted"
@@ -342,8 +341,8 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBeNull()
   })
 
@@ -356,9 +355,9 @@ describe("PromptInput behavior", () => {
   })
 
   it("disables input when status is streaming", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         status="streaming"
@@ -367,8 +366,8 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBeNull()
   })
 
@@ -382,8 +381,8 @@ describe("PromptInput behavior", () => {
 
   it("calls onStop on escape when status is streaming", () => {
     let stopped = false
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         status="streaming"
@@ -392,14 +391,14 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "escape" })
+    savedHandler!({ name: "escape" })
     expect(stopped).toBe(true)
   })
 
   it("does not call onStop on escape when status is ready", () => {
     let stopped = false
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -409,14 +408,14 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "escape" })
+    savedHandler!({ name: "escape" })
     expect(stopped).toBe(false)
   })
 
   it("enables input when status is ready", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -426,16 +425,16 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "i" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("hi")
   })
 
   it("enables input when status is error", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -445,9 +444,9 @@ describe("PromptInput behavior", () => {
       />,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "i" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("hi")
   })
 
@@ -543,25 +542,25 @@ describe("PromptInput compound mode", () => {
   })
 
   it("keyboard works in compound mode", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput focus={false} useKeyboard={mockUseKeyboard} onSubmit={(msg) => { submitted = msg.text }}>
         <PromptInput.Textarea />
       </PromptInput>,
       { cols: 40, rows: 4 },
     )
-    savedHandler({ name: "h" })
-    savedHandler({ name: "i" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("hi")
   })
 
   it("suggestions work in compound mode", () => {
-    let submitted = null
-    let savedHandler = null
-    const mockUseKeyboard = (handler) => { savedHandler = handler }
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
     renderTui(
       <PromptInput
         focus={false}
@@ -574,8 +573,196 @@ describe("PromptInput compound mode", () => {
       </PromptInput>,
       { cols: 40, rows: 8 },
     )
-    savedHandler({ name: "/" })
-    savedHandler({ name: "return" })
+    savedHandler!({ name: "/" })
+    savedHandler!({ name: "return" })
     expect(submitted).toBe("/help")
+  })
+})
+
+// ── Additional coverage ──────────────────────────────────────────────────
+
+describe("PromptInput additional coverage", () => {
+  it("cycles suggestions with tab", () => {
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
+    renderTui(
+      <PromptInput
+        focus={false}
+        commands={[
+          { cmd: "/help", desc: "Show help" },
+          { cmd: "/clear", desc: "Clear chat" },
+        ]}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={(msg) => { submitted = msg.text }}
+      />,
+      { cols: 40, rows: 8 },
+    )
+    savedHandler!({ name: "/" })
+    // Tab cycles to second suggestion
+    savedHandler!({ name: "tab" })
+    savedHandler!({ name: "return" })
+    expect(submitted).toBe("/clear")
+  })
+
+  it("renders model label", () => {
+    const { screen } = renderTui(
+      <PromptInput focus={false} model="claude-sonnet" />,
+      { cols: 40, rows: 6 },
+    )
+    expect(screen.text()).toContain("model: claude-sonnet")
+  })
+
+  it("hides model label when not provided", () => {
+    const { screen } = renderTui(
+      <PromptInput focus={false} />,
+      { cols: 40, rows: 6 },
+    )
+    expect(screen.text()).not.toContain("model:")
+  })
+
+  it("uses custom getSuggestions with trigger character", () => {
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
+    renderTui(
+      <PromptInput
+        focus={false}
+        getSuggestions={(value) => {
+          if (value.startsWith("#")) {
+            return [{ text: "#bug", desc: "Bug report", trigger: "#" }]
+          }
+          return []
+        }}
+        useKeyboard={mockUseKeyboard}
+        onChange={(text) => { changed = text }}
+      />,
+      { cols: 40, rows: 8 },
+    )
+    savedHandler!({ name: "#" })
+    savedHandler!({ name: "return" })
+    // Non-slash suggestions are inlined: replaces from trigger character
+    expect(changed).toBe("#bug ")
+  })
+
+  it("executes onExecute command instead of onSubmit", () => {
+    let executed = false
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
+    renderTui(
+      <PromptInput
+        focus={false}
+        commands={[
+          { cmd: "/run", onExecute: () => { executed = true } },
+        ]}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={(msg) => { submitted = msg.text }}
+      />,
+      { cols: 40, rows: 8 },
+    )
+    savedHandler!({ name: "/" })
+    savedHandler!({ name: "r" })
+    savedHandler!({ name: "u" })
+    savedHandler!({ name: "n" })
+    // No suggestions match for "/run" since we typed the full command and
+    // suggestions require startsWith — "/run".startsWith("/run") matches
+    savedHandler!({ name: "return" })
+    expect(executed).toBe(true)
+    expect(submitted).toBeNull()
+  })
+
+  it("clears input on async onSubmit resolve", async () => {
+    let changed = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
+    let resolvePromise!: () => void
+    renderTui(
+      <PromptInput
+        focus={false}
+        useKeyboard={mockUseKeyboard}
+        onChange={(text) => { changed = text }}
+        onSubmit={() => new Promise((resolve) => { resolvePromise = resolve })}
+      />,
+      { cols: 40, rows: 4 },
+    )
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    expect(changed).toBe("hi")
+    savedHandler!({ name: "return" })
+    // Input preserved until promise resolves
+    expect(changed).toBe("hi")
+    resolvePromise()
+    await new Promise((r) => setTimeout(r, 10))
+    // Cleared after resolve
+    expect(changed).toBe("")
+  })
+
+  it("preserves input on async onSubmit reject", async () => {
+    let changed = null as string | null
+    let errorReceived = null as unknown
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
+    let rejectPromise!: (reason: any) => void
+    renderTui(
+      <PromptInput
+        focus={false}
+        useKeyboard={mockUseKeyboard}
+        onChange={(text) => { changed = text }}
+        onError={(err) => { errorReceived = err }}
+        onSubmit={() => new Promise((_, reject) => { rejectPromise = reject })}
+      />,
+      { cols: 40, rows: 4 },
+    )
+    savedHandler!({ name: "h" })
+    savedHandler!({ name: "i" })
+    expect(changed).toBe("hi")
+    savedHandler!({ name: "return" })
+    // Input preserved while promise is pending
+    expect(changed).toBe("hi")
+    const error = new Error("fail")
+    rejectPromise(error)
+    await new Promise((r) => setTimeout(r, 10))
+    // Input still preserved after rejection — user can retry
+    expect(changed).toBe("hi")
+    // onError callback received the error
+    expect(errorReceived).toBe(error)
+  })
+
+  it("merges skills with commands", () => {
+    let submitted = null as string | null
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
+    renderTui(
+      <PromptInput
+        focus={false}
+        commands={[{ cmd: "/help", desc: "Show help" }]}
+        skills={[{ cmd: "/skill", desc: "A skill" }]}
+        useKeyboard={mockUseKeyboard}
+        onSubmit={(msg) => { submitted = msg.text }}
+      />,
+      { cols: 40, rows: 8 },
+    )
+    // Type "/s" to filter to the skill
+    savedHandler!({ name: "/" })
+    savedHandler!({ name: "s" })
+    savedHandler!({ name: "return" })
+    expect(submitted).toBe("/skill")
+  })
+
+  it("calls onStop on escape when status is submitted", () => {
+    let stopped = false
+    let savedHandler = null as ((event: any) => void) | null
+    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
+    renderTui(
+      <PromptInput
+        status="submitted"
+        onStop={() => { stopped = true }}
+        useKeyboard={mockUseKeyboard}
+      />,
+      { cols: 40, rows: 4 },
+    )
+    savedHandler!({ name: "escape" })
+    expect(stopped).toBe(true)
   })
 })

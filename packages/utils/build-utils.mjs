@@ -100,7 +100,7 @@ const requireShimBanner = [
   `  if (id === "bun:ffi" && typeof Bun !== "undefined") return (__EXT$[id] = Bun.FFI);`,
   `  throw new Error('Dynamic require of "' + id + '" is not supported');`,
   `};`,
-  `if (typeof process === "undefined") var process = { env: {} };`,
+  `if (typeof process === "undefined") var process = { env: { NODE_ENV: "production" } };`,
 ].join(" ")
 
 async function main() {

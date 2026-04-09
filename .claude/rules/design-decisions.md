@@ -1,0 +1,65 @@
+---
+paths:
+  - "packages/core/src/react/focus/**"
+  - "packages/ui/components/side-nav/**"
+  - "packages/demo/demos/ai-chat-interface.tsx"
+  - "packages/docs/components/demos/ai-chat-interface-demo.tsx"
+---
+
+# Design Decisions
+
+Non-obvious choices and the reasoning behind them. Read this before refactoring any of these patterns.
+
+## `selectable` on `FocusScope` — scope declares Enter/Esc semantics, not the consumer
+
+The `selectable` prop on `FocusScope` means the scope itself participates in the Enter/Esc lifecycle. Without this, a parent would need to intercept keyboard events and manually push/pop the scope, coupling the parent to focus internals. With `selectable`, the scope composition is self-contained: `<FocusScope trap selectable autoFocus>` is the complete declaration.
+
+## `clearSelection: true` on `POP_SCOPE` when Esc exits a selectable scope
+
+When a user presses Esc to leave a selectable scope, they are signalling intent to fully exit that context. If selection state were preserved, the previously-selected item would re-appear selected when the scope mounts again, which would be surprising. `clearSelection: true` ensures the scope starts fresh on re-entry.
+
+## `getTopScope` exported from `focus-reducer`, not re-implemented in consumers
+
+`getTopScope` and `getNavigableEntries` are the canonical way to inspect focus state. Exporting them from `focus-reducer` creates one source of truth. Any consumer that re-implements the "get top scope" logic (e.g., `state.scopes[state.scopes.length - 1]`) risks subtle divergence if the data structure changes. Import from `focus-reducer`, never re-derive.
+
+## `interactingItemIdRef` in `SideNav` — decoupled from `activeIndex`
+
+Tracking which item is "interacting" via `activeIndex` creates a timing bug: when `requestedActiveId` changes `activeIndex` programmatically, the `onSelectChange` handler for the old item fires `setIsInteracting(false)` before the new item can fire `setIsInteracting(true)`, causing a flash of `isInteracting=false`. The `interactingItemIdRef` stores the item's `id` rather than its index, so `onSelectChange(false)` only clears interaction if the deselecting item is actually the one that last set it.
+
+## `requestedActiveId` prop on `SideNav` — declarative, not imperative
+
+An imperative API (e.g., `ref.current.navigate(id)`) would require consumers to hold a ref and call methods in effect hooks, coupling them to the component lifecycle. `requestedActiveId` is a React prop: the parent just sets state and React propagates it. The `lastRequestedActiveIdRef` inside `SideNav` prevents the same value from triggering navigation twice on re-renders.
+
+## `lastAutoNavIdRef` as a single ref, not a `Set`
+
+When auto-navigating back to a previous conversation after Esc (e.g., in `packages/demo/demos/ai-chat-interface.tsx`), only the most recent navigation matters. Using a `Set` to track "already navigated to" IDs would grow unbounded over a long session. A single ref that tracks the last auto-nav ID is sufficient because the guard only needs to prevent re-processing the same ID on consecutive renders.
+
+## `autoSelect` on `FocusScope` — only fires for single-item scopes
+
+`autoSelect` does not unconditionally select the first focusable item. It auto-selects only when all three conditions hold after mount: (1) there is exactly one focusable entry registered in the scope, (2) that entry is itself `selectable`, and (3) `FOCUS_NEXT` landed on it. For scopes with multiple focusable children, `autoSelect` is a no-op — the user must press Enter manually.
+
+## Spatial navigation forces a layout flush before hit-testing
+
+Before computing which element is spatially closest in a given direction, `findSpatialTarget` calls `ensureLayoutComputed` to flush any pending yoga layout calculations. Without this, the first spatial nav keypress after a render can fail silently — yoga has computed sizes internally but not yet propagated positions to the node tree, so all rects appear at `(0,0)`.
+
+## Focus colors live in the Theme, not as a separate constant
+
+Focus colors are defined on the `Theme` interface as flat camelCase fields: `theme.focusSelected`, `theme.focusFocused`, `theme.focusIdle`. Components use `useFocusBorderStyle` / `useFocusDividerStyle` hooks from `@gridland/ui` which read from `useTheme().focus` automatically. This means users configure focus colors once in `ThemeProvider` and all components pick them up — no per-component color props needed. The hooks live in `@gridland/ui` (not `@gridland/utils`) because `@gridland/utils` cannot depend on `@gridland/ui` (circular dependency). The plain functions `getFocusBorderStyle`/`getFocusDividerStyle` remain in `@gridland/utils` as lower-level building blocks for edge cases.
+
+## Focus border affordance centralized in hooks, not manual ternaries
+
+The 4-state border affordance pattern (selected → sibling-selected → focused → idle) was repeated in 8+ components with hardcoded ternaries and hex literals. The idle state (`"transparent"` vs dimmed) was the #1 source of recurring bugs — developers would use `"transparent"` instead of the dimmed color, breaking the visual hint that a component is selectable. Centralizing in hooks makes the correct behavior the default. Two variants exist: `useFocusBorderStyle` returns `"transparent"` for the sibling-selected state (hides the box border), while `useFocusDividerStyle` returns `undefined` (lets PromptInput's built-in design divider show through with its default muted appearance).
+
+## Structural borders vs focus borders
+
+Structural borders (SideNav sidebar divider, Modal outline) use `theme.border`. Focus borders (4-state affordance) use `theme.focusSelected`/`focusFocused`/`focusIdle` via the hooks. These are distinct concerns — a structural border is always visible and stateless, while a focus border changes based on interaction state.
+
+## `isAnySelected` is scope-aware for global-scope components
+
+When `PUSH_SCOPE` fires, `selectedId` is cleared to `null` and the previous selection is saved in the scope's `savedSelectedId`. Without scope-awareness, `isAnySelected` (`selectedId !== null`) would return `false` for all components — causing sibling borders to drop to idle state instead of staying hidden. This broke the 4-state border affordance for components like SideNav items, where item A is "selected" behind a scope but item B's border incorrectly reappeared as dimmed.
+
+The fix: global-scope components (`scopeId == null`) additionally check `scopes.some(s => s.savedSelectedId !== null)`. This is intentionally limited to global-scope components. If inner-scope components also checked, they would all see `isAnySelected=true` with no corresponding `isSelected=true`, causing every border inside the scope to vanish (state 2: transparent). Components inside a `FocusScope` have their own independent affordance based solely on the active `selectedId`.
+
+## AI SDK agnosticism — `ChatStatus` is our own type
+
+SDK-specific status types (e.g., from `@ai-sdk/react`) couple components to a specific vendor. Our `ChatStatus = "ready" | "submitted" | "streaming" | "error"` is defined in our codebase and mapped from whatever SDK the consumer uses.

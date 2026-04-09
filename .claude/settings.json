@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$file\" == *\"packages/ui\"* || \"$file\" == *\"packages/web\"* ]]; then cd \"$CLAUDE_PROJECT_DIR\" && bun run --cwd packages/ui test --bail 2>&1 | grep -E '(FAIL|PASS|snapshot|✓|✗|error)' | head -20; fi"
+          },
+          {
+            "type": "command",
+            "command": "file=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$file\" == *\"packages/ui\"* || \"$file\" == *\"packages/utils\"* || \"$file\" == *\"packages/core\"* ]]; then cd \"$CLAUDE_PROJECT_DIR\" && packages/ui/node_modules/.bin/tsc --noEmit -p packages/ui/tsconfig.json 2>&1 | head -30; fi"
+          },
+          {
+            "type": "command",
+            "command": "file=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$file\" == *\"packages/ui/components/\"*\".tsx\" && \"$file\" != *\"index.ts\" && \"$file\" != *\".test.\"* ]]; then name=$(basename \"$file\" .tsx); if ! grep -q \"$name\" \"$CLAUDE_PROJECT_DIR/packages/ui/components/index.ts\"; then echo \"WARNING: $name.tsx has no matching export in packages/ui/components/index.ts\"; fi; fi"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "code-review@claude-plugins-official": true
+  }
+}

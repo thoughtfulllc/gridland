@@ -1,0 +1,52 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`ChainOfThought snapshots renders collapsed chain with header 1`] = `"▶ Thought for 2.1s"`;
+
+exports[`ChainOfThought snapshots renders expanded chain with multiple steps 1`] = `
+"▼ Thought for 4.5s
+ ● Analyzing code
+ │
+ ● Reading files — src/index.ts
+ │
+ ○ Generating response"
+`;
+
+exports[`ChainOfThought snapshots renders step with output children 1`] = `
+"▼ Thought for 1.2s
+ ● Search
+ │  found 3 matching files"
+`;
+
+exports[`ChainOfThought snapshots renders expanded chain with multiple steps 2`] = `
+"▼ Thought for 4.5s
+ ● Analyzing code
+ │
+ ● Reading files — src/index.ts
+ │
+ ○ Generating response"
+`;
+
+exports[`ChainOfThought snapshots renders collapsed chain with header 2`] = `"▶ Thought for 2.1s"`;
+
+exports[`ChainOfThought snapshots renders step with output children 2`] = `
+"▼ Thought for 1.2s
+ ● Search
+ │  found 3 matching files"
+`;
+
+exports[`ChainOfThought snapshots renders step with output children 3`] = `
+"▼ Thought for 1.2s
+ ● Search
+ │  found 3 matching files"
+`;
+
+exports[`ChainOfThought snapshots renders collapsed chain with header 3`] = `"▶ Thought for 2.1s"`;
+
+exports[`ChainOfThought snapshots renders expanded chain with multiple steps 3`] = `
+"▼ Thought for 4.5s
+ ● Analyzing code
+ │
+ ● Reading files — src/index.ts
+ │
+ ○ Generating response"
+`;

@@ -21,6 +21,7 @@ const STATES = [
 function TextInputPickerApp() {
   const theme = useTheme()
   const [selected, setSelected] = useState(0)
+  const [value, setValue] = useState("")
 
   useKeyboard((event) => {
     if (event.name === "left") setSelected((s) => (s > 0 ? s - 1 : STATES.length - 1))
@@ -32,7 +33,7 @@ function TextInputPickerApp() {
   return (
     <box flexDirection="column" flexGrow={1}>
       <box paddingLeft={1} paddingRight={2} paddingTop={1} paddingBottom={2} flexDirection="column" flexGrow={1}>
-        <TextInput label="Email" placeholder="user@example.com" prompt="> " focus={false} {...state.props} />
+        <TextInput label="Email" placeholder="user@example.com" prompt="> " focus={false} value={state.props.value ?? value} onChange={setValue} {...state.props} />
       </box>
       <box paddingX={1} paddingBottom={1}>
         <StatusBar

@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "eslint": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@eslint/mcp@latest"
+      ],
+      "env": {}
+    },
+    "shadcn": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic-ai/claude-code-mcp-server-shadcn@latest"
+      ],
+      "env": {}
+    }
+  }
+}

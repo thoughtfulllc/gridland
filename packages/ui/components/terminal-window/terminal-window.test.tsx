@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { describe, it, expect } from "bun:test"
 import { createElement } from "react"
 import { TerminalWindow } from "./terminal-window"

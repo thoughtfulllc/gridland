@@ -7,7 +7,7 @@ export type { LinkDemoProps } from "./link/link-demo"
 export { Ascii } from "./ascii/ascii"
 export type { AsciiProps } from "./ascii/ascii"
 
-export { Spinner } from "./spinner/spinner"
+export { Spinner, VARIANT_NAMES } from "./spinner/spinner"
 export type { SpinnerProps, SpinnerVariant, SpinnerStatus } from "./spinner/spinner"
 
 export { SpinnerPicker, SpinnerShowcase } from "./spinner/spinner-showcase"
@@ -37,6 +37,8 @@ export {
   padCell,
 } from "./table/table"
 export type {
+  ScalarDict,
+  ColumnInfo,
   TableProps,
   TableRootProps,
   TableHeaderProps,
@@ -63,6 +65,7 @@ export type { ModalProps } from "./modal/modal"
 export { PromptInput, usePromptInput, PromptInputProvider, usePromptInputController } from "./prompt-input/prompt-input"
 export type {
   PromptInputProps,
+  PromptInputCommand,
   PromptInputContextValue,
   PromptInputProviderProps,
   PromptInputMessage,
@@ -72,22 +75,19 @@ export type {
   Suggestion,
 } from "./prompt-input/prompt-input"
 
-export { ChatPanel } from "./chat/chat"
-export type { ChatPanelProps, ChatMessage, ToolCallInfo } from "./chat/chat"
+export { CommandProvider, CommandRegistry, useCommandRegistry, useOptionalCommandRegistry, useRegisterCommand, useRegisterCommands, useRegistryCommands } from "./prompt-input/command-registry"
+export type { CommandProviderProps, CommandRegistryListener } from "./prompt-input/command-registry"
 
-export { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep } from "./chain-of-thought/chain-of-thought"
-export type { ChainOfThoughtProps, ChainOfThoughtHeaderProps, ChainOfThoughtContentProps, ChainOfThoughtStepProps, Step } from "./chain-of-thought/chain-of-thought"
+export { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep, useChainOfThought } from "./chain-of-thought/chain-of-thought"
+export type { ChainOfThoughtProps, ChainOfThoughtHeaderProps, ChainOfThoughtContentProps, ChainOfThoughtStepProps, ChainOfThoughtStepData, Step } from "./chain-of-thought/chain-of-thought"
 
-export { Message, useMessage } from "./message/message"
+export { Message, useMessage, MessageContent, MessageText, MessageMarkdown } from "./message/message"
 export type {
   MessageProps,
+  MessageContentProps,
+  MessageTextProps,
+  MessageMarkdownProps,
   MessageContextValue,
-  MessagePart,
-  TextPart,
-  ReasoningPart,
-  ToolCallPart,
-  ToolCallState,
-  SourcePart,
   MessageRole,
 } from "./message/message"
 
@@ -96,7 +96,7 @@ export type { TerminalWindowProps } from "./terminal-window/terminal-window"
 
 export { textStyle } from "./text-style"
 
-export { ThemeProvider, useTheme, darkTheme, lightTheme } from "./theme"
+export { ThemeProvider, useTheme, darkTheme, lightTheme, useFocusBorderStyle, useFocusDividerStyle } from "./theme"
 export type { Theme, ThemeProviderProps } from "./theme"
 
 export { GridlandProvider, useKeyboardContext } from "./provider/provider"
@@ -104,3 +104,6 @@ export type { GridlandProviderProps } from "./provider/provider"
 
 export { useBreakpoints, BREAKPOINTS } from "./breakpoints/use-breakpoints"
 export type { Breakpoints } from "./breakpoints/use-breakpoints"
+
+export { SideNav } from "./side-nav/side-nav"
+export type { SideNavProps, SideNavItem } from "./side-nav/side-nav"

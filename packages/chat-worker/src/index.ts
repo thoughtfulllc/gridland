@@ -36,14 +36,20 @@ export default {
     }
 
     try {
-      const { messages }: { messages: UIMessage[] } = await request.json()
+      const { messages, model: requestedModel, reasoning: enableReasoning }:
+        { messages: UIMessage[]; model?: string; reasoning?: boolean } = await request.json()
 
       const openrouter = createOpenRouter({
         apiKey: env.OPENROUTER_API_KEY,
       })
 
+      const modelId = requestedModel || "anthropic/claude-sonnet-4"
+      const modelOptions = enableReasoning
+        ? { reasoning: { enabled: true, effort: "low" as const } }
+        : {}
+
       const result = streamText({
-        model: openrouter.chat("anthropic/claude-sonnet-4"),
+        model: openrouter.chat(modelId, modelOptions),
         messages: await convertToModelMessages(messages),
       })
 

@@ -21,7 +21,7 @@ export function createFocusStore() {
     const next = focusReducer(state, action)
     if (next !== state) {
       state = next
-      for (const listener of listeners) {
+      for (const listener of [...listeners]) {
         try {
           listener()
         } catch (err) {

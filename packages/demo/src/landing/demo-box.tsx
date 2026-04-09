@@ -7,7 +7,6 @@ const DEMOS = [
   "select-input",
   "text-input",
   "modal",
-  "chat",
   "terminal-window",
   "spinner",
 ]

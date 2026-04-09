@@ -285,6 +285,7 @@ export class BrowserRenderer {
 
     // --- Scroll events ---
     const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
       const { col, row } = this.pixelToCell(e.clientX, e.clientY)
       const hitId = this.renderContext.hitTest(col, row)
       if (hitId !== null) {
@@ -294,7 +295,7 @@ export class BrowserRenderer {
         }
       }
     }
-    this.canvas.addEventListener("wheel", onWheel)
+    this.canvas.addEventListener("wheel", onWheel, { passive: false })
     this.cleanupListeners.push(() => this.canvas.removeEventListener("wheel", onWheel))
 
     // --- Drag enter/leave for visual feedback ---
@@ -332,7 +333,7 @@ export class BrowserRenderer {
   }
 
   private createTuiMouseEvent(target: any, type: MouseEventType, col: number, row: number, domEvent: MouseEvent | WheelEvent): any {
-    return {
+    const event: any = {
       type,
       button: (domEvent as MouseEvent).button ?? 0,
       x: col,
@@ -350,6 +351,18 @@ export class BrowserRenderer {
       stopPropagation() { this._propagationStopped = true },
       preventDefault() { this._defaultPrevented = true },
     }
+
+    if (type === "scroll" && domEvent instanceof WheelEvent) {
+      const dy = domEvent.deltaY
+      const dx = domEvent.deltaX
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        event.scroll = { direction: dy > 0 ? "down" : "up", delta: Math.max(1, Math.abs(Math.round(dy / 40))) }
+      } else {
+        event.scroll = { direction: dx > 0 ? "right" : "left", delta: Math.max(1, Math.abs(Math.round(dx / 40))) }
+      }
+    }
+
+    return event
   }
 
   private dispatchTuiMouseEvent(target: any, type: MouseEventType, col: number, row: number, domEvent: MouseEvent | WheelEvent): void {
@@ -517,7 +530,7 @@ export class BrowserRenderer {
       meta: event.metaKey,
       shift: event.shiftKey,
       option: event.altKey,
-      sequence: event.key,
+      sequence: event.key.length === 1 ? event.key : "",
       number: false,
       raw: event.key,
       eventType: "press" as const,

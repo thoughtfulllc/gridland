@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test"
-import { waitForReady, getBufferText, focusCanvas } from "../helpers"
+import { waitForReady, getBufferText, focusCanvas, waitForBufferContaining, waitForPaint } from "../helpers"
 
 test.describe("SelectInput Interaction", () => {
   // TODO: This test documents expected behavior once drawFrameBuffer is fully
@@ -26,7 +26,7 @@ test.describe("SelectInput Interaction", () => {
 
     // Press ArrowDown to move selection
     await page.keyboard.press("ArrowDown")
-    await page.waitForTimeout(200)
+    await waitForPaint(page)
 
     const afterDown = await getBufferText(page)
     expect(afterDown).toContain("Choose a language:")
@@ -39,9 +39,8 @@ test.describe("SelectInput Interaction", () => {
 
     // Press Enter on the first item (TypeScript)
     await page.keyboard.press("Enter")
-    await page.waitForTimeout(200)
 
-    const text = await getBufferText(page)
+    const text = await waitForBufferContaining(page, "Selected: ts")
     expect(text).toContain("Selected: ts")
   })
 })

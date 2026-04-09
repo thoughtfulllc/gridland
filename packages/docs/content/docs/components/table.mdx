@@ -110,6 +110,85 @@ import {
 </TableRoot>
 ```
 
+### Cell Alignment
+
+Right-align or center-align individual cells using the `align` prop.
+
+```tsx title="Right-aligned prices"
+<TableRoot>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Item</TableHead>
+      <TableHead align="right">Price</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Widget</TableCell>
+      <TableCell align="right">$10.00</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell>Gadget</TableCell>
+      <TableCell align="right">$25.00</TableCell>
+    </TableRow>
+  </TableBody>
+</TableRoot>
+```
+
+### Cell Color
+
+Override the text color for individual cells.
+
+```tsx title="Colored status cells"
+<TableRoot>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Name</TableHead>
+      <TableHead>Status</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Alice</TableCell>
+      <TableCell color="green">Active</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell>Bob</TableCell>
+      <TableCell color="red">Inactive</TableCell>
+    </TableRow>
+  </TableBody>
+</TableRoot>
+```
+
+### Column Span
+
+Use `colSpan` to span a cell across multiple columns.
+
+```tsx title="Footer with colSpan"
+<TableRoot>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Item</TableHead>
+      <TableHead>Qty</TableHead>
+      <TableHead align="right">Price</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>Widget</TableCell>
+      <TableCell>2</TableCell>
+      <TableCell align="right">$20.00</TableCell>
+    </TableRow>
+  </TableBody>
+  <TableFooter>
+    <TableRow>
+      <TableCell colSpan={2}>Total</TableCell>
+      <TableCell align="right">$20.00</TableCell>
+    </TableRow>
+  </TableFooter>
+</TableRoot>
+```
+
 ## Compound Components
 
 | Component | Description |
@@ -150,42 +229,48 @@ Compound root that computes column widths from the component tree.
 
 ### TableHeader
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | One or more `TableRow` components |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | One or more `TableRow` components |
 
 ### TableBody
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | One or more `TableRow` components |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | One or more `TableRow` components |
 
 ### TableFooter
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | One or more `TableRow` components |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | One or more `TableRow` components |
 
 ### TableRow
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | `TableHead` or `TableCell` components |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | `TableHead` or `TableCell` components |
 
 ### TableHead
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | Cell content (typically a string) |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Cell content (typically a string) |
+| `align` | `"left" \| "right" \| "center"` | `"left"` | Text alignment within the cell |
+| `color` | `string` | - | Override text color for this header cell |
+| `colSpan` | `number` | `1` | Number of columns this cell should span |
 
 ### TableCell
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | Cell content (typically a string) |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Cell content (typically a string) |
+| `align` | `"left" \| "right" \| "center"` | `"left"` | Text alignment within the cell |
+| `color` | `string` | - | Override text color for this body cell |
+| `colSpan` | `number` | `1` | Number of columns this cell should span |
 
 ### TableCaption
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | Caption text |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | - | Caption text |

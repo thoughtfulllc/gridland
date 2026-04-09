@@ -1,7 +1,7 @@
 import { useMemo, useEffect, useRef, createElement, type ReactNode } from "react"
 import { FocusContext } from "./focus-context"
 import { createFocusStore } from "./focus-store"
-import { getNavigableEntries } from "./focus-reducer"
+import { getNavigableEntries, getTopScope } from "./focus-reducer"
 import { findSpatialTarget } from "./spatial-navigation"
 import { useAppContext } from "../components/app"
 
@@ -69,9 +69,17 @@ export function FocusProvider({ selectable = false, children }: FocusProviderPro
           dispatch({ type: "SELECT", id: s.focusedId })
           event.preventDefault()
         }
-        if (event.name === "escape" && s.selectedId) {
-          dispatch({ type: "DESELECT" })
-          event.preventDefault()
+        if (event.name === "escape") {
+          if (s.selectedId) {
+            dispatch({ type: "DESELECT" })
+            event.preventDefault()
+          } else {
+            const topScope = getTopScope(s)
+            if (topScope?.selectable) {
+              dispatch({ type: "POP_SCOPE", scopeId: topScope.id, clearSelection: true })
+              event.preventDefault()
+            }
+          }
         }
       }
     }

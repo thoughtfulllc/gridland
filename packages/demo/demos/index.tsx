@@ -13,7 +13,6 @@ import { TabBarApp } from "./tabs"
 import { StatusBarApp } from "./status-bar"
 import { ModalApp } from "./modal"
 import { PrimitivesApp } from "./primitives"
-import { ChatApp } from "./chat"
 import { ChainOfThoughtApp } from "./chain-of-thought"
 import { MessageApp } from "./message"
 import { TerminalWindowApp } from "./terminal-window"
@@ -28,6 +27,7 @@ import { ThemingApp } from "./theming"
 import { LandingApp } from "../src/landing"
 import { RippleApp } from "./ripple"
 import { PuzzleApp } from "./puzzle"
+import { SideNavApp } from "./side-nav"
 
 export {
   GradientApp,
@@ -43,7 +43,6 @@ export {
   StatusBarApp,
   ModalApp,
   PrimitivesApp,
-  ChatApp,
   ChainOfThoughtApp,
   MessageApp,
   TerminalWindowApp,
@@ -58,6 +57,7 @@ export {
   LandingApp,
   RippleApp,
   PuzzleApp,
+  SideNavApp,
 }
 
 export interface Demo {
@@ -79,7 +79,6 @@ export const demos: Demo[] = [
   { name: "status-bar", app: () => <StatusBarApp /> },
   { name: "modal", app: () => <ModalApp /> },
   { name: "primitives", app: () => <PrimitivesApp /> },
-  { name: "chat", app: () => <ChatApp /> },
   { name: "chain-of-thought", app: () => <ChainOfThoughtApp /> },
   { name: "message", app: () => <MessageApp /> },
   { name: "terminal-window", app: () => <TerminalWindowApp /> },
@@ -94,4 +93,5 @@ export const demos: Demo[] = [
   { name: "landing", app: () => <LandingApp useKeyboard={useKeyboard} /> },
   { name: "ripple", app: () => <RippleApp /> },
   { name: "puzzle", app: () => <PuzzleApp /> },
+  { name: "side-nav", app: () => <SideNavApp /> },
 ]

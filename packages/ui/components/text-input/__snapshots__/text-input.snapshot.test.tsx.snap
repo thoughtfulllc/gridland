@@ -1,13 +1,28 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
-exports[`TextInput snapshots renders with placeholder 1`] = `
-"
+exports[`TextInput snapshots renders with placeholder 1`] = `"Type something..."`;
 
-  Error: No RenderLib registered. In Bun, import '@opentui/core' or"
+exports[`TextInput snapshots renders with error state 1`] = `
+"  Email | This field is required
+  > user@example.com"
 `;
 
-exports[`TextInput snapshots renders with custom prompt 1`] = `
-"
+exports[`TextInput snapshots renders with custom prompt 1`] = `"> Enter name"`;
 
-  Error: No RenderLib registered. In Bun, import '@opentui/core' or"
+exports[`TextInput snapshots renders with custom prompt 2`] = `"> Enter name"`;
+
+exports[`TextInput snapshots renders with placeholder 2`] = `"Type something..."`;
+
+exports[`TextInput snapshots renders with error state 2`] = `
+"  Email | This field is required
+  > user@example.com"
 `;
+
+exports[`TextInput snapshots renders with placeholder 3`] = `"Type something..."`;
+
+exports[`TextInput snapshots renders with error state 3`] = `
+"  Email | This field is required
+  > user@example.com"
+`;
+
+exports[`TextInput snapshots renders with custom prompt 3`] = `"> Enter name"`;

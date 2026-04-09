@@ -4,32 +4,64 @@ import { useTheme } from "../theme/index"
 import { useKeyboardContext } from "../provider/provider"
 
 export type MultiSelectItem<V> = {
+  /** Unique key for React reconciliation. Falls back to stringified value. */
   key?: string
+  /** Display label for this option. */
   label: string
+  /**
+   * The value returned when this item is selected.
+   *
+   * Values are compared by reference equality (Set.has). Use primitives
+   * (string, number) for reliable behavior. Object references will only
+   * match if they are the same instance across renders.
+   */
   value: V
+  /** Optional group heading this item belongs to. */
   group?: string
+  /** Whether this item is non-selectable. */
   disabled?: boolean
 }
 
 export interface MultiSelectProps<V> {
+  /** Available options. @default [] */
   items?: MultiSelectItem<V>[]
+  /** Initially selected values (uncontrolled). @default [] */
   defaultSelected?: V[]
+  /** Controlled selected values. */
   selected?: V[]
+  /** Called when selection changes. Fires in both controlled and uncontrolled modes. */
   onChange?: (values: V[]) => void
+  /** Disable all interaction. */
   disabled?: boolean
+  /** Show validation error state. */
   invalid?: boolean
+  /** Custom error message when invalid. @default "Please select at least one option" */
+  errorMessage?: string
+  /** Show required indicator on the title. */
   required?: boolean
+  /** Text shown when no items are available. */
   placeholder?: string
+  /** Maximum number of selectable items. */
   maxCount?: number
+  /** Heading text above the list. @default "Select" */
   title?: string
+  /** Status text shown after submission. @default "submitted" */
   submittedStatus?: string
+  /** Maximum visible rows before scrolling. @default 12 */
   limit?: number
+  /** Allow "a" key to select all. @default true */
   enableSelectAll?: boolean
+  /** Allow "x" key to clear selection. @default true */
   enableClear?: boolean
+  /** Override the cursor/highlight color. Defaults to theme.primary. */
   highlightColor?: string
+  /** Override the checkbox color. Defaults to theme.accent. */
   checkboxColor?: string
+  /** Allow submitting with zero selections. @default false */
   allowEmpty?: boolean
+  /** Called when the user confirms selection via the Submit row. */
   onSubmit?: (values: V[]) => void
+  /** Keyboard handler — pass useKeyboard from @gridland/utils. */
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
@@ -40,18 +72,14 @@ type State<V> = {
 }
 
 type Action<V> =
-  | { type: "MOVE"; direction: 1 | -1; max: number }
+  | { type: "SET_CURSOR"; cursor: number }
   | { type: "SET_SELECTED"; values: V[] }
   | { type: "SUBMIT" }
 
 function reducer<V>(state: State<V>, action: Action<V>): State<V> {
   switch (action.type) {
-    case "MOVE": {
-      let next = state.cursor + action.direction
-      if (next < 0) next = action.max - 1
-      if (next >= action.max) next = 0
-      return { ...state, cursor: next }
-    }
+    case "SET_CURSOR":
+      return { ...state, cursor: action.cursor }
     case "SET_SELECTED":
       return { ...state, selected: new Set(action.values) }
     case "SUBMIT":
@@ -73,6 +101,7 @@ type Row<V> =
   | { type: "separator" }
   | { type: "item"; item: MultiSelectItem<V>; index: number }
 
+/** Multi-select list with grouping, keyboard navigation, and a submit row. */
 export function MultiSelect<V>({
   items = [],
   defaultSelected = [],
@@ -80,6 +109,7 @@ export function MultiSelect<V>({
   onChange,
   disabled = false,
   invalid = false,
+  errorMessage = "Please select at least one option",
   required = false,
   placeholder,
   maxCount,
@@ -111,8 +141,10 @@ export function MultiSelect<V>({
     submitted: false,
   })
 
-  const cursorRef = useRef(0)
-  const currentSelected = isControlled ? new Set(controlledSelected) : state.selected
+  const currentSelected = useMemo(
+    () => (isControlled ? new Set(controlledSelected) : state.selected),
+    [isControlled, controlledSelected, state.selected],
+  )
 
   const { flatRows, selectableItems } = useMemo(() => {
     const rows: Row<V>[] = []
@@ -143,19 +175,37 @@ export function MultiSelect<V>({
 
   const hasSubmitRow = allowEmpty || currentSelected.size > 0
   const totalPositions = selectableItems.length + (hasSubmitRow ? 1 : 0)
-  const isOnSubmit = hasSubmitRow && state.cursor === selectableItems.length
+
+  // Clamp cursor when totalPositions shrinks (e.g., submit row disappears)
+  const cursor = totalPositions > 0
+    ? Math.min(state.cursor, totalPositions - 1)
+    : 0
+
+  // Keep refs in sync so the keyboard handler always reads fresh values
+  const cursorRef = useRef(cursor)
+  cursorRef.current = cursor
+
+  const currentSelectedRef = useRef(currentSelected)
+  currentSelectedRef.current = currentSelected
+
+  const selectableItemsRef = useRef(selectableItems)
+  selectableItemsRef.current = selectableItems
+
+  const submittedRef = useRef(state.submitted)
+  submittedRef.current = state.submitted
+
+  const isOnSubmit = hasSubmitRow && cursor === selectableItems.length
 
   const visibleCount = limit ?? VISIBLE
-  const cursorRowIndex = flatRows.findIndex((r) => r.type === "item" && r.index === state.cursor)
+  const cursorRowIndex = flatRows.findIndex((r) => r.type === "item" && r.index === cursor)
   const scrollOffset = Math.max(0, Math.min(cursorRowIndex - Math.floor(visibleCount / 2), flatRows.length - visibleCount))
   const visibleRows = flatRows.slice(scrollOffset, scrollOffset + visibleCount)
 
   const setSelected = (values: V[]) => {
-    if (isControlled) {
-      onChange?.(values)
-    } else {
+    if (!isControlled) {
       dispatch({ type: "SET_SELECTED", values })
     }
+    onChange?.(values)
   }
 
   const diamondColor = invalid ? theme.error
@@ -163,41 +213,57 @@ export function MultiSelect<V>({
     : theme.accent
 
   useKeyboard?.((event: any) => {
-    if (state.submitted || disabled) return
+    if (submittedRef.current || disabled) return
+
+    const sel = currentSelectedRef.current
+    const selItems = selectableItemsRef.current
+    const hasSubmit = allowEmpty || sel.size > 0
+    const total = selItems.length + (hasSubmit ? 1 : 0)
 
     const move = (direction: 1 | -1) => {
-      let next = cursorRef.current + direction
-      if (next < 0) next = totalPositions - 1
-      if (next >= totalPositions) next = 0
+      let next = cursorRef.current
+      for (let i = 0; i < total; i++) {
+        next += direction
+        if (next < 0) next = total - 1
+        if (next >= total) next = 0
+        // Submit row (last position) is always enabled
+        if (next >= selItems.length || !selItems[next]?.item.disabled) break
+      }
       cursorRef.current = next
-      dispatch({ type: "MOVE", direction, max: totalPositions })
+      dispatch({ type: "SET_CURSOR", cursor: next })
     }
 
     if (event.name === "up" || event.name === "k") {
       move(-1)
+      event.preventDefault?.()
     } else if (event.name === "down" || event.name === "j") {
       move(1)
-    } else if (event.name === "return") {
-      const onSubmitRow = hasSubmitRow && cursorRef.current === selectableItems.length
+      event.preventDefault?.()
+    } else if (event.name === "return" || event.name === "space") {
+      const onSubmitRow = hasSubmit && cursorRef.current === selItems.length
       if (onSubmitRow) {
+        submittedRef.current = true
         dispatch({ type: "SUBMIT" })
-        onSubmit?.(Array.from(currentSelected))
+        onSubmit?.(Array.from(sel))
       } else {
-        const current = selectableItems[cursorRef.current]
+        const current = selItems[cursorRef.current]
         if (current && !current.item.disabled) {
-          const isDeselecting = currentSelected.has(current.item.value)
-          if (!isDeselecting && maxCount !== undefined && currentSelected.size >= maxCount) return
-          const next = new Set(currentSelected)
+          const isDeselecting = sel.has(current.item.value)
+          if (!isDeselecting && maxCount !== undefined && sel.size >= maxCount) return
+          const next = new Set(sel)
           if (isDeselecting) next.delete(current.item.value)
           else next.add(current.item.value)
           setSelected(Array.from(next))
         }
       }
+      event.preventDefault?.()
     } else if (event.name === "a" && enableSelectAll) {
       const enabledValues = items.filter((i) => !i.disabled).map((i) => i.value)
       setSelected(maxCount !== undefined ? enabledValues.slice(0, maxCount) : enabledValues)
+      event.preventDefault?.()
     } else if (event.name === "x" && enableClear) {
       setSelected([])
+      event.preventDefault?.()
     }
   })
 
@@ -240,7 +306,7 @@ export function MultiSelect<V>({
       {invalid && (
         <text>
           <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
-          <span style={textStyle({ fg: theme.error })}>{"  Please select at least one option"}</span>
+          <span style={textStyle({ fg: theme.error })}>{"  "}{errorMessage}</span>
         </text>
       )}
       {!hasItems && placeholder && (
@@ -251,8 +317,9 @@ export function MultiSelect<V>({
       )}
       {visibleRows.map((row, i) => {
         if (row.type === "separator") {
+          const flatIndex = scrollOffset + i
           return (
-            <text key={`sep-${i}`}>
+            <text key={`sep-${flatIndex}`}>
               <span style={textStyle({ fg: theme.muted })}>{BAR} </span>
               <span style={textStyle({ fg: theme.muted })}>{"  "}{SEPARATOR.repeat(20)}</span>
             </text>
@@ -269,7 +336,7 @@ export function MultiSelect<V>({
         }
 
         const { item, index: itemIndex } = row
-        const isHighlighted = !disabled && itemIndex === state.cursor
+        const isHighlighted = !disabled && itemIndex === cursor
         const isSelected = currentSelected.has(item.value)
         const isItemDisabled = disabled || !!item.disabled
         const itemColor = isItemDisabled ? theme.muted

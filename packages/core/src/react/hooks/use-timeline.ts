@@ -1,11 +1,15 @@
 import { engine, Timeline, type TimelineOptions } from "../../animation/Timeline"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 export const useTimeline = (options: TimelineOptions = {}) => {
-  const timeline = new Timeline(options)
+  const timelineRef = useRef<Timeline | null>(null)
+  if (!timelineRef.current) {
+    timelineRef.current = new Timeline(options)
+  }
+  const timeline = timelineRef.current
 
   useEffect(() => {
-    if (!options.autoplay) {
+    if (options.autoplay !== false) {
       timeline.play()
     }
 

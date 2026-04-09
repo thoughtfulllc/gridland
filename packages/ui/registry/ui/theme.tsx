@@ -11,6 +11,8 @@ export interface Theme {
   placeholder: string
   /** Border and divider color */
   border: string
+  /** Muted border color — subtle structural dividers */
+  borderMuted: string
   /** Default foreground text color */
   foreground: string
   /** App background color */
@@ -21,6 +23,16 @@ export interface Theme {
   error: string
   /** Warning state color */
   warning: string
+  /** Bright focus color — component is selected (entered for interaction) */
+  focusSelected: string
+  /** Medium focus color — component has keyboard focus */
+  focusFocused: string
+  /** Dimmed focus color — idle hint that the component is selectable */
+  focusIdle: string
+  /** Background color for assistant message bubbles */
+  messageAssistant: string
+  /** Background color for user message bubbles */
+  messageUser: string
 }
 
 export const darkTheme: Theme = {
@@ -30,11 +42,17 @@ export const darkTheme: Theme = {
   muted: "#A69CBD",
   placeholder: "#CEC7DE",
   border: "#B967FF",
+  borderMuted: "#2A2A2A",
   foreground: "#F0E6FF",
   background: "#0D0B10",
   success: "#05FFA1",
   error: "#FF6B6B",
   warning: "#FFC164",
+  focusSelected: "#FF71CE",
+  focusFocused: "#e065b8",
+  focusIdle: "#33192a",
+  messageAssistant: "#2a2a4a",
+  messageUser: "#2a3a3a",
 }
 
 export const lightTheme: Theme = {
@@ -44,11 +62,17 @@ export const lightTheme: Theme = {
   muted: "#64748B",
   placeholder: "#475569",
   border: "#E2E8F0",
+  borderMuted: "#D9D9D9",
   foreground: "#1E293B",
   background: "#FFFFFF",
   success: "#0B8438",
   error: "#E11D48",
   warning: "#B45309",
+  focusSelected: "#FF6B2B",
+  focusFocused: "#d45a24",
+  focusIdle: "#f5e6d8",
+  messageAssistant: "#F1F5F9",
+  messageUser: "#E2E8F0",
 }
 
 import { createContext, useContext, type ReactNode } from "react"
@@ -59,10 +83,35 @@ export interface ThemeProviderProps {
   children: ReactNode
 }
 
+/** Provides a theme to all descendant components via React context. */
 export function ThemeProvider({ theme, children }: ThemeProviderProps) {
   return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
 }
 
+/** Returns the current theme from the nearest ThemeProvider. Falls back to darkTheme. */
 export function useTheme(): Theme {
   return useContext(ThemeContext)
+}
+
+import { getFocusBorderStyle, getFocusDividerStyle } from "@gridland/utils"
+import type { FocusBorderState, FocusBorderResult, FocusDividerResult } from "@gridland/utils"
+
+/** Returns focus border color and style from the current theme. */
+export function useFocusBorderStyle(state: FocusBorderState): FocusBorderResult {
+  const theme = useTheme()
+  return getFocusBorderStyle(state, {
+    selected: theme.focusSelected,
+    focused: theme.focusFocused,
+    idle: theme.focusIdle,
+  })
+}
+
+/** Returns focus divider color and dashed state from the current theme. */
+export function useFocusDividerStyle(state: FocusBorderState): FocusDividerResult {
+  const theme = useTheme()
+  return getFocusDividerStyle(state, {
+    selected: theme.focusSelected,
+    focused: theme.focusFocused,
+    idle: theme.focusIdle,
+  })
 }

@@ -1,4 +1,3 @@
-// @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { useState } from "react"
 import { FixtureWrapper } from "../fixture-wrapper"
 import { TextInput } from "../../../../packages/ui/components/text-input/text-input"
@@ -14,6 +13,7 @@ export function TextInputInteractiveFixture() {
           prompt="> "
           value={value}
           onChange={setValue}
+          focus
         />
         {value.length > 0 && <text fg="#a3be8c">You typed: {value}</text>}
       </box>

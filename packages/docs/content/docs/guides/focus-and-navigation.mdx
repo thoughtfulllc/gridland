@@ -8,12 +8,19 @@ import { FocusApp } from '@demos/focus'
 import { PointerApp } from '@demos/pointer'
 import { CursorHighlightApp } from '@demos/cursor-highlight'
 import FocusGridDemo from '@/components/demos/focus-grid-demo'
+import FocusAIChatDemo from '@/components/demos/focus-ai-chat-demo'
 
 Gridland provides a unified focus and input system that works identically in both terminal and web runtimes.
 
 ## Focus
 
 ### Examples
+
+#### AI Chat with Focus & Navigation
+
+<div className="my-8">
+  <FocusAIChatDemo />
+</div>
 
 #### Spatial Navigation
 
@@ -32,8 +39,8 @@ Gridland provides a unified focus and input system that works identically in bot
 ### Usage
 
 ```tsx title="app.tsx"
-import { FocusProvider, useFocus, useKeyboard, useShortcuts, useFocusedShortcuts, FocusScope } from "@gridland/utils"
-import { GridlandProvider, StatusBar } from "@gridland/ui"
+import { FocusProvider, useFocus, useKeyboard, useCapturedKeyboard, useShortcuts, useFocusedShortcuts, FocusScope } from "@gridland/utils"
+import { GridlandProvider, StatusBar, useFocusBorderStyle } from "@gridland/ui"
 
 // 1. Wrap your app with FocusProvider
 function App() {
@@ -53,7 +60,8 @@ function App() {
 
 // 2. Make components focusable with useFocus
 function Cell({ id, label, autoFocus }) {
-  const { isFocused, isSelected, focusId, focusRef } = useFocus({ id, autoFocus })
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id, autoFocus })
+  const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   // 3. Handle keyboard input when focused
   useKeyboard((e) => {
@@ -69,7 +77,7 @@ function Cell({ id, label, autoFocus }) {
   )
 
   return (
-    <box ref={focusRef} border borderColor={isSelected ? "blue" : isFocused ? "green" : "gray"}>
+    <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor}>
       <text>{label}</text>
       <text>{isSelected ? "selected" : "not selected"}</text>
     </box>
@@ -89,9 +97,11 @@ function AppStatusBar() {
 
 **`useFocus`** makes a component focusable. It returns:
 
-- `isFocused` / `isSelected` / `isAnySelected` for styling based on focus state
+- `isFocused` / `isSelected` / `isAnySelected` for styling based on focus state. `isAnySelected` is scope-aware: it stays true for global-scope components even when the selection is saved behind a `FocusScope`
 - `focusId` to pass to other hooks like `useKeyboard` and `useShortcuts`
 - `focusRef` to attach to the root element so arrow-key navigation can measure positions
+- `focus()` / `blur()` to imperatively move focus
+- `select()` / `deselect()` to imperatively enter or exit selection
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -99,6 +109,8 @@ function AppStatusBar() {
 | `tabIndex` | `number` | `0` | Tab order. `-1` to skip tab navigation |
 | `autoFocus` | `boolean` | `false` | Focus immediately on mount |
 | `disabled` | `boolean` | `false` | Skip in tab order when true |
+| `scopeId` | `string \| null` | context scope | Override which FocusScope this element belongs to |
+| `selectable` | `boolean` | `true` | Whether this component supports selection (Enter to interact) |
 
 **Navigation** works two ways: **Tab/Shift+Tab** cycles in linear order, **arrow keys** navigate spatially to the nearest neighbor. If a component handles arrows internally (e.g., a SelectInput), call `event.preventDefault()` to prevent the FocusProvider from also navigating.
 
@@ -109,8 +121,11 @@ function AppStatusBar() {
 | `focusId` | `string` | Only fire when this ID is focused |
 | `global` | `boolean` | Always fire regardless of focus |
 | `release` | `boolean` | Include key release events |
+| `selectedOnly` | `boolean` | Only fire when the component is selected (requires `focusId`) |
 
 **`useShortcuts`** registers keyboard hints tied to a `focusId`. They update automatically as the user navigates. **`useFocusedShortcuts`** reads the active shortcuts for display in a StatusBar.
+
+**`useCapturedKeyboard(focusId)`** captures keyboard events for a selected focusable element and returns a `capture` function. Pass it as the `useKeyboard` prop to a child component (e.g., `PromptInput`) so the child's key handler fires only when the parent is selected.
 
 ### FocusScope
 
@@ -127,7 +142,9 @@ Constrain navigation to a group of components. When `trap` is enabled, Tab wraps
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `trap` | `boolean` | `false` | Prevent Tab from leaving the scope |
+| `selectable` | `boolean` | `false` | Enable Enter/Esc selection within this scope |
 | `autoFocus` | `boolean` | `false` | Focus first element on mount |
+| `autoSelect` | `boolean` | `false` | Auto-select if only one focusable element exists on mount |
 | `restoreOnUnmount` | `boolean` | `true` | Restore previous focus on unmount |
 
 ## Pointer Events

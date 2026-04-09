@@ -1,5 +1,13 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
+exports[`Spinner snapshots renders with variant and custom text 1`] = `"· Processing..."`;
+
 exports[`Spinner snapshots renders default spinner 1`] = `"⠋"`;
 
-exports[`Spinner snapshots renders with variant and custom text 1`] = `"· Processing..."`;
+exports[`Spinner snapshots renders with variant and custom text 2`] = `"· Processing..."`;
+
+exports[`Spinner snapshots renders default spinner 2`] = `"⠋"`;
+
+exports[`Spinner snapshots renders default spinner 3`] = `"⠋"`;
+
+exports[`Spinner snapshots renders with variant and custom text 3`] = `"· Processing..."`;

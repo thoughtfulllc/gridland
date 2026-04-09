@@ -1,6 +1,6 @@
 {
   "name": "@gridland/utils",
-  "version": "0.2.53",
+  "version": "0.2.55",
   "type": "module",
   "exports": {
     ".": {
@@ -12,7 +12,8 @@
   "types": "./dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "node build-utils.mjs && cp src/index.d.ts dist/index.d.ts"
+    "build": "node build-utils.mjs && cp src/index.d.ts dist/index.d.ts",
+    "prepublishOnly": "bun ../../scripts/check-versions.mjs"
   },
   "dependencies": {
     "react": "^19.0.0"

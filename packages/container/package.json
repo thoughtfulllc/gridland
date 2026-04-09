@@ -1,6 +1,6 @@
 {
   "name": "@gridland/container",
-  "version": "0.2.20",
+  "version": "0.2.55",
   "description": "Run CLI apps in isolated Docker containers",
   "type": "module",
   "bin": {
@@ -9,7 +9,8 @@
   "scripts": {
     "test": "bun test ./test/lib.test.mjs ./test/cli.test.mjs ./test/entrypoint.test.mjs ./test/dockerfile.test.mjs ./test/workflow.test.mjs ./test/snapshots.test.mjs",
     "test:e2e": "bun test ./test/e2e.test.mjs",
-    "test:all": "bun test ./test/"
+    "test:all": "bun test ./test/",
+    "prepublishOnly": "bun ../../scripts/check-versions.mjs"
   },
   "devDependencies": {
     "yaml": "^2.4.0"

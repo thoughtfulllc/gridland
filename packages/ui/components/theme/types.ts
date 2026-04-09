@@ -11,6 +11,8 @@ export interface Theme {
   placeholder: string
   /** Border and divider color */
   border: string
+  /** Muted border color — subtle structural dividers */
+  borderMuted: string
   /** Default foreground text color */
   foreground: string
   /** App background color */
@@ -21,4 +23,14 @@ export interface Theme {
   error: string
   /** Warning state color */
   warning: string
+  /** Bright focus color — component is selected (entered for interaction) */
+  focusSelected: string
+  /** Medium focus color — component has keyboard focus */
+  focusFocused: string
+  /** Dimmed focus color — idle hint that the component is selectable */
+  focusIdle: string
+  /** Background color for assistant message bubbles */
+  messageAssistant: string
+  /** Background color for user message bubbles */
+  messageUser: string
 }

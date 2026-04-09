@@ -14,7 +14,7 @@ const SHOWCASE_TASKS = [
 ]
 
 export interface SpinnerPickerProps {
-  /** Keyboard handler — pass useKeyboard from @opentui/react */
+  /** Keyboard handler — pass useKeyboard from @gridland/utils */
   useKeyboard?: (handler: (event: any) => void) => void
 }
 

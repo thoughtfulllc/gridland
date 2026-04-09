@@ -7,9 +7,13 @@ import type React from "react"
 
 export interface UseKeyboardOptions {
   release?: boolean
+  focusId?: string
+  global?: boolean
+  selectedOnly?: boolean
 }
 
 export declare const useKeyboard: (handler: (key: KeyEvent) => void, options?: UseKeyboardOptions) => void
+export declare function useCapturedKeyboard(focusId: string): (handler: (event: any) => void) => void
 export declare const useOnResize: (callback: (width: number, height: number) => void) => any
 export declare const useRenderer: () => any
 export declare const useTerminalDimensions: () => { width: number; height: number }
@@ -258,6 +262,77 @@ export declare class KeyEvent {
   preventDefault(): void
   stopPropagation(): void
 }
+
+// ── Focus system ────────────────────────────────────────────────────────
+
+export interface UseFocusOptions {
+  id?: string
+  tabIndex?: number
+  autoFocus?: boolean
+  disabled?: boolean
+  scopeId?: string | null
+  selectable?: boolean
+}
+
+export interface UseFocusReturn {
+  isFocused: boolean
+  isSelected: boolean
+  isAnySelected: boolean
+  focus: () => void
+  blur: () => void
+  select: () => void
+  deselect: () => void
+  focusId: string
+  focusRef: (node: any) => void
+}
+
+export declare function useFocus(options?: UseFocusOptions): UseFocusReturn
+
+export interface FocusProviderProps {
+  selectable?: boolean
+  children: React.ReactNode
+}
+
+export declare function FocusProvider(props: FocusProviderProps): React.JSX.Element
+
+export interface FocusScopeProps {
+  trap?: boolean
+  selectable?: boolean
+  autoFocus?: boolean
+  autoSelect?: boolean
+  restoreOnUnmount?: boolean
+  children: React.ReactNode
+}
+
+export declare function FocusScope(props: FocusScopeProps): React.JSX.Element
+
+export interface FocusContextValue {
+  dispatch: (action: any) => void
+  store: any | null
+}
+
+export declare function useFocusContext(): FocusContextValue
+export declare function useFocusScopeId(): string | null
+
+export interface ShortcutEntry {
+  key: string
+  label: string
+}
+
+export declare function useShortcuts(shortcuts: ShortcutEntry[], focusId: string): void
+export declare function useFocusedShortcuts(): ShortcutEntry[]
+
+// ── Runtime context ─────────────────────────────────────────────────────
+
+export type RuntimeType = "terminal" | "browser"
+
+export interface RuntimeProviderProps {
+  runtime: RuntimeType
+  children: React.ReactNode
+}
+
+export declare function RuntimeProvider(props: RuntimeProviderProps): React.JSX.Element
+export declare function useRuntime(): RuntimeType
 
 // ── Browser utilities ────────────────────────────────────────────────────
 

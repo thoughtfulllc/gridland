@@ -2,7 +2,7 @@
 "use client"
 import { useState } from "react"
 import { useKeyboard } from "@gridland/utils"
-import { StatusBar, textStyle, useTheme } from "@gridland/ui"
+import { Link, StatusBar, textStyle, useTheme } from "@gridland/ui"
 import type { UnderlineStyle } from "@gridland/ui"
 
 const MODES: UnderlineStyle[] = ["solid", "dashed", "dotted", "none"]
@@ -19,8 +19,11 @@ export function LinkApp() {
 
   return (
     <box flexDirection="column" flexGrow={1}>
-      <box padding={1} flexGrow={1}>
-        <text style={textStyle({ fg: theme.foreground })}>Made by <a href="https://cjroth.com" style={{ attributes: mode === "solid" ? 8 : mode === "dashed" ? 24 : mode === "dotted" ? 72 : 0, fg: theme.accent }}>Chris Roth</a> and <a href="https://jessicacheng.studio" style={{ attributes: mode === "solid" ? 8 : mode === "dashed" ? 24 : mode === "dotted" ? 72 : 0, fg: theme.accent }}>Jessica Cheng</a>.</text>
+      <box padding={1} flexGrow={1} flexDirection="row" gap={1}>
+        <text style={textStyle({ fg: theme.foreground })}>Made with ❤️ by</text>
+        <Link url="https://cjroth.com" underline={mode}>Chris Roth</Link>
+        <text style={textStyle({ fg: theme.foreground })}>+</text>
+        <Link url="https://jessicacheng.studio" underline={mode}>Jessica Cheng</Link>
       </box>
       <box paddingX={1} paddingBottom={1}>
         <StatusBar

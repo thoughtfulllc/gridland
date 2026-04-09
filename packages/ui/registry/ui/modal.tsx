@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { FocusScope } from "@gridland/utils"
 import { textStyle } from "./text-style"
 import { useTheme } from "./theme"
 import { useKeyboardContext } from "./provider"
@@ -6,9 +7,9 @@ import { useKeyboardContext } from "./provider"
 export interface ModalProps {
   /** The content rendered inside the modal border. */
   children: ReactNode
-  /** Optional title displayed at the top inside the border. Rendered bold in the borderColor. */
+  /** Optional title displayed at the top inside the border. */
   title?: string
-  /** Color of the border and the title text. */
+  /** Color of the border. */
   borderColor?: string
   /**
    * The character set used for drawing the border.
@@ -17,10 +18,11 @@ export interface ModalProps {
   borderStyle?: "single" | "double" | "rounded" | "heavy"
   /** Callback invoked when the Escape key is pressed. */
   onClose?: () => void
-  /** Keyboard handler — pass useKeyboard from @opentui/react */
+  /** Keyboard handler — pass useKeyboard from @gridland/utils */
   useKeyboard?: (handler: (event: any) => void) => void
 }
 
+/** Bordered modal overlay with optional title and Escape-to-close. Traps focus automatically. */
 export function Modal({
   children,
   title,
@@ -31,7 +33,7 @@ export function Modal({
 }: ModalProps) {
   const theme = useTheme()
   const useKeyboard = useKeyboardContext(useKeyboardProp)
-  const resolvedBorderColor = borderColor ?? theme.muted
+  const resolvedBorderColor = borderColor ?? theme.border
 
   // Handle Escape key
   useKeyboard?.((event: any) => {
@@ -41,7 +43,7 @@ export function Modal({
   })
 
   return (
-    <box flexDirection="column" flexGrow={1}>
+    <FocusScope trap autoFocus restoreOnUnmount>
       <box
         flexDirection="column"
         flexGrow={1}
@@ -60,6 +62,6 @@ export function Modal({
           children
         )}
       </box>
-    </box>
+    </FocusScope>
   )
 }

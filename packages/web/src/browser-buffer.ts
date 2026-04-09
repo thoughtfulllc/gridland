@@ -213,8 +213,30 @@ export class BrowserBuffer {
     bgColor: RGBA,
     attr: number = 0,
   ): void {
-    // For the PoC, same as setCell
-    this.setCell(x, y, char, fgColor, bgColor, attr)
+    if (x < 0 || x >= this._width || y < 0 || y >= this._height) return
+    if (!this.isInScissor(x, y)) return
+
+    const idx = y * this._width + x
+    const offset = idx * 4
+
+    const effectiveBg = this.applyOpacity(bgColor)
+    const effectiveFg = this.applyOpacity(fgColor)
+
+    this.char[idx] = char.codePointAt(0) ?? 0x20
+    this.attributes[idx] = attr
+
+    this.fg[offset] = effectiveFg.r
+    this.fg[offset + 1] = effectiveFg.g
+    this.fg[offset + 2] = effectiveFg.b
+    this.fg[offset + 3] = effectiveFg.a
+
+    // When overlay bg is fully transparent, preserve existing bg — matches native blendCells
+    if (effectiveBg.a > 0) {
+      this.bg[offset] = effectiveBg.r
+      this.bg[offset + 1] = effectiveBg.g
+      this.bg[offset + 2] = effectiveBg.b
+      this.bg[offset + 3] = effectiveBg.a
+    }
   }
 
   drawChar(charCode: number, x: number, y: number, fgColor: RGBA, bgColor: RGBA, attr: number = 0): void {
@@ -267,20 +289,34 @@ export class BrowserBuffer {
   }
 
   fillRect(x: number, y: number, width: number, height: number, bgColor: RGBA): void {
-    for (let row = y; row < y + height && row < this._height; row++) {
-      for (let col = x; col < x + width && col < this._width; col++) {
-        if (col < 0 || row < 0) continue
-        if (!this.isInScissor(col, row)) continue
+    const effectiveBg = this.applyOpacity(bgColor)
+    const hasAlpha = effectiveBg.a < 1.0
 
-        const idx = row * this._width + col
-        const offset = idx * 4
-        const effectiveBg = this.applyOpacity(bgColor)
+    if (hasAlpha) {
+      // Route through alpha blending — matches native buffer behavior.
+      // Transparent fills preserve existing bg instead of erasing it.
+      for (let row = y; row < y + height && row < this._height; row++) {
+        for (let col = x; col < x + width && col < this._width; col++) {
+          if (col < 0 || row < 0) continue
+          this.setCellWithAlphaBlending(col, row, " ", { r: 1, g: 1, b: 1, a: 1 } as RGBA, bgColor)
+        }
+      }
+    } else {
+      // Fast path for fully opaque fills — direct write
+      for (let row = y; row < y + height && row < this._height; row++) {
+        for (let col = x; col < x + width && col < this._width; col++) {
+          if (col < 0 || row < 0) continue
+          if (!this.isInScissor(col, row)) continue
 
-        this.char[idx] = 0x20
-        this.bg[offset] = effectiveBg.r
-        this.bg[offset + 1] = effectiveBg.g
-        this.bg[offset + 2] = effectiveBg.b
-        this.bg[offset + 3] = effectiveBg.a
+          const idx = row * this._width + col
+          const offset = idx * 4
+
+          this.char[idx] = 0x20
+          this.bg[offset] = effectiveBg.r
+          this.bg[offset + 1] = effectiveBg.g
+          this.bg[offset + 2] = effectiveBg.b
+          this.bg[offset + 3] = effectiveBg.a
+        }
       }
     }
   }
@@ -357,14 +393,18 @@ export class BrowserBuffer {
 
     // Left border
     if (sides.left) {
-      for (let row = 1; row < height - 1; row++) {
+      const startRow = sides.top ? 1 : 0
+      const endRow = sides.bottom ? height - 1 : height
+      for (let row = startRow; row < endRow; row++) {
         this.drawChar(vertical, x, y + row, borderColor, transparent)
       }
     }
 
     // Right border
     if (sides.right && width > 1) {
-      for (let row = 1; row < height - 1; row++) {
+      const startRow = sides.top ? 1 : 0
+      const endRow = sides.bottom ? height - 1 : height
+      for (let row = startRow; row < endRow; row++) {
         this.drawChar(vertical, x + width - 1, y + row, borderColor, transparent)
       }
     }
@@ -549,7 +589,7 @@ export class BrowserBuffer {
         for (const ch of text) {
           if (curX >= this._width) break
           if (curX >= 0 && y + lineIdx >= 0 && y + lineIdx < this._height) {
-            this.setCell(curX, y + lineIdx, ch, fgColor, bgColor, attr)
+            this.setCellWithAlphaBlending(curX, y + lineIdx, ch, fgColor, bgColor, attr)
           }
           curX++
         }

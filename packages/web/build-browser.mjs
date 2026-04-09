@@ -38,14 +38,6 @@ function createPlugin() {
   return {
     name: "browser-shims",
     setup(build) {
-      // react-reconciler → resolve from web's node_modules
-      build.onResolve({ filter: /^react-reconciler$/ }, () => ({
-        path: path.resolve(pkgRoot, "node_modules/react-reconciler/index.js"),
-      }))
-      build.onResolve({ filter: /^react-reconciler\/constants$/ }, () => ({
-        path: path.resolve(pkgRoot, "node_modules/react-reconciler/constants.js"),
-      }))
-
       // Resolve @opentui/core → core source barrel
       build.onResolve({ filter: /^@opentui\/core$/ }, () => ({
         path: path.resolve(coreSrc, "index.ts"),
@@ -162,7 +154,7 @@ const requireShimBanner = [
   `  if (m) return m;`,
   `  throw new Error('Dynamic require of "' + id + '" is not supported');`,
   `});`,
-  `if (typeof process === "undefined") var process = { env: {} };`,
+  `if (typeof process === "undefined") var process = { env: { NODE_ENV: "production" } };`,
 ].join(" ")
 
 const shared = {
@@ -172,7 +164,7 @@ const shared = {
   target: "esnext",
   mainFields: ["module", "browser", "main"],
   conditions: ["import", "browser"],
-  external: ["react", "react-dom"],
+  external: ["react", "react-dom", "react-reconciler", "react-reconciler/constants"],
   plugins: [createPlugin()],
   sourcemap: true,
   banner: { js: requireShimBanner },

@@ -6,7 +6,7 @@ import { useTheme } from "./theme"
 // ── Types ────────────────────────────────────────────────────────────────
 
 type Scalar = string | number | boolean | null | undefined
-type ScalarDict = { [key: string]: Scalar }
+export type ScalarDict = { [key: string]: Scalar }
 
 // ── Context ──────────────────────────────────────────────────────────────
 
@@ -40,7 +40,7 @@ export function getColumns<T extends ScalarDict>(
   return Array.from(keys)
 }
 
-interface ColumnInfo<T> {
+export interface ColumnInfo<T> {
   field: keyof T
   width: number
 }
@@ -60,7 +60,17 @@ export function calculateColumnWidths<T extends ScalarDict>(
   })
 }
 
-export function padCell(value: string, width: number, padding: number): string {
+export function padCell(value: string, width: number, padding: number, align: "left" | "right" | "center" = "left"): string {
+  if (align === "right") {
+    const leftPad = width - value.length - padding
+    return " ".repeat(Math.max(0, leftPad)) + value + " ".repeat(padding)
+  }
+  if (align === "center") {
+    const totalGap = width - value.length
+    const leftGap = Math.floor(totalGap / 2)
+    const rightGap = totalGap - leftGap
+    return " ".repeat(Math.max(0, leftGap)) + value + " ".repeat(Math.max(0, rightGap))
+  }
   const rightPad = width - value.length - padding
   return " ".repeat(padding) + value + " ".repeat(Math.max(0, rightPad))
 }
@@ -72,6 +82,7 @@ function extractCellText(node: ReactNode): string {
   if (typeof node === "string") return node
   if (typeof node === "number" || typeof node === "boolean") return String(node)
   if (Array.isArray(node)) return node.map(extractCellText).join("")
+  if (isValidElement<{ children?: ReactNode }>(node)) return extractCellText(node.props.children)
   return ""
 }
 
@@ -79,23 +90,26 @@ function collectColumnWidths(children: ReactNode, padding: number): number[] {
   const columnMaxWidths: number[] = []
 
   Children.forEach(children, (section) => {
-    if (!isValidElement(section)) return
+    if (!isValidElement<{ children?: ReactNode }>(section)) return
     if (section.type === TableCaption) return
 
     Children.forEach(section.props.children, (row: ReactNode) => {
-      if (!isValidElement(row)) return
+      if (!isValidElement<{ children?: ReactNode }>(row)) return
 
       let colIdx = 0
       Children.forEach(row.props.children, (cell: ReactNode) => {
-        if (!isValidElement(cell)) return
-        const text = extractCellText(cell.props.children)
-        const width = text.length + padding * 2
-        if (colIdx >= columnMaxWidths.length) {
-          columnMaxWidths.push(width)
-        } else {
-          columnMaxWidths[colIdx] = Math.max(columnMaxWidths[colIdx], width)
+        if (!isValidElement<{ children?: ReactNode; colSpan?: number }>(cell)) return
+        const span = cell.props.colSpan ?? 1
+        if (span === 1) {
+          const text = extractCellText(cell.props.children)
+          const width = text.length + padding * 2
+          if (colIdx >= columnMaxWidths.length) {
+            columnMaxWidths.push(width)
+          } else {
+            columnMaxWidths[colIdx] = Math.max(columnMaxWidths[colIdx], width)
+          }
         }
-        colIdx++
+        colIdx += span
       })
     })
   })
@@ -111,12 +125,17 @@ function getTotalWidth(columnWidths: number[]): number {
 // ── TableRoot (compound root) ────────────────────────────────────────────
 
 export interface TableRootProps {
+  /** Table sub-components (TableHeader, TableBody, TableFooter, TableCaption). */
   children: ReactNode
+  /** Cell padding in characters. @default 1 */
   padding?: number
+  /** Override header text color. Defaults to theme.foreground. */
   headerColor?: string
+  /** Override border/separator color. Defaults to theme.muted. */
   borderColor?: string
 }
 
+/** Compound table root — auto-calculates column widths from all header and body cells. */
 export function TableRoot({ children, padding = 1, headerColor, borderColor }: TableRootProps) {
   const theme = useTheme()
   const resolvedHeaderColor = headerColor ?? theme.foreground
@@ -145,6 +164,7 @@ export interface TableHeaderProps {
   children: ReactNode
 }
 
+/** Table header section. Renders a horizontal rule below its rows. */
 export function TableHeader({ children }: TableHeaderProps) {
   const ctx = useTableContext()
   const totalWidth = getTotalWidth(ctx.columnWidths)
@@ -165,6 +185,7 @@ export interface TableBodyProps {
   children: ReactNode
 }
 
+/** Table body section. Renders dim separators between rows. */
 export function TableBody({ children }: TableBodyProps) {
   const ctx = useTableContext()
   const totalWidth = getTotalWidth(ctx.columnWidths)
@@ -194,6 +215,7 @@ export interface TableFooterProps {
   children: ReactNode
 }
 
+/** Table footer section. Renders a horizontal rule above its rows. */
 export function TableFooter({ children }: TableFooterProps) {
   const ctx = useTableContext()
   const totalWidth = getTotalWidth(ctx.columnWidths)
@@ -214,18 +236,30 @@ export interface TableRowProps {
   children: ReactNode
 }
 
+/** Renders a single row of padded, aligned cells. */
 export function TableRow({ children }: TableRowProps) {
   const ctx = useTableContext()
-  const parts: any[] = []
+  const parts: ReactNode[] = []
   let colIdx = 0
 
   Children.forEach(children, (child) => {
-    if (!isValidElement(child)) return
+    if (!isValidElement<TableCellProps>(child)) return
 
     const text = extractCellText(child.props.children)
-    const width = ctx.columnWidths[colIdx] ?? text.length + ctx.padding * 2
-    const padded = padCell(text, width, ctx.padding)
+    const span = child.props.colSpan ?? 1
+    const align = child.props.align ?? "left"
+    const cellColor = child.props.color
     const isHead = child.type === TableHead
+
+    // Calculate width (accounting for colSpan)
+    let spanWidth = 0
+    for (let i = 0; i < span && (colIdx + i) < ctx.columnWidths.length; i++) {
+      spanWidth += ctx.columnWidths[colIdx + i]
+      if (i > 0) spanWidth += 1
+    }
+    if (spanWidth === 0) spanWidth = text.length + ctx.padding * 2
+
+    const padded = padCell(text, spanWidth, ctx.padding, align)
 
     if (colIdx > 0) {
       parts.push(
@@ -235,21 +269,16 @@ export function TableRow({ children }: TableRowProps) {
       )
     }
 
-    if (isHead) {
-      parts.push(
-        <span key={`cell-${colIdx}`} style={textStyle({ fg: ctx.headerColor })}>
-          {padded}
-        </span>,
-      )
-    } else {
-      parts.push(
-        <span key={`cell-${colIdx}`} style={textStyle({ fg: ctx.foregroundColor, dim: true })}>
-          {padded}
-        </span>,
-      )
-    }
+    const color = cellColor ?? (isHead ? ctx.headerColor : ctx.foregroundColor)
+    const dim = !isHead && !cellColor
 
-    colIdx++
+    parts.push(
+      <span key={`cell-${colIdx}`} style={textStyle({ fg: color, dim })}>
+        {padded}
+      </span>,
+    )
+
+    colIdx += span
   })
 
   return <text>{parts}</text>
@@ -259,6 +288,12 @@ export function TableRow({ children }: TableRowProps) {
 
 export interface TableHeadProps {
   children: ReactNode
+  /** Text alignment within the cell. @default "left" */
+  align?: "left" | "right" | "center"
+  /** Override text color for this header cell. */
+  color?: string
+  /** Number of columns this cell should span. @default 1 */
+  colSpan?: number
 }
 
 /**
@@ -273,6 +308,12 @@ export function TableHead(_props: TableHeadProps) {
 
 export interface TableCellProps {
   children: ReactNode
+  /** Text alignment within the cell. @default "left" */
+  align?: "left" | "right" | "center"
+  /** Override text color for this body cell. */
+  color?: string
+  /** Number of columns this cell should span. @default 1 */
+  colSpan?: number
 }
 
 /**
@@ -289,6 +330,7 @@ export interface TableCaptionProps {
   children: ReactNode
 }
 
+/** Dim caption text rendered outside the table grid. */
 export function TableCaption({ children }: TableCaptionProps) {
   const ctx = useTableContext()
   return (
@@ -303,13 +345,19 @@ export function TableCaption({ children }: TableCaptionProps) {
 // ── Table (data-driven convenience wrapper) ────────────────────────
 
 export interface TableProps<T extends ScalarDict> {
+  /** Array of row objects to display. */
   data: T[]
+  /** Ordered subset of keys to show as columns. Defaults to all keys. */
   columns?: (keyof T)[]
+  /** Cell padding in characters. @default 1 */
   padding?: number
+  /** Override header text color. Defaults to theme.foreground. */
   headerColor?: string
+  /** Override border/separator color. Defaults to theme.muted. */
   borderColor?: string
 }
 
+/** Data-driven table — pass an array of objects and get a formatted table. */
 export function Table<T extends ScalarDict>({
   data,
   columns: columnsProp,

@@ -1,6 +1,6 @@
 {
   "name": "@gridland/web",
-  "version": "0.2.53",
+  "version": "0.2.55",
   "type": "module",
   "exports": {
     ".": {
@@ -23,19 +23,25 @@
     "./utils": {
       "import": "./dist/utils.js",
       "types": "./dist/utils.d.ts"
+    },
+    "./jsx": {
+      "types": "./src/gridland-jsx.d.ts"
     }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src/shims"
+    "src/shims",
+    "src/gridland-jsx.d.ts"
   ],
   "scripts": {
     "build": "tsup; node build-browser.mjs",
     "dev": "vite",
     "test": "bun test --preload ./test/preload.ts",
-    "test:ci": "bun test --preload ./test/preload.ts --randomize --rerun-each 3"
+    "types:check": "tsc --noEmit --project test/type-check",
+    "test:ci": "bun test --preload ./test/preload.ts --randomize --rerun-each 3",
+    "prepublishOnly": "bun ../../scripts/check-versions.mjs"
   },
   "dependencies": {
     "@gridland/utils": "workspace:*",
@@ -43,7 +49,6 @@
     "events": "^3.3.0",
     "marked": "^17.0.3",
     "react": "^19.0.0",
-    "react-reconciler": "0.33.0",
     "yoga-layout": "^3.2.1"
   },
   "devDependencies": {
@@ -58,6 +63,7 @@
     "vite": "^6.0.0"
   },
   "peerDependencies": {
-    "react": ">=19.0.0"
+    "react": ">=19.0.0",
+    "react-reconciler": "0.33.0"
   }
 }

@@ -23,6 +23,7 @@ function cn(...classes: (string | undefined | false)[]): string {
   return classes.filter(Boolean).join(" ")
 }
 
+/** macOS-style window chrome with traffic-light buttons and title bar. Web/HTML component for docs and demos. */
 export function TerminalWindow({
   children,
   className,

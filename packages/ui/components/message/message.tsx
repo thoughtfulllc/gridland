@@ -1,43 +1,7 @@
-import { createContext, useContext } from "react"
+import { createContext, memo, useContext, useMemo } from "react"
 import type { ReactNode } from "react"
 import { textStyle } from "../text-style"
 import { useTheme } from "../theme/index"
-import type { Theme } from "../theme/index"
-import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep, type Step } from "../chain-of-thought/chain-of-thought"
-export type { Step } from "../chain-of-thought/chain-of-thought"
-
-// ── Part types (optional helpers — not coupled to sub-components) ──
-
-export type TextPart = {
-  type: "text"
-  text: string
-}
-
-export type ReasoningPart = {
-  type: "reasoning"
-  text?: string
-  duration?: string
-  steps?: Step[]
-  collapsed?: boolean
-}
-
-export type ToolCallState = "pending" | "running" | "completed" | "error"
-
-export type ToolCallPart = {
-  type: "tool-call"
-  name: string
-  state: ToolCallState
-  args?: unknown
-  result?: unknown
-}
-
-export type SourcePart = {
-  type: "source"
-  title?: string
-  url?: string
-}
-
-export type MessagePart = TextPart | ReasoningPart | ToolCallPart | SourcePart
 
 // ── Role ────────────────────────────────────────────────────────────
 
@@ -48,7 +12,6 @@ export type MessageRole = "user" | "assistant" | "system"
 export interface MessageContextValue {
   role: MessageRole
   isStreaming: boolean
-  streamingCursor: string
   backgroundColor: string
   textColor: string
 }
@@ -61,35 +24,15 @@ export function useMessage(): MessageContextValue {
   return ctx
 }
 
-// ── Style helpers ───────────────────────────────────────────────────
-
-function getBubbleColors(theme: Theme): { assistantBg: string; userBg: string } {
-  const isDark = theme.background !== "#FFFFFF"
-  return isDark
-    ? { assistantBg: "#2a2a4a", userBg: "#2a3a3a" }
-    : { assistantBg: "#F1F5F9", userBg: "#E2E8F0" }
-}
-
-const TOOL_STATE_ICONS: Record<ToolCallState, string> = {
-  pending: "\u2022",   // •
-  running: "\u280B",   // ⠋
-  completed: "\u2713", // ✓
-  error: "\u2715",     // ✕
-}
-
-function getToolStateColor(state: ToolCallState, theme: Theme): string {
-  switch (state) {
-    case "pending": return theme.muted
-    case "running": return theme.warning
-    case "completed": return theme.success
-    case "error": return theme.error
-  }
-}
-
 // ── Sub-components ──────────────────────────────────────────────────
 
+export interface MessageContentProps {
+  /** Sub-components to render inside the message bubble. */
+  children: ReactNode
+}
+
 /** Bubble wrapper with background color. Reads bg from Message context. */
-function MessageContent({ children }: { children: ReactNode }) {
+export const MessageContent = memo(function MessageContent({ children }: MessageContentProps) {
   const { role, backgroundColor } = useMessage()
   const isUser = role === "user"
 
@@ -104,137 +47,39 @@ function MessageContent({ children }: { children: ReactNode }) {
       {children}
     </box>
   )
+})
+
+export interface MessageTextProps {
+  /** Text content to display. */
+  children: string
 }
 
-/** Renders text with word wrap. Pass `isLast` to show the streaming cursor. */
-function MessageText({ children, isLast = false }: {
-  children: string
-  isLast?: boolean
-}) {
-  const { isStreaming, streamingCursor, backgroundColor, textColor } = useMessage()
+/** Renders text with word wrap. */
+export const MessageText = memo(function MessageText({ children }: MessageTextProps) {
+  const { backgroundColor, textColor } = useMessage()
 
   return (
     <text wrapMode="word">
       <span style={textStyle({ fg: textColor, bg: backgroundColor })}>{children}</span>
-      {isLast && isStreaming && (
-        <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{streamingCursor}</span>
-      )}
     </text>
   )
+})
+
+export interface MessageMarkdownProps {
+  /** Markdown string to render. */
+  children: string
 }
 
-/** Collapsible reasoning block rendered as a ChainOfThought. */
-function MessageReasoning({ duration, steps, collapsed = true, children }: {
-  /** Duration label shown in the header */
-  duration?: string
-  /** Structured thinking steps */
-  steps?: Step[]
-  /** Whether the block starts collapsed */
-  collapsed?: boolean
-  /** Freeform content (used when steps are not provided) */
-  children?: ReactNode
-}) {
-  return (
-    <ChainOfThought defaultOpen={!collapsed}>
-      <ChainOfThoughtHeader duration={duration} />
-      <ChainOfThoughtContent>
-        {steps?.map((step, i) => (
-          <ChainOfThoughtStep
-            key={i}
-            label={step.label}
-            description={step.description}
-            status={step.status}
-            isLast={i === (steps?.length ?? 0) - 1}
-          >
-            {step.output}
-          </ChainOfThoughtStep>
-        ))}
-        {children}
-      </ChainOfThoughtContent>
-    </ChainOfThought>
-  )
-}
-
-/** Tool call with status icon and optional result. */
-function MessageToolCall({ name, state = "pending", result, color }: {
-  /** Tool name */
-  name: string
-  /** Tool execution state */
-  state?: ToolCallState
-  /** Tool result (shown when state is "completed") */
-  result?: unknown
-  /** Override the default state color */
-  color?: string
-}) {
-  const theme = useTheme()
-  const { backgroundColor, textColor } = useMessage()
-  const icon = TOOL_STATE_ICONS[state]
-  const stateColor = color ?? getToolStateColor(state, theme)
-  const isActive = state === "pending" || state === "running"
+/** Renders markdown content via the OpenTUI markdown intrinsic. */
+export const MessageMarkdown = memo(function MessageMarkdown({ children }: MessageMarkdownProps) {
+  const { backgroundColor } = useMessage()
 
   return (
     <box flexDirection="column">
-      <text>
-        <span style={textStyle({ fg: stateColor, bg: backgroundColor })}>{icon}</span>
-        <span style={textStyle({ fg: textColor, bg: backgroundColor })}>{" "}</span>
-        <span style={textStyle({ fg: stateColor, bold: isActive, bg: backgroundColor })}>{name}</span>
-        {isActive && <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{" ..."}</span>}
-      </text>
-      {state === "completed" && result !== undefined && (
-        <text>
-          <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{"  \u2514\u2500 "}</span>
-          <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{String(result).slice(0, 120)}</span>
-        </text>
-      )}
-      {state === "error" && result !== undefined && (
-        <text>
-          <span style={textStyle({ fg: theme.error, dim: true, bg: backgroundColor })}>{"  \u2514\u2500 "}</span>
-          <span style={textStyle({ fg: theme.error, dim: true, bg: backgroundColor })}>{String(result).slice(0, 120)}</span>
-        </text>
-      )}
+      <markdown content={children} bg={backgroundColor} />
     </box>
   )
-}
-
-/** Numbered source citation. */
-function MessageSource({ title, url, index }: {
-  /** Source title */
-  title?: string
-  /** Source URL */
-  url?: string
-  /** Zero-based index for the citation number */
-  index: number
-}) {
-  const theme = useTheme()
-  const { backgroundColor, textColor } = useMessage()
-  const displayTitle = title || url || "source"
-
-  return (
-    <text>
-      <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{"["}</span>
-      <span style={textStyle({ fg: theme.accent, bg: backgroundColor })}>{String(index + 1)}</span>
-      <span style={textStyle({ fg: textColor, dim: true, bg: backgroundColor })}>{"] "}</span>
-      <span style={textStyle({ fg: theme.accent, bg: backgroundColor })}>{displayTitle}</span>
-    </text>
-  )
-}
-
-/** Model attribution and timestamp footer. */
-function MessageFooter({ model, timestamp }: {
-  model?: string
-  timestamp?: string
-}) {
-  const theme = useTheme()
-  if (!model && !timestamp) return null
-
-  return (
-    <text>
-      {model && <span style={textStyle({ dim: true, fg: theme.muted })}>{model}</span>}
-      {model && timestamp && <span style={textStyle({ dim: true, fg: theme.muted })}>{" \u00B7 "}</span>}
-      {timestamp && <span style={textStyle({ dim: true, fg: theme.muted })}>{timestamp}</span>}
-    </text>
-  )
-}
+})
 
 // ── Message (root component) ────────────────────────────────────────
 
@@ -243,31 +88,33 @@ export interface MessageProps {
   role: MessageRole
   /** Whether this message is currently streaming. */
   isStreaming?: boolean
-  /** Cursor character shown while streaming. */
-  streamingCursor?: string
   /** Override the default background color. */
   backgroundColor?: string
-  /** Compose sub-components: Message.Content, Message.Text, etc. */
+  /** Compose sub-components: MessageContent, MessageText, etc. */
   children: ReactNode
 }
 
+/** Chat message bubble with role-based styling. Compose with MessageContent, MessageText, etc. */
 export function Message({
   role,
   isStreaming = false,
-  streamingCursor = "\u258E",
   backgroundColor,
   children,
 }: MessageProps) {
   const theme = useTheme()
-  const { assistantBg, userBg } = getBubbleColors(theme)
   const isUser = role === "user"
-  const bg = backgroundColor ?? (isUser ? userBg : assistantBg)
+  const bg = backgroundColor ?? (isUser ? theme.messageUser : theme.messageAssistant)
+  const contextValue = useMemo<MessageContextValue>(
+    () => ({ role, isStreaming, backgroundColor: bg, textColor: theme.foreground }),
+    [role, isStreaming, bg, theme.foreground],
+  )
 
   return (
-    <MessageContext.Provider value={{ role, isStreaming, streamingCursor, backgroundColor: bg, textColor: theme.foreground }}>
+    <MessageContext.Provider value={contextValue}>
       <box
         flexDirection="column"
         flexShrink={0}
+        width="100%"
         alignItems={isUser ? "flex-end" : "flex-start"}
       >
         {children}
@@ -276,11 +123,9 @@ export function Message({
   )
 }
 
-// ── Attach sub-components ───────────────────────────────────────────
+// ── Display names for React DevTools ────────────────────────────────
 
-Message.Content = MessageContent
-Message.Text = MessageText
-Message.Reasoning = MessageReasoning
-Message.ToolCall = MessageToolCall
-Message.Source = MessageSource
-Message.Footer = MessageFooter
+Message.displayName = "Message"
+MessageContent.displayName = "MessageContent"
+MessageText.displayName = "MessageText"
+MessageMarkdown.displayName = "MessageMarkdown"
