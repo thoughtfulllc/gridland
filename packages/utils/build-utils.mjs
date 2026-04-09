@@ -100,7 +100,7 @@ const requireShimBanner = [
   `  if (id === "bun:ffi" && typeof Bun !== "undefined") return (__EXT$[id] = Bun.FFI);`,
   `  throw new Error('Dynamic require of "' + id + '" is not supported');`,
   `};`,
-  `if (typeof process === "undefined") var process = { env: {} };`,
+  `if (typeof process === "undefined") var process = { env: { NODE_ENV: "production" } };`,
 ].join(" ")
 
 async function main() {
@@ -116,6 +116,9 @@ async function main() {
     external: ["react", "react-dom"],
     plugins: [createPlugin()],
     banner: { js: requireShimBanner },
+    define: {
+      "process.env.NODE_ENV": '"production"',
+    },
   })
 
   console.log("@gridland/utils dist/index.js built")

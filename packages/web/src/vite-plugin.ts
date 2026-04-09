@@ -203,6 +203,7 @@ export function gridlandWebPlugin(): Plugin[] {
         },
         define: {
           "process.env": JSON.stringify({}),
+          "process.env.NODE_ENV": JSON.stringify("production"),
           "globalThis.Bun": "undefined",
         },
         resolve: {
