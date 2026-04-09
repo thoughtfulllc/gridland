@@ -203,7 +203,6 @@ export function gridlandWebPlugin(): Plugin[] {
         },
         define: {
           "process.env": JSON.stringify({}),
-          "process.env.NODE_ENV": JSON.stringify("production"),
           "globalThis.Bun": "undefined",
         },
         resolve: {
@@ -224,6 +223,8 @@ export function gridlandWebPlugin(): Plugin[] {
           ] : [
             "react",
             "react-dom",
+            "react-reconciler",
+            "react-reconciler/constants",
           ],
           esbuildOptions: {
             target: "es2022",

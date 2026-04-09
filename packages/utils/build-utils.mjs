@@ -116,9 +116,6 @@ async function main() {
     external: ["react", "react-dom"],
     plugins: [createPlugin()],
     banner: { js: requireShimBanner },
-    define: {
-      "process.env.NODE_ENV": '"production"',
-    },
   })
 
   console.log("@gridland/utils dist/index.js built")
