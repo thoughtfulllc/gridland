@@ -1,5 +1,30 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
+exports[`SelectInput snapshots renders disabled state 1`] = `
+"◆ Select
+│   ○ TypeScript
+│   ○ JavaScript"
+`;
+
+exports[`SelectInput snapshots renders required and invalid state 1`] = `
+"◆ Select *
+│   Please select an option
+│ ▸ ○ TypeScript
+│   ○ JavaScript"
+`;
+
+exports[`SelectInput snapshots renders with groups 1`] = `
+"◆ Select
+│  Languages
+│ ▸ ○ TypeScript
+│   ○ Python
+│   ────────────────────
+│  Frameworks
+│   ○ React"
+`;
+
+exports[`SelectInput snapshots renders with empty items 1`] = `"◆ Select"`;
+
 exports[`SelectInput snapshots renders 4 items with default state 1`] = `
 "◆ Select
 │ ▸ ○ TypeScript
@@ -15,15 +40,37 @@ exports[`SelectInput snapshots renders with cursor on default value 1`] = `
 │   ○ Python"
 `;
 
-exports[`SelectInput snapshots renders with empty items 1`] = `"◆ Select"`;
-
-exports[`SelectInput snapshots renders disabled state 1`] = `
+exports[`SelectInput snapshots renders disabled state 2`] = `
 "◆ Select
 │   ○ TypeScript
 │   ○ JavaScript"
 `;
 
-exports[`SelectInput snapshots renders with groups 1`] = `
+exports[`SelectInput snapshots renders with cursor on default value 2`] = `
+"◆ Select
+│   ○ TypeScript
+│ ▸ ○ JavaScript
+│   ○ Python"
+`;
+
+exports[`SelectInput snapshots renders with empty items 2`] = `"◆ Select"`;
+
+exports[`SelectInput snapshots renders required and invalid state 2`] = `
+"◆ Select *
+│   Please select an option
+│ ▸ ○ TypeScript
+│   ○ JavaScript"
+`;
+
+exports[`SelectInput snapshots renders 4 items with default state 2`] = `
+"◆ Select
+│ ▸ ○ TypeScript
+│   ○ JavaScript
+│   ○ Python
+│   ○ Rust"
+`;
+
+exports[`SelectInput snapshots renders with groups 2`] = `
 "◆ Select
 │  Languages
 │ ▸ ○ TypeScript
@@ -33,9 +80,42 @@ exports[`SelectInput snapshots renders with groups 1`] = `
 │   ○ React"
 `;
 
-exports[`SelectInput snapshots renders required and invalid state 1`] = `
+exports[`SelectInput snapshots renders 4 items with default state 3`] = `
+"◆ Select
+│ ▸ ○ TypeScript
+│   ○ JavaScript
+│   ○ Python
+│   ○ Rust"
+`;
+
+exports[`SelectInput snapshots renders with empty items 3`] = `"◆ Select"`;
+
+exports[`SelectInput snapshots renders with cursor on default value 3`] = `
+"◆ Select
+│   ○ TypeScript
+│ ▸ ○ JavaScript
+│   ○ Python"
+`;
+
+exports[`SelectInput snapshots renders required and invalid state 3`] = `
 "◆ Select *
 │   Please select an option
 │ ▸ ○ TypeScript
 │   ○ JavaScript"
+`;
+
+exports[`SelectInput snapshots renders disabled state 3`] = `
+"◆ Select
+│   ○ TypeScript
+│   ○ JavaScript"
+`;
+
+exports[`SelectInput snapshots renders with groups 3`] = `
+"◆ Select
+│  Languages
+│ ▸ ○ TypeScript
+│   ○ Python
+│   ────────────────────
+│  Frameworks
+│   ○ React"
 `;

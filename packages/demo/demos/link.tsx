@@ -19,10 +19,10 @@ export function LinkApp() {
 
   return (
     <box flexDirection="column" flexGrow={1}>
-      <box padding={1} flexGrow={1} gap={0}>
-        <text style={textStyle({ fg: theme.foreground })}>Made by</text>
+      <box padding={1} flexGrow={1} flexDirection="row" gap={1}>
+        <text style={textStyle({ fg: theme.foreground })}>Made with ❤️ by</text>
         <Link url="https://cjroth.com" underline={mode}>Chris Roth</Link>
-        <text style={textStyle({ fg: theme.foreground })}>and</text>
+        <text style={textStyle({ fg: theme.foreground })}>+</text>
         <Link url="https://jessicacheng.studio" underline={mode}>Jessica Cheng</Link>
       </box>
       <box paddingX={1} paddingBottom={1}>

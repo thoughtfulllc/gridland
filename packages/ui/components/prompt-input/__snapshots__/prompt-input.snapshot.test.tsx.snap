@@ -11,3 +11,27 @@ exports[`PromptInput snapshots renders disabled state 1`] = `
  ❯ Generating...
 ────────────────────────────────────────"
 `;
+
+exports[`PromptInput snapshots renders default state 2`] = `
+"────────────────────────────────────────
+ ❯ Type a message...
+────────────────────────────────────────"
+`;
+
+exports[`PromptInput snapshots renders disabled state 2`] = `
+"────────────────────────────────────────
+ ❯ Generating...
+────────────────────────────────────────"
+`;
+
+exports[`PromptInput snapshots renders default state 3`] = `
+"────────────────────────────────────────
+ ❯ Type a message...
+────────────────────────────────────────"
+`;
+
+exports[`PromptInput snapshots renders disabled state 3`] = `
+"────────────────────────────────────────
+ ❯ Generating...
+────────────────────────────────────────"
+`;

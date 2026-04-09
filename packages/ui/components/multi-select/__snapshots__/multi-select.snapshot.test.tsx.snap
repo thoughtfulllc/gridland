@@ -1,5 +1,14 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
+exports[`MultiSelect snapshots renders with defaultSelected 1`] = `
+"◆ Select
+│ ▸ ● TypeScript
+│   ○ JavaScript
+│   ● Python
+│   ○ Rust
+│   ↳ Submit"
+`;
+
 exports[`MultiSelect snapshots renders 4 items 1`] = `
 "◆ Select
 │ ▸ ○ TypeScript
@@ -8,7 +17,32 @@ exports[`MultiSelect snapshots renders 4 items 1`] = `
 │   ○ Rust"
 `;
 
-exports[`MultiSelect snapshots renders with defaultSelected 1`] = `
+exports[`MultiSelect snapshots renders with defaultSelected 2`] = `
+"◆ Select
+│ ▸ ● TypeScript
+│   ○ JavaScript
+│   ● Python
+│   ○ Rust
+│   ↳ Submit"
+`;
+
+exports[`MultiSelect snapshots renders 4 items 2`] = `
+"◆ Select
+│ ▸ ○ TypeScript
+│   ○ JavaScript
+│   ○ Python
+│   ○ Rust"
+`;
+
+exports[`MultiSelect snapshots renders 4 items 3`] = `
+"◆ Select
+│ ▸ ○ TypeScript
+│   ○ JavaScript
+│   ○ Python
+│   ○ Rust"
+`;
+
+exports[`MultiSelect snapshots renders with defaultSelected 3`] = `
 "◆ Select
 │ ▸ ● TypeScript
 │   ○ JavaScript

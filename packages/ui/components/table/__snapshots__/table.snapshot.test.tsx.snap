@@ -1,5 +1,14 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
+exports[`Table snapshots renders with footer and caption 1`] = `
+"Recent invoices
+ item     amount
+─────────────────
+ Widget   $10
+─────────────────
+ Total    $10"
+`;
+
 exports[`Table snapshots renders a compound table 1`] = `
 "
   name      role       status
@@ -22,7 +31,22 @@ exports[`Table snapshots renders a Table 1`] = `
   Charlie   PM         Away"
 `;
 
-exports[`Table snapshots renders with footer and caption 1`] = `
+exports[`Table snapshots renders with empty data 1`] = `""`;
+
+exports[`Table snapshots renders a compound table 2`] = `
+"
+  name      role       status
+ ─────────────────────────────
+  Alice     Engineer   Active
+ ─────────────────────────────
+  Bob       Designer   Active
+ ─────────────────────────────
+  Charlie   PM         Away"
+`;
+
+exports[`Table snapshots renders with empty data 2`] = `""`;
+
+exports[`Table snapshots renders with footer and caption 2`] = `
 "Recent invoices
  item     amount
 ─────────────────
@@ -31,4 +55,46 @@ exports[`Table snapshots renders with footer and caption 1`] = `
  Total    $10"
 `;
 
-exports[`Table snapshots renders with empty data 1`] = `""`;
+exports[`Table snapshots renders a Table 2`] = `
+"
+  name      role       status
+ ─────────────────────────────
+  Alice     Engineer   Active
+ ─────────────────────────────
+  Bob       Designer   Active
+ ─────────────────────────────
+  Charlie   PM         Away"
+`;
+
+exports[`Table snapshots renders a compound table 3`] = `
+"
+  name      role       status
+ ─────────────────────────────
+  Alice     Engineer   Active
+ ─────────────────────────────
+  Bob       Designer   Active
+ ─────────────────────────────
+  Charlie   PM         Away"
+`;
+
+exports[`Table snapshots renders with empty data 3`] = `""`;
+
+exports[`Table snapshots renders a Table 3`] = `
+"
+  name      role       status
+ ─────────────────────────────
+  Alice     Engineer   Active
+ ─────────────────────────────
+  Bob       Designer   Active
+ ─────────────────────────────
+  Charlie   PM         Away"
+`;
+
+exports[`Table snapshots renders with footer and caption 3`] = `
+"Recent invoices
+ item     amount
+─────────────────
+ Widget   $10
+─────────────────
+ Total    $10"
+`;

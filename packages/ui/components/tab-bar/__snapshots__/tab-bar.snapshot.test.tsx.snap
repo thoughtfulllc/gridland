@@ -1,10 +1,5 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
-exports[`TabBar snapshots renders with label and selected index 0 1`] = `
-"View  Option1 │ Option2 │ Option3
-────────────────────────────────────────────────────────────"
-`;
-
 exports[`TabBar snapshots renders without label 1`] = `
 " Option1 │ Option2 │ Option3
 ────────────────────────────────────────────────────────────"
@@ -15,7 +10,52 @@ exports[`TabBar snapshots renders unfocused 1`] = `
 ────────────────────────────────────────────────────────────"
 `;
 
+exports[`TabBar snapshots renders with label and selected index 0 1`] = `
+"View  Option1 │ Option2 │ Option3
+────────────────────────────────────────────────────────────"
+`;
+
 exports[`TabBar snapshots renders with empty options 1`] = `
+"View
+────────────────────────────────────────"
+`;
+
+exports[`TabBar snapshots renders with label and selected index 0 2`] = `
+"View  Option1 │ Option2 │ Option3
+────────────────────────────────────────────────────────────"
+`;
+
+exports[`TabBar snapshots renders without label 2`] = `
+" Option1 │ Option2 │ Option3
+────────────────────────────────────────────────────────────"
+`;
+
+exports[`TabBar snapshots renders unfocused 2`] = `
+"View  Option1 │ Option2
+────────────────────────────────────────────────────────────"
+`;
+
+exports[`TabBar snapshots renders with empty options 2`] = `
+"View
+────────────────────────────────────────"
+`;
+
+exports[`TabBar snapshots renders without label 3`] = `
+" Option1 │ Option2 │ Option3
+────────────────────────────────────────────────────────────"
+`;
+
+exports[`TabBar snapshots renders unfocused 3`] = `
+"View  Option1 │ Option2
+────────────────────────────────────────────────────────────"
+`;
+
+exports[`TabBar snapshots renders with label and selected index 0 3`] = `
+"View  Option1 │ Option2 │ Option3
+────────────────────────────────────────────────────────────"
+`;
+
+exports[`TabBar snapshots renders with empty options 3`] = `
 "View
 ────────────────────────────────────────"
 `;
