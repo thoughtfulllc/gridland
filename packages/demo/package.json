@@ -10,7 +10,7 @@
     }
   },
   "bin": {
-    "gridland-demo": "./bin/cli.mjs"
+    "gridland-demo": "bin/cli.mjs"
   },
   "files": [
     "bin",
