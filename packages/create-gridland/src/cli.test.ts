@@ -99,4 +99,23 @@ describe("CLI add subcommand", () => {
     }
     expect(error).not.toBeNull()
   })
+
+  // Regression guard for the subprocess-safety invariant
+  // (see .claude/rules/subprocess-safety.md). If someone replaces spawnSync
+  // with execSync or adds shell: true, these two tests should fail.
+  it("preserves shell metacharacters in a component name as one literal argv", () => {
+    const output = run("add 'safe; echo PWNED_FROM_SHELL' --dry-run")
+    expect(output).toContain("@gridland/safe; echo PWNED_FROM_SHELL")
+    // If a shell interpreted the ;, "PWNED_FROM_SHELL" would appear on its
+    // own line in the captured stdout. It must only appear inside the
+    // joined dry-run preview.
+    expect(output).not.toMatch(/^PWNED_FROM_SHELL$/m)
+  })
+
+  it("uses spawnSync with an argv array, not execSync or shell:true", () => {
+    const source = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8")
+    expect(source).not.toMatch(/\bexecSync\s*\(/)
+    expect(source).not.toMatch(/shell\s*:\s*true/)
+    expect(source).toMatch(/\bspawnSync\s*\(/)
+  })
 })

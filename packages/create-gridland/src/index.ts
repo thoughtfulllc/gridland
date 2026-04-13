@@ -191,7 +191,7 @@ program
       cwd: opts.cwd ?? process.cwd(),
       stdio: "inherit",
     })
-    if (result.error || (result.status != null && result.status !== 0)) {
+    if (result.error || result.signal != null || (result.status != null && result.status !== 0)) {
       console.error(pc.red("Failed to add components."))
       process.exit(result.status ?? 1)
     }
