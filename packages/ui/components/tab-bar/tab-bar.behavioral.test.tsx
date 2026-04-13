@@ -13,7 +13,7 @@ function flushN(flush: () => void) {
 
 async function settle(flush: () => void) {
   flushN(flush)
-  await new Promise(resolve => setTimeout(resolve, 20))
+  await new Promise(resolve => setTimeout(resolve, 50))
   flushN(flush)
 }
 
