@@ -57,6 +57,16 @@ Choose your framework:
 
 Gridland UI components are distributed via a [shadcn](https://ui.shadcn.com) registry. Install individual components into your project so you own the code and can customize it freely.
 
+If you scaffolded with `create-gridland`, shadcn is already configured — just run:
+
+```bash
+bunx create-gridland add spinner
+```
+
+`create-gridland add` detects your package manager and proxies to shadcn under the hood. You can install multiple components at once (`bunx create-gridland add modal side-nav`) and preview the resolved command with `--dry-run`.
+
+Otherwise, configure shadcn in your project and call it directly:
+
 ```bash
 bunx shadcn@latest add @gridland/spinner
 ```
