@@ -1,6 +1,6 @@
 import { FixtureWrapper } from "../fixture-wrapper"
 import { Gradient } from "../../../../packages/ui/components/gradient/gradient"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 export function GradientFixture() {
   return (

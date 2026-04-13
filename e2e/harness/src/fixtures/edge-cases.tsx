@@ -1,5 +1,5 @@
 import { FixtureWrapper } from "../fixture-wrapper"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 export function EdgeCasesFixture() {
   return (

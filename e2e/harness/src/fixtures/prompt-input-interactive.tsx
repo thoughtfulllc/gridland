@@ -2,7 +2,7 @@ import { useState } from "react"
 import { FixtureWrapper } from "../fixture-wrapper"
 import { PromptInput } from "../../../../packages/ui/components/prompt-input/prompt-input"
 import { GridlandProvider } from "../../../../packages/ui/components/provider/provider"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 export function PromptInputInteractiveFixture() {
   const [submitted, setSubmitted] = useState<string | null>(null)

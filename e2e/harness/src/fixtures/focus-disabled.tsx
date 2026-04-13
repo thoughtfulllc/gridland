@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { FixtureWrapper } from "../fixture-wrapper"
 import { useFocus, FocusProvider, useKeyboard } from "@gridland/utils"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 function FocusItem({ id, label, autoFocus, disabled }: {
   id: string

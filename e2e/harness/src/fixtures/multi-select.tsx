@@ -1,7 +1,7 @@
 import { FixtureWrapper } from "../fixture-wrapper"
 import { MultiSelect } from "../../../../packages/ui/components/multi-select/multi-select"
 import { GridlandProvider } from "../../../../packages/ui/components/provider/provider"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 const items = [
   { label: "TypeScript", value: "ts", group: "Languages" },

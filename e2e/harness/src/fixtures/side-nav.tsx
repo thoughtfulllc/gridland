@@ -1,7 +1,7 @@
 import { FixtureWrapper } from "../fixture-wrapper"
 import { SideNav } from "../../../../packages/ui/components/side-nav/side-nav"
 import { GridlandProvider } from "../../../../packages/ui/components/provider/provider"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 const items = [
   { id: "home", name: "Home" },

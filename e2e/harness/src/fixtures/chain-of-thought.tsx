@@ -5,7 +5,7 @@ import {
   ChainOfThoughtContent,
   ChainOfThoughtStep,
 } from "../../../../packages/ui/components/chain-of-thought/chain-of-thought"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 const steps = [
   { tool: "Think", label: "Planning approach", status: "done" as const, duration: "0.3s" },

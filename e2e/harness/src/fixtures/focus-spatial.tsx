@@ -1,6 +1,6 @@
 import { FixtureWrapper } from "../fixture-wrapper"
 import { useFocus, FocusProvider } from "@gridland/utils"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 function GridCell({ id, label, autoFocus }: { id: string; label: string; autoFocus?: boolean }) {
   const { isFocused, focusRef } = useFocus({ id, autoFocus })

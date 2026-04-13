@@ -1,6 +1,6 @@
 import { FixtureWrapper } from "../fixture-wrapper"
 import { Ascii } from "../../../../packages/ui/components/ascii/ascii"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 export function AsciiFixture() {
   return (

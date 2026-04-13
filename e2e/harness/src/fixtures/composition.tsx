@@ -3,7 +3,7 @@ import { FixtureWrapper } from "../fixture-wrapper"
 import { SideNav } from "../../../../packages/ui/components/side-nav/side-nav"
 import { TextInput } from "../../../../packages/ui/components/text-input/text-input"
 import { GridlandProvider } from "../../../../packages/ui/components/provider/provider"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 const items = [
   { id: "page-a", name: "Page A" },

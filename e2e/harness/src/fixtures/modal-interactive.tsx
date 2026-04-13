@@ -2,7 +2,7 @@ import { useState } from "react"
 import { FixtureWrapper } from "../fixture-wrapper"
 import { Modal } from "../../../../packages/ui/components/modal/modal"
 import { GridlandProvider } from "../../../../packages/ui/components/provider/provider"
-import { ThemeProvider, darkTheme } from "../../../../packages/ui/components/theme"
+import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 import { useFocus, FocusProvider, useKeyboard } from "@gridland/utils"
 
 function ModalTrigger({ onOpen }: { onOpen: () => void }) {
