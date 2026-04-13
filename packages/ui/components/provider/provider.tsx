@@ -1,8 +1,8 @@
 import { createContext, useContext } from "react"
 import type { ReactNode } from "react"
-import type { Theme } from "../theme/types"
-import { darkTheme } from "../theme/themes"
-import { ThemeProvider } from "../theme/theme-context"
+import type { Theme } from "@/registry/gridland/lib/theme/types"
+import { darkTheme } from "@/registry/gridland/lib/theme/themes"
+import { ThemeProvider } from "@/registry/gridland/lib/theme/theme-context"
 
 type KeyboardHandler = (event: any) => void
 type UseKeyboardHook = (handler: KeyboardHandler) => void

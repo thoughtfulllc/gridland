@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useTheme } from "../theme/index"
+import { useTheme } from "@/registry/gridland/lib/theme"
 
 const VARIANTS = {
   dots: { frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"], interval: 80 },

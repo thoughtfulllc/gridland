@@ -14,9 +14,13 @@
     "noEmit": true,
     "declaration": true,
     "sourceMap": true,
+    "baseUrl": ".",
     "paths": {
-      "@gridland/ui": ["./components/index.ts"]
+      "@gridland/ui": ["./components/index.ts"],
+      "@/registry/gridland/ui/*": ["./components/*"],
+      "@/registry/gridland/lib/*": ["./lib/*"],
+      "@/registry/gridland/hooks/*": ["./hooks/*"]
     }
   },
-  "include": ["components", "scripts", "../demo/src/landing", "gridland-jsx.d.ts"]
+  "include": ["components", "lib", "hooks", "scripts", "../demo/src/landing", "gridland-jsx.d.ts"]
 }

@@ -1,8 +1,8 @@
 import { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import type { ReactNode } from "react"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
-import type { Theme } from "../theme/index"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
+import type { Theme } from "@/registry/gridland/lib/theme"
 
 // ── Constants ──────────────────────────────────────────────────────
 

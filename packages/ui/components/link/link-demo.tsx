@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { Link, type UnderlineStyle } from "./link"
-import { StatusBar } from "../status-bar/status-bar"
-import { textStyle } from "../text-style"
-import { useKeyboardContext } from "../provider/provider"
+import { StatusBar } from "@/registry/gridland/ui/status-bar/status-bar"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
 
 const MODES: UnderlineStyle[] = ["solid", "dashed", "dotted", "none"]
 

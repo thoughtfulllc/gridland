@@ -94,16 +94,16 @@ export type {
 export { TerminalWindow } from "./terminal-window/terminal-window"
 export type { TerminalWindowProps } from "./terminal-window/terminal-window"
 
-export { textStyle } from "./text-style"
+export { textStyle } from "@/registry/gridland/lib/text-style"
 
-export { ThemeProvider, useTheme, darkTheme, lightTheme, useFocusBorderStyle, useFocusDividerStyle } from "./theme"
-export type { Theme, ThemeProviderProps } from "./theme"
+export { ThemeProvider, useTheme, darkTheme, lightTheme, useFocusBorderStyle, useFocusDividerStyle } from "@/registry/gridland/lib/theme"
+export type { Theme, ThemeProviderProps } from "@/registry/gridland/lib/theme"
 
-export { GridlandProvider, useKeyboardContext } from "./provider/provider"
-export type { GridlandProviderProps } from "./provider/provider"
+export { GridlandProvider, useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
+export type { GridlandProviderProps } from "@/registry/gridland/ui/provider/provider"
 
-export { useBreakpoints, BREAKPOINTS } from "./breakpoints/use-breakpoints"
-export type { Breakpoints } from "./breakpoints/use-breakpoints"
+export { useBreakpoints, BREAKPOINTS } from "@/registry/gridland/hooks/use-breakpoints"
+export type { Breakpoints } from "@/registry/gridland/hooks/use-breakpoints"
 
 export { SideNav } from "./side-nav/side-nav"
 export type { SideNavProps, SideNavItem } from "./side-nav/side-nav"

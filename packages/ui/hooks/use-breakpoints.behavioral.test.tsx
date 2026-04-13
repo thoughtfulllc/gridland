@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "bun:test"
-import { renderTui, cleanup } from "../../../testing/src/index"
+import { renderTui, cleanup } from "../../testing/src/index"
 import { useBreakpoints, BREAKPOINTS } from "./use-breakpoints"
 
 afterEach(() => cleanup())

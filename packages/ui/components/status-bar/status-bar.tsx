@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
 
 export interface StatusBarItem {
   /** The key or key combination text (e.g., "Tab", "←→", "q"). */

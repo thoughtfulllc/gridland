@@ -42,7 +42,9 @@ For each component:
 Every ` ```tsx ` or ` ```ts ` block in the docs is treated as code to be verified.
 
 For each code block:
-- **Import paths**: Does `import { X } from "@gridland/ui"` match what's exported from `packages/ui/components/index.ts`?
+- **`@gridland/ui` leak check (BLOCKING):** any `from "@gridland/ui"` inside a fenced code block under `packages/docs/content/docs/**/*.mdx` is a bug. The `@gridland/ui` package is `"private": true` and never published to npm — external users who copy the code example cannot `bun install @gridland/ui`, so the import will fail at their runtime. The correct shadcn-style form is `from "@/components/ui/<name>"` (after they've run `bunx create-gridland add <name>`), or `from "@/lib/theme"` / `from "@/hooks/use-<name>"` for `registry:lib` and `registry:hook` items. `@gridland/utils`, `@gridland/web`, and `@gridland/bun` imports are fine because those packages ARE published. Grep rule: `rg 'from "@gridland/ui"' packages/docs/content/docs/` should return zero matches — any result is a docs leak.
+- **Exception for runtime files:** files under `packages/docs/components/**/*.tsx` (the actual demo implementations that render inside `<TUI>`) are allowed to import from `@gridland/ui` via the workspace protocol — they are monorepo-internal and never read as "what a user should type." The BLOCKING rule above applies only to fenced code blocks inside MDX content pages.
+- **Import paths (remaining):** Does `import { X } from "@gridland/utils"` or `"@gridland/web"` match what's exported from those packages?
 - **Component props**: Does the example use props that exist in the current `{ComponentName}Props`?
 - **Hook options**: Does the example pass options that exist in the current API?
 - **AI SDK correctness**:

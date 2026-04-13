@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useCallback, useRef, Children, isValidElement } from "react"
 import type { ReactNode } from "react"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
-import { useKeyboardContext } from "../provider/provider"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
+import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
 
 // ── Context ──────────────────────────────────────────────────────────────
 

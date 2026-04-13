@@ -1,5 +1,5 @@
-import { textStyle } from '../text-style'
-import { useTheme } from '../theme/index'
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
 
 export interface TextInputProps {
   /** Field label shown above the input */

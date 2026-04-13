@@ -1,7 +1,7 @@
 import { createContext, useContext, Children, isValidElement, Fragment } from "react"
 import type { ReactNode } from "react"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
 
 // ── Types ────────────────────────────────────────────────────────────────
 

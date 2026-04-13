@@ -1,8 +1,8 @@
 import type { ReactNode } from "react"
 import { FocusScope } from "@gridland/utils"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
-import { useKeyboardContext } from "../provider/provider"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
+import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
 
 export interface ModalProps {
   /** The content rendered inside the modal border. */

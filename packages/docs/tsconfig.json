@@ -23,6 +23,15 @@
       }
     ],
     "paths": {
+      "@/registry/gridland/ui/*": [
+        "../ui/components/*"
+      ],
+      "@/registry/gridland/lib/*": [
+        "../ui/lib/*"
+      ],
+      "@/registry/gridland/hooks/*": [
+        "../ui/hooks/*"
+      ],
       "@/*": [
         "./*"
       ],

@@ -7,9 +7,9 @@ import {
   useShortcuts,
   useFocusedShortcuts,
 } from "@gridland/utils"
-import { StatusBar } from "../status-bar/status-bar"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
+import { StatusBar } from "@/registry/gridland/ui/status-bar/status-bar"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
 
 // ── Types ─────────────────────────────────────────────────────────────
 

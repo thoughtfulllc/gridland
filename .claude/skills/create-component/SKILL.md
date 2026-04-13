@@ -20,8 +20,8 @@ packages/ui/components/<component-name>/
 ```tsx
 // @ts-nocheck — only if using OpenTUI intrinsic elements (<box>, <text>, <span>)
 import type { ReactNode } from "react"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
 
 export interface MyComponentProps {
   /** JSDoc every prop — agents and docs generators read these. */
@@ -36,7 +36,8 @@ export function MyComponent({ children }: MyComponentProps) {
 ```
 
 - `// @ts-nocheck` at top ONLY when using `<box>`, `<text>`, `<span>`
-- Import theme from `"../theme/index"`, use `textStyle()` for styling
+- Import theme from `"@/registry/gridland/lib/theme"`, use `textStyle()` for styling
+- Use the `@/registry/gridland/{ui,lib,hooks}/*` alias form for every intra-package import; shadcn's CLI rewrites these to the user's `components.json` aliases at install time
 - Never hardcode hex colors — use `theme.*` tokens or accept color prop
 - JSDoc on props interface, every prop, and component function
 

@@ -1,4 +1,4 @@
-import { useTheme } from "../theme/index"
+import { useTheme } from "@/registry/gridland/lib/theme"
 
 export interface AsciiProps {
   /** The text string to render as ASCII art. */

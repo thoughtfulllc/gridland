@@ -24,6 +24,18 @@ bun install
 bun dev
 ```
 
+## Adding components
+
+After scaffolding, add Gridland components from the registry:
+
+```bash
+bunx create-gridland add spinner
+bunx create-gridland add modal side-nav --yes
+bunx create-gridland add spinner --dry-run   # preview without running
+```
+
+Components are fetched from `https://gridland.io/r/{name}.json` and written into your project via the shadcn CLI. Already-namespaced names (`@gridland/modal`) work too.
+
 ## Documentation
 
 Full docs at [gridland.io/docs](https://gridland.io/docs)

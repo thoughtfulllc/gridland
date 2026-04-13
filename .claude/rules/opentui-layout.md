@@ -45,7 +45,9 @@ paths:
 <span style={{ bold: true, inverse: true, fg: "cyan" }}>
 
 // RIGHT — use textStyle helper:
-import { textStyle } from "@gridland/ui"
+//   Inside packages/ui/: import { textStyle } from "@/registry/gridland/lib/text-style"
+//   Inside any other workspace package or docs demo: import { textStyle } from "@gridland/ui"
+import { textStyle } from "@/registry/gridland/lib/text-style"
 <span style={textStyle({ bold: true, inverse: true, fg: "cyan" })}>
 
 // RIGHT — or set attributes directly (BOLD=1, DIM=2, ITALIC=4, UNDERLINE=8, INVERSE=32):

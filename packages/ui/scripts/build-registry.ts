@@ -1,356 +1,341 @@
 #!/usr/bin/env bun
 /**
- * build-registry.ts
- * Generates shadcn-compatible registry files for @gridland/ui components.
+ * build-registry.ts — emits shadcn-compatible registry items for @gridland/ui.
+ *
+ * Source files under packages/ui/{components,lib,hooks}/ already import each
+ * other through `@/registry/gridland/{ui,lib,hooks}/*` aliases. The emitter
+ * reads those files verbatim and inlines their content into the JSON; the
+ * shadcn CLI rewrites the aliases to the user's `components.json` aliases at
+ * install time. This script does no import transformation of its own.
  *
  * Output:
- *   packages/ui/registry.json       - Main registry index
- *   packages/ui/registry/*.json     - Individual item JSONs with embedded source
- *   packages/ui/registry/ui/*.tsx   - Source files with rewritten imports
+ *   packages/docs/public/r/index.json      — registry manifest
+ *   packages/docs/public/r/{name}.json     — one file per registry item
  */
-
 import { readFileSync, writeFileSync, mkdirSync } from "fs"
 import { join, resolve } from "path"
 
-const ROOT = resolve(import.meta.dir, "..")
-const COMPONENTS_DIR = join(ROOT, "components")
-const REGISTRY_DIR = join(ROOT, "registry")
-const REGISTRY_UI_DIR = join(REGISTRY_DIR, "ui")
+const PKG_ROOT = resolve(import.meta.dir, "..")
+const OUTPUT_DIR = resolve(PKG_ROOT, "../docs/public/r")
+mkdirSync(OUTPUT_DIR, { recursive: true })
 
-// Ensure output directories exist
-mkdirSync(REGISTRY_DIR, { recursive: true })
-mkdirSync(REGISTRY_UI_DIR, { recursive: true })
+type ItemType = "registry:ui" | "registry:lib" | "registry:hook"
 
-// ── Import path rewriting ─────────────────────────────────────────────
-
-const IMPORT_REWRITES: [RegExp, string][] = [
-  // Theme (all sub-paths consolidated into single file)
-  [/(from\s+["'])\.\.\/theme\/index(["'])/g, "$1./theme$2"],
-  [/(from\s+["'])\.\.\/theme\/types(["'])/g, "$1./theme$2"],
-  [/(from\s+["'])\.\.\/theme\/themes(["'])/g, "$1./theme$2"],
-  [/(from\s+["'])\.\.\/theme\/theme-context(["'])/g, "$1./theme$2"],
-  [/(from\s+["'])\.\.\/theme\/use-focus-styles(["'])/g, "$1./theme$2"],
-  [/(from\s+["'])\.\.\/theme(["'])/g, "$1./theme$2"],
-  // Utilities
-  [/(from\s+["'])\.\.\/text-style(["'])/g, "$1./text-style$2"],
-  [/(from\s+["'])\.\.\/provider\/provider(["'])/g, "$1./provider$2"],
-  [/(from\s+["'])\.\.\/breakpoints\/use-breakpoints(["'])/g, "$1./breakpoints$2"],
-  // Cross-component
-  [/(from\s+["'])\.\.\/prompt-input\/prompt-input(["'])/g, "$1./prompt-input$2"],
-  [/(from\s+["'])\.\.\/chain-of-thought\/chain-of-thought(["'])/g, "$1./chain-of-thought$2"],
-  [/(from\s+["'])\.\.\/status-bar\/status-bar(["'])/g, "$1./status-bar$2"],
-  // External packages (keep as-is, but normalize command-registry)
-  [/(from\s+["'])\.\/command-registry(["'])/g, "$1./command-registry$2"],
-]
-
-function rewriteImports(source: string): string {
-  let result = source
-  for (const [pattern, replacement] of IMPORT_REWRITES) {
-    result = result.replace(pattern, replacement)
-  }
-  return result
+interface FileConfig {
+  /** Path inside packages/ui, e.g. "lib/theme/themes.ts" */
+  src: string
+  /** Path emitted in the JSON, e.g. "registry/gridland/lib/theme/themes.ts" */
+  registryPath: string
+  type: ItemType
 }
-
-// ── Theme consolidation ───────────────────────────────────────────────
-// Merge types.ts, themes.ts, and theme-context.tsx into a single file.
-
-function buildThemeSource(): string {
-  const types = readFileSync(join(COMPONENTS_DIR, "theme/types.ts"), "utf-8")
-  const themes = readFileSync(join(COMPONENTS_DIR, "theme/themes.ts"), "utf-8")
-  const context = readFileSync(join(COMPONENTS_DIR, "theme/theme-context.tsx"), "utf-8")
-  const focusStyles = readFileSync(join(COMPONENTS_DIR, "theme/use-focus-styles.ts"), "utf-8")
-
-  // Strip local imports that reference sibling files (now merged)
-  const cleanThemes = themes
-    .replace(/import\s+type\s+\{[^}]+\}\s+from\s+["']\.\/types["']\s*\n?/g, "")
-
-  const cleanContext = context
-    .replace(/import\s+type\s+\{[^}]+\}\s+from\s+["']\.\/types["']\s*\n?/g, "")
-    .replace(/import\s+\{[^}]+\}\s+from\s+["']\.\/themes["']\s*\n?/g, "")
-
-  const cleanFocusStyles = focusStyles
-    .replace(/import\s+\{[^}]+\}\s+from\s+["']\.\/theme-context["']\s*\n?/g, "")
-
-  return [types.trim(), cleanThemes.trim(), cleanContext.trim(), cleanFocusStyles.trim()].join("\n\n")
-}
-
-// ── Registry item configs ─────────────────────────────────────────────
 
 interface ItemConfig {
   name: string
-  type: "registry:ui"
+  type: ItemType
   title: string
   description: string
-  registryDependencies: string[]
-  /** Source file path relative to components/ dir. null = custom builder. */
-  srcPath: string | null
-  /** Output file extension */
-  ext: string
+  files: FileConfig[]
+  /** npm packages the emitted source imports from. */
+  dependencies?: string[]
+  /** Cross-item deps (bare names — the emitter adds the @gridland/ prefix). */
+  registryDependencies?: string[]
+  categories?: string[]
 }
 
+// ── Items ──────────────────────────────────────────────────────────────
+
 const ITEMS: ItemConfig[] = [
-  // ── Utilities ──
+  // Utilities (registry:lib / registry:hook)
   {
     name: "theme",
-    type: "registry:ui",
+    type: "registry:lib",
     title: "Theme",
-    description: "Theme context, provider, and built-in dark/light themes",
-    registryDependencies: [],
-    srcPath: null,
-    ext: ".tsx",
+    description: "Theme context, provider, built-in dark/light themes, and theme-aware focus style hooks",
+    files: [
+      { src: "lib/theme/types.ts",          registryPath: "registry/gridland/lib/theme/types.ts",          type: "registry:lib" },
+      { src: "lib/theme/themes.ts",         registryPath: "registry/gridland/lib/theme/themes.ts",         type: "registry:lib" },
+      { src: "lib/theme/theme-context.tsx", registryPath: "registry/gridland/lib/theme/theme-context.tsx", type: "registry:lib" },
+      { src: "lib/theme/use-focus-styles.ts", registryPath: "registry/gridland/lib/theme/use-focus-styles.ts", type: "registry:lib" },
+      { src: "lib/theme/index.ts",          registryPath: "registry/gridland/lib/theme/index.ts",          type: "registry:lib" },
+    ],
+    dependencies: ["@gridland/utils"],
+    categories: ["theme"],
   },
   {
     name: "text-style",
-    type: "registry:ui",
+    type: "registry:lib",
     title: "Text Style",
-    description: "Helper to convert text decoration flags to opentui style objects",
-    registryDependencies: [],
-    srcPath: "text-style.ts",
-    ext: ".ts",
+    description: "Converts text-decoration flags to OpenTUI style objects with the correct attribute bitmask",
+    files: [
+      { src: "lib/text-style.ts", registryPath: "registry/gridland/lib/text-style.ts", type: "registry:lib" },
+    ],
+    categories: ["utility"],
   },
+  {
+    name: "use-breakpoints",
+    type: "registry:hook",
+    title: "useBreakpoints",
+    description: "Responsive breakpoints hook that reads terminal/canvas dimensions",
+    files: [
+      { src: "hooks/use-breakpoints.ts", registryPath: "registry/gridland/hooks/use-breakpoints.ts", type: "registry:hook" },
+    ],
+    dependencies: ["@gridland/utils"],
+    categories: ["utility"],
+  },
+
+  // Components (registry:ui)
   {
     name: "provider",
     type: "registry:ui",
-    title: "Provider",
-    description: "GridlandProvider root component with theme and keyboard context",
+    title: "GridlandProvider",
+    description: "Root provider supplying theme and keyboard context",
+    files: [
+      { src: "components/provider/provider.tsx", registryPath: "registry/gridland/ui/provider/provider.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme"],
-    srcPath: "provider/provider.tsx",
-    ext: ".tsx",
+    categories: ["primitive"],
   },
-  {
-    name: "breakpoints",
-    type: "registry:ui",
-    title: "Breakpoints",
-    description: "Responsive breakpoints hook using terminal dimensions",
-    registryDependencies: [],
-    srcPath: "breakpoints/use-breakpoints.ts",
-    ext: ".ts",
-  },
-  // ── Components ──
   {
     name: "ascii",
     type: "registry:ui",
     title: "Ascii",
-    description: "ASCII art text renderer with built-in font styles",
+    description: "ASCII art text renderer with built-in font styles (terminal-only — requires Zig FFI)",
+    files: [
+      { src: "components/ascii/ascii.tsx", registryPath: "registry/gridland/ui/ascii/ascii.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme"],
-    srcPath: "ascii/ascii.tsx",
-    ext: ".tsx",
+    categories: ["primitive"],
   },
   {
     name: "gradient",
     type: "registry:ui",
     title: "Gradient",
-    description: "Color gradient text renderer with named and custom gradients",
-    registryDependencies: [],
-    srcPath: "gradient/gradient.tsx",
-    ext: ".tsx",
+    description: "Color gradient text renderer with named presets and custom gradients",
+    files: [
+      { src: "components/gradient/gradient.tsx", registryPath: "registry/gridland/ui/gradient/gradient.tsx", type: "registry:ui" },
+    ],
+    categories: ["primitive"],
   },
   {
     name: "link",
     type: "registry:ui",
     title: "Link",
     description: "Clickable hyperlink with configurable underline styles",
+    files: [
+      { src: "components/link/link.tsx", registryPath: "registry/gridland/ui/link/link.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme"],
-    srcPath: "link/link.tsx",
-    ext: ".tsx",
+    categories: ["primitive"],
   },
   {
     name: "message",
     type: "registry:ui",
     title: "Message",
     description: "AI chat message with role-based styling and streaming support",
+    files: [
+      { src: "components/message/message.tsx", registryPath: "registry/gridland/ui/message/message.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme", "text-style"],
-    srcPath: "message/message.tsx",
-    ext: ".tsx",
+    categories: ["feedback"],
   },
   {
     name: "modal",
     type: "registry:ui",
     title: "Modal",
-    description: "Bordered overlay container with focus trapping, optional title, and Escape key handling",
+    description: "Bordered overlay with focus trapping, optional title, and Escape-to-close",
+    files: [
+      { src: "components/modal/modal.tsx", registryPath: "registry/gridland/ui/modal/modal.tsx", type: "registry:ui" },
+    ],
+    dependencies: ["@gridland/utils"],
     registryDependencies: ["theme", "text-style", "provider"],
-    srcPath: "modal/modal.tsx",
-    ext: ".tsx",
+    categories: ["overlay"],
   },
   {
     name: "multi-select",
     type: "registry:ui",
-    title: "Multi Select",
-    description: "Multi-selection list with keyboard navigation and grouping",
+    title: "MultiSelect",
+    description: "Multi-selection list with keyboard navigation, grouping, and select-all",
+    files: [
+      { src: "components/multi-select/multi-select.tsx", registryPath: "registry/gridland/ui/multi-select/multi-select.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme", "text-style", "provider"],
-    srcPath: "multi-select/multi-select.tsx",
-    ext: ".tsx",
+    categories: ["input"],
   },
   {
     name: "prompt-input",
     type: "registry:ui",
-    title: "Prompt Input",
-    description: "Rich text input with autocomplete, history, and AI chat status integration",
+    title: "PromptInput",
+    description: "Rich text input with autocomplete, command registry, and chat status integration",
+    files: [
+      { src: "components/prompt-input/prompt-input.tsx",     registryPath: "registry/gridland/ui/prompt-input/prompt-input.tsx",     type: "registry:ui" },
+      { src: "components/prompt-input/command-registry.tsx", registryPath: "registry/gridland/ui/prompt-input/command-registry.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme", "text-style", "provider"],
-    srcPath: "prompt-input/prompt-input.tsx",
-    ext: ".tsx",
+    categories: ["input"],
   },
   {
     name: "select-input",
     type: "registry:ui",
-    title: "Select Input",
+    title: "SelectInput",
     description: "Single-selection list with keyboard navigation and grouping",
+    files: [
+      { src: "components/select-input/select-input.tsx", registryPath: "registry/gridland/ui/select-input/select-input.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme", "text-style", "provider"],
-    srcPath: "select-input/select-input.tsx",
-    ext: ".tsx",
+    categories: ["input"],
   },
   {
     name: "spinner",
     type: "registry:ui",
     title: "Spinner",
-    description: "Animated loading spinner with 5 built-in variants",
+    description: "Animated loading spinner with 5 built-in variants and status states",
+    files: [
+      { src: "components/spinner/spinner.tsx", registryPath: "registry/gridland/ui/spinner/spinner.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme"],
-    srcPath: "spinner/spinner.tsx",
-    ext: ".tsx",
+    categories: ["feedback"],
   },
   {
     name: "status-bar",
     type: "registry:ui",
-    title: "Status Bar",
+    title: "StatusBar",
     description: "Bottom status bar with keybinding hints",
+    files: [
+      { src: "components/status-bar/status-bar.tsx", registryPath: "registry/gridland/ui/status-bar/status-bar.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme", "text-style"],
-    srcPath: "status-bar/status-bar.tsx",
-    ext: ".tsx",
+    categories: ["primitive"],
   },
   {
     name: "tab-bar",
     type: "registry:ui",
-    title: "Tab Bar",
-    description: "Tabbed navigation with compound component API and keyboard support",
+    title: "Tabs",
+    description: "Tabbed navigation with compound component API and keyboard navigation",
+    files: [
+      { src: "components/tab-bar/tab-bar.tsx", registryPath: "registry/gridland/ui/tab-bar/tab-bar.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme", "text-style", "provider"],
-    srcPath: "tab-bar/tab-bar.tsx",
-    ext: ".tsx",
+    categories: ["navigation"],
   },
   {
     name: "table",
     type: "registry:ui",
     title: "Table",
-    description: "Data table with auto-sizing columns and Unicode borders",
+    description: "Data table with auto-sized columns and Unicode borders",
+    files: [
+      { src: "components/table/table.tsx", registryPath: "registry/gridland/ui/table/table.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme", "text-style"],
-    srcPath: "table/table.tsx",
-    ext: ".tsx",
+    categories: ["layout"],
   },
   {
     name: "terminal-window",
     type: "registry:ui",
-    title: "Terminal Window",
-    description: "macOS-style terminal window frame with traffic light buttons",
-    registryDependencies: [],
-    srcPath: "terminal-window/terminal-window.tsx",
-    ext: ".tsx",
+    title: "TerminalWindow",
+    description: "macOS-style terminal window chrome with traffic-light buttons (HTML/web-only)",
+    files: [
+      { src: "components/terminal-window/terminal-window.tsx", registryPath: "registry/gridland/ui/terminal-window/terminal-window.tsx", type: "registry:ui" },
+    ],
+    categories: ["layout"],
   },
   {
     name: "text-input",
     type: "registry:ui",
-    title: "Text Input",
+    title: "TextInput",
     description: "Single-line text input with labels, validation, and controlled/uncontrolled modes",
+    files: [
+      { src: "components/text-input/text-input.tsx", registryPath: "registry/gridland/ui/text-input/text-input.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme", "text-style"],
-    srcPath: "text-input/text-input.tsx",
-    ext: ".tsx",
+    categories: ["input"],
   },
   {
     name: "chain-of-thought",
     type: "registry:ui",
-    title: "Chain of Thought",
-    description: "Step-by-step progress chain of thought with animated status indicators",
+    title: "ChainOfThought",
+    description: "Step-by-step reasoning chain with animated status indicators",
+    files: [
+      { src: "components/chain-of-thought/chain-of-thought.tsx", registryPath: "registry/gridland/ui/chain-of-thought/chain-of-thought.tsx", type: "registry:ui" },
+    ],
     registryDependencies: ["theme", "text-style"],
-    srcPath: "chain-of-thought/chain-of-thought.tsx",
-    ext: ".tsx",
+    categories: ["feedback"],
   },
   {
     name: "side-nav",
     type: "registry:ui",
-    title: "Side Nav",
+    title: "SideNav",
     description: "Sidebar navigation with focus system integration and keyboard-driven interaction",
+    files: [
+      { src: "components/side-nav/side-nav.tsx", registryPath: "registry/gridland/ui/side-nav/side-nav.tsx", type: "registry:ui" },
+    ],
+    dependencies: ["@gridland/utils"],
     registryDependencies: ["theme", "text-style", "status-bar"],
-    srcPath: "side-nav/side-nav.tsx",
-    ext: ".tsx",
+    categories: ["navigation"],
   },
 ]
 
-// ── Build ─────────────────────────────────────────────────────────────
+// ── Emit ───────────────────────────────────────────────────────────────
 
-interface RegistryFile {
+interface EmittedFile {
   path: string
   type: string
   content: string
 }
 
-interface RegistryItem {
+interface EmittedItem {
+  $schema?: string
   name: string
   type: string
   title: string
   description: string
+  categories?: string[]
+  dependencies?: string[]
   registryDependencies?: string[]
-  files: RegistryFile[]
+  files: EmittedFile[]
 }
 
-const registryItems: RegistryItem[] = []
+const items: EmittedItem[] = []
 
 for (const item of ITEMS) {
-  // Read and transform source
-  let source: string
-  if (item.name === "theme") {
-    source = buildThemeSource()
-  } else {
-    const raw = readFileSync(join(COMPONENTS_DIR, item.srcPath!), "utf-8")
-    source = rewriteImports(raw)
-  }
+  const files: EmittedFile[] = item.files.map((f) => ({
+    path: f.registryPath,
+    type: f.type,
+    content: readFileSync(join(PKG_ROOT, f.src), "utf-8"),
+  }))
 
-  const fileName = `${item.name}${item.ext}`
-  const filePath = `registry/ui/${fileName}`
+  const namespaced = item.registryDependencies?.map((d) => `@gridland/${d}`)
 
-  // Write source file to registry/ui/
-  writeFileSync(join(REGISTRY_UI_DIR, fileName), source)
-
-  // Build registry item
-  // Prefix registryDependencies with @gridland/ so shadcn resolves them
-  // from the gridland registry namespace rather than the default shadcn registry.
-  const namespacedDeps = item.registryDependencies.map((dep) => `@gridland/${dep}`)
-
-  const registryItem: RegistryItem = {
+  const emitted: EmittedItem = {
     name: item.name,
     type: item.type,
     title: item.title,
     description: item.description,
-    ...(namespacedDeps.length > 0
-      ? { registryDependencies: namespacedDeps }
-      : {}),
-    files: [{ path: filePath, type: item.type, content: source }],
+    ...(item.categories?.length ? { categories: item.categories } : {}),
+    ...(item.dependencies?.length ? { dependencies: item.dependencies } : {}),
+    ...(namespaced?.length ? { registryDependencies: namespaced } : {}),
+    files,
   }
 
-  registryItems.push(registryItem)
+  items.push(emitted)
 
-  // Write individual item JSON
-  const itemJson = {
-    $schema: "https://ui.shadcn.com/schema/registry-item.json",
-    ...registryItem,
-  }
   writeFileSync(
-    join(REGISTRY_DIR, `${item.name}.json`),
-    JSON.stringify(itemJson, null, 2) + "\n",
+    join(OUTPUT_DIR, `${item.name}.json`),
+    JSON.stringify({ $schema: "https://ui.shadcn.com/schema/registry-item.json", ...emitted }, null, 2) + "\n",
   )
 }
 
-// Write main registry.json
-const registry = {
-  $schema: "https://ui.shadcn.com/schema/registry.json",
-  name: "gridland-ui",
-  homepage: "https://gridland.io",
-  items: registryItems,
-}
-
 writeFileSync(
-  join(ROOT, "registry.json"),
-  JSON.stringify(registry, null, 2) + "\n",
+  join(OUTPUT_DIR, "index.json"),
+  JSON.stringify(
+    {
+      $schema: "https://ui.shadcn.com/schema/registry.json",
+      name: "gridland-ui",
+      homepage: "https://gridland.io",
+      items,
+    },
+    null,
+    2,
+  ) + "\n",
 )
 
-console.log(`Built ${registryItems.length} registry items`)
-console.log(`  Registry: ${join(ROOT, "registry.json")}`)
-console.log(`  Items:    ${REGISTRY_DIR}/`)
-console.log(`  Sources:  ${REGISTRY_UI_DIR}/`)
+console.log(`Built ${items.length} registry items → ${OUTPUT_DIR}`)

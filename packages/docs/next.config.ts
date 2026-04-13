@@ -6,6 +6,7 @@ const withMDX = createMDX()
 
 const coreRoot = path.resolve(__dirname, "../core")
 const pkgRoot = path.resolve(__dirname, "../web")
+const uiRoot = path.resolve(__dirname, "../ui")
 
 function shimPath(p: string) {
   return path.resolve(pkgRoot, p)
@@ -33,6 +34,11 @@ const nextConfig: NextConfig = {
       "@gridland/ui": path.resolve(__dirname, "../ui/components/index.ts"),
       "@gridland/demo/landing": path.resolve(__dirname, "../demo/src/landing/index.ts"),
       "@demos": path.resolve(__dirname, "../demo/demos"),
+
+      // Registry-local aliases used inside packages/ui source files
+      "@/registry/gridland/ui": path.resolve(uiRoot, "components"),
+      "@/registry/gridland/lib": path.resolve(uiRoot, "lib"),
+      "@/registry/gridland/hooks": path.resolve(uiRoot, "hooks"),
 
       // react-reconciler — resolve from web's dependency tree
       "react-reconciler": path.resolve(pkgRoot, "node_modules/react-reconciler"),

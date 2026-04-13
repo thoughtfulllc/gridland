@@ -4,17 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
+    ".": "./components/index.ts"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": ["dist"],
   "scripts": {
-    "build": "tsup",
-    "build:registry": "bun run scripts/build-registry.ts",
+    "build": "bun run scripts/build-registry.ts",
     "demo": "bun run --tsconfig-override ./tsconfig.json scripts/demo.tsx",
     "test": "bun test --preload ../web/test/preload.ts --update-snapshots",
     "test:ci": "bun test --preload ../web/test/preload.ts --randomize --rerun-each 3"
@@ -25,7 +18,6 @@
     "@types/react": "^19.0.0",
     "figlet": "^1.10.0",
     "react": "^19.0.0",
-    "tsup": "^8.4.0",
     "typescript": "^5.7.0"
   },
   "peerDependencies": {

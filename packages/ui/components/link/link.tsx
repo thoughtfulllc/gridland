@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { useTheme } from "../theme/index"
+import { useTheme } from "@/registry/gridland/lib/theme"
 
 export type UnderlineStyle = "solid" | "dashed" | "dotted" | "none"
 

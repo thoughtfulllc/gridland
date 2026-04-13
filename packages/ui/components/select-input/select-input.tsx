@@ -1,7 +1,7 @@
 import { useReducer, useMemo, useRef } from "react"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
-import { useKeyboardContext } from "../provider/provider"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
+import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
 
 export type SelectInputItem<V> = {
   /** Unique key for React reconciliation. Falls back to stringified value. */

@@ -1,13 +1,19 @@
+import { spawnSync } from "node:child_process"
 import { Command } from "commander"
 import pc from "picocolors"
 import { scaffold, FRAMEWORKS, type Framework } from "./scaffold.js"
 import { DEFAULT_NAME } from "./constants.js"
-import { detectPackageManager, getDevCommand } from "./helpers/package-manager.js"
+import { detectPackageManager, getDevCommand, getDlxCommand } from "./helpers/package-manager.js"
 import { installDependencies } from "./helpers/install.js"
 import { gitInit } from "./helpers/git.js"
 import { validateProjectName, checkDirectory, resolveTargetDir } from "./helpers/validate.js"
 
 const program = new Command()
+
+// Stop root-level option parsing once we hit a subcommand so that
+// `add spinner --yes` goes to the add subcommand, not the root
+// (both commands legitimately define --yes and --overwrite).
+program.enablePositionalOptions()
 
 program
   .name("create-gridland")
@@ -145,6 +151,57 @@ async function runScaffold({
   }
   console.log(pc.cyan(`  ${getDevCommand(pm)}`))
   console.log()
+}
+
+program
+  .command("add [components...]")
+  .description("Add Gridland components to the current project via the shadcn registry")
+  .option("--yes", "Skip prompts — accept all defaults")
+  .option("--overwrite", "Overwrite existing files without prompting")
+  .option("--cwd <path>", "Working directory (defaults to current)")
+  .option("--dry-run", "Print the resolved command without executing it")
+  .action((components: string[], opts: {
+    yes?: boolean
+    overwrite?: boolean
+    cwd?: string
+    dryRun?: boolean
+  }) => {
+    if (!components || components.length === 0) {
+      console.error(pc.red("Specify at least one component, e.g. create-gridland add spinner"))
+      process.exit(1)
+    }
+
+    const names = components.map(toGridlandRef)
+    const [dlxFile, ...dlxPrefix] = getDlxCommand(detectPackageManager())
+    const flags: string[] = []
+    if (opts.yes) flags.push("--yes")
+    if (opts.overwrite) flags.push("--overwrite")
+    if (opts.cwd) flags.push("--cwd", opts.cwd)
+
+    const args = [...dlxPrefix, "shadcn@latest", "add", ...names, ...flags]
+
+    if (opts.dryRun) {
+      // Informational preview. Not fed to any shell.
+      console.log([dlxFile, ...args].join(" "))
+      return
+    }
+
+    console.log(pc.cyan(`→ ${dlxFile} ${args.join(" ")}`))
+    const result = spawnSync(dlxFile, args, {
+      cwd: opts.cwd ?? process.cwd(),
+      stdio: "inherit",
+    })
+    if (result.error || (result.status != null && result.status !== 0)) {
+      console.error(pc.red("Failed to add components."))
+      process.exit(result.status ?? 1)
+    }
+  })
+
+/** Normalize a component arg: bare name → `@gridland/<name>`;
+ *  already-namespaced (`@gridland/...` or `@other/...`) → passed through. */
+function toGridlandRef(raw: string): string {
+  if (raw.startsWith("@")) return raw
+  return `@gridland/${raw}`
 }
 
 program.parse()

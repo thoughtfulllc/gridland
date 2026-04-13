@@ -1,5 +1,17 @@
 import type { ReactNode } from "react"
 
+/**
+ * Catppuccin Mocha colors for the macOS chrome. Hardcoded because TerminalWindow
+ * is an HTML wrapper used in docs and demos — it renders outside the canvas
+ * reconciler, so `useTheme()` (a JS object consumed by OpenTUI) does not apply.
+ */
+const TERMINAL_WINDOW_COLORS = {
+  background: "#1e1e2e",
+  titleBar: "#2a2a3c",
+  border: "#313244",
+  text: "#a6adc8",
+} as const
+
 export interface TerminalWindowProps {
   /** Content rendered inside the window below the title bar. */
   children: ReactNode
@@ -42,13 +54,17 @@ export function TerminalWindow({
       )}
       style={{
         ...(minWidth != null ? { minWidth } : {}),
-        ...(transparent ? {} : { backgroundColor: "#1e1e2e" }),
+        ...(transparent ? {} : { backgroundColor: TERMINAL_WINDOW_COLORS.background }),
       }}
     >
       {/* Title Bar */}
       <div
         className="grid grid-cols-3 items-center px-3 py-2.5 border-b"
-        style={transparent ? {} : { backgroundColor: "#2a2a3c", borderColor: "#313244" }}
+        style={
+          transparent
+            ? {}
+            : { backgroundColor: TERMINAL_WINDOW_COLORS.titleBar, borderColor: TERMINAL_WINDOW_COLORS.border }
+        }
       >
         {/* Traffic Light Buttons */}
         <div className="flex gap-2">
@@ -75,7 +91,7 @@ export function TerminalWindow({
         {title && (
           <div
             className="text-center text-sm select-none"
-            style={transparent ? {} : { color: "#a6adc8" }}
+            style={transparent ? {} : { color: TERMINAL_WINDOW_COLORS.text }}
           >
             {title}
           </div>

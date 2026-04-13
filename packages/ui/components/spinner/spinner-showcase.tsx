@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { textStyle } from "../text-style"
-import { useTheme } from "../theme/index"
-import { useKeyboardContext } from "../provider/provider"
-import { StatusBar } from "../status-bar/status-bar"
+import { textStyle } from "@/registry/gridland/lib/text-style"
+import { useTheme } from "@/registry/gridland/lib/theme"
+import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
+import { StatusBar } from "@/registry/gridland/ui/status-bar/status-bar"
 import { Spinner, VARIANT_NAMES } from "./spinner"
 
 const SHOWCASE_TASKS = [
