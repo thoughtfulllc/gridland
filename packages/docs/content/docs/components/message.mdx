@@ -72,7 +72,7 @@ Use `MessageMarkdown` to render markdown content via the OpenTUI markdown
 intrinsic.
 
 ```tsx title="Markdown content"
-import { MessageMarkdown } from "@gridland/ui"
+import { MessageMarkdown } from "@/components/ui/message"
 
 <Message role="assistant">
   <MessageContent>
@@ -100,7 +100,7 @@ mapping — the component has no SDK dependency.
 
 ```tsx title="Vercel AI SDK"
 import { useChat } from "@ai-sdk/react"
-import { Message, MessageContent, MessageText } from "@gridland/ui"
+import { Message, MessageContent, MessageText } from "@/components/ui/message"
 
 const { messages, status } = useChat({ api: "/api/chat" })
 
@@ -138,7 +138,7 @@ All compound components read shared state (role, streaming, background color) fr
 Access message context from within any sub-component.
 
 ```tsx title="Custom sub-component"
-import { useMessage } from "@gridland/ui"
+import { useMessage } from "@/components/ui/message"
 
 function MyCustomStatus() {
   const { role, isStreaming, textColor } = useMessage()

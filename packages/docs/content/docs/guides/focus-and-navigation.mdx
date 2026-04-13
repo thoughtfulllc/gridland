@@ -40,7 +40,9 @@ Gridland provides a unified focus and input system that works identically in bot
 
 ```tsx title="app.tsx"
 import { FocusProvider, useFocus, useKeyboard, useCapturedKeyboard, useShortcuts, useFocusedShortcuts, FocusScope } from "@gridland/utils"
-import { GridlandProvider, StatusBar, useFocusBorderStyle } from "@gridland/ui"
+import { GridlandProvider } from "@/components/ui/provider"
+import { StatusBar } from "@/components/ui/status-bar"
+import { useFocusBorderStyle } from "@/components/ui/theme"
 
 // 1. Wrap your app with FocusProvider
 function App() {

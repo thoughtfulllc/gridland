@@ -76,22 +76,18 @@ for streaming, and `CommandProvider` for slash commands like `/model` and `/clea
 
 ```tsx title="chat-interface.tsx"
 import { useState, useRef, useCallback, useEffect, useMemo } from "react"
+import { SideNav } from "@/components/ui/side-nav"
+import { Message, MessageContent, MessageText } from "@/components/ui/message"
+import { PromptInput, CommandProvider, useRegisterCommands } from "@/components/ui/prompt-input"
+import type { ChatStatus } from "@/components/ui/prompt-input"
+import { SelectInput } from "@/components/ui/select-input"
+import { Modal } from "@/components/ui/modal"
 import {
-  SideNav,
-  Message,
-  MessageContent,
-  MessageText,
-  PromptInput,
-  SelectInput,
-  Modal,
   ChainOfThought,
   ChainOfThoughtHeader,
   ChainOfThoughtContent,
   ChainOfThoughtStep,
-  CommandProvider,
-  useRegisterCommands,
-} from "@gridland/ui"
-import type { ChatStatus } from "@gridland/ui"
+} from "@/components/ui/chain-of-thought"
 import { useFocus, useKeyboard, useCapturedKeyboard, useShortcuts } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 
