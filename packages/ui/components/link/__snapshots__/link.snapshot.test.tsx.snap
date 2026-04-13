@@ -1,3 +1,7 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`Link snapshots renders a basic link 1`] = `"Visit opentui.com"`;
+
+exports[`Link snapshots renders a basic link 2`] = `"Visit opentui.com"`;
+
+exports[`Link snapshots renders a basic link 3`] = `"Visit opentui.com"`;

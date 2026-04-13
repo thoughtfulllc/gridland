@@ -31,3 +31,67 @@ exports[`SideNav snapshots renders with title 1`] = `
                    │  ↑↓  navigate  enter  select
                    │"
 `;
+
+exports[`SideNav snapshots renders with title 2`] = `
+"                   │
+  Settings         │ General
+                   │General panel content
+ ▸ General         │
+   Theme           │
+   Keybinds        │
+                   │
+                   │
+                   │
+                   │
+                   │
+                   │
+                   │  ↑↓  navigate  enter  select
+                   │"
+`;
+
+exports[`SideNav snapshots renders 3-item sidebar with default state 2`] = `
+"                   │
+ ▸ General         │ General
+   Theme           │General panel content
+   Keybinds        │
+                   │
+                   │
+                   │
+                   │
+                   │
+                   │
+                   │  ↑↓  navigate  enter  select
+                   │"
+`;
+
+exports[`SideNav snapshots renders 3-item sidebar with default state 3`] = `
+"                   │
+ ▸ General         │ General
+   Theme           │General panel content
+   Keybinds        │
+                   │
+                   │
+                   │
+                   │
+                   │
+                   │
+                   │  ↑↓  navigate  enter  select
+                   │"
+`;
+
+exports[`SideNav snapshots renders with title 3`] = `
+"                   │
+  Settings         │ General
+                   │General panel content
+ ▸ General         │
+   Theme           │
+   Keybinds        │
+                   │
+                   │
+                   │
+                   │
+                   │
+                   │
+                   │  ↑↓  navigate  enter  select
+                   │"
+`;

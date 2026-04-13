@@ -49,3 +49,103 @@ exports[`Modal snapshots renders with no children 1`] = `
 │                                      │
 ╰──────────────────────────────────────╯"
 `;
+
+exports[`Modal snapshots renders with no children 2`] = `
+"╭──────────────────────────────────────╮
+│ Empty                                │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+╰──────────────────────────────────────╯"
+`;
+
+exports[`Modal snapshots renders without title 2`] = `
+"╭──────────────────────────────────────╮
+│Content only                          │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+╰──────────────────────────────────────╯"
+`;
+
+exports[`Modal snapshots renders with double border 2`] = `
+"╔══════════════════════════════════════╗
+║ Double                               ║
+║                                      ║
+║Content                               ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+╚══════════════════════════════════════╝"
+`;
+
+exports[`Modal snapshots renders with title and children 2`] = `
+"╭──────────────────────────────────────╮
+│ My Dialog                            │
+│                                      │
+│Hello World                           │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+╰──────────────────────────────────────╯"
+`;
+
+exports[`Modal snapshots renders with title and children 3`] = `
+"╭──────────────────────────────────────╮
+│ My Dialog                            │
+│                                      │
+│Hello World                           │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+╰──────────────────────────────────────╯"
+`;
+
+exports[`Modal snapshots renders with double border 3`] = `
+"╔══════════════════════════════════════╗
+║ Double                               ║
+║                                      ║
+║Content                               ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+╚══════════════════════════════════════╝"
+`;
+
+exports[`Modal snapshots renders with no children 3`] = `
+"╭──────────────────────────────────────╮
+│ Empty                                │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+╰──────────────────────────────────────╯"
+`;
+
+exports[`Modal snapshots renders without title 3`] = `
+"╭──────────────────────────────────────╮
+│Content only                          │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+│                                      │
+╰──────────────────────────────────────╯"
+`;

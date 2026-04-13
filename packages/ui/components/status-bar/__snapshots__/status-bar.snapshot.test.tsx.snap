@@ -5,3 +5,15 @@ exports[`StatusBar snapshots renders items without extra 1`] = `" Tab  switch fo
 exports[`StatusBar snapshots renders with extra content 1`] = `"ExtraContent  │   Tab  switch focus  ←→  navigate"`;
 
 exports[`StatusBar snapshots renders with empty items 1`] = `""`;
+
+exports[`StatusBar snapshots renders items without extra 2`] = `" Tab  switch focus  ←→  navigate  q  quit"`;
+
+exports[`StatusBar snapshots renders with empty items 2`] = `""`;
+
+exports[`StatusBar snapshots renders with extra content 2`] = `"ExtraContent  │   Tab  switch focus  ←→  navigate"`;
+
+exports[`StatusBar snapshots renders items without extra 3`] = `" Tab  switch focus  ←→  navigate  q  quit"`;
+
+exports[`StatusBar snapshots renders with extra content 3`] = `"ExtraContent  │   Tab  switch focus  ←→  navigate"`;
+
+exports[`StatusBar snapshots renders with empty items 3`] = `""`;
