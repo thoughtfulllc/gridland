@@ -1,5 +1,6 @@
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
+import { FocusProvider } from "@gridland/utils"
 import { MultiSelect } from "./multi-select"
 
 afterEach(() => cleanup())
@@ -677,3 +678,33 @@ describe("MultiSelect behavior", () => {
     expect(changed).toHaveLength(1)
   })
 })
+
+// ── Target API (focusId + useInteractive) — Phase 3 migration ─────────
+
+describe("MultiSelect via useInteractive (target API)", () => {
+  it("routes space to toggle the first item via real key dispatch", () => {
+    let changed: string[] | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <MultiSelect
+          focusId="ms"
+          autoFocus
+          items={items}
+          selected={[]}
+          onChange={(values: string[]) => {
+            changed = values
+          }}
+        />
+      </FocusProvider>,
+      { cols: 40, rows: 10 },
+    )
+    flush(); flush()
+    keys.enter() // select (transition focused → selected)
+    flush(); flush()
+    keys.space() // toggle first item
+    flush(); flush()
+    expect(changed).toContain("ts")
+    expect(changed).toHaveLength(1)
+  })
+})
+
