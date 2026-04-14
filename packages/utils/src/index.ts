@@ -78,6 +78,13 @@ export {
   type ShortcutEntry,
 } from "../../core/src/react/focus"
 
+// Interactive primitive (composes focus + keyboard + shortcuts)
+export {
+  useInteractive,
+  type UseInteractiveOptions,
+  type UseInteractiveReturn,
+} from "../../core/src/react/interactive"
+
 // Runtime context
 export {
   useRuntime,
