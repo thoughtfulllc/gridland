@@ -3,11 +3,3 @@
 exports[`Gradient snapshots renders rainbow gradient 1`] = `"Hello, Gradient!"`;
 
 exports[`Gradient snapshots renders passion gradient 1`] = `"Passion gradient text"`;
-
-exports[`Gradient snapshots renders rainbow gradient 2`] = `"Hello, Gradient!"`;
-
-exports[`Gradient snapshots renders passion gradient 2`] = `"Passion gradient text"`;
-
-exports[`Gradient snapshots renders passion gradient 3`] = `"Passion gradient text"`;
-
-exports[`Gradient snapshots renders rainbow gradient 3`] = `"Hello, Gradient!"`;

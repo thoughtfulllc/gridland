@@ -16,37 +16,3 @@ exports[`MultiSelect snapshots renders with defaultSelected 1`] = `
 │   ○ Rust
 │   ↳ Submit"
 `;
-
-exports[`MultiSelect snapshots renders 4 items 2`] = `
-"◆ Select
-│ ▸ ○ TypeScript
-│   ○ JavaScript
-│   ○ Python
-│   ○ Rust"
-`;
-
-exports[`MultiSelect snapshots renders with defaultSelected 2`] = `
-"◆ Select
-│ ▸ ● TypeScript
-│   ○ JavaScript
-│   ● Python
-│   ○ Rust
-│   ↳ Submit"
-`;
-
-exports[`MultiSelect snapshots renders 4 items 3`] = `
-"◆ Select
-│ ▸ ○ TypeScript
-│   ○ JavaScript
-│   ○ Python
-│   ○ Rust"
-`;
-
-exports[`MultiSelect snapshots renders with defaultSelected 3`] = `
-"◆ Select
-│ ▸ ● TypeScript
-│   ○ JavaScript
-│   ● Python
-│   ○ Rust
-│   ↳ Submit"
-`;
