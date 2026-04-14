@@ -67,6 +67,13 @@ test.describe("Multi-Component Composition", () => {
     await page.keyboard.press("Enter")
     await waitForBufferContaining(page, "Interacting: yes")
 
+    // Two Escapes: the panel's FocusScope auto-selects the TextInput on
+    // mount, so the first Esc deselects the TextInput and the second Esc
+    // pops the panel scope back to nav. This mirrors the multi-Esc pattern
+    // in the "full flow" test above and matches the focus system's
+    // documented "Esc deselects first, Esc again pops scope" semantics.
+    await page.keyboard.press("Escape")
+    await waitForPaint(page)
     await page.keyboard.press("Escape")
     await waitForBufferContaining(page, "Interacting: no")
 
