@@ -82,6 +82,18 @@ const ITEMS: ItemConfig[] = [
     dependencies: ["@gridland/utils"],
     categories: ["utility"],
   },
+  {
+    name: "use-interactive-styled",
+    type: "registry:hook",
+    title: "useInteractiveStyled",
+    description: "Convenience wrapper over useInteractive that adds theme-aware focus border styling",
+    files: [
+      { src: "hooks/use-interactive-styled.ts", registryPath: "registry/gridland/hooks/use-interactive-styled.ts", type: "registry:hook" },
+    ],
+    dependencies: ["@gridland/utils"],
+    registryDependencies: ["theme"],
+    categories: ["utility"],
+  },
 
   // Components (registry:ui)
   {

@@ -108,5 +108,8 @@ export type { Breakpoints } from "@/registry/gridland/hooks/use-breakpoints"
 export { useInteractive } from "@gridland/utils"
 export type { UseInteractiveOptions, UseInteractiveReturn } from "@gridland/utils"
 
+export { useInteractiveStyled } from "@/registry/gridland/hooks/use-interactive-styled"
+export type { UseInteractiveStyledReturn } from "@/registry/gridland/hooks/use-interactive-styled"
+
 export { SideNav } from "./side-nav/side-nav"
 export type { SideNavProps, SideNavItem } from "./side-nav/side-nav"
