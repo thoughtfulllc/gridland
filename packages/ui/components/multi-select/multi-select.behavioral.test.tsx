@@ -12,11 +12,19 @@ const items = [
   { label: "Rust", value: "rs" },
 ]
 
-function createMockKeyboard() {
-  let handler: any = null
-  const useKeyboard = (h: any) => { handler = h }
-  const fire = (event: any) => handler(event)
-  return { useKeyboard, fire }
+// Wraps a MultiSelect in FocusProvider selectable, autoFocuses it, and
+// transitions it to selected via Enter before returning the tui handle
+// so tests can dispatch the actual key under test. Mirrors the pilot
+// pattern from SelectInput.
+function renderSelected(node: any, opts = { cols: 40, rows: 12 }) {
+  const tui = renderTui(
+    <FocusProvider selectable>{node}</FocusProvider>,
+    opts,
+  )
+  tui.flush(); tui.flush()
+  tui.keys.enter() // focused → selected
+  tui.flush(); tui.flush()
+  return tui
 }
 
 describe("MultiSelect behavior", () => {
@@ -106,7 +114,7 @@ describe("MultiSelect behavior", () => {
     expect(screen.text()).toContain("Only")
   })
 
-  it("works without useKeyboard prop", () => {
+  it("renders without any focus wiring", () => {
     const { screen } = renderTui(
       <MultiSelect items={items} />,
       { cols: 40, rows: 10 },
@@ -176,134 +184,143 @@ describe("MultiSelect behavior", () => {
     expect(screen.text()).toContain("─")
   })
 
-  // ── Keyboard interactions (verified via callbacks) ────────────────────
+  // ── Keyboard interactions (real key dispatch via FocusProvider) ──────
 
   it("toggles selection with enter", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={[]}
         onChange={(values) => { changed = values }}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    fire({ name: "return" })
+    keys.enter() // while selected, Enter toggles the current item
+    flush(); flush()
     expect(changed).toContain("ts")
     expect(changed).toHaveLength(1)
   })
 
   it("toggles selection with space", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={[]}
         onChange={(values) => { changed = values }}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    fire({ name: "space" })
+    keys.space()
+    flush(); flush()
     expect(changed).toContain("ts")
     expect(changed).toHaveLength(1)
   })
 
   it("selects all with a key", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={[]}
         onChange={(values) => { changed = values }}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    fire({ name: "a" })
+    keys.press("a")
+    flush(); flush()
     expect(changed).toHaveLength(4)
   })
 
   it("clears all with x key", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={["ts", "js"]}
         onChange={(values) => { changed = values }}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    fire({ name: "x" })
+    keys.press("x")
+    flush(); flush()
     expect(changed).toHaveLength(0)
   })
 
   it("submits via submit row (uncontrolled)", () => {
-    let submitted = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let submitted: string[] | null = null
+    const tree = (
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         defaultSelected={["ts", "py"]}
-        useKeyboard={useKeyboard}
         onSubmit={(values) => { submitted = values }}
-      />,
-      { cols: 40, rows: 12 },
+      />
     )
-    // Move cursor past all 4 items to the submit row (index 4)
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "return" })
+    const { keys, flush, rerender } = renderSelected(tree)
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    flush(); flush()
+    keys.enter()
+    rerender(<FocusProvider selectable>{tree}</FocusProvider>)
     expect(submitted).toContain("ts")
     expect(submitted).toContain("py")
     expect(submitted).toHaveLength(2)
   })
 
   it("submits via submit row (controlled)", () => {
-    let submitted = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let submitted: string[] | null = null
+    const tree = (
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={["ts", "py"]}
-        useKeyboard={useKeyboard}
         onSubmit={(values) => { submitted = values }}
-      />,
-      { cols: 40, rows: 12 },
+      />
     )
-    // Move cursor past all 4 items to the submit row (index 4)
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "return" })
+    const { keys, flush, rerender } = renderSelected(tree)
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    flush(); flush()
+    keys.enter()
+    rerender(<FocusProvider selectable>{tree}</FocusProvider>)
     expect(submitted).toContain("ts")
     expect(submitted).toContain("py")
     expect(submitted).toHaveLength(2)
   })
 
   it("ignores keys when disabled", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
-      <MultiSelect
-        items={items}
-        selected={[]}
-        onChange={(values) => { changed = values }}
-        disabled
-        useKeyboard={useKeyboard}
-      />,
+    let changed: string[] | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <MultiSelect
+          focusId="ms"
+          autoFocus
+          items={items}
+          selected={[]}
+          disabled
+          onChange={(values) => { changed = values }}
+        />
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    fire({ name: "return" })
+    flush(); flush()
+    // disabled → not in tab cycle, autoFocus is a no-op, Enter cannot select
+    keys.enter()
+    flush(); flush()
+    keys.enter()
+    flush(); flush()
     expect(changed).toBeNull()
   })
 
@@ -313,19 +330,19 @@ describe("MultiSelect behavior", () => {
       { label: "JavaScript", value: "js" },
       { label: "Python", value: "py" },
     ]
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={disabledItems}
         selected={[]}
         onChange={(values) => { changed = values }}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
     // Cursor is on first item (disabled), enter should do nothing
-    fire({ name: "return" })
+    keys.enter()
+    flush(); flush()
     expect(changed).toBeNull()
   })
 
@@ -336,97 +353,96 @@ describe("MultiSelect behavior", () => {
       { label: "Python", value: "py" },
       { label: "Rust", value: "rs" },
     ]
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={disabledItems}
         selected={[]}
         onChange={(values) => { changed = values }}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    fire({ name: "a" })
+    keys.press("a")
+    flush(); flush()
     expect(changed).toHaveLength(3)
     expect(changed).not.toContain("ts")
   })
 
   it("respects maxCount on toggle", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={["ts", "js"]}
         onChange={(values) => { changed = values }}
         maxCount={2}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
     // Cursor is on first item which is already selected — deselect should work
-    fire({ name: "return" })
+    keys.enter()
+    flush(); flush()
     expect(changed).toHaveLength(1)
     expect(changed).not.toContain("ts")
   })
 
   it("blocks selection beyond maxCount", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    // Arrange items so the first (cursor default) is unselected while 2 others are selected
+    let changed: string[] | null = null
     const reordered = [
       { label: "Python", value: "py" },
       { label: "TypeScript", value: "ts" },
       { label: "JavaScript", value: "js" },
       { label: "Rust", value: "rs" },
     ]
-    renderTui(
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={reordered}
         selected={["ts", "js"]}
         onChange={(values) => { changed = values }}
         maxCount={2}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    // Cursor starts on "Python" (unselected) — selecting should be blocked at maxCount=2
-    fire({ name: "return" })
+    // Cursor starts on "Python" (unselected) — selecting should be blocked
+    keys.enter()
+    flush(); flush()
     expect(changed).toBeNull()
   })
 
   it("maxCount limits select all", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={[]}
         onChange={(values) => { changed = values }}
         maxCount={2}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    fire({ name: "a" })
+    keys.press("a")
+    flush(); flush()
     expect(changed).toHaveLength(2)
   })
 
   it("disables select all when enableSelectAll is false", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={[]}
         onChange={(values) => { changed = values }}
         enableSelectAll={false}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    fire({ name: "a" })
+    keys.press("a")
+    flush(); flush()
     expect(changed).toBeNull()
   })
 
@@ -447,75 +463,78 @@ describe("MultiSelect behavior", () => {
   })
 
   it("submits empty selection when allowEmpty is true", () => {
-    let submitted = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let submitted: string[] | null = null
+    const tree = (
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         allowEmpty
-        useKeyboard={useKeyboard}
         onSubmit={(values) => { submitted = values }}
-      />,
-      { cols: 40, rows: 12 },
+      />
     )
-    // Move cursor past all 4 items to the submit row (index 4)
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "return" })
+    const { keys, flush, rerender } = renderSelected(tree)
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    flush(); flush()
+    keys.enter()
+    rerender(<FocusProvider selectable>{tree}</FocusProvider>)
     expect(submitted).toHaveLength(0)
   })
 
   it("disables clear when enableClear is false", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={["ts"]}
         onChange={(values) => { changed = values }}
         enableClear={false}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    fire({ name: "x" })
+    keys.press("x")
+    flush(); flush()
     expect(changed).toBeNull()
   })
 
   // ── Cursor clamping ──────────────────────────────────────────────────
 
   it("clamps cursor when submit row disappears", () => {
-    const { useKeyboard, fire } = createMockKeyboard()
-    // Start with a selection so submit row is visible
-    const { rerender, screen } = renderTui(
+    const first = (
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={["ts"]}
         onChange={() => {}}
-        useKeyboard={useKeyboard}
-      />,
-      { cols: 40, rows: 12 },
+      />
     )
+    const { keys, screen, rerender, flush } = renderSelected(first)
     // Move cursor to the submit row (position 4 for 4 items)
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    flush(); flush()
     expect(screen.text()).toContain("Submit")
 
     // Re-render with empty selection — submit row disappears
     rerender(
-      <MultiSelect
-        items={items}
-        selected={[]}
-        onChange={() => {}}
-        useKeyboard={useKeyboard}
-      />,
+      <FocusProvider selectable>
+        <MultiSelect
+          focusId="ms"
+          autoFocus
+          items={items}
+          selected={[]}
+          onChange={() => {}}
+        />
+      </FocusProvider>,
     )
     // Cursor should be clamped, not pointing at a ghost position
-    // The last item should be highlighted since cursor was beyond bounds
     expect(screen.text()).toContain("▸")
     expect(screen.text()).not.toContain("Submit")
   })
@@ -534,23 +553,24 @@ describe("MultiSelect behavior", () => {
   // ── Navigation wrapping ──────────────────────────────────────────────
 
   it("wraps cursor from first to last item on up", () => {
-    let submitted = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let submitted: string[] | null = null
+    const tree = (
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         selected={["ts"]}
         onChange={() => {}}
-        useKeyboard={useKeyboard}
         onSubmit={(values) => { submitted = values }}
-      />,
-      { cols: 40, rows: 12 },
+      />
     )
+    const { keys, flush, rerender } = renderSelected(tree)
     // Cursor starts at 0 (TypeScript). With 4 items + submit row = 5 positions.
-    // Pressing up should wrap to position 4 (the submit row).
-    fire({ name: "up" })
-    // Pressing enter should submit since cursor wrapped to the submit row.
-    fire({ name: "return" })
+    // Up wraps to position 4 (the submit row).
+    keys.up()
+    flush(); flush()
+    keys.enter()
+    rerender(<FocusProvider selectable>{tree}</FocusProvider>)
     expect(submitted).toContain("ts")
     expect(submitted).toHaveLength(1)
   })
@@ -558,26 +578,22 @@ describe("MultiSelect behavior", () => {
   // ── Controlled re-render sync ────────────────────────────────────────
 
   it("reflects updated controlled selected values on re-render", () => {
-    const { useKeyboard } = createMockKeyboard()
     const { rerender, screen } = renderTui(
       <MultiSelect
         items={items}
         selected={["ts"]}
         onChange={() => {}}
-        useKeyboard={useKeyboard}
       />,
       { cols: 40, rows: 10 },
     )
     const text1 = screen.text()
     expect((text1.match(/●/g) || []).length).toBe(1)
 
-    // Re-render with 3 selected items
     rerender(
       <MultiSelect
         items={items}
         selected={["ts", "js", "py"]}
         onChange={() => {}}
-        useKeyboard={useKeyboard}
       />,
     )
     const text2 = screen.text()
@@ -592,22 +608,22 @@ describe("MultiSelect behavior", () => {
       { label: "Python", value: "py", group: "Languages" },
       { label: "React", value: "react", group: "Frameworks" },
     ]
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={groupedItems}
         selected={[]}
         onChange={(values) => { changed = values }}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 12 },
     )
-    // Cursor starts at index 0 (TypeScript). Move down twice to reach React (index 2).
-    // If cursor incorrectly lands on separator/header, toggling would fail.
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "return" })
+    // Cursor starts at 0 (TypeScript). j twice → React. Toggle.
+    keys.press("j")
+    keys.press("j")
+    flush(); flush()
+    keys.enter()
+    flush(); flush()
     expect(changed).toContain("react")
     expect(changed).toHaveLength(1)
   })
@@ -624,7 +640,6 @@ describe("MultiSelect behavior", () => {
       { cols: 40, rows: 10 },
     )
     const text = screen.text()
-    // With limit=5, only 5 items visible. Items far from cursor (0) should be hidden.
     expect(text).toContain("Item 0")
     expect(text).not.toContain("Item 10")
     expect(text).not.toContain("Item 19")
@@ -633,78 +648,73 @@ describe("MultiSelect behavior", () => {
   // ── Submitted state rendering ────────────────────────────────────────
 
   it("passes correct values to onSubmit and ignores subsequent presses", () => {
-    let submitted = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let submitted: string[] | null = null
+    const tree = (
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         defaultSelected={["ts", "py"]}
-        useKeyboard={useKeyboard}
         onSubmit={(values) => { submitted = values }}
-      />,
-      { cols: 40, rows: 12 },
+      />
     )
+    const { keys, flush, rerender } = renderSelected(tree)
     // Navigate to submit row and submit
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "j" })
-    fire({ name: "return" })
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    keys.press("j")
+    flush(); flush()
+    keys.enter()
+    rerender(<FocusProvider selectable>{tree}</FocusProvider>)
     expect(submitted).toHaveLength(2)
     expect(submitted).toContain("ts")
     expect(submitted).toContain("py")
+
     // Subsequent key presses should be ignored after submit
     submitted = null
-    fire({ name: "return" })
+    keys.enter()
+    flush(); flush()
     expect(submitted).toBeNull()
   })
 
   // ── onChange fires in uncontrolled mode ───────────────────────────────
 
   it("fires onChange in uncontrolled mode", () => {
-    let changed = null as string[] | null
-    const { useKeyboard, fire } = createMockKeyboard()
-    renderTui(
+    let changed: string[] | null = null
+    const { keys, flush } = renderSelected(
       <MultiSelect
+        focusId="ms"
+        autoFocus
         items={items}
         defaultSelected={[]}
         onChange={(values) => { changed = values }}
-        useKeyboard={useKeyboard}
       />,
-      { cols: 40, rows: 10 },
     )
-    fire({ name: "return" })
+    keys.enter()
+    flush(); flush()
     expect(changed).toContain("ts")
     expect(changed).toHaveLength(1)
   })
 })
 
-// ── Target API (focusId + useInteractive) — Phase 3 migration ─────────
+// ── Target API smoke test (kept as an explicit marker) ───────────────
 
 describe("MultiSelect via useInteractive (target API)", () => {
   it("routes space to toggle the first item via real key dispatch", () => {
     let changed: string[] | null = null
-    const { keys, flush } = renderTui(
-      <FocusProvider selectable>
-        <MultiSelect
-          focusId="ms"
-          autoFocus
-          items={items}
-          selected={[]}
-          onChange={(values: string[]) => {
-            changed = values
-          }}
-        />
-      </FocusProvider>,
-      { cols: 40, rows: 10 },
+    const { keys, flush } = renderSelected(
+      <MultiSelect
+        focusId="ms"
+        autoFocus
+        items={items}
+        selected={[]}
+        onChange={(values: string[]) => { changed = values }}
+      />,
     )
-    flush(); flush()
-    keys.enter() // select (transition focused → selected)
-    flush(); flush()
-    keys.space() // toggle first item
+    keys.space()
     flush(); flush()
     expect(changed).toContain("ts")
     expect(changed).toHaveLength(1)
   })
 })
-
