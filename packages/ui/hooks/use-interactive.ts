@@ -7,6 +7,12 @@ export interface UseInteractiveOptions {
   id?: string
   /** Focus this component on mount. */
   autoFocus?: boolean
+  /**
+   * Remove this component from the tab cycle. Equivalent to the disabled
+   * prop on a typical form input — the component is still rendered but
+   * cannot receive focus.
+   */
+  disabled?: boolean
   /** Whether this component supports selection via Enter/Escape. @default true */
   selectable?: boolean
   /** Tab order. A value of -1 removes the component from the tab cycle. @default 0 */
@@ -59,9 +65,9 @@ export interface UseInteractiveReturn {
  * focus border styling into one hook.
  */
 export function useInteractive(options: UseInteractiveOptions = {}): UseInteractiveReturn {
-  const { id, autoFocus, selectable = true, tabIndex, shortcuts } = options
+  const { id, autoFocus, disabled, selectable = true, tabIndex, shortcuts } = options
 
-  const focusState = useFocus({ id, autoFocus, selectable, tabIndex })
+  const focusState = useFocus({ id, autoFocus, disabled, selectable, tabIndex })
   const { focusId, isFocused, isSelected, isAnySelected } = focusState
 
   const handlerRef = useRef<((event: any) => void) | null>(null)
