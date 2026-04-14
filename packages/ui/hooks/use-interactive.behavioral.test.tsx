@@ -277,67 +277,24 @@ describe("useInteractive", () => {
     })
   })
 
-  // ── borderColor / borderStyle (theme-aware via useTheme fallback) ─────
+  // ── return shape: pure primitive, no theme coupling ──────────────────
 
-  describe("border styling", () => {
-    function BorderTag({ id, autoFocus }: { id: string; autoFocus?: boolean }) {
-      const i = useInteractive({ id, autoFocus })
-      return <text>{`<${i.focusId} ${i.borderStyle} ${i.borderColor}>`}</text>
-    }
-
-    it("idle state is rounded with dimmed focusIdle color", () => {
-      const { screen, flush } = renderTui(
+  describe("return shape", () => {
+    it("does not expose borderColor or borderStyle — use useFocusBorderStyle for styling", () => {
+      let captured: any
+      function X() {
+        captured = useInteractive({ id: "x" })
+        return <text>x</text>
+      }
+      const { flush } = renderTui(
         <FocusProvider selectable>
-          <BorderTag id="idle" />
-          {/* Keeps the app mounted; nothing focused. */}
+          <X />
         </FocusProvider>,
-        { cols: 80, rows: 4 },
+        { cols: 40, rows: 4 },
       )
       flush2(flush)
-      // darkTheme.focusIdle = "#33192a"
-      expect(screen.text()).toContain("<idle rounded #33192a>")
-    })
-
-    it("focused state is dashed with focusFocused color", () => {
-      const { screen, flush } = renderTui(
-        <FocusProvider selectable>
-          <BorderTag id="f" autoFocus />
-        </FocusProvider>,
-        { cols: 80, rows: 4 },
-      )
-      flush2(flush)
-      // darkTheme.focusFocused = "#e065b8"
-      expect(screen.text()).toContain("<f dashed #e065b8>")
-    })
-
-    it("selected state is rounded with focusSelected color", () => {
-      const { screen, keys, flush } = renderTui(
-        <FocusProvider selectable>
-          <BorderTag id="s" autoFocus />
-        </FocusProvider>,
-        { cols: 80, rows: 4 },
-      )
-      flush2(flush)
-      keys.enter()
-      flush2(flush)
-      // darkTheme.focusSelected = "#FF71CE"
-      expect(screen.text()).toContain("<s rounded #FF71CE>")
-    })
-
-    it("sibling-selected state is rounded with transparent color", () => {
-      // Two interactives; select the first, check the second goes to transparent
-      const { screen, keys, flush } = renderTui(
-        <FocusProvider selectable>
-          <BorderTag id="a" autoFocus />
-          <BorderTag id="b" />
-        </FocusProvider>,
-        { cols: 80, rows: 4 },
-      )
-      flush2(flush)
-      keys.enter()
-      flush2(flush)
-      // "b" is idle in isolation but now isAnySelected is true → transparent
-      expect(screen.text()).toContain("<b rounded transparent>")
+      expect(captured).not.toHaveProperty("borderColor")
+      expect(captured).not.toHaveProperty("borderStyle")
     })
   })
 
