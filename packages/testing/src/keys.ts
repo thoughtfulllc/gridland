@@ -60,6 +60,16 @@ export class KeySender {
     this.sendKey(char)
   }
 
+  /** Press a key with modifier flags (ctrl, meta, shift, option). */
+  pressWith(char: string, options: {
+    ctrl?: boolean
+    meta?: boolean
+    shift?: boolean
+    option?: boolean
+  }): void {
+    this.sendKey(char, options)
+  }
+
   /** Send raw data (for escape sequences etc.) */
   raw(data: string): void {
     this.sendKey(data, { sequence: data })

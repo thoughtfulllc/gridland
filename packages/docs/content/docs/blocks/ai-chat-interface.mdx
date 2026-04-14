@@ -88,7 +88,6 @@ import {
   ChainOfThoughtContent,
   ChainOfThoughtStep,
 } from "@/components/ui/chain-of-thought"
-import { useFocus, useKeyboard, useCapturedKeyboard, useShortcuts } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 
 function ChatPanel({ conversationId, selectedModelId, isInteracting }) {
@@ -129,13 +128,14 @@ function ChatPanel({ conversationId, selectedModelId, isInteracting }) {
             )
           })}
         </box>
-        {/* Prompt input with focus management */}
+        {/* Prompt input — registers with the focus system via focusId */}
         <PromptInput
+          focusId="chat-prompt"
+          autoFocus={isInteracting}
           onSubmit={sendMessage}
           onStop={stop}
           status={chatStatus}
           placeholder="Type a message..."
-          useKeyboard={useKeyboard}
           showDividers
         />
       </box>

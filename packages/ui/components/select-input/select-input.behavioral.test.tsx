@@ -1,5 +1,7 @@
+// @ts-nocheck — new tests use OpenTUI intrinsic elements for Sink components
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
+import { FocusProvider, useFocusedShortcuts } from "@gridland/utils"
 import { SelectInput } from "./select-input"
 
 afterEach(() => cleanup())
@@ -142,91 +144,121 @@ describe("SelectInput behavior", () => {
     expect(screen.text()).not.toContain("▸")
   })
 
-  // ── Keyboard interactions (verified via callbacks) ────────────────────
+  // ── Keyboard interactions — routed via real focus system + key dispatch ──
+
+  function selectAnd(keys: any, flush: () => void) {
+    keys.enter()
+    flush()
+    flush()
+  }
 
   it("selects on move down", () => {
-    let changed = null as string | null
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    renderTui(
-      <SelectInput
-        items={items}
-        value="ts"
-        onChange={(value) => { changed = value }}
-        useKeyboard={mockUseKeyboard}
-      />,
+    let changed: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={items}
+          value="ts"
+          onChange={(value) => { changed = value }}
+        />
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler!({ name: "down" })
+    flush(); flush()
+    selectAnd(keys, flush)
+    keys.down()
+    flush(); flush()
     expect(changed).toBe("js")
   })
 
   it("selects on move up", () => {
-    let changed = null as string | null
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    renderTui(
-      <SelectInput
-        items={items}
-        value="ts"
-        onChange={(value) => { changed = value }}
-        useKeyboard={mockUseKeyboard}
-      />,
+    let changed: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={items}
+          value="ts"
+          onChange={(value) => { changed = value }}
+        />
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler!({ name: "up" })
+    flush(); flush()
+    selectAnd(keys, flush)
+    keys.up()
+    flush(); flush()
     expect(changed).toBe("rs")
   })
 
   it("submits with enter (uncontrolled)", () => {
-    let submitted = null as string | null
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    renderTui(
-      <SelectInput
-        items={items}
-        defaultValue="py"
-        useKeyboard={mockUseKeyboard}
-        onSubmit={(value) => { submitted = value }}
-      />,
+    let submitted: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={items}
+          defaultValue="py"
+          onSubmit={(value) => { submitted = value }}
+        />
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler!({ name: "return" })
+    flush(); flush()
+    selectAnd(keys, flush)
+    // Second enter triggers submit via interactive.onKey
+    keys.enter()
+    flush(); flush()
     expect(submitted).toBe("py")
   })
 
   it("submits with enter (controlled)", () => {
-    let submitted = null as string | null
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    renderTui(
-      <SelectInput
-        items={items}
-        value="rs"
-        useKeyboard={mockUseKeyboard}
-        onSubmit={(value) => { submitted = value }}
-      />,
+    let submitted: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={items}
+          value="rs"
+          onSubmit={(value) => { submitted = value }}
+        />
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler!({ name: "return" })
+    flush(); flush()
+    selectAnd(keys, flush)
+    keys.enter()
+    flush(); flush()
     expect(submitted).toBe("rs")
   })
 
   it("ignores keys when disabled", () => {
-    let changed = null as string | null
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    renderTui(
-      <SelectInput
-        items={items}
-        value="ts"
-        onChange={(value) => { changed = value }}
-        disabled
-        useKeyboard={mockUseKeyboard}
-      />,
+    let changed: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={items}
+          value="ts"
+          disabled
+          onChange={(value) => { changed = value }}
+        />
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler!({ name: "down" })
+    flush(); flush()
+    // disabled => not in tab cycle, autoFocus is a no-op, Enter cannot select,
+    // onKey never fires, onChange stays null
+    keys.enter()
+    flush(); flush()
+    keys.down()
+    flush(); flush()
     expect(changed).toBeNull()
   })
 
@@ -236,104 +268,118 @@ describe("SelectInput behavior", () => {
       { label: "JavaScript", value: "js", disabled: true },
       { label: "Python", value: "py" },
     ]
-    let changed = null as string | null
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    renderTui(
-      <SelectInput
-        items={disabledItems}
-        value="ts"
-        onChange={(value) => { changed = value }}
-        useKeyboard={mockUseKeyboard}
-      />,
+    let changed: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={disabledItems}
+          value="ts"
+          onChange={(value) => { changed = value }}
+        />
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    // Move down — should skip disabled "js" and land on "py"
-    savedHandler!({ name: "down" })
+    flush(); flush()
+    selectAnd(keys, flush)
+    keys.down()
+    flush(); flush()
     expect(changed).toBe("py")
   })
 
   // ── j/k navigation ──────────────────────────────────────────────────
 
   it("selects on j key (move down)", () => {
-    let changed = null as string | null
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    renderTui(
-      <SelectInput
-        items={items}
-        value="ts"
-        onChange={(value) => { changed = value }}
-        useKeyboard={mockUseKeyboard}
-      />,
+    let changed: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={items}
+          value="ts"
+          onChange={(value) => { changed = value }}
+        />
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler!({ name: "j" })
+    flush(); flush()
+    selectAnd(keys, flush)
+    keys.press("j")
+    flush(); flush()
     expect(changed).toBe("js")
   })
 
   it("selects on k key (move up)", () => {
-    let changed = null as string | null
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    renderTui(
-      <SelectInput
-        items={items}
-        value="ts"
-        onChange={(value) => { changed = value }}
-        useKeyboard={mockUseKeyboard}
-      />,
+    let changed: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={items}
+          value="ts"
+          onChange={(value) => { changed = value }}
+        />
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler!({ name: "k" })
+    flush(); flush()
+    selectAnd(keys, flush)
+    keys.press("k")
+    flush(); flush()
     expect(changed).toBe("rs")
   })
 
   // ── Submitted state ─────────────────────────────────────────────────
 
   it("renders submitted state after enter", () => {
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    const { screen, rerender } = renderTui(
-      <SelectInput
-        items={items}
-        useKeyboard={mockUseKeyboard}
-        onSubmit={() => {}}
-      />,
-      { cols: 40, rows: 10 },
+    // Note: we use rerender instead of flush after the submit because
+    // useReducer updates dispatched from inside a keyHandler listener
+    // don't commit on a subsequent flushSync with an empty callback —
+    // rerender forces root.render which re-commits and picks them up.
+    const tree = (
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={items}
+          onSubmit={() => {}}
+        />
+      </FocusProvider>
     )
-    savedHandler!({ name: "return" })
-    rerender(
-      <SelectInput
-        items={items}
-        useKeyboard={mockUseKeyboard}
-        onSubmit={() => {}}
-      />,
-    )
+    const { screen, keys, flush, rerender } = renderTui(tree, { cols: 40, rows: 10 })
+    flush(); flush()
+    selectAnd(keys, flush)
+    keys.enter() // submit
+    rerender(tree)
     const text = screen.text()
     expect(text).toContain("submitted")
     expect(text).toContain("●")
   })
 
   it("ignores keys after submission", () => {
-    let changed = null as string | null
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    const props = {
-      items,
-      value: "ts" as const,
-      onChange: (value: string) => { changed = value },
-      useKeyboard: mockUseKeyboard,
-      onSubmit: () => {},
-    }
-    const { rerender } = renderTui(
-      <SelectInput {...props} />,
-      { cols: 40, rows: 10 },
+    let changed: string | null = null
+    const tree = (
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="s"
+          autoFocus
+          items={items}
+          value="ts"
+          onChange={(value) => { changed = value }}
+          onSubmit={() => {}}
+        />
+      </FocusProvider>
     )
-    savedHandler!({ name: "return" })
-    // Re-render to flush submitted state into ref
-    rerender(<SelectInput {...props} />)
-    savedHandler!({ name: "down" })
+    const { keys, flush, rerender } = renderTui(tree, { cols: 40, rows: 10 })
+    flush(); flush()
+    selectAnd(keys, flush)
+    keys.enter() // submit
+    rerender(tree) // force state commit so submittedRef.current becomes true
+    keys.down() // should be ignored
+    flush(); flush()
     expect(changed).toBeNull()
   })
 
@@ -354,3 +400,80 @@ describe("SelectInput behavior", () => {
     expect(itemMatches.length).toBeLessThanOrEqual(5)
   })
 })
+
+// ── Target API (focusId + useInteractive) — Phase 2 migration ───────────
+// These tests fail on current SelectInput because it doesn't yet accept
+// focusId/autoFocus. They drive the migration to useInteractive.
+
+function flush2(flush: () => void) {
+  flush()
+  flush()
+}
+
+describe("SelectInput via useInteractive (target API)", () => {
+  it("routes arrow keys via the focus system when selected", () => {
+    let changed: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="lang"
+          autoFocus
+          items={items}
+          value="ts"
+          onChange={(v) => {
+            changed = v
+          }}
+        />
+      </FocusProvider>,
+      { cols: 40, rows: 10 },
+    )
+    flush2(flush)
+
+    // Focused but not selected — arrow should NOT move the cursor
+    keys.down()
+    flush2(flush)
+    expect(changed).toBeNull()
+
+    // Enter to select, then ArrowDown should move
+    keys.enter()
+    flush2(flush)
+    keys.down()
+    flush2(flush)
+    expect(changed).toBe("js")
+  })
+
+  it("mounts inside a FocusProvider with an auto-generated focusId", () => {
+    const { screen, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput items={items} />
+      </FocusProvider>,
+      { cols: 40, rows: 10 },
+    )
+    flush2(flush)
+    // Just: the component rendered successfully
+    expect(screen.text()).toContain("TypeScript")
+  })
+
+  it("registers shortcut hints that reflect focused vs selected state", () => {
+    function Sink() {
+      const s = useFocusedShortcuts()
+      return <text>{`hint:${s.map((e) => e.label).join("+")}:end`}</text>
+    }
+    const { screen, keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput focusId="lang" autoFocus items={items} />
+        <Sink />
+      </FocusProvider>,
+      { cols: 60, rows: 12 },
+    )
+    flush2(flush)
+    // Focused (not selected) — hints describe entering the component
+    expect(screen.text()).toMatch(/hint:.*navigate.*select.*:end/)
+
+    keys.enter()
+    flush2(flush)
+    // Selected — hints describe moving / submitting / exiting
+    expect(screen.text()).toMatch(/hint:.*move.*submit.*back.*:end/)
+  })
+})
+

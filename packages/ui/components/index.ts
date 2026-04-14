@@ -99,11 +99,17 @@ export { textStyle } from "@/registry/gridland/lib/text-style"
 export { ThemeProvider, useTheme, darkTheme, lightTheme, useFocusBorderStyle, useFocusDividerStyle } from "@/registry/gridland/lib/theme"
 export type { Theme, ThemeProviderProps } from "@/registry/gridland/lib/theme"
 
-export { GridlandProvider, useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
+export { GridlandProvider } from "@/registry/gridland/ui/provider/provider"
 export type { GridlandProviderProps } from "@/registry/gridland/ui/provider/provider"
 
 export { useBreakpoints, BREAKPOINTS } from "@/registry/gridland/hooks/use-breakpoints"
 export type { Breakpoints } from "@/registry/gridland/hooks/use-breakpoints"
+
+export { useInteractive } from "@gridland/utils"
+export type { UseInteractiveOptions, UseInteractiveReturn } from "@gridland/utils"
+
+export { useInteractiveStyled } from "@/registry/gridland/hooks/use-interactive-styled"
+export type { UseInteractiveStyledReturn } from "@/registry/gridland/hooks/use-interactive-styled"
 
 export { SideNav } from "./side-nav/side-nav"
 export type { SideNavProps, SideNavItem } from "./side-nav/side-nav"

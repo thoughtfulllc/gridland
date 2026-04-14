@@ -64,52 +64,49 @@ describe("Modal behavior", () => {
 
   it("calls onClose when Escape is pressed", () => {
     let closed = false
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    const tui = renderTui(
-      <Modal
-        onClose={() => { closed = true }}
-        useKeyboard={mockUseKeyboard}
-      >
-        <text>Content</text>
-      </Modal>,
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <Modal onClose={() => { closed = true }}>
+          <FocusableItem id="inner" autoFocus />
+        </Modal>
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler!({ name: "escape" })
-    tui.flush()
+    flush(); flush()
+    keys.escape()
+    flush(); flush()
     expect(closed).toBe(true)
   })
 
   it("does not crash when Escape pressed without onClose", () => {
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    const tui = renderTui(
-      <Modal useKeyboard={mockUseKeyboard}>
-        <text>Content</text>
-      </Modal>,
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <Modal>
+          <FocusableItem id="inner" autoFocus />
+        </Modal>
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
+    flush(); flush()
     // Should not throw
-    savedHandler!({ name: "escape" })
-    tui.flush()
+    keys.escape()
+    flush(); flush()
     expect(true).toBe(true)
   })
 
   it("ignores non-escape keys", () => {
     let closed = false
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    const tui = renderTui(
-      <Modal
-        onClose={() => { closed = true }}
-        useKeyboard={mockUseKeyboard}
-      >
-        <text>Content</text>
-      </Modal>,
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <Modal onClose={() => { closed = true }}>
+          <FocusableItem id="inner" autoFocus />
+        </Modal>
+      </FocusProvider>,
       { cols: 40, rows: 10 },
     )
-    savedHandler!({ name: "a" })
-    tui.flush()
+    flush(); flush()
+    keys.press("a")
+    flush(); flush()
     expect(closed).toBe(false)
   })
 
@@ -164,25 +161,6 @@ describe("Modal behavior", () => {
     expect(b).toBeLessThan(0.1)
   })
 
-  it("receives keyboard handler from context when useKeyboard prop is omitted", () => {
-    let savedHandler: ((event: any) => void) | null = null
-    const mockUseKeyboard = (handler: (event: any) => void) => { savedHandler = handler }
-    let closed = false
-
-    const { GridlandProvider } = require("../provider/provider")
-    const tui = renderTui(
-      <GridlandProvider useKeyboard={mockUseKeyboard}>
-        <Modal onClose={() => { closed = true }}>
-          <text>Context keyboard</text>
-        </Modal>
-      </GridlandProvider>,
-      { cols: 40, rows: 10 },
-    )
-    savedHandler!({ name: "escape" })
-    tui.flush()
-    expect(closed).toBe(true)
-  })
-
   it("traps focus within the modal", () => {
     const { screen, keys, flush } = renderTui(
       <FocusProvider>
@@ -227,3 +205,40 @@ describe("Modal behavior", () => {
     expect(screen.text()).not.toContain("Old Title")
   })
 })
+
+// ── Target API (no useKeyboard prop) — Phase 3 migration ────────────────
+
+describe("Modal via useKeyboard direct (target API)", () => {
+  it("fires onClose on Escape via real key dispatch inside a FocusProvider", () => {
+    let closed = false
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <Modal onClose={() => { closed = true }}>
+          <FocusableItem id="inside" autoFocus />
+        </Modal>
+      </FocusProvider>,
+      { cols: 40, rows: 10 },
+    )
+    flush(); flush()
+    keys.escape()
+    flush(); flush()
+    expect(closed).toBe(true)
+  })
+
+  it("ignores non-Escape keys via real key dispatch", () => {
+    let closed = false
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <Modal onClose={() => { closed = true }}>
+          <FocusableItem id="inside" autoFocus />
+        </Modal>
+      </FocusProvider>,
+      { cols: 40, rows: 10 },
+    )
+    flush(); flush()
+    keys.press("a")
+    flush(); flush()
+    expect(closed).toBe(false)
+  })
+})
+

@@ -29,16 +29,21 @@ bunx create-gridland add prompt-input
 
 ```tsx
 import { PromptInput } from "@/components/ui/prompt-input"
-import { useKeyboard } from "@gridland/utils"
 ```
 
 ```tsx
 <PromptInput
+  focusId="prompt"
+  autoFocus
   placeholder="Message Claude..."
-  useKeyboard={useKeyboard}
   onSubmit={(msg) => console.log("Sent:", msg.text)}
 />
 ```
+
+`PromptInput` registers with the focus system via `focusId`. Wrap your app in
+`GridlandProvider` (which mounts `<FocusProvider selectable>` implicitly) or a
+standalone `<FocusProvider selectable>`. When the component is focused, it
+accepts keystrokes and renders an `<input>` intrinsic in the terminal runtime.
 
 ## Usage with AI SDKs
 
@@ -54,10 +59,11 @@ import { useChat } from "@ai-sdk/react"
 const { status, sendMessage, stop } = useChat({ /* transport config */ })
 
 <PromptInput
+  focusId="prompt"
+  autoFocus
   status={status}
   onSubmit={sendMessage}
   onStop={stop}
-  useKeyboard={useKeyboard}
 />
 ```
 
@@ -67,6 +73,8 @@ const { status, sendMessage, stop } = useChat({ /* transport config */ })
 const [status, setStatus] = useState<ChatStatus>("ready")
 
 <PromptInput
+  focusId="prompt"
+  autoFocus
   status={status}
   onSubmit={async (msg) => {
     setStatus("submitted")
@@ -79,7 +87,6 @@ const [status, setStatus] = useState<ChatStatus>("ready")
     setStatus("ready")
   }}
   onStop={() => { stream.abort(); setStatus("ready") }}
-  useKeyboard={useKeyboard}
 />
 ```
 
@@ -87,6 +94,8 @@ const [status, setStatus] = useState<ChatStatus>("ready")
 
 ```tsx title="OpenAI SDK"
 <PromptInput
+  focusId="prompt"
+  autoFocus
   status={status}
   onSubmit={async (msg) => {
     setStatus("submitted")
@@ -99,7 +108,6 @@ const [status, setStatus] = useState<ChatStatus>("ready")
     for await (const chunk of stream) { /* handle deltas */ }
     setStatus("ready")
   }}
-  useKeyboard={useKeyboard}
 />
 ```
 
@@ -111,12 +119,13 @@ Provide a `commands` array for `/` autocomplete.
 
 ```tsx title="Slash commands"
 <PromptInput
+  focusId="prompt"
+  autoFocus
   commands={[
     { cmd: "/help", desc: "Show commands" },
     { cmd: "/model", desc: "Switch model" },
     { cmd: "/clear", desc: "Clear conversation" },
   ]}
-  useKeyboard={useKeyboard}
   onSubmit={(msg) => console.log(msg.text)}
 />
 ```
@@ -127,8 +136,9 @@ Provide a `files` array for `@` mention autocomplete.
 
 ```tsx title="File mentions"
 <PromptInput
+  focusId="prompt"
+  autoFocus
   files={["src/index.ts", "src/routes.ts", "package.json"]}
-  useKeyboard={useKeyboard}
   onSubmit={(msg) => console.log(msg.text)}
 />
 ```
@@ -139,6 +149,8 @@ Override the built-in `/` and `@` suggestions with your own logic.
 
 ```tsx title="Custom suggestions"
 <PromptInput
+  focusId="prompt"
+  autoFocus
   getSuggestions={(value) => {
     if (value.startsWith("#")) {
       return [
@@ -148,7 +160,6 @@ Override the built-in `/` and `@` suggestions with your own logic.
     }
     return []
   }}
-  useKeyboard={useKeyboard}
   onSubmit={(msg) => console.log(msg.text)}
 />
 ```
@@ -161,9 +172,10 @@ Use `value` and `onChange` to control the input externally.
 const [value, setValue] = useState("")
 
 <PromptInput
+  focusId="prompt"
+  autoFocus
   value={value}
   onChange={setValue}
-  useKeyboard={useKeyboard}
   onSubmit={(msg) => console.log(msg.text)}
 />
 ```
@@ -174,8 +186,9 @@ Display the active model name below the input.
 
 ```tsx title="With model"
 <PromptInput
+  focusId="prompt"
+  autoFocus
   model="claude-sonnet-4-20250514"
-  useKeyboard={useKeyboard}
   onSubmit={(msg) => console.log(msg.text)}
 />
 ```
@@ -186,9 +199,9 @@ When not using `status`, use `disabled` and `disabledText` directly.
 
 ```tsx title="Disabled"
 <PromptInput
+  focusId="prompt"
   disabled
   disabledText="Generating..."
-  useKeyboard={useKeyboard}
 />
 ```
 
@@ -201,10 +214,11 @@ read state from `PromptInput` via context — no prop drilling needed.
 import { PromptInput } from "@/components/ui/prompt-input"
 
 <PromptInput
+  focusId="prompt"
+  autoFocus
   status={status}
   onSubmit={handleSubmit}
   onStop={stop}
-  useKeyboard={useKeyboard}
 >
   <PromptInput.Divider />
   <PromptInput.Suggestions />
@@ -238,7 +252,7 @@ import { PromptInputProvider, usePromptInputController } from "@/components/ui/p
 
 <PromptInputProvider initialInput="">
   <Sidebar />
-  <PromptInput useKeyboard={useKeyboard} onSubmit={handleSubmit} />
+  <PromptInput focusId="prompt" autoFocus onSubmit={handleSubmit} />
 </PromptInputProvider>
 ```
 
@@ -295,7 +309,7 @@ function ClearButton() {
 <CommandProvider>
   <ModelSwitcher />
   <ClearButton />
-  <PromptInput useKeyboard={useKeyboard} onSubmit={handleSubmit} />
+  <PromptInput focusId="prompt" autoFocus onSubmit={handleSubmit} />
 </CommandProvider>
 ```
 
@@ -371,12 +385,11 @@ const commands = useRegistryCommands()
 | `maxSuggestions` | `number` | `5` | Max visible suggestions |
 | `enableHistory` | `boolean` | `true` | Enable command history with ↑/↓ |
 | `model` | `string` | - | Model name displayed below the input |
-| `focus` | `boolean` | `false` | Whether the input is focused and accepting keystrokes |
+| `focusId` | `string` | auto-generated | Stable id for the focus system |
+| `autoFocus` | `boolean` | `false` | Focus this component on mount |
 | `showDividers` | `boolean` | `true` | Show horizontal dividers above and below input |
-| `autoFocus` | `boolean` | `false` | Auto-focus the canvas on mount for keyboard events |
 | `dividerColor` | `string` | - | Override divider line color (e.g. for focus indicators) |
 | `dividerDashed` | `boolean` | - | Use dashed divider lines (`╌`) instead of solid (`─`) |
-| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@gridland/utils` |
 | `children` | `ReactNode` | - | When provided, enables compound mode |
 
 ### PromptInputProvider

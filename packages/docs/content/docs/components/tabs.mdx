@@ -29,7 +29,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tab-ba
 
 ```tsx
 <Tabs defaultValue="files">
-  <TabsList>
+  <TabsList focusId="tabs" autoFocus>
     <TabsTrigger value="files">Files</TabsTrigger>
     <TabsTrigger value="search">Search</TabsTrigger>
     <TabsTrigger value="git">Git</TabsTrigger>
@@ -46,6 +46,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tab-ba
 </Tabs>
 ```
 
+`TabsList` is **focused-is-interactive**: pass `focusId` and arrow/h/l keys
+fire whenever that id is focused (no separate "Enter to select" step needed).
+Wrap your app in `GridlandProvider` or a `FocusProvider` for the focus system
+to route keys.
+
 ## Examples
 
 ### Full Example
@@ -61,7 +66,14 @@ For cases where you don't need content panels, use the `TabBar` convenience wrap
 ```tsx title="Simple API"
 import { TabBar } from "@/components/ui/tab-bar"
 
-<TabBar label="View" options={["Files", "Search", "Git"]} selectedIndex={0} />
+<TabBar
+  focusId="tabs"
+  autoFocus
+  label="View"
+  options={["Files", "Search", "Git"]}
+  selectedIndex={0}
+  onValueChange={setSelectedIndex}
+/>
 ```
 
 ### With Label
@@ -179,7 +191,8 @@ Hide the horizontal separator line below the tab bar.
 | `focused` | `boolean` | `true` | Whether the tab bar appears focused |
 | `activeColor` | `string` | `theme.accent` | Foreground color of the active trigger |
 | `separator` | `boolean` | `true` | Show horizontal separator below triggers |
-| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard handler from `@gridland/utils`. Enables arrow/h/l navigation. |
+| `focusId` | `string` | auto-generated | Stable id for the focus system. Arrow/h/l navigation fires while this id is focused. |
+| `autoFocus` | `boolean` | `false` | Focus this tab bar on mount |
 | `children` | `ReactNode` | - | `TabsTrigger` components |
 
 ### TabsTrigger
@@ -207,6 +220,9 @@ Hide the horizontal separator line below the tab bar.
 | `focused` | `boolean` | `true` | Whether the tab bar appears focused |
 | `activeColor` | `string` | `theme.accent` | Foreground color of the selected option |
 | `separator` | `boolean` | `true` | Show horizontal separator below tabs |
+| `focusId` | `string` | auto-generated | Stable id for the focus system |
+| `autoFocus` | `boolean` | `false` | Focus this tab bar on mount |
+| `onValueChange` | `(index: number) => void` | - | Called when the active tab changes via keyboard navigation |
 
 ## Controls
 

@@ -1,8 +1,7 @@
 import { describe, it, expect, afterEach } from "bun:test"
 import { useState } from "react"
 import { renderTui, cleanup } from "../../../testing/src/index"
-import { useKeyboard } from "@gridland/utils"
-import { GridlandProvider } from "@/registry/gridland/ui/provider/provider"
+import { FocusProvider } from "@gridland/utils"
 import { TabBar, Tabs, TabsList, TabsTrigger, TabsContent } from "./tab-bar"
 
 afterEach(() => cleanup())
@@ -234,9 +233,9 @@ describe("Tabs compound API", () => {
 describe("Tabs keyboard navigation", () => {
   it("switches to next tab on right arrow", async () => {
     const { screen, keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="a">
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b">Tab B</TabsTrigger>
             <TabsTrigger value="c">Tab C</TabsTrigger>
@@ -245,7 +244,7 @@ describe("Tabs keyboard navigation", () => {
           <TabsContent value="b"><text>Content B</text></TabsContent>
           <TabsContent value="c"><text>Content C</text></TabsContent>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 6 },
     )
     flushN(flush)
@@ -259,9 +258,9 @@ describe("Tabs keyboard navigation", () => {
 
   it("switches to previous tab on left arrow", async () => {
     const { screen, keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="b">
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b">Tab B</TabsTrigger>
             <TabsTrigger value="c">Tab C</TabsTrigger>
@@ -270,7 +269,7 @@ describe("Tabs keyboard navigation", () => {
           <TabsContent value="b"><text>Content B</text></TabsContent>
           <TabsContent value="c"><text>Content C</text></TabsContent>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 6 },
     )
     flushN(flush)
@@ -283,9 +282,9 @@ describe("Tabs keyboard navigation", () => {
 
   it("wraps from last to first on right arrow", async () => {
     const { screen, keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="c">
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b">Tab B</TabsTrigger>
             <TabsTrigger value="c">Tab C</TabsTrigger>
@@ -293,7 +292,7 @@ describe("Tabs keyboard navigation", () => {
           <TabsContent value="a"><text>Content A</text></TabsContent>
           <TabsContent value="c"><text>Content C</text></TabsContent>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 6 },
     )
     flushN(flush)
@@ -306,9 +305,9 @@ describe("Tabs keyboard navigation", () => {
 
   it("wraps from first to last on left arrow", async () => {
     const { screen, keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="a">
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b">Tab B</TabsTrigger>
             <TabsTrigger value="c">Tab C</TabsTrigger>
@@ -316,7 +315,7 @@ describe("Tabs keyboard navigation", () => {
           <TabsContent value="a"><text>Content A</text></TabsContent>
           <TabsContent value="c"><text>Content C</text></TabsContent>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 6 },
     )
     flushN(flush)
@@ -329,16 +328,16 @@ describe("Tabs keyboard navigation", () => {
 
   it("supports vim keys h/l", async () => {
     const { screen, keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="a">
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b">Tab B</TabsTrigger>
           </TabsList>
           <TabsContent value="a"><text>Content A</text></TabsContent>
           <TabsContent value="b"><text>Content B</text></TabsContent>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 6 },
     )
     flushN(flush)
@@ -359,14 +358,14 @@ describe("Tabs controllable state", () => {
   it("fires onValueChange in uncontrolled mode", async () => {
     let lastValue = ""
     const { keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="a" onValueChange={(v) => { lastValue = v }}>
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b">Tab B</TabsTrigger>
           </TabsList>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 4 },
     )
     flushN(flush)
@@ -378,16 +377,16 @@ describe("Tabs controllable state", () => {
   it("updates internal state AND fires callback in uncontrolled mode", async () => {
     let callbackValue = ""
     const { screen, keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="a" onValueChange={(v) => { callbackValue = v }}>
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b">Tab B</TabsTrigger>
           </TabsList>
           <TabsContent value="a"><text>Content A</text></TabsContent>
           <TabsContent value="b"><text>Content B</text></TabsContent>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 6 },
     )
     flushN(flush)
@@ -401,14 +400,14 @@ describe("Tabs controllable state", () => {
   it("fires onValueChange in controlled mode", async () => {
     let callbackValue = ""
     const { keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs value="a" onValueChange={(v) => { callbackValue = v }}>
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b">Tab B</TabsTrigger>
           </TabsList>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 4 },
     )
     flushN(flush)
@@ -441,9 +440,9 @@ describe("Tabs activeColor", () => {
 describe("Tabs disabled triggers", () => {
   it("skips disabled tab on right arrow", async () => {
     const { screen, keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="a">
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b" disabled>Tab B</TabsTrigger>
             <TabsTrigger value="c">Tab C</TabsTrigger>
@@ -452,7 +451,7 @@ describe("Tabs disabled triggers", () => {
           <TabsContent value="b"><text>Content B</text></TabsContent>
           <TabsContent value="c"><text>Content C</text></TabsContent>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 6 },
     )
     flushN(flush)
@@ -467,9 +466,9 @@ describe("Tabs disabled triggers", () => {
 
   it("skips disabled tab on left arrow", async () => {
     const { screen, keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="c">
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a">Tab A</TabsTrigger>
             <TabsTrigger value="b" disabled>Tab B</TabsTrigger>
             <TabsTrigger value="c">Tab C</TabsTrigger>
@@ -478,7 +477,7 @@ describe("Tabs disabled triggers", () => {
           <TabsContent value="b"><text>Content B</text></TabsContent>
           <TabsContent value="c"><text>Content C</text></TabsContent>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 6 },
     )
     flushN(flush)
@@ -494,14 +493,14 @@ describe("Tabs disabled triggers", () => {
   it("does not change tab when all are disabled", async () => {
     let lastValue = ""
     const { keys, flush } = renderTui(
-      <GridlandProvider useKeyboard={useKeyboard}>
+      <FocusProvider>
         <Tabs defaultValue="a" onValueChange={(v) => { lastValue = v }}>
-          <TabsList>
+          <TabsList focusId="tabs" autoFocus>
             <TabsTrigger value="a" disabled>Tab A</TabsTrigger>
             <TabsTrigger value="b" disabled>Tab B</TabsTrigger>
           </TabsList>
         </Tabs>
-      </GridlandProvider>,
+      </FocusProvider>,
       { cols: 40, rows: 4 },
     )
     flushN(flush)
@@ -524,5 +523,28 @@ describe("Tabs disabled triggers", () => {
     // Both tabs render — disabled is a visual style, not hidden
     expect(screen.text()).toContain("Tab A")
     expect(screen.text()).toContain("Tab B")
+  })
+})
+
+// ── Target API (focusId + useFocus) — Phase 3 migration ─────────────
+
+describe("TabsList via focusId (target API)", () => {
+  it("routes right arrow via real key dispatch when focused", async () => {
+    let lastValue = ""
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <Tabs defaultValue="a" onValueChange={(v) => { lastValue = v }}>
+          <TabsList focusId="tabs" autoFocus>
+            <TabsTrigger value="a">Tab A</TabsTrigger>
+            <TabsTrigger value="b">Tab B</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </FocusProvider>,
+      { cols: 40, rows: 4 },
+    )
+    flushN(flush)
+    keys.right()
+    await settle(flush)
+    expect(lastValue).toBe("b")
   })
 })

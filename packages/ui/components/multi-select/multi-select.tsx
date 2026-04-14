@@ -1,7 +1,7 @@
 import { useReducer, useMemo, useRef } from "react"
 import { textStyle } from "@/registry/gridland/lib/text-style"
 import { useTheme } from "@/registry/gridland/lib/theme"
-import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
+import { useInteractive } from "@gridland/utils"
 
 export type MultiSelectItem<V> = {
   /** Unique key for React reconciliation. Falls back to stringified value. */
@@ -61,8 +61,10 @@ export interface MultiSelectProps<V> {
   allowEmpty?: boolean
   /** Called when the user confirms selection via the Submit row. */
   onSubmit?: (values: V[]) => void
-  /** Keyboard handler — pass useKeyboard from @gridland/utils. */
-  useKeyboard?: (handler: (event: any) => void) => void
+  /** Stable focus id. Auto-generated via useId when omitted. */
+  focusId?: string
+  /** Focus this component on mount. */
+  autoFocus?: boolean
 }
 
 type State<V> = {
@@ -122,10 +124,29 @@ export function MultiSelect<V>({
   checkboxColor,
   allowEmpty = false,
   onSubmit,
-  useKeyboard: useKeyboardProp,
+  focusId,
+  autoFocus,
 }: MultiSelectProps<V>) {
   const theme = useTheme()
-  const useKeyboard = useKeyboardContext(useKeyboardProp)
+  const interactive = useInteractive({
+    id: focusId,
+    autoFocus,
+    disabled,
+    shortcuts: ({ isSelected }) =>
+      isSelected
+        ? [
+            { key: "↑↓", label: "move" },
+            { key: "space", label: "toggle" },
+            { key: "a", label: "all" },
+            { key: "x", label: "clear" },
+            { key: "enter", label: "submit" },
+            { key: "esc", label: "back" },
+          ]
+        : [
+            { key: "↑↓", label: "navigate" },
+            { key: "enter", label: "select" },
+          ],
+  })
   const resolvedHighlight = highlightColor ?? theme.primary
   const resolvedCheckbox = checkboxColor ?? theme.accent
 
@@ -212,7 +233,7 @@ export function MultiSelect<V>({
     : disabled ? theme.muted
     : theme.accent
 
-  useKeyboard?.((event: any) => {
+  interactive.onKey((event: any) => {
     if (submittedRef.current || disabled) return
 
     const sel = currentSelectedRef.current
@@ -270,7 +291,7 @@ export function MultiSelect<V>({
   if (state.submitted) {
     const selectedItems = items.filter((i) => currentSelected.has(i.value))
     return (
-      <box flexDirection="column">
+      <box ref={interactive.focusRef} flexDirection="column">
         <text>
           <span style={textStyle({ fg: theme.success })}>{"◆ "}</span>
           <span style={textStyle({ bold: true, fg: theme.foreground })}>{title}</span>
@@ -294,7 +315,7 @@ export function MultiSelect<V>({
   const hasItems = selectableItems.length > 0
 
   return (
-    <box flexDirection="column">
+    <box ref={interactive.focusRef} flexDirection="column">
       <text>
         <span style={textStyle({ fg: diamondColor, dim: disabled })}>{"◆ "}</span>
         <span style={textStyle({ bold: true, dim: disabled, fg: theme.foreground })}>{title}</span>

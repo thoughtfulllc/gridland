@@ -13,7 +13,6 @@ export interface UseKeyboardOptions {
 }
 
 export declare const useKeyboard: (handler: (key: KeyEvent) => void, options?: UseKeyboardOptions) => void
-export declare function useCapturedKeyboard(focusId: string): (handler: (event: any) => void) => void
 export declare const useOnResize: (callback: (width: number, height: number) => void) => any
 export declare const useRenderer: () => any
 export declare const useTerminalDimensions: () => { width: number; height: number }
@@ -321,6 +320,34 @@ export interface ShortcutEntry {
 
 export declare function useShortcuts(shortcuts: ShortcutEntry[], focusId: string): void
 export declare function useFocusedShortcuts(): ShortcutEntry[]
+
+// ── Interactive primitive (focus + keyboard + shortcuts) ────────────────
+
+export interface UseInteractiveOptions {
+  id?: string
+  autoFocus?: boolean
+  disabled?: boolean
+  selectable?: boolean
+  tabIndex?: number
+  shortcuts?:
+    | ShortcutEntry[]
+    | ((state: { isFocused: boolean; isSelected: boolean }) => ShortcutEntry[])
+}
+
+export interface UseInteractiveReturn {
+  focusRef: (node: any) => void
+  focusId: string
+  isFocused: boolean
+  isSelected: boolean
+  isAnySelected: boolean
+  onKey: (handler: (event: any) => void) => void
+  focus: () => void
+  blur: () => void
+  select: () => void
+  deselect: () => void
+}
+
+export declare function useInteractive(options?: UseInteractiveOptions): UseInteractiveReturn
 
 // ── Runtime context ─────────────────────────────────────────────────────
 

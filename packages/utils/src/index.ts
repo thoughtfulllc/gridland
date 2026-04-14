@@ -3,7 +3,6 @@
 // Shared singleton: AppContext is the bridge between utils, @gridland/bun, and @gridland/web.
 
 // Hooks
-export { useCapturedKeyboard } from "../../core/src/react/hooks/use-captured-keyboard"
 export { useKeyboard, type UseKeyboardOptions } from "../../core/src/react/hooks/use-keyboard"
 export { useOnResize } from "../../core/src/react/hooks/use-resize"
 export { useRenderer } from "../../core/src/react/hooks/use-renderer"
@@ -78,6 +77,13 @@ export {
   type FocusScopeProps,
   type ShortcutEntry,
 } from "../../core/src/react/focus"
+
+// Interactive primitive (composes focus + keyboard + shortcuts)
+export {
+  useInteractive,
+  type UseInteractiveOptions,
+  type UseInteractiveReturn,
+} from "../../core/src/react/interactive"
 
 // Runtime context
 export {

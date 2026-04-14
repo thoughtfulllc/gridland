@@ -28,21 +28,26 @@ bunx create-gridland add multi-select
 
 ```tsx
 import { MultiSelect } from "@/components/ui/multi-select"
-import { useKeyboard } from "@gridland/utils"
 ```
 
 ```tsx
 <MultiSelect
+  focusId="languages"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
     { label: "Python", value: "py" },
   ]}
   title="Select languages"
-  useKeyboard={useKeyboard}
   onSubmit={(values) => console.log("Selected:", values)}
 />
 ```
+
+`MultiSelect` registers with the focus system via `focusId`. Wrap your app in
+`GridlandProvider` (which mounts `<FocusProvider selectable>` implicitly) or a
+standalone `<FocusProvider selectable>`. Tab focuses the component, Enter
+selects it for interaction, then arrow keys navigate and space toggles items.
 
 ## Examples
 
@@ -54,6 +59,8 @@ Use `selected` and `onChange` to control the selection externally.
 const [selected, setSelected] = useState<string[]>(["ts"])
 
 <MultiSelect
+  focusId="languages"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
@@ -62,7 +69,6 @@ const [selected, setSelected] = useState<string[]>(["ts"])
   selected={selected}
   onChange={setSelected}
   title="Select languages"
-  useKeyboard={useKeyboard}
   onSubmit={(values) => console.log("Selected:", values)}
 />
 ```
@@ -73,6 +79,8 @@ Set the initially selected items in uncontrolled mode.
 
 ```tsx title="Default selected"
 <MultiSelect
+  focusId="languages"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
@@ -80,7 +88,6 @@ Set the initially selected items in uncontrolled mode.
   ]}
   defaultSelected={["ts"]}
   title="Select languages"
-  useKeyboard={useKeyboard}
   onSubmit={(values) => console.log("Selected:", values)}
 />
 ```
@@ -91,6 +98,8 @@ Use the `group` field on items to render group headers with separators.
 
 ```tsx title="With groups"
 <MultiSelect
+  focusId="tools"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts", group: "Languages" },
     { label: "Python", value: "py", group: "Languages" },
@@ -98,7 +107,6 @@ Use the `group` field on items to render group headers with separators.
     { label: "Vue", value: "vue", group: "Frameworks" },
   ]}
   title="Select tools"
-  useKeyboard={useKeyboard}
   onSubmit={(values) => console.log(values)}
 />
 ```
@@ -109,13 +117,14 @@ Disable individual items so they cannot be toggled.
 
 ```tsx title="Disabled items"
 <MultiSelect
+  focusId="languages"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js", disabled: true },
     { label: "Python", value: "py" },
   ]}
   title="Select languages"
-  useKeyboard={useKeyboard}
   onSubmit={(values) => console.log(values)}
 />
 ```
@@ -126,6 +135,8 @@ Limit how many items can be selected. A counter is shown in the title.
 
 ```tsx title="Max selection"
 <MultiSelect
+  focusId="languages"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
@@ -134,7 +145,6 @@ Limit how many items can be selected. A counter is shown in the title.
   ]}
   maxCount={2}
   title="Pick up to 2"
-  useKeyboard={useKeyboard}
   onSubmit={(values) => console.log(values)}
 />
 ```
@@ -145,6 +155,8 @@ Show a required indicator and use `invalid` to display an error state.
 
 ```tsx title="Required with validation"
 <MultiSelect
+  focusId="languages"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
@@ -153,7 +165,6 @@ Show a required indicator and use `invalid` to display an error state.
   required
   invalid={selected.length === 0}
   title="Select languages"
-  useKeyboard={useKeyboard}
   onSubmit={(values) => console.log(values)}
 />
 ```
@@ -164,13 +175,14 @@ Show the Submit row even when nothing is selected.
 
 ```tsx title="Allow empty submission"
 <MultiSelect
+  focusId="languages"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
   ]}
   allowEmpty
   title="Select languages (optional)"
-  useKeyboard={useKeyboard}
   onSubmit={(values) => console.log(values)}
 />
 ```
@@ -181,13 +193,13 @@ Disable the entire component. Navigation and selection are blocked.
 
 ```tsx title="Disabled"
 <MultiSelect
+  focusId="languages"
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
   ]}
   disabled
   title="Select languages"
-  useKeyboard={useKeyboard}
 />
 ```
 
@@ -223,7 +235,8 @@ Disable the entire component. Navigation and selection are blocked.
 | `checkboxColor` | `string` | `theme.accent` | Color of the selection indicator |
 | `allowEmpty` | `boolean` | `false` | Show Submit row even when nothing is selected |
 | `onSubmit` | `(values: V[]) => void` | - | Called when the Submit row is selected |
-| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@gridland/utils` |
+| `focusId` | `string` | auto-generated | Stable id for the focus system |
+| `autoFocus` | `boolean` | `false` | Focus this component on mount |
 
 ### MultiSelectItem
 

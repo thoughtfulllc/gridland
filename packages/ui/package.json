@@ -23,6 +23,6 @@
   },
   "peerDependencies": {
     "react": ">=19.0.0",
-    "@gridland/utils": ">=0.2.55"
+    "@gridland/utils": ">=0.3.0"
   }
 }

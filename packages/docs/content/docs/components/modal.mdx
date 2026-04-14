@@ -101,4 +101,7 @@ Omit the `title` prop for a plain bordered container.
 | `borderColor` | `string` | `theme.muted` | Color of the border |
 | `borderStyle` | `"single" \| "double" \| "rounded" \| "heavy"` | `"rounded"` | Border character set |
 | `onClose` | `() => void` | - | Called when Escape is pressed |
-| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@gridland/utils` |
+
+Modal listens for Escape via `useKeyboard` from `@gridland/utils` internally —
+no keyboard plumbing is required from the caller. Render it anywhere inside
+a `GridlandProvider` or `FocusProvider` and the Escape handler will fire.

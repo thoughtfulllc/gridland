@@ -1,64 +1,23 @@
+// @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
+import { useFocus } from "@gridland/utils"
 import { renderTui, cleanup } from "../../../testing/src/index"
-import { GridlandProvider, useKeyboardContext } from "./provider"
+import { GridlandProvider } from "./provider"
 import { useTheme } from "@/registry/gridland/lib/theme"
 
 afterEach(() => cleanup())
-
-function KeyboardConsumer({ propOverride }: { propOverride?: any }) {
-  const hook = useKeyboardContext(propOverride)
-  return <text>{`keyboard:${hook ? "provided" : "undefined"}`}</text>
-}
 
 function ThemeConsumer() {
   const theme = useTheme()
   return <text>{`primary:${theme.primary}`}</text>
 }
 
-const mockUseKeyboard = () => {}
-const otherMockUseKeyboard = () => {}
+function FocusConsumer({ id, autoFocus }: { id: string; autoFocus?: boolean }) {
+  const { isFocused } = useFocus({ id, autoFocus })
+  return <text>{isFocused ? `[${id}:FOCUSED]` : `[${id}]`}</text>
+}
 
 describe("GridlandProvider behavior", () => {
-  // ── Keyboard context ──────────────────────────────────────────────
-
-  it("provides useKeyboard via context", () => {
-    const { screen } = renderTui(
-      <GridlandProvider useKeyboard={mockUseKeyboard}>
-        <KeyboardConsumer />
-      </GridlandProvider>,
-      { cols: 40, rows: 5 },
-    )
-    expect(screen.text()).toContain("keyboard:provided")
-  })
-
-  it("returns undefined when no useKeyboard provided", () => {
-    const { screen } = renderTui(
-      <GridlandProvider>
-        <KeyboardConsumer />
-      </GridlandProvider>,
-      { cols: 40, rows: 5 },
-    )
-    expect(screen.text()).toContain("keyboard:undefined")
-  })
-
-  it("prop override takes precedence over context", () => {
-    const { screen } = renderTui(
-      <GridlandProvider useKeyboard={mockUseKeyboard}>
-        <KeyboardConsumer propOverride={otherMockUseKeyboard} />
-      </GridlandProvider>,
-      { cols: 40, rows: 5 },
-    )
-    expect(screen.text()).toContain("keyboard:provided")
-  })
-
-  it("context is undefined without provider", () => {
-    const { screen } = renderTui(
-      <KeyboardConsumer />,
-      { cols: 40, rows: 5 },
-    )
-    expect(screen.text()).toContain("keyboard:undefined")
-  })
-
   // ── Theme ─────────────────────────────────────────────────────────
 
   it("wraps with ThemeProvider when theme is provided", () => {
@@ -82,5 +41,34 @@ describe("GridlandProvider behavior", () => {
       { cols: 40, rows: 5 },
     )
     expect(screen.text()).toContain("hello world")
+  })
+
+  // ── Implicit FocusProvider (Phase 4 migration) ──────────────────
+
+  it("wraps children in an implicit FocusProvider", () => {
+    const { screen, flush } = renderTui(
+      <GridlandProvider>
+        <FocusConsumer id="a" autoFocus />
+      </GridlandProvider>,
+      { cols: 40, rows: 5 },
+    )
+    flush(); flush()
+    // autoFocus only works when a FocusProvider is present in the tree.
+    // This test fails if GridlandProvider doesn't wrap in one implicitly.
+    expect(screen.text()).toContain("[a:FOCUSED]")
+  })
+
+  it("disableFocusProvider={true} disables the implicit wrap", () => {
+    const { screen, flush } = renderTui(
+      <GridlandProvider disableFocusProvider>
+        <FocusConsumer id="a" autoFocus />
+      </GridlandProvider>,
+      { cols: 40, rows: 5 },
+    )
+    flush(); flush()
+    // Without the wrapper, useFocus dispatches land on the default noop
+    // store, so autoFocus is a no-op and the component stays unfocused.
+    expect(screen.text()).not.toContain("[a:FOCUSED]")
+    expect(screen.text()).toContain("[a]")
   })
 })

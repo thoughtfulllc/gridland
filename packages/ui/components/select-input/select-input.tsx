@@ -1,7 +1,7 @@
 import { useReducer, useMemo, useRef } from "react"
 import { textStyle } from "@/registry/gridland/lib/text-style"
 import { useTheme } from "@/registry/gridland/lib/theme"
-import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
+import { useInteractive } from "@gridland/utils"
 
 export type SelectInputItem<V> = {
   /** Unique key for React reconciliation. Falls back to stringified value. */
@@ -47,8 +47,10 @@ export interface SelectInputProps<V> {
   radioColor?: string
   /** Called when the user confirms selection via Enter. */
   onSubmit?: (value: V) => void
-  /** Keyboard handler — pass useKeyboard from @gridland/utils. */
-  useKeyboard?: (handler: (event: any) => void) => void
+  /** Stable focus id. Auto-generated via useId when omitted. */
+  focusId?: string
+  /** Focus this component on mount. */
+  autoFocus?: boolean
 }
 
 type State = {
@@ -99,10 +101,26 @@ export function SelectInput<V>({
   highlightColor,
   radioColor,
   onSubmit,
-  useKeyboard: useKeyboardProp,
+  focusId,
+  autoFocus,
 }: SelectInputProps<V>) {
   const theme = useTheme()
-  const useKeyboard = useKeyboardContext(useKeyboardProp)
+  const interactive = useInteractive({
+    id: focusId,
+    autoFocus,
+    disabled,
+    shortcuts: ({ isSelected }) =>
+      isSelected
+        ? [
+            { key: "↑↓", label: "move" },
+            { key: "enter", label: "submit" },
+            { key: "esc", label: "back" },
+          ]
+        : [
+            { key: "↑↓", label: "navigate" },
+            { key: "enter", label: "select" },
+          ],
+  })
   const resolvedHighlight = highlightColor ?? theme.primary
   const resolvedRadio = radioColor ?? theme.muted
 
@@ -168,7 +186,7 @@ export function SelectInput<V>({
     : disabled ? theme.muted
     : theme.accent
 
-  useKeyboard?.((event: any) => {
+  interactive.onKey((event: any) => {
     if (submittedRef.current || disabled) return
     const items = selectableItemsRef.current
     const total = items.length
@@ -213,7 +231,7 @@ export function SelectInput<V>({
       ? items.find((i) => i.value === controlledValue)
       : selectableItems[cursor]?.item
     return (
-      <box flexDirection="column">
+      <box ref={interactive.focusRef} flexDirection="column">
         <text>
           <span style={textStyle({ fg: theme.success })}>{"◆ "}</span>
           <span style={textStyle({ bold: true, fg: theme.foreground })}>{title}</span>
@@ -237,7 +255,7 @@ export function SelectInput<V>({
   const hasItems = selectableItems.length > 0
 
   return (
-    <box flexDirection="column">
+    <box ref={interactive.focusRef} flexDirection="column">
       <text>
         <span style={textStyle({ fg: diamondColor, dim: disabled })}>{"◆ "}</span>
         <span style={textStyle({ bold: true, dim: disabled, fg: theme.foreground })}>{title}</span>

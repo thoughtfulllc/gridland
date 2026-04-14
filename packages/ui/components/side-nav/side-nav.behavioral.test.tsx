@@ -306,6 +306,24 @@ describe("SideNav behavior", () => {
     expect(changes).toEqual(["keybinds"])
   })
 
+  // ── Target API (Phase 3 migration) ─────────────────────────────────
+
+  it("does not pass captureKeyboard to the panel render prop", () => {
+    let ctx: any = null
+    const { flush } = renderTui(
+      <SideNav items={items}>
+        {(context) => {
+          ctx = context
+          return <text>x</text>
+        }}
+      </SideNav>,
+      { cols: 60, rows: 15 },
+    )
+    flushN(flush)
+    expect(ctx).not.toBeNull()
+    expect(ctx).not.toHaveProperty("captureKeyboard")
+  })
+
   it("clamps activeIndex when items shrink", async () => {
     const longItems = [
       { id: "a", name: "Alpha" },

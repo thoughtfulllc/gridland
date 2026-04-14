@@ -1,5 +1,7 @@
+// @ts-nocheck — post-migration props (focusId, autoFocus) aren't yet in the type
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
+import { FocusProvider } from "@gridland/utils"
 import { TextInput } from "./text-input"
 
 // Note: TextInput uses the <input> intrinsic which requires Zig FFI.
@@ -104,12 +106,53 @@ describe("TextInput", () => {
     expect(text).not.toContain("▸")
   })
 
-  it("disabled ignores focus prop", () => {
+  it("disabled never shows focused indicator", () => {
     const { screen } = renderTui(
-      <TextInput value="locked" label="Key" disabled focus />,
+      <TextInput value="locked" label="Key" disabled />,
       { cols: 80, rows: 4 },
     )
-    // focus + disabled = not focused, should show placeholder text fallback
     expect(screen.text()).not.toContain("▸")
+  })
+})
+
+// ── Target API (focusId + useInteractive) — Phase 3 migration ──────
+
+describe("TextInput via focusId (target API)", () => {
+  it("integrates with the focus system alongside a sibling", () => {
+    const { screen, flush } = renderTui(
+      <FocusProvider selectable>
+        <TextInput focusId="name" autoFocus value="" label="Name" />
+        <TextInput focusId="email" value="" label="Email" />
+      </FocusProvider>,
+      { cols: 80, rows: 10 },
+    )
+    flush(); flush()
+    expect(screen.text()).toContain("Name")
+    expect(screen.text()).toContain("Email")
+  })
+
+  it("autoFocus inside a FocusProvider marks the component focused", () => {
+    const { screen, flush } = renderTui(
+      <FocusProvider selectable>
+        <TextInput focusId="name" autoFocus value="" label="Name" />
+      </FocusProvider>,
+      { cols: 80, rows: 10 },
+    )
+    flush(); flush()
+    // Focused but not selected → label indicator visible (▸ prefix)
+    expect(screen.text()).toContain("▸")
+  })
+
+  it("renders plain text (not <input>) while not selected", () => {
+    // Without selection, TextInput renders its value as <text>,
+    // which is the only thing test-env can handle safely.
+    const { screen, flush } = renderTui(
+      <FocusProvider selectable>
+        <TextInput focusId="name" autoFocus value="hello" label="Name" />
+      </FocusProvider>,
+      { cols: 80, rows: 10 },
+    )
+    flush(); flush()
+    expect(screen.text()).toContain("hello")
   })
 })

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
+import { FocusProvider } from "@gridland/utils"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { AboutModal } from "./about-modal"
 
@@ -7,27 +8,24 @@ afterEach(() => cleanup())
 
 describe("AboutModal", () => {
   it("renders the title", () => {
-    const mockUseKeyboard = () => {}
     const { screen } = renderTui(
-      <AboutModal onClose={() => {}} useKeyboard={mockUseKeyboard} />,
+      <FocusProvider><AboutModal onClose={() => {}} /></FocusProvider>,
       { cols: 60, rows: 20 },
     )
     expect(screen.text()).toContain("About Gridland")
   })
 
   it("renders 'What is Gridland?' section", () => {
-    const mockUseKeyboard = () => {}
     const { screen } = renderTui(
-      <AboutModal onClose={() => {}} useKeyboard={mockUseKeyboard} />,
+      <FocusProvider><AboutModal onClose={() => {}} /></FocusProvider>,
       { cols: 60, rows: 20 },
     )
     expect(screen.text()).toContain("What is Gridland?")
   })
 
   it("renders Features section", () => {
-    const mockUseKeyboard = () => {}
     const { screen } = renderTui(
-      <AboutModal onClose={() => {}} useKeyboard={mockUseKeyboard} />,
+      <FocusProvider><AboutModal onClose={() => {}} /></FocusProvider>,
       { cols: 60, rows: 20 },
     )
     expect(screen.text()).toContain("Features")
@@ -35,9 +33,8 @@ describe("AboutModal", () => {
   })
 
   it("renders Tech Stack section", () => {
-    const mockUseKeyboard = () => {}
     const { screen } = renderTui(
-      <AboutModal onClose={() => {}} useKeyboard={mockUseKeyboard} />,
+      <FocusProvider><AboutModal onClose={() => {}} /></FocusProvider>,
       { cols: 60, rows: 20 },
     )
     expect(screen.text()).toContain("Tech Stack")
@@ -45,9 +42,8 @@ describe("AboutModal", () => {
   })
 
   it("shows 'Press q to close'", () => {
-    const mockUseKeyboard = () => {}
     const { screen } = renderTui(
-      <AboutModal onClose={() => {}} useKeyboard={mockUseKeyboard} />,
+      <FocusProvider><AboutModal onClose={() => {}} /></FocusProvider>,
       { cols: 60, rows: 20 },
     )
     expect(screen.text()).toContain("Press q to close")
@@ -55,21 +51,21 @@ describe("AboutModal", () => {
 
   it("calls onClose when escape is pressed via modal", () => {
     let closed = false
-    let savedHandler: any = null
-    const mockUseKeyboard = (handler: any) => { savedHandler = handler }
-    const tui = renderTui(
-      <AboutModal onClose={() => { closed = true }} useKeyboard={mockUseKeyboard} />,
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <AboutModal onClose={() => { closed = true }} />
+      </FocusProvider>,
       { cols: 60, rows: 20 },
     )
-    savedHandler({ name: "escape" })
-    tui.flush()
+    flush(); flush()
+    keys.escape()
+    flush(); flush()
     expect(closed).toBe(true)
   })
 
   it("lists all expected feature bullets", () => {
-    const mockUseKeyboard = () => {}
     const { screen } = renderTui(
-      <AboutModal onClose={() => {}} useKeyboard={mockUseKeyboard} />,
+      <FocusProvider><AboutModal onClose={() => {}} /></FocusProvider>,
       { cols: 60, rows: 20 },
     )
     expect(screen.text()).toContain("React reconciler with JSX")

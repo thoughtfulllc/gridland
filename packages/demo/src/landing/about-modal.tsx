@@ -3,14 +3,13 @@ import { Modal, textStyle, useTheme } from "@gridland/ui"
 
 interface AboutModalProps {
   onClose: () => void
-  useKeyboard: any
 }
 
-export function AboutModal({ onClose, useKeyboard }: AboutModalProps) {
+export function AboutModal({ onClose }: AboutModalProps) {
   const theme = useTheme()
 
   return (
-    <Modal title="About Gridland" useKeyboard={useKeyboard} onClose={onClose}>
+    <Modal title="About Gridland" onClose={onClose}>
       <box paddingX={1} flexDirection="column" gap={1}>
         <text style={textStyle({ bold: true, fg: theme.accent })}>What is Gridland?</text>
         <text>

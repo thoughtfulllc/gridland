@@ -1,34 +1,30 @@
 // @ts-nocheck
 import { useState } from "react"
-import { useKeyboard } from "@gridland/utils"
+import { FocusProvider, useFocusedShortcuts } from "@gridland/utils"
 import { TextInput, StatusBar } from "@gridland/ui"
 
 const FIELDS = [
-  { label: "Username", placeholder: "enter your name", maxLength: 30, required: true },
-  { label: "Email", placeholder: "user@example.com", maxLength: 50, required: true, description: "We'll never share your email" },
-  { label: "Password", placeholder: "enter password", maxLength: 40 },
-  { label: "API Key", placeholder: "sk-...", maxLength: 60, disabled: true },
+  { id: "username", label: "Username", placeholder: "enter your name", maxLength: 30, required: true },
+  { id: "email", label: "Email", placeholder: "user@example.com", maxLength: 50, required: true, description: "We'll never share your email" },
+  { id: "password", label: "Password", placeholder: "enter password", maxLength: 40 },
+  { id: "apikey", label: "API Key", placeholder: "sk-...", maxLength: 60, disabled: true },
 ] as const
 
-export function TextInputApp() {
-  const [activeField, setActiveField] = useState(0)
+function TextInputDemo() {
   const [values, setValues] = useState(FIELDS.map(() => ""))
-
-  useKeyboard((event) => {
-    if (event.name === "up") setActiveField((i) => Math.max(0, i - 1))
-    if (event.name === "down") setActiveField((i) => Math.min(FIELDS.length - 1, i + 1))
-  })
+  const shortcuts = useFocusedShortcuts()
 
   return (
     <box flexDirection="column" flexGrow={1}>
       <box flexDirection="column" paddingX={1} paddingTop={1} flexGrow={1}>
         {FIELDS.map((field, i) => (
-          <box key={field.label} marginBottom={1}>
+          <box key={field.id} marginBottom={1}>
             <TextInput
+              focusId={field.id}
+              autoFocus={i === 0}
               label={field.label}
               placeholder={field.placeholder}
               prompt="> "
-              focus={i === activeField}
               maxLength={field.maxLength}
               value={values[i]}
               onChange={(v) => setValues((prev) => prev.map((old, j) => j === i ? v : old))}
@@ -40,8 +36,16 @@ export function TextInputApp() {
         ))}
       </box>
       <box paddingX={1} paddingBottom={1}>
-        <StatusBar items={[{ key: "↑↓", label: "field" }]} />
+        <StatusBar items={shortcuts} />
       </box>
     </box>
+  )
+}
+
+export function TextInputApp() {
+  return (
+    <FocusProvider selectable>
+      <TextInputDemo />
+    </FocusProvider>
   )
 }
