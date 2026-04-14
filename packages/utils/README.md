@@ -54,9 +54,12 @@ function App() {
 }
 ```
 
-For interactive UI components (in `@gridland/ui`), prefer `useInteractive` —
-one hook that composes focus registration, selection-scoped keyboard routing,
-shortcut hints, and theme-aware focus borders.
+For selectable interactive components, prefer `useInteractive` — exported
+from `@gridland/utils` as well, it composes focus registration,
+selection-scoped keyboard routing, and shortcut hints into one hook. For
+theme-aware focus borders, pair it with `useFocusBorderStyle` from
+`@gridland/ui`, or use the `useInteractiveStyled` wrapper from the shadcn
+registry (`@gridland/use-interactive-styled`).
 
 ## Documentation
 
