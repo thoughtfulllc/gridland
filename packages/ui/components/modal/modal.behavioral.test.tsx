@@ -227,3 +227,40 @@ describe("Modal behavior", () => {
     expect(screen.text()).not.toContain("Old Title")
   })
 })
+
+// ── Target API (no useKeyboard prop) — Phase 3 migration ────────────────
+
+describe("Modal via useKeyboard direct (target API)", () => {
+  it("fires onClose on Escape via real key dispatch inside a FocusProvider", () => {
+    let closed = false
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <Modal onClose={() => { closed = true }}>
+          <FocusableItem id="inside" autoFocus />
+        </Modal>
+      </FocusProvider>,
+      { cols: 40, rows: 10 },
+    )
+    flush(); flush()
+    keys.escape()
+    flush(); flush()
+    expect(closed).toBe(true)
+  })
+
+  it("ignores non-Escape keys via real key dispatch", () => {
+    let closed = false
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <Modal onClose={() => { closed = true }}>
+          <FocusableItem id="inside" autoFocus />
+        </Modal>
+      </FocusProvider>,
+      { cols: 40, rows: 10 },
+    )
+    flush(); flush()
+    keys.press("a")
+    flush(); flush()
+    expect(closed).toBe(false)
+  })
+})
+
