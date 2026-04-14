@@ -1,8 +1,7 @@
 import type { ReactNode } from "react"
-import { FocusScope } from "@gridland/utils"
+import { FocusScope, useKeyboard } from "@gridland/utils"
 import { textStyle } from "@/registry/gridland/lib/text-style"
 import { useTheme } from "@/registry/gridland/lib/theme"
-import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
 
 export interface ModalProps {
   /** The content rendered inside the modal border. */
@@ -18,8 +17,6 @@ export interface ModalProps {
   borderStyle?: "single" | "double" | "rounded" | "heavy"
   /** Callback invoked when the Escape key is pressed. */
   onClose?: () => void
-  /** Keyboard handler — pass useKeyboard from @gridland/utils */
-  useKeyboard?: (handler: (event: any) => void) => void
 }
 
 /** Bordered modal overlay with optional title and Escape-to-close. Traps focus automatically. */
@@ -29,14 +26,11 @@ export function Modal({
   borderColor,
   borderStyle = "rounded",
   onClose,
-  useKeyboard: useKeyboardProp,
 }: ModalProps) {
   const theme = useTheme()
-  const useKeyboard = useKeyboardContext(useKeyboardProp)
   const resolvedBorderColor = borderColor ?? theme.border
 
-  // Handle Escape key
-  useKeyboard?.((event: any) => {
+  useKeyboard((event: any) => {
     if (event.name === "escape" && onClose) {
       onClose()
     }

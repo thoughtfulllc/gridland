@@ -344,7 +344,7 @@ function ChatPanel({ conversationId, initialMessages, onMessagesChange, onModelC
     return (
       <box flexDirection="column" flexGrow={1} justifyContent="center" alignItems="center" padding={2}>
         <box width={40}>
-          <Modal title="Select model" useKeyboard={useKeyboard} onClose={() => setShowModelPicker(false)}>
+          <Modal title="Select model" onClose={() => setShowModelPicker(false)}>
             <SelectInput
               focusId="chat-model-picker"
               autoFocus

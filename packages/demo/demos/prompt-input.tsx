@@ -31,7 +31,7 @@ function PromptInputDemo() {
   if (showModelPicker) {
     return (
       <box flexDirection="column" flexGrow={1} padding={1}>
-        <Modal title="Select Model" useKeyboard={useKeyboard} onClose={() => setShowModelPicker(false)}>
+        <Modal title="Select Model" onClose={() => setShowModelPicker(false)}>
           <box paddingX={1}>
             <SelectInput
               focusId="model-picker"
