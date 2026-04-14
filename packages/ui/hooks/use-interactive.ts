@@ -61,8 +61,8 @@ export interface UseInteractiveReturn {
 export function useInteractive(options: UseInteractiveOptions = {}): UseInteractiveReturn {
   const { id, autoFocus, selectable = true, tabIndex, shortcuts } = options
 
-  const focus = useFocus({ id, autoFocus, selectable, tabIndex })
-  const { focusId, isFocused, isSelected, isAnySelected } = focus
+  const focusState = useFocus({ id, autoFocus, selectable, tabIndex })
+  const { focusId, isFocused, isSelected, isAnySelected } = focusState
 
   const handlerRef = useRef<((event: any) => void) | null>(null)
   const onKey = useCallback((handler: (event: any) => void) => {
@@ -70,9 +70,7 @@ export function useInteractive(options: UseInteractiveOptions = {}): UseInteract
   }, [])
 
   useKeyboard(
-    (event: any) => {
-      handlerRef.current?.(event)
-    },
+    (event: any) => handlerRef.current?.(event),
     { focusId, selectedOnly: true },
   )
 
@@ -88,18 +86,5 @@ export function useInteractive(options: UseInteractiveOptions = {}): UseInteract
     isAnySelected,
   })
 
-  return {
-    focusRef: focus.focusRef,
-    focusId,
-    isFocused,
-    isSelected,
-    isAnySelected,
-    onKey,
-    focus: focus.focus,
-    blur: focus.blur,
-    select: focus.select,
-    deselect: focus.deselect,
-    borderColor,
-    borderStyle,
-  }
+  return { ...focusState, onKey, borderColor, borderStyle }
 }
