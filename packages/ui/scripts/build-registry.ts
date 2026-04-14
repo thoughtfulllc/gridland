@@ -82,6 +82,18 @@ const ITEMS: ItemConfig[] = [
     dependencies: ["@gridland/utils"],
     categories: ["utility"],
   },
+  {
+    name: "use-interactive",
+    type: "registry:hook",
+    title: "useInteractive",
+    description: "Composed focus + keyboard + shortcuts + focus border primitive for interactive components",
+    files: [
+      { src: "hooks/use-interactive.ts", registryPath: "registry/gridland/hooks/use-interactive.ts", type: "registry:hook" },
+    ],
+    dependencies: ["@gridland/utils"],
+    registryDependencies: ["theme"],
+    categories: ["utility"],
+  },
 
   // Components (registry:ui)
   {
