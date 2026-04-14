@@ -56,6 +56,21 @@ Portable hooks (`useKeyboard`, `useTerminalDimensions`) live in [`@gridland/util
 import { useFileDrop, usePaste, useBrowserContext } from "@gridland/web"
 ```
 
+## Browser Context
+
+```tsx title="Import"
+import { BrowserContext, useBrowserContext } from "@gridland/web"
+```
+
+`BrowserContext` is the React context that `<TUI>` installs for its children.
+It carries the renderer, canvas element, and cell dimensions so browser-only
+hooks like `useFileDrop`, `usePaste`, and `useBrowserContext` can read from
+the same source of truth that `<TUI>` provides.
+
+Call `useBrowserContext()` inside a descendant of `<TUI>` to read the current
+`BrowserContextValue`. You only need to reach for the raw `BrowserContext`
+symbol when wiring up a custom `Context.Consumer` or a test provider.
+
 ## Internal Modules
 
 <Callout type="warn">

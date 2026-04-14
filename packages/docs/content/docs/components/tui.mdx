@@ -34,11 +34,21 @@ import { TUI } from "@gridland/web"
 
 ## Props
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | TUI elements to render (`<box>`, `<text>`, etc.) |
-| `style` | `CSSProperties` | CSS styles for the outer container div |
-| `className` | `string` | CSS class for the outer container div |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | TUI elements to render (`<box>`, `<text>`, etc.) |
+| `style` | `CSSProperties` | — | CSS styles for the outer container div |
+| `className` | `string` | — | CSS class for the outer container div |
+| `fontSize` | `number` | `14` | Font size in pixels |
+| `fontFamily` | `string` | JetBrains Mono → Fira Code → Cascadia Code → Consolas → monospace | Font stack used by the canvas painter |
+| `autoFocus` | `boolean` | `true` | Focus the canvas on mount so it receives keyboard input |
+| `backgroundColor` | `string` | transparent | Canvas background color |
+| `onReady` | `(renderer: BrowserRenderer) => void` | — | Called once the renderer has initialized |
+| `fallbackCols` | `number` | `80` | Columns used for the SSR headless render before hydration |
+| `fallbackRows` | `number` | `24` | Rows used for the SSR headless render before hydration |
+| `cursorHighlight` | `boolean` | `false` | Draw a highlight on the cell under the mouse cursor |
+| `cursorHighlightColor` | `string` | theme-dependent | CSS color string for the cursor highlight |
+| `cursorHighlightOpacity` | `number` | `0.15` | Opacity of the cursor highlight overlay |
 
 ## SSR Behavior
 

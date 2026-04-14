@@ -3,92 +3,135 @@ title: "@gridland/testing"
 description: Testing utilities API reference
 ---
 
-## createScreen
+`@gridland/testing` mounts Gridland components into an in-memory buffer for
+unit tests. It exposes one entry point — `renderTui` — plus the `Screen`,
+`KeySender`, and `waitFor` primitives. See the [Testing guide](/docs/guides/testing)
+for end-to-end examples.
 
-Creates a virtual screen for testing TUI components.
+## `renderTui`
 
 ```ts
-import { createScreen } from "@gridland/testing"
+import { renderTui } from "@gridland/testing"
 
-const screen = await createScreen(element, options?)
+const tui = renderTui(node, options?)
 ```
 
-**Options:**
+Mounts a React tree into an in-memory buffer and returns a `TuiInstance`. The
+call is synchronous — the initial render pass completes before `renderTui`
+returns.
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `node` | `ReactNode` | The Gridland tree to render |
+| `options` | `RenderTuiOptions?` | Buffer dimensions |
+
+**`RenderTuiOptions`:**
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `cols` | `number` | `80` | Number of columns |
 | `rows` | `number` | `24` | Number of rows |
 
-**Returns:** `Screen`
+**Returns:** `TuiInstance`
 
-## Screen
+## `TuiInstance`
 
-The screen object returned by `createScreen`.
+| Property | Type | Description |
+|----------|------|-------------|
+| `screen` | `Screen` | Query helpers for reading buffer content |
+| `keys` | `KeySender` | Keyboard input simulation |
+| `waitFor` | `(condition, options?) => Promise<void>` | Poll until `condition` holds (bound to this instance's screen) |
+| `flush` | `() => void` | Force a synchronous render pass and capture a new frame |
+| `rerender` | `(node: ReactNode) => void` | Replace the rendered tree with a new one |
+| `unmount` | `() => void` | Unmount the tree and release the renderer |
 
-### `screen.getByText(text)`
+## `Screen`
 
-Find rendered text in the buffer.
+The `Screen` class provides read-only access to the cell buffer.
 
-- **Returns:** `{ row: number, col: number, text: string }` or `null`
-
-### `screen.getAllByText(text)`
-
-Find all occurrences of text in the buffer.
-
-- **Returns:** `Array<{ row: number, col: number, text: string }>`
-
-### `screen.sendKeys(keys)`
-
-Send key events to the focused component.
-
-### `screen.toString()`
-
-Render the buffer to a plain text string for snapshot testing.
-
-### `screen.debug()`
-
-Print the buffer to the console with ANSI colors.
-
-### `screen.unmount()`
-
-Clean up the screen and reconciler.
-
-## keys
-
-Key event helpers for `sendKeys`.
-
-```ts
-import { keys } from "@gridland/testing"
-```
-
-| Helper | Description |
+| Method | Description |
 |--------|-------------|
-| `keys.type(str)` | Type characters |
-| `keys.enter` | Enter key |
-| `keys.escape` | Escape key |
-| `keys.tab` | Tab key |
-| `keys.backspace` | Backspace key |
-| `keys.up` | Up arrow |
-| `keys.down` | Down arrow |
-| `keys.left` | Left arrow |
-| `keys.right` | Right arrow |
+| `text()` | Full screen text with trailing spaces trimmed per line |
+| `rawText()` | Full screen text preserving all spaces |
+| `contains(text: string)` | `true` if the trimmed text includes `text` |
+| `matches(pattern: RegExp)` | `true` if the trimmed text matches `pattern` |
+| `line(n: number)` | The `n`th line (0-indexed) or `""` if out of range |
+| `lines()` | All non-empty lines as an array |
+| `frames()` | Captured frame snapshots — one per render pass |
+| `captureFrame()` | Manually push the current frame onto the snapshot list |
+| `attributeAt(row, col)` | Raw u32 text attributes at a cell |
+| `fgAt(row, col)` | Foreground RGBA tuple `[r, g, b, a]` at a cell |
+| `width` | Buffer width in cells |
+| `height` | Buffer height in cells |
 
-## waitFor
+## `KeySender`
 
-Wait for a condition to be met, polling at intervals.
+Dispatches synthetic keypress events through the focus system.
+
+| Method | Description |
+|--------|-------------|
+| `type(text: string)` | Type a string character by character |
+| `press(char: string)` | Press a single character key |
+| `raw(data: string)` | Send a raw sequence (e.g. an escape code) |
+| `enter()` | Press Enter |
+| `escape()` | Press Escape |
+| `tab()` | Press Tab |
+| `backspace()` | Press Backspace |
+| `delete()` | Press Delete |
+| `space()` | Press Space |
+| `up()` / `down()` / `left()` / `right()` | Arrow keys |
+| `home()` / `end()` | Home / End |
+| `pageUp()` / `pageDown()` | Page Up / Page Down |
+
+All key helpers are methods, not properties — call them with `()`.
+
+## `waitFor`
+
+Standalone version of `tui.waitFor`. Polls a condition until it holds or times out.
 
 ```ts
-import { waitFor } from "@gridland/testing"
+import { renderTui, waitFor } from "@gridland/testing"
 
-await waitFor(() => {
-  expect(screen.getByText("Done")).toBeTruthy()
-}, { timeout: 5000, interval: 50 })
+const tui = renderTui(<AsyncComponent />)
+
+// Wait for a literal string on the screen
+await waitFor(tui.screen, "Loaded")
+
+// Or wait for an assertion to stop throwing
+await waitFor(tui.screen, () => {
+  expect(tui.screen.contains("Ready")).toBe(true)
+})
 ```
 
-**Options:**
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `screen` | `Screen` | The screen to poll |
+| `condition` | `string \| (() => void)` | Literal substring, or an assertion that throws until satisfied |
+| `options` | `WaitForOptions?` | Timeout and poll interval |
+
+**`WaitForOptions`:**
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `timeout` | `number` | `1000` | Max wait time in ms |
+| `timeout` | `number` | `3000` | Max wait time in ms |
 | `interval` | `number` | `50` | Poll interval in ms |
+
+On timeout, `waitFor` throws an error that includes the current screen contents.
+
+## `cleanup`
+
+```ts
+import { cleanup } from "@gridland/testing"
+import { afterEach } from "bun:test"
+
+afterEach(() => {
+  cleanup()
+})
+```
+
+Unmounts every active `TuiInstance` created by `renderTui`. Wire this into
+`afterEach` once and you can skip calling `tui.unmount()` in each test.

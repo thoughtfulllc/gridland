@@ -50,7 +50,7 @@ A container element with flexbox layout support.
 | `padding` | `number` | Padding in cells |
 | `margin` | `number` | Margin in cells |
 | `border` | `boolean` | Show border |
-| `borderStyle` | `"single" \| "rounded" \| "double" \| "heavy"` | Border style |
+| `borderStyle` | `"single" \| "rounded" \| "double" \| "heavy" \| "dashed"` | Border style |
 | `borderColor` | `string` | Border color (hex) |
 | `backgroundColor` | `string` | Background color (hex) |
 | `title` | `string` | Border title text |
@@ -85,6 +85,15 @@ Renders styled text content.
 ## `<input>`
 
 A text input field.
+
+<Callout type="warn">
+`<input>` is **terminal-only**. It is backed by OpenTUI's Zig-FFI
+`EditBuffer` and will crash with a `resolveRenderLib` error if rendered
+inside `<TUI>` in the browser (docs site, `@gridland/web`, any canvas
+runtime). Use [`TextInput`](/docs/components/text-input) from
+`@/components/ui/text-input` in browser demos — it provides the same
+behavior with a pure-JS implementation.
+</Callout>
 
 ```tsx title="Input example"
 <input

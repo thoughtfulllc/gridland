@@ -43,13 +43,3 @@ import { isBrowser, isCanvasSupported, calculateGridSize } from "@gridland/utils
 | `isBrowser()` | Returns `true` if running in a browser environment |
 | `isCanvasSupported()` | Returns `true` if HTML5 Canvas is available |
 | `calculateGridSize(widthPx, heightPx, cellWidth, cellHeight)` | Convert pixel dimensions to grid columns/rows |
-
-## Context
-
-```tsx title="Import"
-import { BrowserContext } from "@gridland/utils"
-```
-
-`BrowserContext` is the React context shared between core hooks and
-`@gridland/web`'s `<TUI>` component. This ensures hooks in `@gridland/utils`
-read from the same context that `<TUI>` provides.

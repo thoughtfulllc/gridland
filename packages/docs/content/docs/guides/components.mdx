@@ -75,6 +75,8 @@ Create a `components.json` file in your project root with the Gridland registry:
   "aliases": {
     "components": "@/components",
     "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks",
     "utils": "@/lib/utils"
   },
   "registries": {
@@ -92,32 +94,38 @@ Make sure your `tsconfig.json` has a `@/*` path alias configured (e.g. `"@/*": [
 
 ## Add components
 
-Install components from the Gridland registry:
+Once `components.json` is in place, install components with `create-gridland add`. It detects your package manager, auto-namespaces bare names to `@gridland/<name>`, and proxies to the shadcn CLI for you — the same shortcut scaffolded projects use.
 
 <Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
 <Tab value="bun">
 ```bash title="Terminal"
-bunx shadcn@latest add @gridland/<component-name>
+bunx create-gridland add <component-name>
 ```
 </Tab>
 <Tab value="npm">
 ```bash title="Terminal"
-npx shadcn@latest add @gridland/<component-name>
+npx create-gridland add <component-name>
 ```
 </Tab>
 <Tab value="yarn">
 ```bash title="Terminal"
-yarn dlx shadcn@latest add @gridland/<component-name>
+yarn dlx create-gridland add <component-name>
 ```
 </Tab>
 <Tab value="pnpm">
 ```bash title="Terminal"
-pnpm dlx shadcn@latest add @gridland/<component-name>
+pnpm dlx create-gridland add <component-name>
 ```
 </Tab>
 </Tabs>
 
 For example, to install the Spinner component:
+
+```bash
+bunx create-gridland add spinner
+```
+
+If you prefer to call shadcn directly — for example, to pin a specific shadcn version or inspect the raw command — the equivalent invocation is:
 
 ```bash
 bunx shadcn@latest add @gridland/spinner

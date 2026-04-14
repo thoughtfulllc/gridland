@@ -31,46 +31,91 @@ pnpm add -D @gridland/testing
 </Tab>
 </Tabs>
 
-## Creating a Test Screen
+## Rendering a Component
 
-The `createScreen` function renders your component to a virtual buffer that you
-can inspect:
+`renderTui` mounts a Gridland component into an in-memory buffer and returns a
+`TuiInstance` with helpers for querying the screen, sending keys, and advancing
+the render loop. It is synchronous.
 
-```ts title="example.test.ts"
-import { createScreen } from "@gridland/testing"
+```tsx title="example.test.tsx"
+import { renderTui } from "@gridland/testing"
+import { expect, test } from "bun:test"
 
-const screen = await createScreen(
-  <box border padding={1}>
-    <text>Hello World</text>
-  </box>,
-  { cols: 40, rows: 10 }
-)
+test("renders hello world", () => {
+  const tui = renderTui(
+    <box border padding={1}>
+      <text>Hello World</text>
+    </box>,
+    { cols: 40, rows: 10 },
+  )
+
+  expect(tui.screen.contains("Hello World")).toBe(true)
+
+  tui.unmount()
+})
 ```
 
-## Querying Content
+`cols` defaults to `80` and `rows` defaults to `24` if not passed.
 
-Use `screen.getByText()` to find text in the rendered output:
+## Querying the Screen
+
+`tui.screen` exposes methods that read the rendered cell buffer directly — no
+ANSI parsing.
 
 ```ts title="example.test.ts"
-const match = screen.getByText("Hello World")
-expect(match).toBeTruthy()
-expect(match.row).toBeGreaterThan(0)
+// String containment
+expect(tui.screen.contains("Hello World")).toBe(true)
+
+// Regex
+expect(tui.screen.matches(/Hello\s+World/)).toBe(true)
+
+// Full screen text, trailing spaces trimmed per line
+const output = tui.screen.text()
+
+// A single line by index (0-based)
+const firstLine = tui.screen.line(0)
+
+// All non-empty lines
+const lines = tui.screen.lines()
 ```
+
+### Available Screen Methods
+
+| Method | Description |
+|--------|-------------|
+| `text()` | Full screen content with trailing whitespace trimmed |
+| `rawText()` | Full screen content preserving all spaces |
+| `contains(text)` | `true` if the trimmed text includes the given string |
+| `matches(pattern)` | `true` if the trimmed text matches the given regex |
+| `line(n)` | The `n`th line (0-indexed) |
+| `lines()` | All non-empty lines as an array |
+| `frames()` | Captured frame snapshots (one per render pass) |
+| `attributeAt(row, col)` | Raw u32 text attributes at a cell |
+| `fgAt(row, col)` | Foreground RGBA tuple `[r, g, b, a]` at a cell |
+| `width` / `height` | Buffer dimensions in cells |
 
 ## Simulating Input
 
-Send keystrokes to test interactive components:
+`tui.keys` is a `KeySender` that dispatches synthetic keypress events into the
+focus system just like real key input.
 
-```ts title="input.test.ts"
-import { createScreen, keys } from "@gridland/testing"
+```tsx title="input.test.tsx"
+import { renderTui } from "@gridland/testing"
+import { expect, test } from "bun:test"
+import { MyInputComponent } from "./my-input"
 
-const screen = await createScreen(<MyInputComponent />, {
-  cols: 40,
-  rows: 10,
+test("accepts typed input", () => {
+  const tui = renderTui(<MyInputComponent />, { cols: 40, rows: 10 })
+
+  tui.keys.type("hello")
+  tui.keys.enter()
+
+  tui.flush()
+
+  expect(tui.screen.contains("hello")).toBe(true)
+
+  tui.unmount()
 })
-
-screen.sendKeys(keys.type("hello"))
-screen.sendKeys(keys.enter)
 ```
 
 ### Available Key Helpers
@@ -78,51 +123,114 @@ screen.sendKeys(keys.enter)
 | Helper | Description |
 |--------|-------------|
 | `keys.type(str)` | Type a string character by character |
-| `keys.enter` | Press Enter |
-| `keys.escape` | Press Escape |
-| `keys.tab` | Press Tab |
-| `keys.backspace` | Press Backspace |
-| `keys.up` / `keys.down` | Arrow keys |
-| `keys.left` / `keys.right` | Arrow keys |
+| `keys.press(char)` | Press a single character key |
+| `keys.raw(data)` | Send a raw sequence (e.g. escape codes) |
+| `keys.enter()` | Press Enter |
+| `keys.escape()` | Press Escape |
+| `keys.tab()` | Press Tab |
+| `keys.backspace()` | Press Backspace |
+| `keys.delete()` | Press Delete |
+| `keys.space()` | Press Space |
+| `keys.up()` / `keys.down()` | Arrow keys |
+| `keys.left()` / `keys.right()` | Arrow keys |
+| `keys.home()` / `keys.end()` | Home / End |
+| `keys.pageUp()` / `keys.pageDown()` | Page Up / Page Down |
 
-## Waiting for Updates
+## Flushing Renders
 
-Use `waitFor` to wait for async state changes:
+React updates scheduled during a test (`setState`, effects, timers) are not
+visible until the next render pass. Call `tui.flush()` to force a synchronous
+render cycle and capture a new frame.
 
-```ts title="async.test.ts"
-import { createScreen, waitFor } from "@gridland/testing"
+```ts
+tui.keys.down()
+tui.flush()                          // commit pending state and re-render
+expect(tui.screen.line(0)).toBe("> second option")
+```
 
-const screen = await createScreen(<AsyncComponent />)
+`tui.rerender(node)` replaces the rendered tree entirely, which is useful when
+testing controlled components:
 
-await waitFor(() => {
-  expect(screen.getByText("Loaded")).toBeTruthy()
+```tsx
+const { rerender, screen, unmount } = renderTui(<Counter value={0} />)
+rerender(<Counter value={1} />)
+expect(screen.contains("1")).toBe(true)
+unmount()
+```
+
+## Waiting for Async Updates
+
+`tui.waitFor` polls the screen until a condition holds or a timeout expires.
+Pass a string to wait for screen content, or a function that throws until the
+condition is satisfied.
+
+```tsx title="async.test.tsx"
+import { renderTui } from "@gridland/testing"
+import { expect, test } from "bun:test"
+import { AsyncComponent } from "./async-component"
+
+test("waits for async state", async () => {
+  const tui = renderTui(<AsyncComponent />)
+
+  // Wait for a literal string to appear
+  await tui.waitFor("Loaded")
+
+  // Or wait for an arbitrary assertion
+  await tui.waitFor(() => {
+    expect(tui.screen.contains("Ready")).toBe(true)
+  })
+
+  tui.unmount()
+})
+```
+
+`waitFor` accepts `{ timeout, interval }` (defaults: `3000ms` timeout, `50ms`
+poll interval).
+
+## Cleaning Up Between Tests
+
+Each instance returned from `renderTui` must be unmounted to release its
+renderer. The top-level `cleanup` helper unmounts every active instance — wire
+it into `afterEach` once and you can omit the per-test `tui.unmount()` call.
+
+```ts title="setup.ts"
+import { cleanup } from "@gridland/testing"
+import { afterEach } from "bun:test"
+
+afterEach(() => {
+  cleanup()
 })
 ```
 
 ## Snapshot Testing
 
-Capture the rendered buffer as a string for snapshot comparisons:
+`screen.text()` returns a deterministic string that is well-suited for snapshot
+tests. Set explicit `cols` and `rows` so snapshots do not drift with terminal
+dimensions.
 
 ```ts title="snapshot.test.ts"
-const output = screen.toString()
-expect(output).toMatchSnapshot()
+const tui = renderTui(<MyApp />, { cols: 40, rows: 12 })
+expect(tui.screen.text()).toMatchSnapshot()
+tui.unmount()
 ```
 
 ## Test Runner Compatibility
 
 `@gridland/testing` works with any test runner that supports ESM:
 
-- **Bun** - Recommended, used in the Gridland test suite
-- **Vitest** - Works with proper module resolution
-- **Jest** - Works with ESM transforms configured
+- **Bun** — Recommended; used by Gridland's own test suite
+- **Vitest** — Works with proper module resolution
+- **Jest** — Works with ESM transforms configured
 
 <Callout type="info">
 Bun is the recommended test runner for Gridland projects. It has native ESM
-support and is used for the Gridland test suite itself.
+support, runs `renderTui` fast enough for thousands of snapshots per second,
+and is the runner Gridland's own test suite uses.
 </Callout>
 
 ## Tips
 
 - Set explicit `cols` and `rows` for deterministic layout
-- Run tests multiple times with randomized order to catch state leaks
-- Use `screen.debug()` to print the buffer to the console during development
+- Call `tui.flush()` after any input or state change before asserting on the screen
+- Print `tui.screen.text()` to the console when debugging a failing assertion
+- Always `tui.unmount()` at the end of a test — or call `cleanup()` in `afterEach` once
