@@ -37,16 +37,37 @@ const SKIP_TESTS = flags.get("skip-tests") === true
 let otp = flags.get("otp")
 if (typeof otp === "boolean") otp = undefined
 
-// Packages to publish, in dependency order.
-// utils → (bun, web, testing) → demo → create-gridland
-const PUBLISH_ORDER = [
-  "@gridland/utils",
-  "@gridland/bun",
-  "@gridland/web",
-  "@gridland/testing",
-  "@gridland/demo",
-  "create-gridland",
-]
+/**
+ * Topologically order the publishable packages so each dep is published before
+ * its dependents. Derived from manifests so new packages are picked up automatically.
+ */
+function computePublishOrder(pkgs) {
+  const byName = new Map(pkgs.map((p) => [p.name, p]))
+  const intraDeps = new Map()
+  for (const pkg of pkgs) {
+    const deps = new Set()
+    for (const depType of ["dependencies", "peerDependencies"]) {
+      const block = pkg.pkgJson[depType]
+      if (!block) continue
+      for (const name of Object.keys(block)) if (byName.has(name)) deps.add(name)
+    }
+    intraDeps.set(pkg.name, deps)
+  }
+  const ordered = []
+  const visited = new Set()
+  const visiting = new Set()
+  function visit(name) {
+    if (visited.has(name)) return
+    if (visiting.has(name)) throw new Error(`dependency cycle at ${name}`)
+    visiting.add(name)
+    for (const dep of intraDeps.get(name)) visit(dep)
+    visiting.delete(name)
+    visited.add(name)
+    ordered.push(name)
+  }
+  for (const name of [...byName.keys()].sort()) visit(name)
+  return ordered
+}
 
 // Template package.jsons that use hardcoded "^x.y.z" references to @gridland/*.
 // These are end-user scaffolds, not workspaces. Version bumps here are kept (committed).
@@ -131,20 +152,28 @@ function snapshotAndSwap(pkgs, nextVersion) {
   for (const pkg of pkgs) {
     const original = readFileSync(pkg.path, "utf8")
     snapshots.push({ path: pkg.path, original })
-    let modified = original
     const parsed = JSON.parse(original)
+    let changed = false
     for (const depType of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
       const deps = parsed[depType]
       if (!deps) continue
       for (const [name, value] of Object.entries(deps)) {
-        if (!publishedNames.has(name)) continue
         if (typeof value !== "string" || !value.startsWith("workspace:")) continue
-        const esc = name.replace(/[\\^$.*+?()[\]{}|/@]/g, "\\$&")
-        const pat = new RegExp(`("${esc}"\\s*:\\s*)"workspace:[^"]*"`)
-        modified = modified.replace(pat, `$1"${nextVersion}"`)
+        if (publishedNames.has(name)) {
+          deps[name] = nextVersion
+        } else {
+          // Private workspace package — not on npm. A literal workspace:*
+          // in a published tarball would make `bun install` choke, so strip it.
+          // It's fine because private workspaces aren't installable anyway.
+          delete deps[name]
+        }
+        changed = true
       }
     }
-    if (modified !== original) writeFileSync(pkg.path, modified)
+    if (changed) {
+      const trailing = original.endsWith("\n") ? "\n" : ""
+      writeFileSync(pkg.path, JSON.stringify(parsed, null, 2) + trailing)
+    }
   }
   return snapshots
 }
@@ -175,9 +204,9 @@ async function publishOne(pkg, currentOtp) {
 }
 
 async function publishAll(pkgs, nextVersion) {
-  // Map back to our fixed PUBLISH_ORDER.
   const byName = new Map(pkgs.map((p) => [p.name, p]))
-  for (const name of PUBLISH_ORDER) {
+  const order = computePublishOrder(pkgs)
+  for (const name of order) {
     const pkg = byName.get(name)
     if (!pkg) throw new Error(`publishable package missing from disk: ${name}`)
     // Re-read the on-disk version (bump already happened).
@@ -259,7 +288,7 @@ async function main() {
 
     // 7. Ask for OTP (if not yet provided) and publish in dep order.
     otp = await readOtp()
-    log(`publishing ${PUBLISH_ORDER.length} packages${DRY_RUN ? " (dry run)" : ""}`)
+    log(`publishing ${pkgs.length} packages${DRY_RUN ? " (dry run)" : ""}`)
     await publishAll(pkgs, nextVersion)
     published = true
   } finally {
