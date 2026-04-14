@@ -30,7 +30,6 @@ export function CompositionFixture() {
                     onSubmit={() => { setSubmitted(inputValue); setInputValue("") }}
                     placeholder="Type here..."
                     prompt="> "
-                    focus
                   />
                 )}
                 {submitted && <text fg="#a6e3a1">Sent: {submitted}</text>}

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useKeyboard } from "@gridland/utils"
+import { FocusScope } from "@gridland/utils"
 import { FixtureWrapper } from "../fixture-wrapper"
 import { MultiSelect } from "../../../../packages/ui/components/multi-select/multi-select"
 import { GridlandProvider } from "../../../../packages/ui/components/provider/provider"
@@ -22,16 +22,18 @@ export function MultiSelectInteractiveFixture() {
       <ThemeProvider theme={darkTheme}>
         <GridlandProvider>
           <box flexDirection="column" gap={1}>
-            <MultiSelect
-              items={items}
-              title="Select Languages"
-              selected={selected}
-              onChange={setSelected}
-              onSubmit={() => setSubmitted(true)}
-              useKeyboard={useKeyboard}
-              enableSelectAll
-              enableClear
-            />
+            <FocusScope trap selectable autoFocus autoSelect>
+              <MultiSelect
+                items={items}
+                title="Select Languages"
+                selected={selected}
+                onChange={setSelected}
+                onSubmit={() => setSubmitted(true)}
+                autoFocus
+                enableSelectAll
+                enableClear
+              />
+            </FocusScope>
             <text fg="#a6e3a1">Count: {selected.length}</text>
             {submitted && <text fg="#89b4fa">Submitted</text>}
           </box>
