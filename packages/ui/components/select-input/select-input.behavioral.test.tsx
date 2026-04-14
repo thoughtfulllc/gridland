@@ -1,5 +1,7 @@
+// @ts-nocheck — new tests use OpenTUI intrinsic elements for Sink components
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
+import { FocusProvider, useFocusedShortcuts } from "@gridland/utils"
 import { SelectInput } from "./select-input"
 
 afterEach(() => cleanup())
@@ -354,3 +356,80 @@ describe("SelectInput behavior", () => {
     expect(itemMatches.length).toBeLessThanOrEqual(5)
   })
 })
+
+// ── Target API (focusId + useInteractive) — Phase 2 migration ───────────
+// These tests fail on current SelectInput because it doesn't yet accept
+// focusId/autoFocus. They drive the migration to useInteractive.
+
+function flush2(flush: () => void) {
+  flush()
+  flush()
+}
+
+describe("SelectInput via useInteractive (target API)", () => {
+  it("routes arrow keys via the focus system when selected", () => {
+    let changed: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput
+          focusId="lang"
+          autoFocus
+          items={items}
+          value="ts"
+          onChange={(v) => {
+            changed = v
+          }}
+        />
+      </FocusProvider>,
+      { cols: 40, rows: 10 },
+    )
+    flush2(flush)
+
+    // Focused but not selected — arrow should NOT move the cursor
+    keys.down()
+    flush2(flush)
+    expect(changed).toBeNull()
+
+    // Enter to select, then ArrowDown should move
+    keys.enter()
+    flush2(flush)
+    keys.down()
+    flush2(flush)
+    expect(changed).toBe("js")
+  })
+
+  it("mounts inside a FocusProvider with an auto-generated focusId", () => {
+    const { screen, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput items={items} />
+      </FocusProvider>,
+      { cols: 40, rows: 10 },
+    )
+    flush2(flush)
+    // Just: the component rendered successfully
+    expect(screen.text()).toContain("TypeScript")
+  })
+
+  it("registers shortcut hints that reflect focused vs selected state", () => {
+    function Sink() {
+      const s = useFocusedShortcuts()
+      return <text>{`hint:${s.map((e) => e.label).join("+")}:end`}</text>
+    }
+    const { screen, keys, flush } = renderTui(
+      <FocusProvider selectable>
+        <SelectInput focusId="lang" autoFocus items={items} />
+        <Sink />
+      </FocusProvider>,
+      { cols: 60, rows: 12 },
+    )
+    flush2(flush)
+    // Focused (not selected) — hints describe entering the component
+    expect(screen.text()).toMatch(/hint:.*navigate.*select.*:end/)
+
+    keys.enter()
+    flush2(flush)
+    // Selected — hints describe moving / submitting / exiting
+    expect(screen.text()).toMatch(/hint:.*move.*submit.*back.*:end/)
+  })
+})
+
