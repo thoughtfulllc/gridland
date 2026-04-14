@@ -29,11 +29,17 @@ legacy `useKeyboard` prop is gone from every component.
 **New primary primitive**
 
 `useInteractive` — composes `useFocus`, `useKeyboard({ focusId, selectedOnly: true })`,
-`useShortcuts`, and theme-aware focus border styling into one hook.
-Shipped as `registry:hook` (`@gridland/use-interactive` in the shadcn
-registry), exported from `@gridland/ui` as a named import.
+and `useShortcuts` into one hook. It lives in `@gridland/utils` (published to
+npm), so consumers get bug fixes through `bun update` without re-running the
+shadcn registry. The theme-aware focus border styling that used to bundle into
+the same return object is now a separate concern — call `useFocusBorderStyle`
+alongside it, or use the `useInteractiveStyled` wrapper from `@gridland/ui` for
+the one-hook ergonomic (see below).
 
 ```tsx
+import { useInteractive } from "@gridland/utils"
+import { useFocusBorderStyle } from "@/lib/theme"
+
 const interactive = useInteractive({
   id: "my-component",
   autoFocus,
@@ -44,6 +50,12 @@ const interactive = useInteractive({
       : [{ key: "enter", label: "select" }],
 })
 
+const { borderColor, borderStyle } = useFocusBorderStyle({
+  isFocused: interactive.isFocused,
+  isSelected: interactive.isSelected,
+  isAnySelected: interactive.isAnySelected,
+})
+
 interactive.onKey((event) => {
   if (event.name === "return") handleSubmit()
 })
@@ -52,13 +64,72 @@ return (
   <box
     ref={interactive.focusRef}
     border
-    borderStyle={interactive.borderStyle}
-    borderColor={interactive.borderColor}
+    borderStyle={borderStyle}
+    borderColor={borderColor}
   >
     ...
   </box>
 )
 ```
+
+**New registry wrapper: `useInteractiveStyled`**
+
+Ships as `registry:hook` (`@gridland/use-interactive-styled`). Thin wrapper
+over `useInteractive` that bundles the themed focus border back in:
+
+```tsx
+import { useInteractiveStyled } from "@/hooks/use-interactive-styled"
+
+const { focusRef, borderColor, borderStyle } = useInteractiveStyled({ id })
+return <box ref={focusRef} border borderColor={borderColor} borderStyle={borderStyle} />
+```
+
+Because it depends on the theme, it must live in the shadcn registry (not in
+`@gridland/utils`). Install via `bunx shadcn@latest add @gridland/use-interactive-styled`.
+
+**Why the split:** the pre-split `useInteractive` lived in the shadcn registry
+because it imported `useFocusBorderStyle` from the theme item. That made the
+primitive user-forkable on install — bug fixes stopped propagating and the API
+was frozen to whatever shape each consumer had copied. Moving the pure
+composition into `@gridland/utils` fixes both: the npm package is versioned and
+update-propagating; the theme-dependent piece stays forkable because it's
+the theme-shaped piece that users most want to customize.
+
+**Removed registry items**
+
+- `@gridland/use-interactive` — no longer a registry item. Import the primitive
+  from `@gridland/utils` instead. Any component that previously read
+  `borderColor`/`borderStyle` off the return value should now either call
+  `useFocusBorderStyle` separately or migrate to `useInteractiveStyled`.
+
+**Migration**
+
+```diff
+- import { useInteractive } from "@/registry/gridland/hooks/use-interactive"
+- const interactive = useInteractive({ id })
+- const { borderColor, borderStyle } = interactive  // used to be bundled
++ import { useInteractive } from "@gridland/utils"
++ import { useFocusBorderStyle } from "@/lib/theme"
++ const interactive = useInteractive({ id })
++ const { borderColor, borderStyle } = useFocusBorderStyle({
++   isFocused: interactive.isFocused,
++   isSelected: interactive.isSelected,
++   isAnySelected: interactive.isAnySelected,
++ })
+```
+
+Or, to keep the one-hook ergonomic:
+
+```diff
+- import { useInteractive } from "@/registry/gridland/hooks/use-interactive"
+- const { focusRef, borderColor, borderStyle } = useInteractive({ id })
++ import { useInteractiveStyled } from "@/hooks/use-interactive-styled"
++ const { focusRef, borderColor, borderStyle } = useInteractiveStyled({ id })
+```
+
+The three in-monorepo consumers (`SelectInput`, `MultiSelect`, `TextInput`) did
+not read the theme-coupled fields, so they migrated to the pure primitive with
+a one-line import change.
 
 **New component props**
 

@@ -39,13 +39,16 @@ Gridland provides a unified focus and input system that works identically in bot
 ### Usage
 
 The primary API is `useInteractive` — one hook that composes focus registration,
-selection-scoped keyboard routing, shortcut hints, and theme-aware focus borders.
-Interactive components call it directly; the underlying primitives remain available
-for edge cases.
+selection-scoped keyboard routing, and shortcut hints. It lives in `@gridland/utils`
+(the runtime npm package), so you can use it without touching the shadcn registry
+layer. Theme-aware focus borders are a separate concern: call `useFocusBorderStyle`
+alongside it, or use the `useInteractiveStyled` wrapper from `@gridland/ui` for the
+one-hook ergonomic.
 
 ```tsx title="app.tsx"
-import { GridlandProvider, StatusBar, useInteractive } from "@gridland/ui"
-import { useFocusedShortcuts } from "@gridland/utils"
+import { GridlandProvider, StatusBar } from "@gridland/ui"
+import { useInteractive, useFocusedShortcuts } from "@gridland/utils"
+import { useFocusBorderStyle } from "@/lib/theme"
 
 // 1. GridlandProvider implicitly wraps children in <FocusProvider selectable>
 function App() {
@@ -72,7 +75,14 @@ function Cell({ focusId, label, autoFocus }) {
         : [{ key: "↑↓←→", label: "navigate" }, { key: "enter", label: "select" }],
   })
 
-  // 3. Handle keys while the component is selected
+  // 3. Opt into the themed focus-border affordance
+  const { borderColor, borderStyle } = useFocusBorderStyle({
+    isFocused: interactive.isFocused,
+    isSelected: interactive.isSelected,
+    isAnySelected: interactive.isAnySelected,
+  })
+
+  // 4. Handle keys while the component is selected
   interactive.onKey((e) => {
     if (e.name === "return") console.log("submitted", label)
   })
@@ -81,8 +91,8 @@ function Cell({ focusId, label, autoFocus }) {
     <box
       ref={interactive.focusRef}
       border
-      borderStyle={interactive.borderStyle}
-      borderColor={interactive.borderColor}
+      borderStyle={borderStyle}
+      borderColor={borderColor}
     >
       <text>{label}</text>
       <text>{interactive.isSelected ? "selected" : "not selected"}</text>
@@ -90,7 +100,7 @@ function Cell({ focusId, label, autoFocus }) {
   )
 }
 
-// 4. Display context-sensitive shortcuts from the currently focused component
+// 5. Display context-sensitive shortcuts from the currently focused component
 function AppStatusBar() {
   const shortcuts = useFocusedShortcuts()
   return <StatusBar items={shortcuts} />
@@ -109,8 +119,36 @@ function AppStatusBar() {
 | `shortcuts` | `ShortcutEntry[] \| ({ isFocused, isSelected }) => ShortcutEntry[]` | `[]` | Hints surfaced via `useFocusedShortcuts` while focused. The function form re-evaluates whenever state changes. |
 
 Returns: `focusRef`, `focusId`, `isFocused`, `isSelected`, `isAnySelected`,
-`onKey(handler)`, `focus()`, `blur()`, `select()`, `deselect()`, `borderColor`,
-`borderStyle`.
+`onKey(handler)`, `focus()`, `blur()`, `select()`, `deselect()`.
+
+### Styled variant
+
+If your component renders a focus-responsive border, `useInteractiveStyled` from
+`@gridland/ui` bundles the border styling back in for a single-call ergonomic:
+
+```tsx
+import { useInteractiveStyled } from "@/hooks/use-interactive-styled"
+
+function FocusCard({ id, children }) {
+  const { focusRef, borderColor, borderStyle } = useInteractiveStyled({ id })
+  return (
+    <box ref={focusRef} border borderColor={borderColor} borderStyle={borderStyle}>
+      {children}
+    </box>
+  )
+}
+```
+
+It returns everything `useInteractive` does plus `borderColor` and `borderStyle`
+derived from `useFocusBorderStyle`. Because it depends on the theme, it ships as a
+shadcn registry hook (`bunx shadcn@latest add @gridland/use-interactive-styled`)
+rather than through `@gridland/utils`.
+
+**When to use which:** reach for the pure `useInteractive` from `@gridland/utils`
+whenever your component doesn't render a focus-responsive border (e.g., `TextInput`,
+`PromptInput`, anything wrapping a native `<input>`). Reach for
+`useInteractiveStyled` when you render a `<box border>` that should show the
+four-state affordance automatically.
 
 **`onKey`** uses a ref swap — call it every render with a fresh closure. The
 underlying listener is registered once per mount and replaces the stored
