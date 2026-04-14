@@ -1,7 +1,7 @@
 import { useState } from "react"
+import { useFocus, useKeyboard, useShortcuts } from "@gridland/utils"
 import { textStyle } from "@/registry/gridland/lib/text-style"
 import { useTheme } from "@/registry/gridland/lib/theme"
-import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
 import { StatusBar } from "@/registry/gridland/ui/status-bar/status-bar"
 import { Spinner, VARIANT_NAMES } from "./spinner"
 
@@ -14,27 +14,33 @@ const SHOWCASE_TASKS = [
 ]
 
 export interface SpinnerPickerProps {
-  /** Keyboard handler — pass useKeyboard from @gridland/utils */
-  useKeyboard?: (handler: (event: any) => void) => void
+  /** Stable focus id. Auto-generated when omitted. */
+  focusId?: string
+  /** Focus this picker on mount. */
+  autoFocus?: boolean
 }
 
-export function SpinnerPicker({ useKeyboard: useKeyboardProp }: SpinnerPickerProps) {
+export function SpinnerPicker({ focusId, autoFocus }: SpinnerPickerProps) {
   const theme = useTheme()
-  const useKeyboard = useKeyboardContext(useKeyboardProp)
+  const { focusId: resolvedFocusId, focusRef } = useFocus({ id: focusId, autoFocus })
+  useShortcuts([{ key: "←→", label: "change spinner type" }], resolvedFocusId)
   const [selected, setSelected] = useState(0)
 
-  useKeyboard?.((event: any) => {
-    if (event.name === "left") {
-      setSelected((s) => (s > 0 ? s - 1 : VARIANT_NAMES.length - 1))
-    } else if (event.name === "right") {
-      setSelected((s) => (s < VARIANT_NAMES.length - 1 ? s + 1 : 0))
-    }
-  })
+  useKeyboard(
+    (event: any) => {
+      if (event.name === "left") {
+        setSelected((s) => (s > 0 ? s - 1 : VARIANT_NAMES.length - 1))
+      } else if (event.name === "right") {
+        setSelected((s) => (s < VARIANT_NAMES.length - 1 ? s + 1 : 0))
+      }
+    },
+    { focusId: resolvedFocusId },
+  )
 
   const selectedName = VARIANT_NAMES[selected]
 
   return (
-    <box flexDirection="column" flexGrow={1} padding={1}>
+    <box ref={focusRef} flexDirection="column" flexGrow={1} padding={1}>
       <box padding={1} flexDirection="column" alignItems="center" justifyContent="center" flexGrow={1}>
         <Spinner variant={selectedName} color={theme.accent} />
       </box>

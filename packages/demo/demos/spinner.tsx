@@ -1,11 +1,13 @@
 // @ts-nocheck
-import { useKeyboard } from "@gridland/utils"
+import { FocusProvider } from "@gridland/utils"
 import { SpinnerPicker } from "@gridland/ui"
 
 export function SpinnerApp() {
   return (
-    <box flexDirection="column" flexGrow={1}>
-      <SpinnerPicker useKeyboard={useKeyboard} />
-    </box>
+    <FocusProvider>
+      <box flexDirection="column" flexGrow={1}>
+        <SpinnerPicker focusId="spinner-picker" autoFocus />
+      </box>
+    </FocusProvider>
   )
 }

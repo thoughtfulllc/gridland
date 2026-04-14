@@ -99,7 +99,7 @@ export { textStyle } from "@/registry/gridland/lib/text-style"
 export { ThemeProvider, useTheme, darkTheme, lightTheme, useFocusBorderStyle, useFocusDividerStyle } from "@/registry/gridland/lib/theme"
 export type { Theme, ThemeProviderProps } from "@/registry/gridland/lib/theme"
 
-export { GridlandProvider, useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
+export { GridlandProvider } from "@/registry/gridland/ui/provider/provider"
 export type { GridlandProviderProps } from "@/registry/gridland/ui/provider/provider"
 
 export { useBreakpoints, BREAKPOINTS } from "@/registry/gridland/hooks/use-breakpoints"

@@ -13,7 +13,6 @@ export interface UseKeyboardOptions {
 }
 
 export declare const useKeyboard: (handler: (key: KeyEvent) => void, options?: UseKeyboardOptions) => void
-export declare function useCapturedKeyboard(focusId: string): (handler: (event: any) => void) => void
 export declare const useOnResize: (callback: (width: number, height: number) => void) => any
 export declare const useRenderer: () => any
 export declare const useTerminalDimensions: () => { width: number; height: number }

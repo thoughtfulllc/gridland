@@ -18,7 +18,7 @@ import {
   useFocusDividerStyle,
 } from "@gridland/ui"
 import type { ChatStatus } from "@gridland/ui"
-import { useFocus, useKeyboard, useCapturedKeyboard, useShortcuts } from "@gridland/utils"
+import { useFocus, useKeyboard, useShortcuts } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 import { renderPartsWithReasoning, toChatStatus } from "./render-message-parts-demo-utils"
 import {
@@ -156,42 +156,20 @@ function FocusablePrompt({ onSubmit, onStop, status, model, disabled = false }: 
   model?: string
   disabled?: boolean
 }) {
-  const { isFocused, isSelected, isAnySelected, focusId, focusRef, focus, select } = useFocus({ id: "prompt", disabled })
-  const capturePrompt = useCapturedKeyboard(focusId)
-
-  useEffect(() => {
-    if (!disabled) {
-      const t = setTimeout(() => {
-        focus()
-        select()
-      }, 0)
-      return () => clearTimeout(t)
-    }
-  }, [disabled]) // re-run when entering interaction mode
-
-  useShortcuts(
-    isSelected
-      ? [{ key: "esc", label: "back" }]
-      : isFocused
-      ? [{ key: "enter", label: "select" }]
-      : [],
-    focusId,
-  )
-
-  const { dividerColor, dividerDashed } = useFocusDividerStyle({ isFocused, isSelected, isAnySelected })
-
+  // PromptInput now registers with the focus system on its own via focusId;
+  // this wrapper only exists to scope the focusable id inside the SideNav
+  // panel and provide the flex container.
   return (
-    <box ref={focusRef} flexShrink={0} overflow="hidden">
+    <box flexShrink={0} overflow="hidden">
       <PromptInput
+        focusId="prompt"
+        autoFocus={!disabled}
+        disabled={disabled}
         onSubmit={onSubmit}
         onStop={onStop}
         status={status}
         placeholder="Type a message..."
-        focus={isSelected}
-        useKeyboard={capturePrompt}
         showDividers
-        dividerColor={dividerColor}
-        dividerDashed={dividerDashed}
         model={model}
       />
     </box>

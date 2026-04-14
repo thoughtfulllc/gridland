@@ -413,7 +413,7 @@ export function PromptInput({
   children,
 }: PromptInputProps) {
   const theme = useTheme()
-  const { focusId: resolvedFocusId, focusRef } = useFocus({ id: focusId, autoFocus })
+  const { focusId: resolvedFocusId, focusRef, isSelected } = useFocus({ id: focusId, autoFocus })
   useShortcuts(
     [
       { key: "⏎", label: "send" },
@@ -444,7 +444,11 @@ export function PromptInput({
 
   // Status-driven state
   const disabled = status ? status === "submitted" || status === "streaming" : disabledProp
-  const isFocused = focus && !disabled
+  // The `focus` prop remains a legacy escape hatch (tests use focus={false}
+  // to keep the <input> intrinsic from rendering in the browser env).
+  // In production, selection state drives it: when the focus system marks
+  // this component as selected, <input> renders and takes over.
+  const isFocused = (focus || isSelected) && !disabled
   const statusHintText = resolveStatusHintText(status, submittedText, streamingLabel, errorText, disabledText)
 
   // ── Dual-mode state: provider-managed or self-managed ──────────────────
