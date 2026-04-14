@@ -1,5 +1,6 @@
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
+import { FocusProvider } from "@gridland/utils"
 import { PromptInput } from "./prompt-input"
 
 afterEach(() => cleanup())
@@ -764,5 +765,30 @@ describe("PromptInput additional coverage", () => {
     )
     savedHandler!({ name: "escape" })
     expect(stopped).toBe(true)
+  })
+})
+
+// ── Target API (focusId + useFocus) — Phase 3 migration ────────────────
+
+describe("PromptInput via focusId (target API)", () => {
+  it("submits on enter via real key dispatch when focused", () => {
+    let submitted: string | null = null
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <PromptInput
+          focusId="pi"
+          autoFocus
+          focus={false}
+          onSubmit={(msg) => { submitted = msg.text }}
+        />
+      </FocusProvider>,
+      { cols: 40, rows: 4 },
+    )
+    flush(); flush()
+    keys.press("h")
+    keys.press("i")
+    keys.enter()
+    flush(); flush()
+    expect(submitted).toBe("hi")
   })
 })
