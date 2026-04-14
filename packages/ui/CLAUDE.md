@@ -51,18 +51,18 @@ If you find yourself wanting any of these back, something is probably already wr
 
 | Component | Key Props |
 |---|---|
-| `SideNav` | `items`, `requestedActiveId`, `onActiveItemChange`, `sidebarWidth`, `title`, `showStatusBar`, `children({ activeItem, isInteracting, captureKeyboard })`. Colors from `useTheme()` — focus indicators from `theme.focusSelected`/`focusFocused`/`focusIdle`, structural border from `theme.borderMuted`, title/header from `theme.primary` |
-| `PromptInput` | `onSubmit`, `onStop`, `status`, `value`, `onChange`, `placeholder`, `disabled`, `focus`, `useKeyboard`, `dividerColor`, `dividerDashed`, `showDividers`, `model`, `commands`, `skills`, `files`. Compound: `PromptInput.Textarea`, `.Suggestions`, `.Submit`, `.Divider`, `.StatusText`, `.Model` |
+| `SideNav` | `items`, `requestedActiveId`, `onActiveItemChange`, `sidebarWidth`, `title`, `showStatusBar`, `children({ activeItem, isInteracting })`. Colors from `useTheme()` — focus indicators from `theme.focusSelected`/`focusFocused`/`focusIdle`, structural border from `theme.borderMuted`, title/header from `theme.primary` |
+| `PromptInput` | `focusId`, `autoFocus`, `onSubmit`, `onStop`, `status`, `value`, `onChange`, `placeholder`, `disabled`, `dividerColor`, `dividerDashed`, `showDividers`, `model`, `commands`, `skills`, `files`. Compound: `PromptInput.Textarea`, `.Suggestions`, `.Submit`, `.Divider`, `.StatusText`, `.Model` |
 | `Message` | `role`, `isStreaming`, `backgroundColor`. Named exports: `MessageContent`, `MessageText`, `MessageMarkdown` |
-| `Modal` | `title`, `useKeyboard`, `onClose`, `borderColor`, `borderStyle` |
-| `SelectInput` | `items`, `value`, `defaultValue`, `onChange`, `useKeyboard`, `onSubmit`, `disabled`, `limit` |
+| `Modal` | `title`, `onClose`, `borderColor`, `borderStyle` (Escape handling wired internally via `useKeyboard`) |
+| `SelectInput` | `focusId`, `autoFocus`, `items`, `value`, `defaultValue`, `onChange`, `onSubmit`, `disabled`, `limit` |
 | `StatusBar` | `items` (from `useFocusedShortcuts`), `extra` |
 | `ChainOfThought` | `open`, `defaultOpen`, `onOpenChange`. Sub: `ChainOfThoughtHeader`, `ChainOfThoughtContent`, `ChainOfThoughtStep` |
-| `TextInput` | `value` (required), `label`, `onChange`, `onSubmit`, `placeholder`, `disabled`, `focus`, `maxLength` |
-| `MultiSelect` | `items`, `selected`, `onChange`, `onSubmit`, `useKeyboard`, `limit`, `enableSelectAll`, `errorMessage` |
+| `TextInput` | `focusId`, `autoFocus`, `value` (required), `label`, `onChange`, `onSubmit`, `placeholder`, `disabled`, `maxLength` |
+| `MultiSelect` | `focusId`, `autoFocus`, `items`, `selected`, `onChange`, `onSubmit`, `limit`, `enableSelectAll`, `errorMessage` |
 | `Table` | Compound: `TableRoot`, `TableHeader`, `TableBody`, `TableFooter`, `TableRow`, `TableHead`, `TableCell`, `TableCaption` |
-| `TabBar` | `options`, `selectedIndex` |
-| `Tabs` | Compound: `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` |
+| `TabBar` | `focusId`, `autoFocus`, `options`, `selectedIndex`, `onValueChange` |
+| `Tabs` | Compound: `Tabs`, `TabsList` (with `focusId`/`autoFocus`), `TabsTrigger`, `TabsContent` |
 | `Link` | `url`, `children`, `underline`, `color` |
 | `Ascii` | `text`, `font`, `color` |
 | `Spinner` | `variant`, `text`, `color`, `status` |

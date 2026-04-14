@@ -28,21 +28,26 @@ bunx create-gridland add select-input
 
 ```tsx
 import { SelectInput } from "@/components/ui/select-input"
-import { useKeyboard } from "@gridland/utils"
 ```
 
 ```tsx
 <SelectInput
+  focusId="language"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
     { label: "Python", value: "py" },
   ]}
   title="Select a language"
-  useKeyboard={useKeyboard}
   onSubmit={(value) => console.log("Selected:", value)}
 />
 ```
+
+`SelectInput` registers with the focus system via `focusId`. Wrap your app in
+`GridlandProvider` (which implicitly mounts `<FocusProvider selectable>`) or a
+standalone `<FocusProvider selectable>` for keyboard navigation to work. Tab to
+focus, Enter to select (start interacting), then use arrow keys. Escape deselects.
 
 ## Examples
 
@@ -54,6 +59,8 @@ Use `value` and `onChange` to control the selection externally.
 const [value, setValue] = useState<string>("ts")
 
 <SelectInput
+  focusId="language"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
@@ -62,7 +69,6 @@ const [value, setValue] = useState<string>("ts")
   value={value}
   onChange={setValue}
   title="Select a language"
-  useKeyboard={useKeyboard}
   onSubmit={(value) => console.log("Selected:", value)}
 />
 ```
@@ -73,6 +79,8 @@ Set the initially selected item in uncontrolled mode.
 
 ```tsx title="Default value"
 <SelectInput
+  focusId="language"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
@@ -80,7 +88,6 @@ Set the initially selected item in uncontrolled mode.
   ]}
   defaultValue="ts"
   title="Select a language"
-  useKeyboard={useKeyboard}
   onSubmit={(value) => console.log("Selected:", value)}
 />
 ```
@@ -91,6 +98,8 @@ Use the `group` field on items to render group headers with separators.
 
 ```tsx title="With groups"
 <SelectInput
+  focusId="tool"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts", group: "Languages" },
     { label: "Python", value: "py", group: "Languages" },
@@ -98,7 +107,6 @@ Use the `group` field on items to render group headers with separators.
     { label: "Vue", value: "vue", group: "Frameworks" },
   ]}
   title="Select a tool"
-  useKeyboard={useKeyboard}
   onSubmit={(value) => console.log(value)}
 />
 ```
@@ -109,13 +117,14 @@ Disable individual items so they cannot be selected.
 
 ```tsx title="Disabled items"
 <SelectInput
+  focusId="language"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js", disabled: true },
     { label: "Python", value: "py" },
   ]}
   title="Select a language"
-  useKeyboard={useKeyboard}
   onSubmit={(value) => console.log(value)}
 />
 ```
@@ -126,6 +135,8 @@ Show a required indicator and use `invalid` to display an error state.
 
 ```tsx title="Required with validation"
 <SelectInput
+  focusId="language"
+  autoFocus
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
@@ -134,7 +145,6 @@ Show a required indicator and use `invalid` to display an error state.
   required
   invalid={!hasSelected}
   title="Select a language"
-  useKeyboard={useKeyboard}
   onSubmit={(value) => console.log(value)}
 />
 ```
@@ -145,13 +155,13 @@ Disable the entire component. Navigation and submission are blocked.
 
 ```tsx title="Disabled"
 <SelectInput
+  focusId="language"
   items={[
     { label: "TypeScript", value: "ts" },
     { label: "JavaScript", value: "js" },
   ]}
   disabled
   title="Select a language"
-  useKeyboard={useKeyboard}
 />
 ```
 
@@ -161,10 +171,11 @@ Show placeholder text when the items list is empty.
 
 ```tsx title="Placeholder"
 <SelectInput
+  focusId="language"
+  autoFocus
   items={[]}
   placeholder="No options available"
   title="Select a language"
-  useKeyboard={useKeyboard}
 />
 ```
 
@@ -194,7 +205,8 @@ Show placeholder text when the items list is empty.
 | `highlightColor` | `string` | `theme.primary` | Color of the highlighted item |
 | `radioColor` | `string` | `theme.muted` | Color of the radio indicator |
 | `onSubmit` | `(value: V) => void` | - | Called on Enter with the selected value |
-| `useKeyboard` | `(handler: (event: any) => void) => void` | - | Keyboard hook from `@gridland/utils` |
+| `focusId` | `string` | auto-generated | Stable id for the focus system |
+| `autoFocus` | `boolean` | `false` | Focus this component on mount |
 
 ### SelectInputItem
 

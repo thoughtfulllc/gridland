@@ -13,8 +13,7 @@ bun add @gridland/utils
 ## What's in here
 
 **Hooks**
-- `useKeyboard(handler, options?)` — global keyboard listener
-- `useCapturedKeyboard(focusId)` — keyboard scoped to a focused element
+- `useKeyboard(handler, options?)` — keyboard listener with `focusId` / `selectedOnly` / `global` scoping
 - `useTerminalDimensions()` — `{ width, height }` in terminal cells
 - `useOnResize(callback)` — runs on resize events
 - `useTimeline(options?)` — animation timeline
@@ -38,10 +37,11 @@ bun add @gridland/utils
 import { useKeyboard, useFocus, FocusProvider } from "@gridland/utils"
 
 function Button() {
-  const { isFocused, focusRef } = useFocus({ id: "submit" })
-  useKeyboard((key) => {
-    if (isFocused && key.name === "return") submit()
-  })
+  const { focusId, focusRef } = useFocus({ id: "submit" })
+  useKeyboard(
+    (key) => { if (key.name === "return") submit() },
+    { focusId, selectedOnly: true },
+  )
   return <box ref={focusRef} border>Submit</box>
 }
 
@@ -53,6 +53,10 @@ function App() {
   )
 }
 ```
+
+For interactive UI components (in `@gridland/ui`), prefer `useInteractive` —
+one hook that composes focus registration, selection-scoped keyboard routing,
+shortcut hints, and theme-aware focus borders.
 
 ## Documentation
 

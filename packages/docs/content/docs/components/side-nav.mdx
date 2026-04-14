@@ -34,7 +34,7 @@ const items = [
 ]
 
 <SideNav items={items} title="Mail">
-  {({ activeItem, isInteracting, captureKeyboard }) => (
+  {({ activeItem, isInteracting }) => (
     <YourContent item={activeItem} />
   )}
 </SideNav>
@@ -64,29 +64,31 @@ const items = [
 
 ### Interactive Content
 
-Use `isInteracting` and `captureKeyboard` to make the main panel interactive when the user presses Enter on a sidebar item.
+When the user presses Enter on a sidebar item, `SideNav` wraps the panel in a
+`<FocusScope trap selectable autoFocus autoSelect>`. Panel content just needs
+to use its own focus-aware components (`TextInput`, `SelectInput`, etc. with
+`focusId`) — the scope trap keeps focus contained until Esc exits.
 
 ```tsx title="Interactive"
-function MyPanel({ isInteracting, captureKeyboard }) {
+function MyPanel() {
   const [value, setValue] = useState("")
 
   return (
     <box padding={1}>
       <TextInput
+        focusId="panel-name"
         label="Name"
         placeholder="type here..."
-        focus={isInteracting}
         value={value}
         onChange={setValue}
-        useKeyboard={captureKeyboard}
       />
     </box>
   )
 }
 
 <SideNav items={items} title="Settings">
-  {({ activeItem, isInteracting, captureKeyboard }) => (
-    <MyPanel isInteracting={isInteracting} captureKeyboard={captureKeyboard} />
+  {({ activeItem, isInteracting }) => (
+    <MyPanel />
   )}
 </SideNav>
 ```
@@ -184,4 +186,3 @@ Colors are derived from the theme (`useTheme()`): focus indicators use `theme.fo
 |-------|------|-------------|
 | `activeItem` | `SideNavItem` | The currently focused/active item |
 | `isInteracting` | `boolean` | Whether the user has selected the item (Enter) |
-| `captureKeyboard` | `(handler) => void` | Register a keyboard handler for interactive content |

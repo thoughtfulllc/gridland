@@ -31,6 +31,8 @@ import { TextInput } from "@/components/ui/text-input"
 const [name, setName] = useState("")
 
 <TextInput
+  focusId="username"
+  autoFocus
   label="Username"
   value={name}
   onChange={setName}
@@ -38,6 +40,11 @@ const [name, setName] = useState("")
   prompt="> "
 />
 ```
+
+`TextInput` registers with the focus system via `focusId`. Wrap your app in
+`GridlandProvider` (which mounts `<FocusProvider selectable>` implicitly) for
+keyboard routing. Tab to focus the field, Enter to select (start editing),
+then type. Escape exits edit mode.
 
 ## Examples
 
@@ -57,6 +64,8 @@ Use `onSubmit` to handle Enter key presses.
 const [email, setEmail] = useState("")
 
 <TextInput
+  focusId="email"
+  autoFocus
   label="Email"
   value={email}
   onChange={setEmail}
@@ -74,6 +83,8 @@ Show a required indicator (`*`) next to the label.
 const [name, setName] = useState("")
 
 <TextInput
+  focusId="name"
+  autoFocus
   label="Name"
   value={name}
   onChange={setName}
@@ -91,6 +102,8 @@ Display helper text inline next to the label.
 const [email, setEmail] = useState("")
 
 <TextInput
+  focusId="email"
+  autoFocus
   label="Email"
   value={email}
   onChange={setEmail}
@@ -108,6 +121,8 @@ Pass an `error` string to show a validation message. It replaces the description
 const [email, setEmail] = useState("")
 
 <TextInput
+  focusId="email"
+  autoFocus
   label="Email"
   value={email}
   onChange={setEmail}
@@ -125,6 +140,8 @@ Limit input length and show a character counter when the user starts typing.
 const [bio, setBio] = useState("")
 
 <TextInput
+  focusId="bio"
+  autoFocus
   label="Bio"
   value={bio}
   onChange={setBio}
@@ -140,6 +157,7 @@ A disabled input ignores focus and keystrokes.
 
 ```tsx title="Disabled"
 <TextInput
+  focusId="api-key"
   label="API Key"
   value="sk-1234...abcd"
   placeholder="sk-..."
@@ -150,31 +168,31 @@ A disabled input ignores focus and keystrokes.
 
 ### Form with keyboard navigation
 
-TextInput is a controlled primitive — it takes a `focus` prop rather than managing focus internally. Compose multiple inputs into a form by tracking the active field index and wiring arrow keys.
+TextInput registers with the focus system via `focusId`, so composing multiple
+inputs into a form is just a matter of giving each one its own id. Tab and
+Shift-Tab cycle between them automatically — no external keyboard wiring
+needed.
 
 ```tsx title="Form"
-import { useKeyboard } from "@gridland/utils"
-
-const FIELDS = ["Username", "Email", "Password"]
+const FIELDS = [
+  { id: "username", label: "Username" },
+  { id: "email", label: "Email" },
+  { id: "password", label: "Password" },
+]
 
 function MyForm() {
-  const [active, setActive] = useState(0)
   const [values, setValues] = useState(FIELDS.map(() => ""))
-
-  useKeyboard((event) => {
-    if (event.name === "up") setActive((i) => Math.max(0, i - 1))
-    if (event.name === "down") setActive((i) => Math.min(FIELDS.length - 1, i + 1))
-  })
 
   return (
     <>
-      {FIELDS.map((label, i) => (
+      {FIELDS.map((field, i) => (
         <TextInput
-          key={label}
-          label={label}
+          key={field.id}
+          focusId={field.id}
+          autoFocus={i === 0}
+          label={field.label}
           value={values[i]}
           onChange={(v) => setValues((prev) => prev.map((old, j) => j === i ? v : old))}
-          focus={i === active}
           prompt="> "
         />
       ))}
@@ -185,8 +203,9 @@ function MyForm() {
 
 ## Controls
 
-- **Enter**: Submit the current value
-- **↑/↓**: Navigate between fields (when composed in a form)
+- **Tab / Shift-Tab**: Move between fields
+- **Enter**: Start editing the focused field (and submit on re-press)
+- **Escape**: Exit edit mode
 
 ## API Reference
 
@@ -204,5 +223,6 @@ function MyForm() {
 | `onSubmit` | `(value: string) => void` | - | Called when Enter is pressed |
 | `placeholder` | `string` | - | Hint text shown when the input is empty |
 | `prompt` | `string` | - | Prompt string before the input (e.g. `"> "`) |
-| `focus` | `boolean` | `false` | Whether the input is focused and accepting keystrokes |
+| `focusId` | `string` | auto-generated | Stable id for the focus system |
+| `autoFocus` | `boolean` | `false` | Focus this input on mount |
 | `maxLength` | `number` | - | Maximum characters allowed (shows counter when typing) |

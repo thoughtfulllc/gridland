@@ -15,7 +15,6 @@ export default function MessageDemo() {
 
 import { Message, MessageContent, MessageText, PromptInput } from "@gridland/ui"
 import type { ChatStatus } from "@gridland/ui"
-import { useKeyboard } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 import { chatTransport } from "@/lib/chat"
 import { renderContentParts } from "@demos/render-message-parts-demo-utils"
@@ -59,11 +58,12 @@ function MessageWithInputApp() {
         })}
       </box>
       <PromptInput
+        focusId="message-demo-prompt"
+        autoFocus
         onSubmit={sendMessage}
         onStop={stop}
         status={chatStatus}
         placeholder="Type a message..."
-        useKeyboard={useKeyboard}
         showDividers
       />
     </box>
