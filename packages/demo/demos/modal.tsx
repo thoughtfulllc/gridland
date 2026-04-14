@@ -16,7 +16,7 @@ export function ModalApp() {
   if (isOpen) {
     return (
       <box flexDirection="column" flexGrow={1}>
-        <Modal title="Example Modal" useKeyboard={useKeyboard} onClose={() => setIsOpen(false)}>
+        <Modal title="Example Modal" onClose={() => setIsOpen(false)}>
           <box paddingX={1} flexDirection="column">
             <text style={textStyle({ fg: theme.foreground })}>This is a modal overlay component.</text>
             <text> </text>

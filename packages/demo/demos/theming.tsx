@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client"
-import { useKeyboard } from "@gridland/utils"
+import { FocusProvider } from "@gridland/utils"
 import { Spinner, Table, MultiSelect } from "@gridland/ui"
 
 const tableData = [
@@ -16,10 +16,12 @@ const selectItems = [
 
 export function ThemingApp() {
   return (
-    <box flexDirection="column" padding={1} gap={1} flexGrow={1}>
-      <Spinner text="Loading data..." />
-      <Table data={tableData} />
-      <MultiSelect items={selectItems} useKeyboard={useKeyboard} />
-    </box>
+    <FocusProvider selectable>
+      <box flexDirection="column" padding={1} gap={1} flexGrow={1}>
+        <Spinner text="Loading data..." />
+        <Table data={tableData} />
+        <MultiSelect focusId="langs" autoFocus items={selectItems} />
+      </box>
+    </FocusProvider>
   )
 }

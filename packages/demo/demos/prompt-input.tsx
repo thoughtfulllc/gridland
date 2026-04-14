@@ -63,12 +63,12 @@ function PromptInputDemo() {
       </box>
       <PromptInput
         key={resetKey}
+        focusId="prompt"
+        autoFocus
         commands={commands}
         files={files}
         placeholder="Message Claude..."
         showDividers
-        autoFocus
-        useKeyboard={useKeyboard}
         onSubmit={handleSubmit}
       />
       <box>

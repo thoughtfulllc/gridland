@@ -9,9 +9,9 @@ import {
   type ReactNode,
   type PropsWithChildren,
 } from "react"
+import { useFocus, useKeyboard, useShortcuts } from "@gridland/utils"
 import { textStyle } from "@/registry/gridland/lib/text-style"
 import { useTheme } from "@/registry/gridland/lib/theme"
-import { useKeyboardContext } from "@/registry/gridland/ui/provider/provider"
 import { useRegistryCommands, type PromptInputCommand } from "./command-registry"
 export type { PromptInputCommand } from "./command-registry"
 
@@ -211,8 +211,8 @@ export interface PromptInputProps {
   dividerColor?: string
   /** Use dashed divider lines (╌) instead of solid (─) */
   dividerDashed?: boolean
-  /** Keyboard hook from @gridland/utils */
-  useKeyboard?: (handler: (event: any) => void) => void
+  /** Stable focus id. Auto-generated via useId when omitted. */
+  focusId?: string
   /** Compound mode: provide subcomponents as children */
   children?: ReactNode
 }
@@ -409,11 +409,18 @@ export function PromptInput({
   autoFocus = false,
   dividerColor,
   dividerDashed,
-  useKeyboard: useKeyboardProp,
+  focusId,
   children,
 }: PromptInputProps) {
   const theme = useTheme()
-  const useKeyboard = useKeyboardContext(useKeyboardProp)
+  const { focusId: resolvedFocusId, focusRef } = useFocus({ id: focusId, autoFocus })
+  useShortcuts(
+    [
+      { key: "⏎", label: "send" },
+      { key: "↑", label: "history" },
+    ],
+    resolvedFocusId,
+  )
 
   const registryCommands = useRegistryCommands()
   const allCommands = useMemo(() => {
@@ -666,36 +673,39 @@ export function PromptInput({
   // When not focused (no <input> rendered), useKeyboard provides full keyboard fallback
   // for character input, suggestions, and history (used in tests and unfocused state).
 
-  useKeyboard?.((event: any) => {
-    // Escape during submitted/streaming calls onStop (always active)
-    if (event.name === "escape" && (status === "streaming" || status === "submitted") && onStop) {
-      onStop()
-      return
-    }
+  useKeyboard(
+    (event: any) => {
+      // Escape during submitted/streaming calls onStop (always active)
+      if (event.name === "escape" && (status === "streaming" || status === "submitted") && onStop) {
+        onStop()
+        return
+      }
 
-    // When <input> is rendered, it handles everything else
-    if (isFocused) return
+      // When <input> is rendered, it handles everything else
+      if (isFocused) return
 
-    if (disabled) return
+      if (disabled) return
 
-    if (handleKeyAction(event.name)) return
+      if (handleKeyAction(event.name)) return
 
-    if (event.name === "backspace" || event.name === "delete") {
-      updateValue(valueRef.current.slice(0, -1))
-      return
-    }
+      if (event.name === "backspace" || event.name === "delete") {
+        updateValue(valueRef.current.slice(0, -1))
+        return
+      }
 
-    if (event.ctrl || event.meta) return
+      if (event.ctrl || event.meta) return
 
-    if (event.name === "space") {
-      updateValue(valueRef.current + " ")
-      return
-    }
+      if (event.name === "space") {
+        updateValue(valueRef.current + " ")
+        return
+      }
 
-    if (event.name && event.name.length === 1) {
-      updateValue(valueRef.current + event.name)
-    }
-  })
+      if (event.name && event.name.length === 1) {
+        updateValue(valueRef.current + event.name)
+      }
+    },
+    { focusId: resolvedFocusId },
+  )
 
   // ── Build context for subcomponents ────────────────────────────────────
 
@@ -729,7 +739,7 @@ export function PromptInput({
   if (children) {
     return (
       <PromptInputContext.Provider value={ctxValue}>
-        <box flexDirection="column" flexShrink={0}>
+        <box ref={focusRef} flexDirection="column" flexShrink={0}>
           {children}
         </box>
       </PromptInputContext.Provider>
@@ -738,7 +748,7 @@ export function PromptInput({
 
   return (
     <PromptInputContext.Provider value={ctxValue}>
-      <box flexDirection="column" flexShrink={0}>
+      <box ref={focusRef} flexDirection="column" flexShrink={0}>
         {showDividers && <PromptInputDivider />}
         <box flexDirection="column" paddingX={1}>
           <PromptInputSuggestions />
