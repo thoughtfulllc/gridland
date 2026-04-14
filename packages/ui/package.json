@@ -9,7 +9,8 @@
   "scripts": {
     "build": "bun run scripts/build-registry.ts",
     "demo": "bun run --tsconfig-override ./tsconfig.json scripts/demo.tsx",
-    "test": "bun test --preload ../web/test/preload.ts --update-snapshots",
+    "test": "bun test --preload ../web/test/preload.ts",
+    "test:update-snapshots": "bun test --preload ../web/test/preload.ts --update-snapshots",
     "test:ci": "bun test --preload ../web/test/preload.ts --randomize --rerun-each 3"
   },
   "devDependencies": {

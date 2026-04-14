@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "test": "bun test --preload ../web/test/preload.ts"
+  },
   "dependencies": {
     "yoga-layout": "^3.2.1",
     "marked": "^15.0.0",

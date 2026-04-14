@@ -36,7 +36,7 @@ describe("FocusProvider selectable", () => {
     expect(screen.text()).toContain("[b:---]")
   })
 
-  it("down arrow navigates to next component", () => {
+  it("tab navigates to next component", () => {
     const { screen, keys, flush } = renderTui(
       <FocusProvider selectable>
         <SelectableBox id="a" autoFocus />
@@ -47,13 +47,13 @@ describe("FocusProvider selectable", () => {
     flush2(flush)
     expect(screen.text()).toContain("[a:F--]")
 
-    keys.down()
+    keys.tab()
     flush2(flush)
     expect(screen.text()).toContain("[a:---]")
     expect(screen.text()).toContain("[b:F--]")
   })
 
-  it("up arrow navigates to previous component", () => {
+  it("tab wraps from last component back to first", () => {
     const { screen, keys, flush } = renderTui(
       <FocusProvider selectable>
         <SelectableBox id="a" autoFocus />
@@ -62,11 +62,11 @@ describe("FocusProvider selectable", () => {
       { cols: 60, rows: 4 },
     )
     flush2(flush)
-    keys.down()
+    keys.tab()
     flush2(flush)
     expect(screen.text()).toContain("[b:F--]")
 
-    keys.up()
+    keys.tab()
     flush2(flush)
     expect(screen.text()).toContain("[a:F--]")
   })
@@ -119,8 +119,8 @@ describe("FocusProvider selectable", () => {
     flush2(flush)
     expect(screen.text()).toContain("[a:FSA]")
 
-    // down should NOT navigate while selected
-    keys.down()
+    // tab should NOT navigate while selected
+    keys.tab()
     flush2(flush)
     expect(screen.text()).toContain("[a:FSA]")
     expect(screen.text()).toContain("[b:--A]")
