@@ -526,3 +526,28 @@ describe("Tabs disabled triggers", () => {
     expect(screen.text()).toContain("Tab B")
   })
 })
+
+// ── Target API (focusId + useFocus) — Phase 3 migration ─────────────
+
+import { FocusProvider } from "@gridland/utils"
+
+describe("TabsList via focusId (target API)", () => {
+  it("routes right arrow via real key dispatch when focused", async () => {
+    let lastValue = ""
+    const { keys, flush } = renderTui(
+      <FocusProvider>
+        <Tabs defaultValue="a" onValueChange={(v) => { lastValue = v }}>
+          <TabsList focusId="tabs" autoFocus>
+            <TabsTrigger value="a">Tab A</TabsTrigger>
+            <TabsTrigger value="b">Tab B</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </FocusProvider>,
+      { cols: 40, rows: 4 },
+    )
+    flushN(flush)
+    keys.right()
+    await settle(flush)
+    expect(lastValue).toBe("b")
+  })
+})
