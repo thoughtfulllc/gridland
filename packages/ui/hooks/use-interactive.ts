@@ -1,6 +1,5 @@
 import { useCallback, useRef } from "react"
 import { useFocus, useKeyboard, useShortcuts, type ShortcutEntry } from "@gridland/utils"
-import { useFocusBorderStyle } from "@/registry/gridland/lib/theme"
 
 export interface UseInteractiveOptions {
   /** Stable id for the focus system. Auto-generated via useId if omitted. */
@@ -53,22 +52,21 @@ export interface UseInteractiveReturn {
   select: () => void
   /** Imperatively deselect (exit) the currently selected component. */
   deselect: () => void
-  /** Theme-aware border color for the four-state affordance pattern. */
-  borderColor: string
-  /** Theme-aware border style (rounded when idle/selected, dashed when focused). */
-  borderStyle: "rounded" | "dashed"
 }
 
 /**
- * Single primitive for interactive components. Composes focus registration,
- * selection-scoped keyboard routing, shortcut registration, and theme-aware
- * focus border styling into one hook.
+ * Pure runtime primitive for interactive components. Composes focus
+ * registration, selection-scoped keyboard routing, and shortcut
+ * registration into one hook. Does NOT handle visual styling — consumers
+ * that want theme-aware focus borders should call `useFocusBorderStyle`
+ * separately, or use `useInteractiveStyled` from `@gridland/ui` for the
+ * combined helper.
  */
 export function useInteractive(options: UseInteractiveOptions = {}): UseInteractiveReturn {
   const { id, autoFocus, disabled, selectable = true, tabIndex, shortcuts } = options
 
   const focusState = useFocus({ id, autoFocus, disabled, selectable, tabIndex })
-  const { focusId, isFocused, isSelected, isAnySelected } = focusState
+  const { focusId, isFocused, isSelected } = focusState
 
   const handlerRef = useRef<((event: any) => void) | null>(null)
   const onKey = useCallback((handler: (event: any) => void) => {
@@ -86,11 +84,5 @@ export function useInteractive(options: UseInteractiveOptions = {}): UseInteract
       : shortcuts ?? []
   useShortcuts(resolvedShortcuts, focusId)
 
-  const { borderColor, borderStyle } = useFocusBorderStyle({
-    isFocused,
-    isSelected,
-    isAnySelected,
-  })
-
-  return { ...focusState, onKey, borderColor, borderStyle }
+  return { ...focusState, onKey }
 }
