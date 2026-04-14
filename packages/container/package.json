@@ -1,6 +1,6 @@
 {
   "name": "@gridland/container",
-  "version": "0.2.57",
+  "version": "0.2.58",
   "description": "Run CLI apps in isolated Docker containers",
   "type": "module",
   "bin": {
