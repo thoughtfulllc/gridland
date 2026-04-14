@@ -341,6 +341,33 @@ describe("useInteractive", () => {
     })
   })
 
+  // ── disabled: removed from tab cycle ────────────────────────────────
+
+  describe("disabled", () => {
+    function Tag({ id, autoFocus, disabled }: { id: string; autoFocus?: boolean; disabled?: boolean }) {
+      const i = useInteractive({ id, autoFocus, disabled })
+      return <box ref={i.focusRef}><text>{`[${i.focusId}:${i.isFocused ? "F" : "-"}]`}</text></box>
+    }
+
+    it("disabled components are skipped by tab navigation", () => {
+      const { screen, keys, flush } = renderTui(
+        <FocusProvider selectable>
+          <Tag id="a" autoFocus />
+          <Tag id="b" disabled />
+          <Tag id="c" />
+        </FocusProvider>,
+        { cols: 60, rows: 4 },
+      )
+      flush2(flush)
+      expect(screen.text()).toContain("[a:F]")
+
+      keys.tab()
+      flush2(flush)
+      expect(screen.text()).toContain("[c:F]")
+      expect(screen.text()).toContain("[b:-]")
+    })
+  })
+
   // ── focusRef exposed (integration with spatial nav is covered in useFocus) ──
 
   describe("focusRef", () => {
