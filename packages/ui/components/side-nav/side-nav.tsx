@@ -1,9 +1,8 @@
-import { useState, useRef, useCallback, useEffect, type ReactNode } from "react"
+import { useState, useRef, useEffect, type ReactNode } from "react"
 import {
-  useFocus,
   FocusProvider,
   FocusScope,
-  useKeyboard,
+  useFocus,
   useShortcuts,
   useFocusedShortcuts,
 } from "@gridland/utils"
@@ -31,13 +30,14 @@ export interface SideNavProps {
   title?: string
   /**
    * Render the main panel content for the active item.
-   * Receives the active item, whether the user has selected it for interaction,
-   * and a captureKeyboard callback for routing keyboard events.
+   * Receives the active item and whether the user has selected it for
+   * interaction. Panel content should use its own focusable components
+   * (SelectInput with focusId, etc.) — the FocusScope trap inside SideNav
+   * handles scope containment automatically when isInteracting=true.
    */
   children: (ctx: {
     activeItem: SideNavItem
     isInteracting: boolean
-    captureKeyboard: (handler: (event: any) => void) => void
   }) => ReactNode
   /** Show the status bar at the bottom. @default true */
   showStatusBar?: boolean
@@ -55,12 +55,11 @@ export interface SideNavProps {
 
 // ── NavItem ───────────────────────────────────────────────────────────
 
-function NavItemRow({ item, autoFocus, onFocus, onSelectChange, handlerRef }: {
+function NavItemRow({ item, autoFocus, onFocus, onSelectChange }: {
   item: SideNavItem
   autoFocus?: boolean
   onFocus: () => void
   onSelectChange: (selected: boolean) => void
-  handlerRef: React.MutableRefObject<((event: any) => void) | null>
 }) {
   const theme = useTheme()
   const { isFocused, isSelected, focusId, focusRef } = useFocus({ id: item.id, autoFocus })
@@ -77,10 +76,6 @@ function NavItemRow({ item, autoFocus, onFocus, onSelectChange, handlerRef }: {
   useEffect(() => {
     onSelectChangeRef.current(isSelected)
   }, [isSelected])
-
-  useKeyboard((event) => {
-    handlerRef.current?.(event)
-  }, { focusId, selectedOnly: true })
 
   useShortcuts(
     isSelected
@@ -132,7 +127,6 @@ export function SideNav({
     : 0
   const [activeIndex, setActiveIndex] = useState(initialIndex)
   const [isInteracting, setIsInteracting] = useState(false)
-  const handlerRef = useRef<((event: any) => void) | null>(null)
   const lastRequestedActiveIdRef = useRef<string | undefined>(requestedActiveId)
   // Tracks which nav item triggered the interaction, decoupled from activeIndex.
   // Without this, changing activeIndex programmatically breaks the isInteracting
@@ -154,10 +148,6 @@ export function SideNav({
     const idx = items.findIndex(item => item.id === requestedActiveId)
     if (idx !== -1) setActiveIndex(idx)
   }, [requestedActiveId, items])
-
-  const captureKeyboard = useCallback((handler: (event: any) => void) => {
-    handlerRef.current = handler
-  }, [])
 
   const clampedIndex = Math.min(activeIndex, Math.max(0, items.length - 1))
   const activeItem = items[clampedIndex]
@@ -200,7 +190,6 @@ export function SideNav({
                     setIsInteracting(false)
                   }
                 }}
-                handlerRef={handlerRef}
               />
             ))}
           </box>
@@ -223,10 +212,10 @@ export function SideNav({
               )}
               {isInteracting ? (
                 <FocusScope trap selectable autoFocus autoSelect restoreOnUnmount>
-                  {children({ activeItem, isInteracting, captureKeyboard })}
+                  {children({ activeItem, isInteracting })}
                 </FocusScope>
               ) : (
-                children({ activeItem, isInteracting, captureKeyboard })
+                children({ activeItem, isInteracting })
               )}
             </box>
           </box>
