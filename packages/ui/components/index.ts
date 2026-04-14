@@ -105,8 +105,8 @@ export type { GridlandProviderProps } from "@/registry/gridland/ui/provider/prov
 export { useBreakpoints, BREAKPOINTS } from "@/registry/gridland/hooks/use-breakpoints"
 export type { Breakpoints } from "@/registry/gridland/hooks/use-breakpoints"
 
-export { useInteractive } from "@/registry/gridland/hooks/use-interactive"
-export type { UseInteractiveOptions, UseInteractiveReturn } from "@/registry/gridland/hooks/use-interactive"
+export { useInteractive } from "@gridland/utils"
+export type { UseInteractiveOptions, UseInteractiveReturn } from "@gridland/utils"
 
 export { SideNav } from "./side-nav/side-nav"
 export type { SideNavProps, SideNavItem } from "./side-nav/side-nav"

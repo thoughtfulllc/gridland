@@ -1,7 +1,7 @@
 import { useReducer, useMemo, useRef } from "react"
 import { textStyle } from "@/registry/gridland/lib/text-style"
 import { useTheme } from "@/registry/gridland/lib/theme"
-import { useInteractive } from "@/registry/gridland/hooks/use-interactive"
+import { useInteractive } from "@gridland/utils"
 
 export type MultiSelectItem<V> = {
   /** Unique key for React reconciliation. Falls back to stringified value. */
