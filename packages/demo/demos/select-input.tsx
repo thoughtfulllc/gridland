@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client"
 import { useState } from "react"
-import { useKeyboard } from "@gridland/utils"
+import { FocusProvider, useKeyboard, useFocusedShortcuts } from "@gridland/utils"
 import { SelectInput, StatusBar } from "@gridland/ui"
 
 const items = [
@@ -11,35 +11,46 @@ const items = [
   { label: "Rust", value: "rs" },
 ]
 
-export function SelectInputApp() {
+function SelectInputDemo() {
   const [submitted, setSubmitted] = useState(false)
   const [resetKey, setResetKey] = useState(0)
+  const shortcuts = useFocusedShortcuts()
 
-  useKeyboard((event) => {
-    if (submitted && event.name === "r") {
-      setSubmitted(false)
-      setResetKey((k) => k + 1)
-    }
-  })
+  // Reset is a global, app-level action — always fire when 'r' is pressed
+  // after submission, regardless of focus state.
+  useKeyboard(
+    (event) => {
+      if (submitted && event.name === "r") {
+        setSubmitted(false)
+        setResetKey((k) => k + 1)
+      }
+    },
+    { global: true },
+  )
 
   return (
     <box flexDirection="column" flexGrow={1} padding={1}>
       <box flexDirection="column" flexGrow={1}>
         <SelectInput
           key={resetKey}
+          focusId="language"
+          autoFocus
           items={items}
           title="Choose a language"
-          useKeyboard={useKeyboard}
           onSubmit={() => setSubmitted(true)}
         />
       </box>
-      <StatusBar items={submitted
-        ? [{ key: "r", label: "reset demo" }]
-        : [
-          { key: "↑↓", label: "select" },
-          { key: "enter", label: "submit" },
-        ]
-      } />
+      <StatusBar
+        items={submitted ? [{ key: "r", label: "reset demo" }] : shortcuts}
+      />
     </box>
+  )
+}
+
+export function SelectInputApp() {
+  return (
+    <FocusProvider selectable>
+      <SelectInputDemo />
+    </FocusProvider>
   )
 }

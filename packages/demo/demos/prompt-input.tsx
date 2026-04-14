@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client"
 import { useState } from "react"
-import { useKeyboard } from "@gridland/utils"
+import { FocusProvider, useKeyboard } from "@gridland/utils"
 import { PromptInput, StatusBar, Modal, SelectInput, textStyle, useTheme } from "@gridland/ui"
 
 const commands = [{ cmd: "/model", desc: "Switch model" }]
@@ -12,7 +12,7 @@ const models = [
   { label: "Claude Haiku", value: "haiku" },
 ]
 
-export function PromptInputApp() {
+function PromptInputDemo() {
   const theme = useTheme()
   const [lastMessage, setLastMessage] = useState("")
   const [model, setModel] = useState("opus")
@@ -34,9 +34,10 @@ export function PromptInputApp() {
         <Modal title="Select Model" useKeyboard={useKeyboard} onClose={() => setShowModelPicker(false)}>
           <box paddingX={1}>
             <SelectInput
+              focusId="model-picker"
+              autoFocus
               items={models}
               defaultValue={model}
-              useKeyboard={useKeyboard}
               onSubmit={(value) => {
                 setModel(value)
                 setShowModelPicker(false)
@@ -83,5 +84,13 @@ export function PromptInputApp() {
         ]} />
       </box>
     </box>
+  )
+}
+
+export function PromptInputApp() {
+  return (
+    <FocusProvider selectable>
+      <PromptInputDemo />
+    </FocusProvider>
   )
 }

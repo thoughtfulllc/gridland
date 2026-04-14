@@ -346,9 +346,10 @@ function ChatPanel({ conversationId, initialMessages, onMessagesChange, onModelC
         <box width={40}>
           <Modal title="Select model" useKeyboard={useKeyboard} onClose={() => setShowModelPicker(false)}>
             <SelectInput
+              focusId="chat-model-picker"
+              autoFocus
               items={MODEL_ITEMS}
               defaultValue={selectedModelId}
-              useKeyboard={useKeyboard}
               onSubmit={handleModelSelect}
             />
           </Modal>
