@@ -1,0 +1,37 @@
+---
+title: Cursor Highlight
+description: Highlight the terminal cell under the mouse cursor
+---
+
+import { DemoWindow } from '@/components/ui/demo-window'
+import { CursorHighlightApp } from '@demos/cursor-highlight'
+
+Cursor highlight adds a visual overlay on the cell under the mouse cursor. Enable it on the root `TUI` component.
+
+<div className="my-8">
+  <DemoWindow title="Cursor Highlight" tuiStyle={{ width: "100%", height: 260 }} cursorHighlight>
+    <CursorHighlightApp />
+  </DemoWindow>
+</div>
+
+## Usage
+
+```tsx title="app.tsx"
+<TUI cursorHighlight cursorHighlightColor="#8888ff" cursorHighlightOpacity={0.2}>
+  <box border>
+    <text>Move the mouse over cells to see the highlight</text>
+  </box>
+</TUI>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `cursorHighlight` | `boolean` | `false` | Enable cell highlighting |
+| `cursorHighlightColor` | `string` | gray | CSS color for highlight |
+| `cursorHighlightOpacity` | `number` | `0.15` | Opacity of highlight |
+
+## Related
+
+- [Pointer Events](/docs/interaction/pointer-events) — mouse handler reference.

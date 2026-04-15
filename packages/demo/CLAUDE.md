@@ -39,7 +39,6 @@ The `@demos/*` alias is configured in `packages/docs/tsconfig.json` and resolves
 
 Some demos depend on browser APIs and are not registered in the terminal CLI:
 - `ai-chat-interface.tsx` — uses `@ai-sdk/react`, `localStorage`, requires `transport` prop
-- `focus-ai-chat.tsx` — uses `@ai-sdk/react`, requires `transport` prop
 - `ai-chat-models.ts` — uses `localStorage` for model persistence
 - `render-message-parts-demo-utils.tsx` — maps AI SDK types to Gridland components
 

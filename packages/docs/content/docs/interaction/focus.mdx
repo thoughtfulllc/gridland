@@ -1,34 +1,17 @@
 ---
-title: Focus & Navigation
-description: Focus management, keyboard routing, selection, and pointer events
+title: Focus
+description: Focus management, keyboard routing, and selection
 ---
 
 import { DemoWindow } from '@/components/ui/demo-window'
 import { FocusApp } from '@demos/focus'
-import { PointerApp } from '@demos/pointer'
-import { CursorHighlightApp } from '@demos/cursor-highlight'
 import FocusGridDemo from '@/components/demos/focus-grid-demo'
-import FocusAIChatDemo from '@/components/demos/focus-ai-chat-demo'
 
 Gridland provides a unified focus and input system that works identically in both terminal and web runtimes.
 
-## Focus
+## Examples
 
-### Examples
-
-#### AI Chat with Focus & Navigation
-
-<div className="my-8">
-  <FocusAIChatDemo />
-</div>
-
-#### Spatial Navigation
-
-<div className="my-8">
-  <FocusGridDemo />
-</div>
-
-#### Focus with Multi-Select
+### Focus with Multi-Select
 
 <div className="my-8">
   <DemoWindow title="Focus & Navigation" tuiStyle={{ width: "100%", height: 340 }} autoFocus>
@@ -36,7 +19,13 @@ Gridland provides a unified focus and input system that works identically in bot
   </DemoWindow>
 </div>
 
-### Usage
+### Spatial Navigation
+
+<div className="my-8">
+  <FocusGridDemo />
+</div>
+
+## Usage
 
 The primary API is `useInteractive` — one hook that composes focus registration,
 selection-scoped keyboard routing, and shortcut hints. It lives in `@gridland/utils`
@@ -108,7 +97,7 @@ function AppStatusBar() {
 }
 ```
 
-### useInteractive reference
+## useInteractive reference
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -122,7 +111,7 @@ function AppStatusBar() {
 Returns: `focusRef`, `focusId`, `isFocused`, `isSelected`, `isAnySelected`,
 `onKey(handler)`, `focus()`, `blur()`, `select()`, `deselect()`.
 
-### Styled variant
+## Styled variant
 
 If your component renders a focus-responsive border, `useInteractiveStyled` from
 `@gridland/ui` bundles the border styling back in for a single-call ergonomic:
@@ -156,7 +145,7 @@ underlying listener is registered once per mount and replaces the stored
 handler on each call. The handler fires **only while this component is
 selected** (focused + Enter pressed).
 
-### Low-level APIs
+## Low-level APIs
 
 The raw primitives remain for edge cases:
 
@@ -166,7 +155,7 @@ The raw primitives remain for edge cases:
 - **`useShortcuts`** / **`useFocusedShortcuts`** — register and read shortcut hints.
 - **`FocusScope`** — constrain navigation to a subtree (useful for modals and menus).
 
-### How it works
+## How it works
 
 **`FocusProvider`** enables the focus system. Pass `selectable` to enable two-layer focus: components are first **focused** (highlighted), then **selected** (entered for interaction) with Enter. Escape deselects.
 
@@ -200,7 +189,7 @@ The raw primitives remain for edge cases:
 
 **`useShortcuts`** registers keyboard hints tied to a `focusId`. They update automatically as the user navigates. **`useFocusedShortcuts`** reads the active shortcuts for display in a StatusBar.
 
-### FocusScope
+## FocusScope
 
 Constrain navigation to a group of components. When `trap` is enabled, Tab wraps around instead of leaving the scope. Useful for modals and menus.
 
@@ -220,43 +209,7 @@ Constrain navigation to a group of components. When `trap` is enabled, Tab wraps
 | `autoSelect` | `boolean` | `false` | Auto-select if only one focusable element exists on mount |
 | `restoreOnUnmount` | `boolean` | `true` | Restore previous focus on unmount |
 
-## Pointer Events
+## Related
 
-<div className="my-8">
-  <DemoWindow title="Pointer Events" tuiStyle={{ width: "100%", height: 280 }}>
-    <PointerApp />
-  </DemoWindow>
-</div>
-
-Gridland intrinsic elements accept mouse handler props (`onClick`, `onMouseOver`, `onMouseScroll`,
-and eight others). Event coordinates are in cell positions and modifier flags are exposed on
-`event.modifiers`. See the [Pointer Events guide](/docs/guides/pointer-events) for the complete
-handler list, event shape, hit-testing, and propagation reference.
-
-## Cursor Highlight
-
-<div className="my-8">
-  <DemoWindow title="Cursor Highlight" tuiStyle={{ width: "100%", height: 260 }} cursorHighlight>
-    <CursorHighlightApp />
-  </DemoWindow>
-</div>
-
-### Usage
-
-```tsx title="app.tsx"
-<TUI cursorHighlight cursorHighlightColor="#8888ff" cursorHighlightOpacity={0.2}>
-  <box border>
-    <text>Move the mouse over cells to see the highlight</text>
-  </box>
-</TUI>
-```
-
-### How it works
-
-Cursor highlight adds a visual overlay on the cell under the mouse cursor. Enable it on the root `TUI` component.
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `cursorHighlight` | `boolean` | `false` | Enable cell highlighting |
-| `cursorHighlightColor` | `string` | gray | CSS color for highlight |
-| `cursorHighlightOpacity` | `number` | `0.15` | Opacity of highlight |
+- [Pointer Events](/docs/interaction/pointer-events) — mouse handlers, event shape, hit testing, and propagation.
+- [Cursor Highlight](/docs/interaction/cursor-highlight) — highlight the terminal cell under the mouse cursor.

@@ -4,11 +4,19 @@ description: Mouse and click handling on Gridland intrinsic elements
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { PointerApp } from '@demos/pointer'
 
 All intrinsic elements (`<box>`, `<text>`, `<input>`, etc.) accept pointer event handlers as
 props. Handlers receive a single event object with **cell coordinates** (not pixels) and modifier
 flags. This page is the full reference for the event shape, the handler set, hit testing, and
 propagation semantics.
+
+<div className="my-8">
+  <DemoWindow title="Pointer Events" tuiStyle={{ width: "100%", height: 280 }}>
+    <PointerApp />
+  </DemoWindow>
+</div>
 
 ## Supported Handlers
 
@@ -166,7 +174,6 @@ needed. Link regions (rendered via `<a href>`) also trigger the pointer cursor.
 
 ## Related
 
-- [Focus and Navigation](/docs/guides/focus-and-navigation) — how keyboard focus interacts with
-  pointer events.
+- [Focus](/docs/interaction/focus) — how keyboard focus interacts with pointer events.
 - [TUI Primitives](/docs/components/primitives) — the intrinsic elements that accept these
   handler props.

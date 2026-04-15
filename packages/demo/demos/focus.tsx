@@ -1,8 +1,7 @@
 // @ts-nocheck
 "use client"
-import { useState, useRef, useCallback } from "react"
-import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
-import { StatusBar, MultiSelect, useFocusBorderStyle, useTheme } from "@gridland/ui"
+import { FocusProvider, useFocus, useFocusedShortcuts } from "@gridland/utils"
+import { MultiSelect, StatusBar, useFocusBorderStyle } from "@gridland/ui"
 
 const focusMultiSelects = [
   {
@@ -42,39 +41,20 @@ function FocusMultiSelectPanel({ id, title, items, autoFocus }: {
   items: { label: string; value: string }[]
   autoFocus?: boolean
 }) {
-  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id, autoFocus })
-  const multiSelectHandlerRef = useRef<((event: any) => void) | null>(null)
-
-  const captureKeyboard = useCallback((handler: (event: any) => void) => {
-    multiSelectHandlerRef.current = handler
-  }, [])
-
-  useKeyboard((event) => {
-    multiSelectHandlerRef.current?.(event)
-  }, { focusId, selectedOnly: true })
-
-  useShortcuts(
-    isSelected
-      ? [{ key: "↑↓", label: "move" }, { key: "enter", label: "toggle" }, { key: "esc", label: "back" }]
-      : [{ key: "←→", label: "navigate" }, { key: "tab", label: "cycle" }, { key: "enter", label: "select" }],
-    focusId,
-  )
-
-  const theme = useTheme()
+  const { isFocused, isSelected, isAnySelected, focusRef } = useFocus({ id })
   const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   return (
     <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor} flexGrow={1}>
-      <box flexDirection="column" paddingX={1}>
+      <box flexDirection="column" paddingX={1} flexGrow={1}>
         <MultiSelect
+          focusId={id}
+          autoFocus={autoFocus}
           items={items}
           title={title}
           allowEmpty
           enableSelectAll={false}
           enableClear={false}
-          highlightColor={isSelected ? theme.focusSelected : theme.focusFocused}
-          checkboxColor={theme.focusSelected}
-          useKeyboard={captureKeyboard}
         />
       </box>
     </box>
