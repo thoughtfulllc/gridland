@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useRef, Children, isValidElement } from "react"
 import type { ReactNode } from "react"
-import { useFocus, useKeyboard, useShortcuts } from "@gridland/utils"
+import { useInteractive, useKeyboard, useShortcuts } from "@gridland/utils"
 import { textStyle } from "@/registry/gridland/lib/text-style"
 import { useTheme } from "@/registry/gridland/lib/theme"
 
@@ -87,7 +87,7 @@ export function TabsList({
 }: TabsListProps) {
   const theme = useTheme()
   const { value, onValueChange } = useTabsContext()
-  const { focusId: resolvedFocusId, focusRef } = useFocus({ id: focusId, autoFocus })
+  const { focusId: resolvedFocusId, focusRef } = useInteractive({ id: focusId, autoFocus })
   const color = activeColor ?? theme.accent
 
   useShortcuts(
@@ -113,8 +113,8 @@ export function TabsList({
 
   // Keyboard navigation: left/right arrows switch tabs.
   // Fires whenever TabsList is focused — tab bars are focused-is-interactive,
-  // not selectable, so we use useKeyboard with focus scoping directly
-  // rather than useInteractive (which is selectedOnly by default).
+  // so we use useKeyboard scoped by focusId directly (not useInteractive's
+  // onKey, which would route only while selected).
   useKeyboard((event: any) => {
     const t = triggersRef.current
     if (t.length === 0) return

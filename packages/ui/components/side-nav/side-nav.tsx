@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, type ReactNode } from "react"
 import {
   FocusProvider,
   FocusScope,
-  useFocus,
+  useInteractive,
   useShortcuts,
   useFocusedShortcuts,
 } from "@gridland/utils"
@@ -62,7 +62,7 @@ function NavItemRow({ item, autoFocus, onFocus, onSelectChange }: {
   onSelectChange: (selected: boolean) => void
 }) {
   const theme = useTheme()
-  const { isFocused, isSelected, focusId, focusRef } = useFocus({ id: item.id, autoFocus })
+  const { isFocused, isSelected, focusId, focusRef } = useInteractive({ id: item.id, autoFocus })
 
   const onFocusRef = useRef(onFocus)
   onFocusRef.current = onFocus

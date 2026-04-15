@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { describe, it, expect, afterEach } from "bun:test"
-import { useFocus } from "@gridland/utils"
+import { useInteractive } from "@gridland/utils"
 import { renderTui, cleanup } from "../../../testing/src/index"
 import { GridlandProvider } from "./provider"
 import { useTheme } from "@/registry/gridland/lib/theme"
@@ -13,7 +13,7 @@ function ThemeConsumer() {
 }
 
 function FocusConsumer({ id, autoFocus }: { id: string; autoFocus?: boolean }) {
-  const { isFocused } = useFocus({ id, autoFocus })
+  const { isFocused } = useInteractive({ id, autoFocus })
   return <text>{isFocused ? `[${id}:FOCUSED]` : `[${id}]`}</text>
 }
 
@@ -66,7 +66,7 @@ describe("GridlandProvider behavior", () => {
       { cols: 40, rows: 5 },
     )
     flush(); flush()
-    // Without the wrapper, useFocus dispatches land on the default noop
+    // Without the wrapper, useInteractive dispatches land on the default noop
     // store, so autoFocus is a no-op and the component stays unfocused.
     expect(screen.text()).not.toContain("[a:FOCUSED]")
     expect(screen.text()).toContain("[a]")

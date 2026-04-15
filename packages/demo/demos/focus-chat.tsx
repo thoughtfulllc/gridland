@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client"
 import { useState, useRef, useCallback } from "react"
-import { useKeyboard, useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
+import { useKeyboard, useInteractive, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
 import {
   StatusBar,
   PromptInput,
@@ -14,7 +14,7 @@ import {
 } from "@gridland/ui"
 
 function CotSection() {
-  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id: "cot", autoFocus: true })
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useInteractive({ id: "cot", autoFocus: true })
   const [cotOpen, setCotOpen] = useState(false)
 
   useKeyboard((event) => {
@@ -46,7 +46,7 @@ function CotSection() {
 }
 
 function PromptSection() {
-  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id: "prompt" })
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useInteractive({ id: "prompt" })
   const promptHandlerRef = useRef<((event: any) => void) | null>(null)
 
   const captureKeyboard = useCallback((handler: (event: any) => void) => {

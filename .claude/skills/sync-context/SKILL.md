@@ -18,7 +18,7 @@ git diff HEAD --name-only | grep -E '\.(tsx|ts)$'
 | Change type | Target file |
 |---|---|
 | New component, removed component, changed component props | `packages/ui/CLAUDE.md` (component catalog table) |
-| New focus pattern, focus anti-pattern, useFocus API change | `.claude/rules/focus-system.md` |
+| New focus pattern, focus anti-pattern, useInteractive API change | `.claude/rules/focus-system.md` |
 | New AI SDK convention, changed part types or states | `.claude/rules/ai-sdk.md` |
 | New layout rule, intrinsic element, borderStyle | `.claude/rules/opentui-layout.md` |
 | Non-obvious design decision worth preserving | `.claude/rules/design-decisions.md` |

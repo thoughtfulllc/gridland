@@ -1,10 +1,10 @@
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../testing/src/index"
-import { FocusProvider, useFocus } from "@gridland/utils"
+import { FocusProvider, useInteractive } from "@gridland/utils"
 import { Modal } from "./modal"
 
 function FocusableItem({ id, autoFocus }: { id: string; autoFocus?: boolean }) {
-  const { isFocused } = useFocus({ id, autoFocus })
+  const { isFocused } = useInteractive({ id, autoFocus })
   return <text>{isFocused ? `[${id}:FOCUSED]` : `[${id}]`}</text>
 }
 

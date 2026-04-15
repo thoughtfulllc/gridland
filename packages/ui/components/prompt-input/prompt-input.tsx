@@ -9,7 +9,7 @@ import {
   type ReactNode,
   type PropsWithChildren,
 } from "react"
-import { useFocus, useKeyboard, useShortcuts } from "@gridland/utils"
+import { useInteractive, useKeyboard, useShortcuts } from "@gridland/utils"
 import { textStyle } from "@/registry/gridland/lib/text-style"
 import { useTheme } from "@/registry/gridland/lib/theme"
 import { useRegistryCommands, type PromptInputCommand } from "./command-registry"
@@ -413,7 +413,7 @@ export function PromptInput({
   children,
 }: PromptInputProps) {
   const theme = useTheme()
-  const { focusId: resolvedFocusId, focusRef, isSelected } = useFocus({ id: focusId, autoFocus })
+  const { focusId: resolvedFocusId, focusRef, isSelected } = useInteractive({ id: focusId, autoFocus })
   useShortcuts(
     [
       { key: "⏎", label: "send" },

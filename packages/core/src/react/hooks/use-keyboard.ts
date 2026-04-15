@@ -7,7 +7,7 @@ import { FocusContext } from "../focus/focus-context"
 export interface UseKeyboardOptions {
   /** Include release events - callback receives events with eventType: "release" */
   release?: boolean
-  /** Only fire when this focus ID is focused. Obtain from useFocus(). */
+  /** Only fire when this focus ID is focused. Obtain from useInteractive(). */
   focusId?: string
   /** Always fire regardless of focus state. */
   global?: boolean
@@ -34,7 +34,7 @@ export interface UseKeyboardOptions {
  *
  * @example Scoped to a focus id
  * ```tsx
- * const { focusId } = useFocus({ id: "editor" })
+ * const { focusId } = useInteractive({ id: "editor" })
  * useKeyboard((event) => {
  *   if (event.ctrl && event.name === "s") save()
  * }, { focusId })
@@ -42,7 +42,7 @@ export interface UseKeyboardOptions {
  *
  * @example Selection-scoped (only when entered)
  * ```tsx
- * const { focusId } = useFocus({ id: "editor" })
+ * const { focusId } = useInteractive({ id: "editor" })
  * useKeyboard((event) => { ... }, { focusId, selectedOnly: true })
  * ```
  *

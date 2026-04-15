@@ -1,5 +1,6 @@
-import { useCallback, useRef } from "react"
-import { useFocus } from "../focus/use-focus"
+import { useCallback, useEffect, useId, useMemo, useRef, useSyncExternalStore } from "react"
+import { useFocusContext } from "../focus/focus-context"
+import { useFocusScopeId } from "../focus/focus-scope"
 import { useShortcuts } from "../focus/use-shortcuts"
 import { useKeyboard } from "../hooks/use-keyboard"
 import type { ShortcutEntry } from "../focus/types"
@@ -19,6 +20,14 @@ export interface UseInteractiveOptions {
   selectable?: boolean
   /** Tab order. A value of -1 removes the component from the tab cycle. @default 0 */
   tabIndex?: number
+  /**
+   * Override the enclosing `FocusScope`. `undefined` (default) uses the scope
+   * from context. `null` opts out of any enclosing scope and routes to the
+   * root. A concrete string overrides with a specific scope id. Used for
+   * modals-within-modals, portal overlays, and headless composition where a
+   * focusable needs to land in a different scope than the one it renders under.
+   */
+  scopeId?: string | null
   /**
    * Shortcuts to surface to `useFocusedShortcuts` while focused. Accepts
    * either a static array or a function that receives the current
@@ -64,12 +73,104 @@ export interface UseInteractiveReturn {
  * that want theme-aware focus borders should call `useFocusBorderStyle`
  * separately, or use `useInteractiveStyled` from `@gridland/ui` for the
  * combined helper.
+ *
+ * Display-only wrapper components that share a focusId with an inner
+ * interactive child can call `useInteractive({ id })` without `shortcuts`
+ * and without `onKey`. The internal `useShortcuts` call short-circuits on
+ * an empty array (load-bearing guard in `use-shortcuts.ts`), so the wrapper
+ * does not stomp the inner component's shortcut registration.
  */
 export function useInteractive(options: UseInteractiveOptions = {}): UseInteractiveReturn {
-  const { id, autoFocus, disabled, selectable = true, tabIndex, shortcuts } = options
+  const generatedId = useId()
+  const contextScopeId = useFocusScopeId()
+  const {
+    id = generatedId,
+    tabIndex = 0,
+    autoFocus = false,
+    disabled = false,
+    scopeId = contextScopeId,
+    selectable = true,
+    shortcuts,
+  } = options
 
-  const focusState = useFocus({ id, autoFocus, disabled, selectable, tabIndex })
-  const { focusId, isFocused, isSelected } = focusState
+  const { dispatch, store } = useFocusContext()
+
+  const noopSubscribe = useCallback((cb: () => void) => () => {}, [])
+  const focusedId = useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    () => store?.getState().focusedId ?? null,
+    () => store?.getState().focusedId ?? null,
+  )
+  const selectedId = useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    () => store?.getState().selectedId ?? null,
+    () => store?.getState().selectedId ?? null,
+  )
+  // Derived boolean: is this ID saved as selectedId in any scope on the stack?
+  const isScopeSelected = useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    () => store?.getState().scopes.some(s => s.savedSelectedId === id) ?? false,
+    () => false,
+  )
+
+  useEffect(() => {
+    dispatch({
+      type: "REGISTER",
+      entry: { id, tabIndex, disabled, scopeId, selectable },
+    })
+
+    if (autoFocus) {
+      dispatch({ type: "FOCUS", id })
+    }
+
+    return () => {
+      dispatch({ type: "UNREGISTER", id })
+    }
+  }, [id])
+
+  // Patch entry props without disrupting focus (avoids UNREGISTER+REGISTER gap)
+  const isFirstPatchRun = useRef(true)
+  useEffect(() => {
+    if (isFirstPatchRun.current) {
+      isFirstPatchRun.current = false
+      return
+    }
+    dispatch({ type: "PATCH_ENTRY", id, patch: { tabIndex, disabled, scopeId, selectable } })
+  }, [tabIndex, disabled, scopeId, selectable])
+
+  // Check if any scope has a saved selection — means a peer at this level is still
+  // logically selected even though selectedId was cleared by PUSH_SCOPE.
+  // Only relevant for components outside the pushed scope (scopeId matches their level).
+  const hasScopeSavedSelection = useSyncExternalStore(
+    store?.subscribe ?? noopSubscribe,
+    () => store?.getState().scopes.some(s => s.savedSelectedId !== null) ?? false,
+    () => false,
+  )
+
+  const isFocused = focusedId === id
+  const isSelected = selectedId === id || isScopeSelected
+  const isAnySelected = selectedId !== null
+    || (scopeId == null && hasScopeSavedSelection)
+
+  const focus = useCallback(() => {
+    dispatch({ type: "FOCUS", id })
+  }, [dispatch, id])
+
+  const blur = useCallback(() => {
+    dispatch({ type: "BLUR", id })
+  }, [dispatch, id])
+
+  const select = useCallback(() => {
+    dispatch({ type: "SELECT", id })
+  }, [dispatch, id])
+
+  const deselect = useCallback(() => {
+    dispatch({ type: "DESELECT" })
+  }, [dispatch])
+
+  const focusRef = useCallback((node: any) => {
+    store?.setRef(id, node)
+  }, [id, store])
 
   const handlerRef = useRef<((event: any) => void) | null>(null)
   const onKey = useCallback((handler: (event: any) => void) => {
@@ -78,14 +179,28 @@ export function useInteractive(options: UseInteractiveOptions = {}): UseInteract
 
   useKeyboard(
     (event: any) => handlerRef.current?.(event),
-    { focusId, selectedOnly: true },
+    { focusId: id, selectedOnly: true },
   )
 
   const resolvedShortcuts: ShortcutEntry[] =
     typeof shortcuts === "function"
       ? shortcuts({ isFocused, isSelected })
       : shortcuts ?? []
-  useShortcuts(resolvedShortcuts, focusId)
+  useShortcuts(resolvedShortcuts, id)
 
-  return { ...focusState, onKey }
+  return useMemo(
+    () => ({
+      isFocused,
+      isSelected,
+      isAnySelected,
+      focus,
+      blur,
+      select,
+      deselect,
+      focusId: id,
+      focusRef,
+      onKey,
+    }),
+    [isFocused, isSelected, isAnySelected, focus, blur, select, deselect, id, focusRef, onKey],
+  )
 }

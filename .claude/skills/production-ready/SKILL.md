@@ -37,14 +37,14 @@ Signs something is a demo utility:
 Then classify the primary component. This is critical — the rules differ:
 
 **Container components** (e.g., SideNav, Modal, ChatPanel) manage their own focus scope. They MUST:
-- Call `useFocus` and attach `focusRef`
+- Call `useInteractive` and attach `focusRef`
 - Wrap content in `FocusScope` with `selectable`
-- Register shortcuts with `useShortcuts`
+- Register shortcuts via the `shortcuts` option on `useInteractive` (don't reach for `useShortcuts` directly)
 - Use `useFocusBorderStyle` or `useFocusDividerStyle` for visual affordance
 
-**Embedded components** (e.g., SelectInput, MultiSelect, PromptInput) receive `useKeyboard` as a prop and are focus-managed by a parent. They do NOT call `useFocus`, `focusRef`, `FocusScope`, or `useShortcuts`. This is intentional — not a gap.
+**Embedded components** (e.g., SelectInput, MultiSelect, PromptInput) receive `useKeyboard` as a prop and are focus-managed by a parent. They do NOT call `useInteractive`, `focusRef`, `FocusScope`, or `useShortcuts`. This is intentional — not a gap.
 
-**How to tell:** If the component accepts a `useKeyboard` prop and calls `useKeyboardContext(useKeyboardProp)`, it is embedded. If it imports `useFocus` from `@gridland/utils`, it is a container.
+**How to tell:** If the component accepts a `useKeyboard` prop and calls `useKeyboardContext(useKeyboardProp)`, it is embedded. If it imports `useInteractive` from `@gridland/utils`, it is a container.
 
 **Static components** (e.g., Spinner, Ascii, Table) have no keyboard interaction. Focus rules don't apply.
 

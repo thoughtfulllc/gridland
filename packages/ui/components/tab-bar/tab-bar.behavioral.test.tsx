@@ -526,7 +526,7 @@ describe("Tabs disabled triggers", () => {
   })
 })
 
-// ── Target API (focusId + useFocus) — Phase 3 migration ─────────────
+// ── Target API (focusId + useInteractive) — Phase 3 migration ──────
 
 describe("TabsList via focusId (target API)", () => {
   it("routes right arrow via real key dispatch when focused", async () => {

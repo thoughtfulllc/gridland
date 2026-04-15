@@ -1,6 +1,6 @@
 ---
 name: framework-compliance
-description: Checks that code follows Gridland framework patterns — correct useFocus usage, useFocusBorderStyle / useFocusDividerStyle for border affordance, FocusScope placement, keyboard/focus coverage for every interactive component, naming conventions, vendor boundary, and anti-patterns. Use on any changed component or hook file.
+description: Checks that code follows Gridland framework patterns — correct useInteractive usage, useFocusBorderStyle / useFocusDividerStyle for border affordance, FocusScope placement, keyboard/focus coverage for every interactive component, naming conventions, vendor boundary, and anti-patterns. Use on any changed component or hook file.
 tools: Read, Glob, Grep, Bash
 model: claude-sonnet-4-5
 ---
@@ -19,10 +19,12 @@ Focus on `.tsx` and `.ts` files in `packages/ui/`, `packages/core/`, `packages/d
 
 For each changed file, check:
 
-**`useFocus` options:**
+**`useInteractive` options:**
 - `disabled` alone is sufficient — flag `tabIndex: disabled ? -1 : 0` alongside `disabled` as redundant
 - `selectable` defaults to `true` — only pass it when explicitly setting to `false`
-- `scopeId` only needed for cross-scope registration
+- `scopeId` only needed for cross-scope registration (modals-within-modals, portal overlays, headless composition)
+- Flag any import of `useFocus` from `@gridland/utils` — it has been deleted from the public API. Replace with `useInteractive`.
+- Display-only wrappers sharing a `focusId` with an inner interactive child should call `useInteractive({ id })` without `shortcuts` and without `onKey` — the internal dispatch is a no-op on an empty array, so the inner component's registration survives
 
 **Focus border affordance (`useFocusBorderStyle` / `useFocusDividerStyle`):**
 - Any component with a selectable border affordance must use `useFocusBorderStyle` (for `<box border>`) or `useFocusDividerStyle` (for PromptInput dividers) from `@gridland/ui`
@@ -38,15 +40,15 @@ For each changed file, check:
 ## Step 3 — Keyboard/focus coverage for interactive components
 
 For every new component that is interactive (has onClick-equivalent, is expandable, toggleable, selectable):
-- Does it call `useFocus`?
+- Does it call `useInteractive`?
 - Does it attach `focusRef` to its root `<box>`?
-- Does it register shortcuts with `useShortcuts`?
+- Does it register shortcuts via `useInteractive({ shortcuts })` (preferred) or `useShortcuts` for advanced cases?
 - Does it use `getFocusBorderStyle` or `getFocusDividerStyle` for visual affordance?
 
 ## Step 4 — Naming conventions
 
 - Components: PascalCase (`SideNav`, `Modal`)
-- Hooks: `use` prefix (`useFocus`, `useKeyboard`)
+- Hooks: `use` prefix (`useInteractive`, `useKeyboard`)
 - Prop interfaces: `{ComponentName}Props` (`SideNavProps`, `ModalProps`)
 - Constants: SCREAMING_SNAKE or descriptive camelCase object (`FOCUS_COLORS`, `darkTheme`)
 
@@ -86,7 +88,7 @@ For every `{ComponentName}Props` interface in changed files:
 - [file:line] Issue — suggested fix
 
 ### Missing Keyboard/Focus Coverage
-- [component] Missing: useFocus | focusRef | useShortcuts | useFocusBorderStyle
+- [component] Missing: useInteractive | focusRef | shortcuts | useFocusBorderStyle
 
 ### Naming Violations
 - [file:line] Issue

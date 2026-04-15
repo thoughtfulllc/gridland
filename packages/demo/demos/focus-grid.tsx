@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client"
-import { useFocus, FocusProvider, useShortcuts, useFocusedShortcuts } from "@gridland/utils"
+import { useInteractive, FocusProvider, useFocusedShortcuts } from "@gridland/utils"
 import { StatusBar, useFocusBorderStyle, useTheme } from "@gridland/ui"
 
 const gridItems = [
@@ -15,14 +15,18 @@ const gridItems = [
 function GridCell({ id, autoFocus }: {
   id: string; autoFocus?: boolean
 }) {
-  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id, autoFocus })
-
-  useShortcuts(
-    isSelected
-      ? [{ key: "esc", label: "back" }]
-      : [{ key: "↑↓←→", label: "navigate" }, { key: "enter", label: "select" }, { key: "tab", label: "cycle" }],
-    focusId,
-  )
+  const { isFocused, isSelected, isAnySelected, focusRef } = useInteractive({
+    id,
+    autoFocus,
+    shortcuts: ({ isSelected }) =>
+      isSelected
+        ? [{ key: "esc", label: "back" }]
+        : [
+            { key: "↑↓←→", label: "navigate" },
+            { key: "enter", label: "select" },
+            { key: "tab", label: "cycle" },
+          ],
+  })
 
   const theme = useTheme()
   const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })

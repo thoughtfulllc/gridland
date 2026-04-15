@@ -3,10 +3,10 @@ import { FixtureWrapper } from "../fixture-wrapper"
 import { Modal } from "../../../../packages/ui/components/modal/modal"
 import { GridlandProvider } from "../../../../packages/ui/components/provider/provider"
 import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
-import { useFocus, FocusProvider, useKeyboard } from "@gridland/utils"
+import { useInteractive, FocusProvider, useKeyboard } from "@gridland/utils"
 
 function ModalTrigger({ onOpen }: { onOpen: () => void }) {
-  const { isFocused, isSelected, focusRef } = useFocus({ id: "trigger", autoFocus: true, selectable: true })
+  const { isFocused, isSelected, focusRef } = useInteractive({ id: "trigger", autoFocus: true, selectable: true })
 
   useKeyboard((event: any) => {
     if (event.name === "o") onOpen()

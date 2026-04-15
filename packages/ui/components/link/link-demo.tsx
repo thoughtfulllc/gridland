@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useFocus, useKeyboard, useShortcuts } from "@gridland/utils"
+import { useInteractive, useKeyboard, useShortcuts } from "@gridland/utils"
 import { Link, type UnderlineStyle } from "./link"
 import { StatusBar } from "@/registry/gridland/ui/status-bar/status-bar"
 import { textStyle } from "@/registry/gridland/lib/text-style"
@@ -21,7 +21,7 @@ export function LinkDemo({
   focusId,
   autoFocus,
 }: LinkDemoProps) {
-  const { focusId: resolvedFocusId, focusRef } = useFocus({ id: focusId, autoFocus })
+  const { focusId: resolvedFocusId, focusRef } = useInteractive({ id: focusId, autoFocus })
   useShortcuts([{ key: "←→", label: "underline style" }], resolvedFocusId)
   const [modeIndex, setModeIndex] = useState(0)
   const mode = MODES[modeIndex]

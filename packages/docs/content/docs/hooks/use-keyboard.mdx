@@ -43,7 +43,7 @@ useKeyboard((event) => {
 ## Focus-aware routing
 
 ```tsx title="Focus-scoped: only fires when this component is focused"
-const { focusId } = useFocus()
+const { focusId } = useInteractive()
 useKeyboard((e) => {
   if (e.name === "return") submit()
 }, { focusId })
@@ -61,7 +61,7 @@ useKeyboard((e) => {
 |-------|------|---------|-------------|
 | `handler` | `(key: KeyEvent) => void` | -- | Called on each keypress |
 | `options.release` | `boolean` | `false` | Also receive key release events |
-| `options.focusId` | `string` | -- | Only fire when this ID is focused (from `useFocus()`) |
+| `options.focusId` | `string` | -- | Only fire when this ID is focused (from `useInteractive()`) |
 | `options.global` | `boolean` | -- | Always fire regardless of focus state |
 | `options.selectedOnly` | `boolean` | `false` | Only fire when the component is selected (entered), not just focused. Requires `focusId` |
 

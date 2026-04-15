@@ -1,7 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../../testing/src/index"
-import { useFocus } from "./use-focus"
+import { useInteractive } from "../interactive/use-interactive"
 import { FocusProvider } from "./focus-provider"
 import { useKeyboard } from "../hooks/use-keyboard"
 import React, { useState } from "react"
@@ -9,7 +9,7 @@ import React, { useState } from "react"
 afterEach(() => cleanup())
 
 function SelectableBox({ id, autoFocus }: { id: string; autoFocus?: boolean }) {
-  const { isFocused, isSelected, isAnySelected, focusId } = useFocus({ id, autoFocus })
+  const { isFocused, isSelected, isAnySelected, focusId } = useInteractive({ id, autoFocus })
   return (
     <text>
       {`[${id}:${isFocused ? "F" : "-"}${isSelected ? "S" : "-"}${isAnySelected ? "A" : "-"}]`}
@@ -130,7 +130,7 @@ describe("FocusProvider selectable", () => {
     let handlerCalled = false
 
     function TestBox({ id, autoFocus }: { id: string; autoFocus?: boolean }) {
-      const { focusId } = useFocus({ id, autoFocus })
+      const { focusId } = useInteractive({ id, autoFocus })
       useKeyboard(() => { handlerCalled = true }, { focusId, selectedOnly: true })
       return <text>{id}</text>
     }

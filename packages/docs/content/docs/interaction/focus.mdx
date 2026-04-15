@@ -145,38 +145,33 @@ underlying listener is registered once per mount and replaces the stored
 handler on each call. The handler fires **only while this component is
 selected** (focused + Enter pressed).
 
-## Low-level APIs
-
-The raw primitives remain for edge cases:
+## Structural context
 
 - **`FocusProvider`** — the root wrapper (mounted implicitly by `GridlandProvider`). Pass `disableFocusProvider` to `GridlandProvider` to opt out of the implicit wrap.
-- **`useFocus`** — registers a focusable element without the keyboard / shortcuts / styling pieces. Used by components that are focused-is-interactive (like `TabsList` and `PromptInput`), which don't fit the focused→selected lifecycle.
-- **`useKeyboard`** — raw keyboard subscription. Pair with `{ focusId }` for focused-only routing or `{ global: true }` to always listen.
-- **`useShortcuts`** / **`useFocusedShortcuts`** — register and read shortcut hints.
 - **`FocusScope`** — constrain navigation to a subtree (useful for modals and menus).
 
 ## How it works
 
 **`FocusProvider`** enables the focus system. Pass `selectable` to enable two-layer focus: components are first **focused** (highlighted), then **selected** (entered for interaction) with Enter. Escape deselects.
 
-**`useFocus`** makes a component focusable. It returns:
+`useInteractive` registers a focusable element with the system. It returns:
 
 - `isFocused` / `isSelected` / `isAnySelected` for styling based on focus state. `isAnySelected` is scope-aware: it stays true for global-scope components even when the selection is saved behind a `FocusScope`
-- `focusId` to pass to other hooks like `useKeyboard` and `useShortcuts`
+- `focusId` to pass to other hooks like `useKeyboard` and `useShortcuts` when you need them directly
 - `focusRef` to attach to the root element so arrow-key navigation can measure positions
 - `focus()` / `blur()` to imperatively move focus
 - `select()` / `deselect()` to imperatively enter or exit selection
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `id` | `string` | auto-generated | Unique identifier for this focusable |
-| `tabIndex` | `number` | `0` | Tab order. `-1` to skip tab navigation |
-| `autoFocus` | `boolean` | `false` | Focus immediately on mount |
-| `disabled` | `boolean` | `false` | Skip in tab order when true |
-| `scopeId` | `string \| null` | context scope | Override which FocusScope this element belongs to |
-| `selectable` | `boolean` | `true` | Whether this component supports selection (Enter to interact) |
+- `onKey(handler)` to register a keyboard handler that fires only while this component is selected
 
 **Navigation** works two ways: **Tab/Shift+Tab** cycles in linear order, **arrow keys** navigate spatially to the nearest neighbor. If a component handles arrows internally (e.g., a SelectInput), call `event.preventDefault()` to prevent the FocusProvider from also navigating.
+
+### Display wrappers share a focusId
+
+A component that only needs to observe focus state (e.g. a bordered wrapper around an already-interactive child) should call `useInteractive({ id })` with **no** `shortcuts` option and **without** calling `onKey`. Share the same `id` with the inner interactive component. The outer call registers for state observation; the shortcut dispatch is a no-op on an empty array, so the wrapper does not stomp the inner component's shortcut registration.
+
+## Advanced: raw primitives
+
+These remain exported from `@gridland/utils` as escape hatches for advanced cases (global keyboard listeners, custom shortcut reducers, status bar integration). Reach for `useInteractive` first — the primitives below exist for cases it cannot express.
 
 **`useKeyboard`** handles keyboard input. Pass `focusId` to scope it to the focused component, or `global: true` to always listen.
 

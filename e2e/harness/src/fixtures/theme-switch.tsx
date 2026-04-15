@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { FixtureWrapper } from "../fixture-wrapper"
 import { ThemeProvider, darkTheme, lightTheme, useTheme } from "../../../../packages/ui/lib/theme"
-import { useKeyboard, FocusProvider, useFocus } from "@gridland/utils"
+import { useKeyboard, FocusProvider, useInteractive } from "@gridland/utils"
 
 function ThemeContent({ isDark, onToggle }: { isDark: boolean; onToggle: () => void }) {
   const theme = useTheme()
-  const { focusRef } = useFocus({ id: "themed", autoFocus: true })
+  const { focusRef } = useInteractive({ id: "themed", autoFocus: true })
 
   useKeyboard((event: any) => {
     if (event.name === "t") onToggle()

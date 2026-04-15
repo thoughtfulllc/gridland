@@ -44,9 +44,13 @@ export function MyComponent({ children }: MyComponentProps) {
 ## 3. Focus integration (interactive components only)
 
 ```tsx
-import { useFocus, FocusScope, useShortcuts } from "@gridland/utils"
+import { useInteractive, FocusScope } from "@gridland/utils"
 
-const { isFocused, isSelected, focusId, focusRef } = useFocus({ id, disabled })
+const { isFocused, isSelected, focusId, focusRef, onKey } = useInteractive({
+  id,
+  disabled,
+  shortcuts: [{ key: "enter", label: "select" }],
+})
 
 // Attach focusRef to root element
 <box ref={focusRef}>...</box>
@@ -54,12 +58,15 @@ const { isFocused, isSelected, focusId, focusRef } = useFocus({ id, disabled })
 // Wrap nested interactive content
 <FocusScope trap selectable autoFocus>{children}</FocusScope>
 
-// Register keyboard shortcuts
-useShortcuts([{ key: "enter", label: "select" }], focusId)
+// Handle keys while selected (fires only when isSelected)
+onKey((e) => {
+  if (e.name === "return") submit()
+})
 ```
 
 - `disabled` alone excludes from navigation — do NOT also set `tabIndex: -1`
-- `useFocus` inside `FocusScope` auto-binds to that scope
+- `useInteractive` inside `FocusScope` auto-binds to that scope (pass `scopeId={null}` for global scope)
+- Display-only wrappers that share a `focusId` with an inner interactive child should call `useInteractive({ id })` without `shortcuts` and without `onKey` — the internal dispatch is a no-op so the inner component's shortcuts survive
 
 ## 4. Keyboard handling
 

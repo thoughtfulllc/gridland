@@ -1,4 +1,3 @@
-export { useFocus, type UseFocusOptions, type UseFocusReturn } from "./use-focus"
 export { FocusProvider, type FocusProviderProps } from "./focus-provider"
 export { FocusScope, type FocusScopeProps, useFocusScopeId } from "./focus-scope"
 export { useFocusContext, FocusContext } from "./focus-context"

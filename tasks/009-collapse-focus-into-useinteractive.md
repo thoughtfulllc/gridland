@@ -72,11 +72,22 @@ One hook. One rule. One debugging surface. No "which primitive" decision.
 ### In scope
 
 1. **Inline `useFocus` logic into `useInteractive`.**
-   - Copy the body of `packages/core/src/react/focus/use-focus.ts` into `packages/core/src/react/interactive/use-interactive.ts`.
+   - **Copy `packages/core/src/react/focus/use-focus.ts` lines 34–136 verbatim** into the top of `useInteractive`'s body, ahead of the existing `handlerRef` / `useKeyboard` / `useShortcuts` block. Do not re-derive from the pseudocode in Architecture Context — that block is a sketch, not a specification. The source file is the specification.
    - Remove the `import { useFocus } from "../focus/use-focus"` line (line 2).
-   - The inlined logic owns: context lookup via `useFocusContext()`, id generation via `useId()`, scope resolution via context (or the new `scopeId` override), dispatch of `REGISTER` on mount and `UNREGISTER` on unmount, computation of `isFocused` / `isSelected` / `isAnySelected` from state, and the `focusRef` callback that feeds spatial navigation position data.
-   - `useInteractive` keeps its `useKeyboard` and `useShortcuts` sub-hook calls unchanged.
+   - The inlined block must include **every one** of the following pieces. Missing any one is a bug, and the listed ones are the pieces most at risk of being dropped during a rewrite:
+     1. `useFocusContext()` destructure of `{ dispatch, store }`.
+     2. `useFocusScopeId()` call for the default scope resolution.
+     3. `useId()` for the generated id fallback.
+     4. Destructured options defaults matching `use-focus.ts:38-44` exactly, including `scopeId = contextScopeId` (so `scopeId: null` passes through as `null` and only `undefined` gets replaced).
+     5. Three `useSyncExternalStore` subscriptions — `focusedId`, `selectedId`, and `isScopeSelected` (the `scopes.some(s => s.savedSelectedId === id)` derivation at `use-focus.ts:60-64`).
+     6. The fourth `useSyncExternalStore` subscription for `hasScopeSavedSelection` at `use-focus.ts:94-98`.
+     7. The `REGISTER` / `autoFocus` / `UNREGISTER` effect keyed on `[id]` at `use-focus.ts:66-79`.
+     8. **The `PATCH_ENTRY` effect at `use-focus.ts:82-89` with its `isFirstPatchRun` guard.** This is the single highest-risk line to drop: omitting it reintroduces an UNREGISTER+REGISTER gap that causes focus to silently drop whenever `tabIndex`, `disabled`, `scopeId`, or `selectable` change on a mounted component. The bug is invisible to unit tests and snapshot tests — it surfaces only during interactive sequences. If the PR diff does not contain a `PATCH_ENTRY` dispatch, it must be rejected.
+     9. The scope-aware `isAnySelected` computation at `use-focus.ts:100-103`: `selectedId !== null || (scopeId == null && hasScopeSavedSelection)`. This is load-bearing for the 4-state border affordance in `.claude/rules/focus-system.md`. Dropping the `|| (scopeId == null && hasScopeSavedSelection)` branch breaks sibling-border visibility when a FocusScope is pushed.
+     10. The `focus` / `blur` / `select` / `deselect` `useCallback`s, the `focusRef` `useCallback`, and the final `useMemo` return — unchanged from `use-focus.ts:105-135`.
+   - `useInteractive` keeps its `useKeyboard` and `useShortcuts` sub-hook calls unchanged, running after the inlined block and consuming its `focusId`, `isFocused`, `isSelected`.
    - No behavior change — the inlined path must be byte-for-byte equivalent to what `useFocus` does today. Existing `useFocus` tests get ported to `useInteractive` tests (see point 6).
+   - **Reviewer checklist when the PR opens:** grep the diff for `PATCH_ENTRY`, `isScopeSelected`, `hasScopeSavedSelection`, `isFirstPatchRun`, and `savedSelectedId`. All five strings must appear in `use-interactive.ts`. If any is missing, block the PR.
 
 2. **Add `scopeId` to `UseInteractiveOptions`.**
    - Type: `scopeId?: string | null` matching `UseFocusOptions`.

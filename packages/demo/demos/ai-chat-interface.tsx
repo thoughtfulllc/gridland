@@ -18,7 +18,7 @@ import {
   useFocusDividerStyle,
 } from "@gridland/ui"
 import type { ChatStatus } from "@gridland/ui"
-import { useFocus, useKeyboard, useShortcuts } from "@gridland/utils"
+import { useInteractive, useKeyboard, useShortcuts } from "@gridland/utils"
 import { useChat } from "@ai-sdk/react"
 import { renderPartsWithReasoning, toChatStatus } from "./render-message-parts-demo-utils"
 import {
@@ -111,7 +111,7 @@ function FocusableReasoning({ id, reasoningText, isThinking, disabled = false }:
   disabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
-  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useFocus({ id, disabled })
+  const { isFocused, isSelected, isAnySelected, focusId, focusRef } = useInteractive({ id, disabled })
 
   useKeyboard((event) => {
     if (event.name === "return") {

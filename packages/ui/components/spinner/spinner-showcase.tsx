@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useFocus, useKeyboard, useShortcuts } from "@gridland/utils"
+import { useInteractive, useKeyboard, useShortcuts } from "@gridland/utils"
 import { textStyle } from "@/registry/gridland/lib/text-style"
 import { useTheme } from "@/registry/gridland/lib/theme"
 import { StatusBar } from "@/registry/gridland/ui/status-bar/status-bar"
@@ -22,7 +22,7 @@ export interface SpinnerPickerProps {
 
 export function SpinnerPicker({ focusId, autoFocus }: SpinnerPickerProps) {
   const theme = useTheme()
-  const { focusId: resolvedFocusId, focusRef } = useFocus({ id: focusId, autoFocus })
+  const { focusId: resolvedFocusId, focusRef } = useInteractive({ id: focusId, autoFocus })
   useShortcuts([{ key: "←→", label: "change spinner type" }], resolvedFocusId)
   const [selected, setSelected] = useState(0)
 

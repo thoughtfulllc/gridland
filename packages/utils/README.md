@@ -20,8 +20,8 @@ bun add @gridland/utils
 
 **Focus system**
 - `FocusProvider`, `FocusScope` — wrap your app to enable keyboard navigation
-- `useFocus({ id, tabIndex, autoFocus, disabled })` — register a focusable element
-- `useShortcuts(shortcuts, focusId)` — register keyboard shortcut hints
+- `useInteractive({ id, autoFocus, shortcuts, ... })` — register a focusable element and wire up its keyboard / shortcut routing in one call
+- `useShortcuts(shortcuts, focusId)` — register keyboard shortcut hints (use directly only for advanced cases; `useInteractive` usually does this for you)
 - `useFocusedShortcuts()` — active shortcuts for the currently focused element
 
 **Runtime context**
@@ -34,15 +34,17 @@ bun add @gridland/utils
 ## Example
 
 ```tsx
-import { useKeyboard, useFocus, FocusProvider } from "@gridland/utils"
+import { useInteractive, FocusProvider } from "@gridland/utils"
 
 function Button() {
-  const { focusId, focusRef } = useFocus({ id: "submit" })
-  useKeyboard(
-    (key) => { if (key.name === "return") submit() },
-    { focusId, selectedOnly: true },
-  )
-  return <box ref={focusRef} border>Submit</box>
+  const interactive = useInteractive({
+    id: "submit",
+    shortcuts: [{ key: "enter", label: "Submit" }],
+  })
+  interactive.onKey((key) => {
+    if (key.name === "return") submit()
+  })
+  return <box ref={interactive.focusRef} border>Submit</box>
 }
 
 function App() {
@@ -54,12 +56,11 @@ function App() {
 }
 ```
 
-For selectable interactive components, prefer `useInteractive` — exported
-from `@gridland/utils` as well, it composes focus registration,
-selection-scoped keyboard routing, and shortcut hints into one hook. For
-theme-aware focus borders, pair it with `useFocusBorderStyle` from
-`@gridland/ui`, or use the `useInteractiveStyled` wrapper from the shadcn
-registry (`@gridland/use-interactive-styled`).
+`useInteractive` is the single hook for focus-aware components. It composes
+focus registration, selection-scoped keyboard routing, and shortcut hints
+into one call. For theme-aware focus borders, pair it with
+`useFocusBorderStyle` from `@gridland/ui`, or use the `useInteractiveStyled`
+wrapper from the shadcn registry (`@gridland/use-interactive-styled`).
 
 ## Documentation
 

@@ -64,15 +64,12 @@ export { KeyEvent, type KeyEventType } from "../../core/src/lib/KeyEvent"
 
 // Focus system
 export {
-  useFocus,
   FocusProvider,
   FocusScope,
   useFocusContext,
   useFocusScopeId,
   useShortcuts,
   useFocusedShortcuts,
-  type UseFocusOptions,
-  type UseFocusReturn,
   type FocusProviderProps,
   type FocusScopeProps,
   type ShortcutEntry,

@@ -28,7 +28,7 @@ packages/
 ## Import Rules
 
 - `@gridland/ui` — UI components (workspace alias; the package is `"private": true` and never published to npm — end users get components via the shadcn registry, not `bun install`)
-- `@gridland/utils` — hooks (useFocus, FocusProvider, FocusScope, useKeyboard, useShortcuts, useCapturedKeyboard) and focus border utilities (getFocusBorderStyle, getFocusDividerStyle, FOCUS_BORDER_COLORS)
+- `@gridland/utils` — hooks (useInteractive, FocusProvider, FocusScope, useKeyboard, useShortcuts, useCapturedKeyboard) and focus border utilities (getFocusBorderStyle, getFocusDividerStyle, FOCUS_BORDER_COLORS)
 - `@gridland/web` — browser renderer (TUI)
 - `@/registry/gridland/{ui,lib,hooks}/*` — **registry-local alias convention.** Source files *inside* `packages/ui/` import each other through these aliases (e.g. `@/registry/gridland/lib/theme`, `@/registry/gridland/ui/provider/provider`). The `tsconfig.json` in `packages/ui` and the webpack config in `packages/docs` map them to real directories during development. Shadcn's CLI rewrites them to the user's `components.json` aliases at install time, so end users never see these strings. Never write relative imports like `../../lib/theme` between `components/`, `lib/`, and `hooks/` — they would be baked into the emitted registry JSON and break for any user with non-default alias layouts.
 - Never import from `@gridland/core` directly — it is internal

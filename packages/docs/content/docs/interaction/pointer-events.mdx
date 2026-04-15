@@ -107,15 +107,15 @@ same renderable. The synthesizer reuses the `mousedown` event object, so the han
 
 ## Hover-Steals-Focus Pattern
 
-Combine `onMouseOver` with `useFocus().focus()` to make hovering an element claim keyboard focus.
-This is the canonical way to make a multi-modal UI (keyboard + mouse) where hovering "previews"
-the focused item.
+Combine `onMouseOver` with `useInteractive().focus()` to make hovering an element claim keyboard
+focus. This is the canonical way to make a multi-modal UI (keyboard + mouse) where hovering
+"previews" the focused item.
 
 ```tsx
-import { useFocus } from "@gridland/utils"
+import { useInteractive } from "@gridland/utils"
 
 function Item({ id }: { id: string }) {
-  const { focus, focusRef } = useFocus({ id })
+  const { focus, focusRef } = useInteractive({ id })
   return (
     <box ref={focusRef} onMouseOver={() => focus()} border>
       <text>{id}</text>

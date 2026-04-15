@@ -1,7 +1,7 @@
 // @ts-nocheck — OpenTUI intrinsic elements conflict with React's HTML/SVG types
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../../testing/src/index"
-import { useFocus } from "./use-focus"
+import { useInteractive } from "../interactive/use-interactive"
 import { useShortcuts } from "./use-shortcuts"
 import { useFocusedShortcuts } from "./use-focused-shortcuts"
 import { FocusProvider } from "./focus-provider"
@@ -10,7 +10,7 @@ import React from "react"
 afterEach(() => cleanup())
 
 function FocusableWithShortcuts({ id, autoFocus, shortcuts }: { id: string; autoFocus?: boolean; shortcuts: Array<{ key: string; label: string }> }) {
-  const { isFocused, focusId } = useFocus({ id, autoFocus })
+  const { isFocused, focusId } = useInteractive({ id, autoFocus })
   useShortcuts(shortcuts, focusId)
   return <text>{isFocused ? `[${id}:FOCUSED]` : `[${id}]`}</text>
 }
@@ -69,5 +69,44 @@ describe("useShortcuts / useFocusedShortcuts", () => {
       { cols: 60, rows: 4 },
     )
     expect(screen.text()).toContain("[no-shortcuts]")
+  })
+
+  // Load-bearing guard regression test. `useShortcuts([], focusId)` MUST NOT
+  // dispatch SET_SHORTCUTS and MUST NOT clear a prior non-empty registration
+  // under the same focusId. This invariant allows `useInteractive({ id })`
+  // in pure observer mode (display wrapper sharing a focusId with an
+  // interactive child) to be safe — the observer's empty-shortcut call is a
+  // dispatch-level no-op. If this test ever fails, the shared-focusId
+  // wrapper pattern documented in .claude/rules/focus-system.md breaks.
+  it("empty-array-no-op: empty shortcuts does not clear a prior non-empty registration", () => {
+    // Inner component owns the real shortcuts and the focusId.
+    function Inner() {
+      const { focusId, isFocused } = useInteractive({ id: "shared", autoFocus: true })
+      useShortcuts([{ key: "enter", label: "Submit" }], focusId)
+      return <text>{isFocused ? "[inner:FOCUSED]" : "[inner]"}</text>
+    }
+    // Outer "wrapper" shares the same focusId but passes an empty shortcuts
+    // array — the exact shape of a display wrapper that routes through
+    // `useInteractive({ id })` in observer mode.
+    function Wrapper() {
+      useShortcuts([], "shared")
+      return null
+    }
+
+    const { screen, flush } = renderTui(
+      <TestApp>
+        <Wrapper />
+        <Inner />
+        <ShortcutsDisplay />
+      </TestApp>,
+      { cols: 80, rows: 4 },
+    )
+    flush()
+    flush()
+
+    // Inner's Submit shortcut must still be the one exposed by
+    // useFocusedShortcuts. If Wrapper's empty-array call had dispatched
+    // SET_SHORTCUTS, this would collapse to [no-shortcuts].
+    expect(screen.text()).toContain("[shortcuts:enter=Submit]")
   })
 })

@@ -1,6 +1,6 @@
 // @ts-nocheck
 "use client"
-import { FocusProvider, useFocus, useFocusedShortcuts } from "@gridland/utils"
+import { FocusProvider, useInteractive, useFocusedShortcuts } from "@gridland/utils"
 import { MultiSelect, StatusBar, useFocusBorderStyle } from "@gridland/ui"
 
 const focusMultiSelects = [
@@ -41,7 +41,7 @@ function FocusMultiSelectPanel({ id, title, items, autoFocus }: {
   items: { label: string; value: string }[]
   autoFocus?: boolean
 }) {
-  const { isFocused, isSelected, isAnySelected, focusRef } = useFocus({ id })
+  const { isFocused, isSelected, isAnySelected, focusRef } = useInteractive({ id })
   const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
 
   return (

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { FixtureWrapper } from "../fixture-wrapper"
-import { useFocus, FocusProvider, useKeyboard } from "@gridland/utils"
+import { useInteractive, FocusProvider, useKeyboard } from "@gridland/utils"
 import { ThemeProvider, darkTheme } from "../../../../packages/ui/lib/theme"
 
 function FocusItem({ id, label, autoFocus, disabled }: {
@@ -9,7 +9,7 @@ function FocusItem({ id, label, autoFocus, disabled }: {
   autoFocus?: boolean
   disabled?: boolean
 }) {
-  const { isFocused, focusRef } = useFocus({ id, autoFocus, disabled })
+  const { isFocused, focusRef } = useInteractive({ id, autoFocus, disabled })
 
   return (
     <box

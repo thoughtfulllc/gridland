@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from "bun:test"
 import { renderTui, cleanup } from "../../../../testing/src/index"
 import { useKeyboard } from "./use-keyboard"
-import { useFocus } from "../focus/use-focus"
+import { useInteractive } from "../interactive/use-interactive"
 import { FocusProvider } from "../focus/focus-provider"
 import React from "react"
 
@@ -36,7 +36,7 @@ describe("useKeyboard", () => {
   it("fires globally regardless of focus when global: true", () => {
     const events: string[] = []
     function Focusable() {
-      const { focusId } = useFocus({ id: "other", autoFocus: true })
+      const { focusId } = useInteractive({ id: "other", autoFocus: true })
       useKeyboard(() => {}, { focusId })
       return <text>{focusId}</text>
     }
@@ -61,7 +61,7 @@ describe("useKeyboard", () => {
   it("fires only when its focusId is focused", () => {
     const events: string[] = []
     function Listener({ id, autoFocus }: { id: string; autoFocus?: boolean }) {
-      const { focusId } = useFocus({ id, autoFocus })
+      const { focusId } = useInteractive({ id, autoFocus })
       useKeyboard((e) => { if (e.name === "x") events.push(id) }, { focusId })
       return <text>{id}</text>
     }
@@ -88,7 +88,7 @@ describe("useKeyboard", () => {
   it("selectedOnly suppresses while focused but not selected", () => {
     let count = 0
     function Listener() {
-      const { focusId } = useFocus({ id: "a", autoFocus: true })
+      const { focusId } = useInteractive({ id: "a", autoFocus: true })
       useKeyboard(() => { count += 1 }, { focusId, selectedOnly: true })
       return <text>a</text>
     }
@@ -115,7 +115,7 @@ describe("useKeyboard", () => {
   it("focused listener still fires on its own selection", () => {
     let count = 0
     function Listener({ id, autoFocus }: { id: string; autoFocus?: boolean }) {
-      const { focusId } = useFocus({ id, autoFocus })
+      const { focusId } = useInteractive({ id, autoFocus })
       useKeyboard((e) => { if (e.name === "x") count += 1 }, { focusId })
       return <text>{id}</text>
     }

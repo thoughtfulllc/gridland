@@ -43,7 +43,7 @@ export function FocusScope({
     })
 
     if (autoFocus || autoSelect) {
-      // queueMicrotask defers until after children have registered via useFocus
+      // queueMicrotask defers until after children have registered via useInteractive
       queueMicrotask(() => {
         dispatch({ type: "FOCUS_NEXT" })
 

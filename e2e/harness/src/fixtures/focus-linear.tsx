@@ -1,14 +1,14 @@
 import { FixtureWrapper } from "../fixture-wrapper"
-import { useFocus, FocusProvider } from "@gridland/utils"
-import { ThemeProvider, darkTheme, useFocusBorderStyle } from "../../../../packages/ui/lib/theme"
+import { useInteractive, FocusProvider } from "@gridland/utils"
+import { ThemeProvider, darkTheme, useInteractiveBorderStyle } from "../../../../packages/ui/lib/theme"
 
 function FocusBox({ id, label, autoFocus }: { id: string; label: string; autoFocus?: boolean }) {
-  const { isFocused, isSelected, isAnySelected, focusRef } = useFocus({
+  const { isFocused, isSelected, isAnySelected, focusRef } = useInteractive({
     id,
     autoFocus,
     selectable: true,
   })
-  const { borderColor, borderStyle } = useFocusBorderStyle({ isFocused, isSelected, isAnySelected })
+  const { borderColor, borderStyle } = useInteractiveBorderStyle({ isFocused, isSelected, isAnySelected })
 
   const state = isSelected ? "selected" : isFocused ? "focused" : "idle"
 

@@ -32,7 +32,7 @@ export interface FocusBorderResult {
  * Four states, highest priority first:
  * 1. **Selected** — bright border, rounded (component is being interacted with)
  * 2. **Sibling selected** — transparent border (reduce noise while sibling is active).
- *    `isAnySelected` from `useFocus` is scope-aware: it stays true for global-scope
+ *    `isAnySelected` from `useInteractive` is scope-aware: it stays true for global-scope
  *    components even when the active selection is saved behind a `FocusScope`.
  * 3. **Focused** — bright border, dashed (keyboard focus indicator)
  * 4. **Idle** — dimmed border (affordance hint that the component is selectable)

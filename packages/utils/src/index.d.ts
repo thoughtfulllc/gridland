@@ -8,7 +8,7 @@ import type React from "react"
 export interface UseKeyboardOptions {
   /** Also receive `"release"` and `"repeat"` events. Default: `false`. */
   release?: boolean
-  /** Scope the handler to a focus id — fires only while that id owns focus. Obtain from `useFocus()`. */
+  /** Scope the handler to a focus id — fires only while that id owns focus. Obtain from `useInteractive()`. */
   focusId?: string
   /** Always fire regardless of focus state. Use for app-level shortcuts (quit, help, palette open). */
   global?: boolean
@@ -27,7 +27,7 @@ export interface UseKeyboardOptions {
  *
  * @example Scoped to a focus id
  * ```tsx
- * const { focusId } = useFocus({ id: "editor" })
+ * const { focusId } = useInteractive({ id: "editor" })
  * useKeyboard((e) => { if (e.ctrl && e.name === "s") save() }, { focusId })
  * ```
  */
@@ -336,29 +336,6 @@ export declare class KeyEvent {
 
 // ── Focus system ────────────────────────────────────────────────────────
 
-export interface UseFocusOptions {
-  id?: string
-  tabIndex?: number
-  autoFocus?: boolean
-  disabled?: boolean
-  scopeId?: string | null
-  selectable?: boolean
-}
-
-export interface UseFocusReturn {
-  isFocused: boolean
-  isSelected: boolean
-  isAnySelected: boolean
-  focus: () => void
-  blur: () => void
-  select: () => void
-  deselect: () => void
-  focusId: string
-  focusRef: (node: any) => void
-}
-
-export declare function useFocus(options?: UseFocusOptions): UseFocusReturn
-
 export interface FocusProviderProps {
   selectable?: boolean
   children: React.ReactNode
@@ -401,6 +378,7 @@ export interface UseInteractiveOptions {
   disabled?: boolean
   selectable?: boolean
   tabIndex?: number
+  scopeId?: string | null
   shortcuts?:
     | ShortcutEntry[]
     | ((state: { isFocused: boolean; isSelected: boolean }) => ShortcutEntry[])
