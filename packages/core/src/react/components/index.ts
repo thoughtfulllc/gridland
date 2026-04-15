@@ -72,3 +72,11 @@ export function getComponentCatalogue(): ComponentCatalogue {
 }
 
 export type { ExtendedComponentProps, ExtendedIntrinsicElements, RenderableConstructor } from "../types/components"
+export {
+  RUNTIME_CAPABILITY_VARIANTS,
+  intrinsicCapabilities,
+  type RuntimeCapability,
+  type IntrinsicCapabilities,
+  type IsBrowserCompatible,
+  type BrowserIntrinsicNames,
+} from "../types/runtime-capability"

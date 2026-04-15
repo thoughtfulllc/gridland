@@ -15,7 +15,7 @@
     },
     "packages/bun": {
       "name": "@gridland/bun",
-      "version": "0.2.58",
+      "version": "0.3.0",
       "dependencies": {
         "@gridland/utils": "workspace:*",
         "react": "^19.0.0",
@@ -52,7 +52,7 @@
     },
     "packages/container": {
       "name": "@gridland/container",
-      "version": "0.2.58",
+      "version": "0.3.0",
       "bin": {
         "gridland-container": "./bin/cli.mjs",
       },
@@ -69,13 +69,16 @@
         "marked": "^15.0.0",
         "yoga-layout": "^3.2.1",
       },
+      "devDependencies": {
+        "typescript": "^5.7.0",
+      },
       "peerDependencies": {
         "react": ">=19.0.0",
       },
     },
     "packages/create-gridland": {
       "name": "create-gridland",
-      "version": "0.2.58",
+      "version": "0.3.0",
       "bin": {
         "create-gridland": "./dist/index.js",
       },
@@ -90,7 +93,7 @@
     },
     "packages/demo": {
       "name": "@gridland/demo",
-      "version": "0.2.58",
+      "version": "0.3.0",
       "bin": {
         "gridland-demo": "./bin/cli.mjs",
       },
@@ -134,7 +137,7 @@
     },
     "packages/testing": {
       "name": "@gridland/testing",
-      "version": "0.2.58",
+      "version": "0.3.0",
       "dependencies": {
         "@gridland/utils": "workspace:*",
         "events": "^3.3.0",
@@ -163,13 +166,13 @@
         "typescript": "^5.7.0",
       },
       "peerDependencies": {
-        "@gridland/utils": ">=0.2.55",
+        "@gridland/utils": ">=0.3.0",
         "react": ">=19.0.0",
       },
     },
     "packages/utils": {
       "name": "@gridland/utils",
-      "version": "0.2.58",
+      "version": "0.3.0",
       "dependencies": {
         "react": "^19.0.0",
       },
@@ -185,7 +188,7 @@
     },
     "packages/web": {
       "name": "@gridland/web",
-      "version": "0.2.58",
+      "version": "0.3.0",
       "dependencies": {
         "@gridland/utils": "workspace:*",
         "diff": "^8.0.3",

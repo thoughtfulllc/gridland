@@ -35,6 +35,10 @@
     "src/shims",
     "src/gridland-jsx.d.ts"
   ],
+  "sideEffects": [
+    "./src/components/register.ts",
+    "./dist/index.js"
+  ],
   "scripts": {
     "build": "tsup; node build-browser.mjs",
     "dev": "vite",
