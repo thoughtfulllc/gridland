@@ -21,23 +21,36 @@ export interface UseKeyboardOptions {
  * By default, only receives press events (including key repeats with `repeated: true`).
  * Use `options.release` to also receive release events.
  *
- * Focus-aware routing:
- * - `{ focusId }` — fires only when that component is focused
- * - `{ focusId, selectedOnly: true }` — fires only when that component is selected
- * - `{ global: true }` — fires always regardless of focus
- * - Neither — fires always (backward-compatible)
+ * Pass `{ global: true }` for app-level handlers (global quit, help, palette open) and
+ * `{ focusId }` to scope a handler to a focus id — the handler then fires only while that
+ * id owns focus.
  *
- * @example
- * // Focus-scoped: only fires when this component is focused
- * const { focusId } = useFocus()
- * useKeyboard((e) => { ... }, { focusId })
+ * @example Global handler (app-level shortcut)
+ * ```tsx
+ * useKeyboard((event) => {
+ *   if (event.ctrl && event.name === "q") quit()
+ * }, { global: true })
+ * ```
  *
- * // Selection-scoped: only fires when this component is selected (entered)
- * const { focusId } = useFocus()
- * useKeyboard((e) => { ... }, { focusId, selectedOnly: true })
+ * @example Scoped to a focus id
+ * ```tsx
+ * const { focusId } = useFocus({ id: "editor" })
+ * useKeyboard((event) => {
+ *   if (event.ctrl && event.name === "s") save()
+ * }, { focusId })
+ * ```
  *
- * // Global: always fires regardless of focus
- * useKeyboard((e) => { if (e.ctrl && e.name === 'q') quit() }, { global: true })
+ * @example Selection-scoped (only when entered)
+ * ```tsx
+ * const { focusId } = useFocus({ id: "editor" })
+ * useKeyboard((event) => { ... }, { focusId, selectedOnly: true })
+ * ```
+ *
+ * Calling `useKeyboard(handler)` without an options bag is **deprecated**. Pass
+ * `{ global: true }` explicitly for app-level handlers, or `{ focusId }` for focus-scoped
+ * ones. The bare form still works — this deprecation exists to make the intent of each
+ * call site explicit at the source. See `@gridland/utils` overload types for the
+ * `@deprecated` tag that surfaces in IDE hover.
  */
 export const useKeyboard = (handler: (key: KeyEvent) => void, options: UseKeyboardOptions = { release: false }) => {
   const { keyHandler } = useAppContext()

@@ -6,13 +6,38 @@ import type React from "react"
 // ── Hooks ────────────────────────────────────────────────────────────────
 
 export interface UseKeyboardOptions {
+  /** Also receive `"release"` and `"repeat"` events. Default: `false`. */
   release?: boolean
+  /** Scope the handler to a focus id — fires only while that id owns focus. Obtain from `useFocus()`. */
   focusId?: string
+  /** Always fire regardless of focus state. Use for app-level shortcuts (quit, help, palette open). */
   global?: boolean
+  /** Only fire when the `focusId` component is selected (entered), not just focused. Requires `focusId`. */
   selectedOnly?: boolean
 }
 
-export declare const useKeyboard: (handler: (key: KeyEvent) => void, options?: UseKeyboardOptions) => void
+/**
+ * Subscribe to keyboard events. Pass `{ global: true }` for app-level shortcuts or
+ * `{ focusId }` to scope to a focus id.
+ *
+ * @example Global handler
+ * ```tsx
+ * useKeyboard((e) => { if (e.ctrl && e.name === "q") quit() }, { global: true })
+ * ```
+ *
+ * @example Scoped to a focus id
+ * ```tsx
+ * const { focusId } = useFocus({ id: "editor" })
+ * useKeyboard((e) => { if (e.ctrl && e.name === "s") save() }, { focusId })
+ * ```
+ */
+export declare function useKeyboard(handler: (key: KeyEvent) => void, options: UseKeyboardOptions): void
+/**
+ * @deprecated Calling `useKeyboard(handler)` without an options bag is deprecated — pass
+ * `{ global: true }` explicitly for app-level handlers or `{ focusId }` for focus-scoped ones.
+ * The bare form still works but intent should be explicit at every call site.
+ */
+export declare function useKeyboard(handler: (key: KeyEvent) => void): void
 export declare const useOnResize: (callback: (width: number, height: number) => void) => any
 export declare const useRenderer: () => any
 export declare const useTerminalDimensions: () => { width: number; height: number }
@@ -245,20 +270,67 @@ export interface CapturedFrame {
 export type KeyEventType = "press" | "repeat" | "release"
 
 export declare class KeyEvent {
+  /**
+   * Logical key name. Examples: `"a"`, `"left"`, `"f1"`, `"escape"`, `"return"`, `"tab"`.
+   * Also set to the literal character for single-char printable input (`"["`, `"]"`, `";"`, `"/"`).
+   * Prefer `name` over `sequence` for keyboard logic — it is normalized across terminals.
+   */
   name: string
+  /** True if the literal Ctrl key was held. `ctrl` and `meta` are independent flags — not cross-platform equivalents. */
   ctrl: boolean
+  /** True if Meta was held. Raw parser also sets this for Alt/Option escape sequences, so `meta` and `option` often co-occur. */
   meta: boolean
+  /** True if Shift was held. For letters the `name` is lowercased and `shift` carries the case. */
   shift: boolean
+  /** True if Option (macOS) / Alt was held. */
   option: boolean
+  /**
+   * Raw byte sequence the terminal emitted. Equals `name` for single-char input; for named keys
+   * this is the ANSI escape sequence (`"\x1b[A"`), not the name. Prefer `name` for logic.
+   */
   sequence: string
+  /** True if the key is a digit `0`–`9`. */
   number: boolean
+  /** Literal pre-parse bytes. Rarely needed — prefer `sequence` or `name`. */
   raw: string
-  repeated: boolean
+  /**
+   * `"press"`, `"release"`, or `"repeat"`. Releases and repeats are only produced when the terminal
+   * supports the Kitty keyboard protocol and the handler was subscribed with `{ release: true }`.
+   */
   eventType: KeyEventType
-  source: string
-  defaultPrevented: boolean
-  propagationStopped: boolean
+  /** `"raw"` = legacy xterm decoding, `"kitty"` = Kitty keyboard protocol (richer data). */
+  source: "raw" | "kitty"
+  /**
+   * Parsed ANSI code for escape sequences (raw mode, e.g. `"[A"`) or Kitty CSI-u code
+   * (kitty mode, e.g. `"[57352u"`). Undefined for single-char input.
+   */
+  code?: string
+  /** True if Super / Windows / Command was held. Populated by Kitty and by `modifyOtherKeys` in raw mode. */
+  super?: boolean
+  /** True if Hyper was held. Populated by Kitty and by `modifyOtherKeys` in raw mode. */
+  hyper?: boolean
+  /** Kitty-only: true if Caps Lock was on. */
+  capsLock?: boolean
+  /** Kitty-only: true if Num Lock was on. */
+  numLock?: boolean
+  /** Kitty-only: base layout codepoint for keyboard-layout disambiguation. */
+  baseCode?: number
+  /** Kitty-only: true for key-repeat events (Kitty event type 2). */
+  repeated?: boolean
+  /** Read-only getter. Mutate via `preventDefault()`. */
+  readonly defaultPrevented: boolean
+  /** Read-only getter. Mutate via `stopPropagation()`. */
+  readonly propagationStopped: boolean
+  /**
+   * Marks the event as handled. `KeyHandler` skips all renderable-scoped listeners if
+   * `defaultPrevented` is true, and `focus-provider` skips its focus-navigation logic.
+   * Does NOT stop subsequent global listeners from firing — use `stopPropagation()` for that.
+   */
   preventDefault(): void
+  /**
+   * Stops propagation to later listeners. The dispatcher checks this flag between listener
+   * invocations and bails out early.
+   */
   stopPropagation(): void
 }
 

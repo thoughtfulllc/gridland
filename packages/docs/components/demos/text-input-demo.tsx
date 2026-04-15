@@ -26,7 +26,7 @@ function TextInputPickerApp() {
   useKeyboard((event) => {
     if (event.name === "left") setSelected((s) => (s > 0 ? s - 1 : STATES.length - 1))
     if (event.name === "right") setSelected((s) => (s < STATES.length - 1 ? s + 1 : 0))
-  })
+  }, { global: true })
 
   const state = STATES[selected]
 

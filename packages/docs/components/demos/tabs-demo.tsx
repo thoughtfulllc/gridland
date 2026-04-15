@@ -75,7 +75,7 @@ function ContentTabBarApp() {
     if (event.name === "right") {
       setActiveTab(tabFiles[(idx + 1) % tabFiles.length])
     }
-  })
+  }, { global: true })
 
   return (
     <box flexDirection="column" flexGrow={1}>

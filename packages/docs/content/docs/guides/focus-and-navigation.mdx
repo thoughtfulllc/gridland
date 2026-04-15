@@ -228,79 +228,10 @@ Constrain navigation to a group of components. When `trap` is enabled, Tab wraps
   </DemoWindow>
 </div>
 
-### Usage
-
-```tsx title="app.tsx"
-import { useState } from "react"
-
-const colors = ["#ef4444", "#3b82f6", "#22c55e", "#8b5cf6"]
-const names = ["Red", "Blue", "Green", "Purple"]
-
-function PointerDemo() {
-  const [selected, setSelected] = useState<number | null>(null)
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
-
-  return (
-    <box flexDirection="column" padding={1}>
-      {/* Click to select a color */}
-      <box flexDirection="row" gap={1}>
-        {colors.map((color, i) => (
-          <box
-            key={color}
-            flexGrow={1}
-            height={3}
-            border
-            borderColor={i === selected ? color : "#555"}
-            onMouseDown={(e) => {
-              setSelected(i)
-              setMousePos({ x: e.x, y: e.y })
-            }}
-          >
-            <text style={{ fg: color, bold: i === selected }}>{names[i]}</text>
-          </box>
-        ))}
-      </box>
-
-      {/* Hover detection */}
-      <HoverBox />
-
-      {/* Display click result */}
-      <text>{selected !== null ? `Clicked ${names[selected]}` : "Click a color"}</text>
-      <text style={{ dim: true }}>{mousePos ? `mouse: ${mousePos.x}, ${mousePos.y}` : ""}</text>
-    </box>
-  )
-}
-
-function HoverBox() {
-  const [hovering, setHovering] = useState(false)
-
-  return (
-    <box
-      border
-      borderColor={hovering ? "#22c55e" : "#555"}
-      onMouseOver={() => setHovering(true)}
-      onMouseOut={() => setHovering(false)}
-    >
-      <text>{hovering ? "Mouse inside!" : "Hover me"}</text>
-    </box>
-  )
-}
-```
-
-### How it works
-
-All intrinsic elements (`<box>`, `<text>`, etc.) support mouse event props. Each event receives an object with `x`, `y` coordinates relative to the element.
-
-`onClick` is a synthetic event that fires when mouseDown and mouseUp occur on the same element.
-
-| Event | Description |
-|-------|-------------|
-| `onMouseDown` | Mouse button pressed |
-| `onMouseUp` | Mouse button released |
-| `onClick` | Press and release on the same element |
-| `onMouseOver` | Cursor enters the element |
-| `onMouseOut` | Cursor leaves the element |
-| `onMouseScroll` | Scroll wheel over the element |
+Gridland intrinsic elements accept mouse handler props (`onClick`, `onMouseOver`, `onMouseScroll`,
+and eight others). Event coordinates are in cell positions and modifier flags are exposed on
+`event.modifiers`. See the [Pointer Events guide](/docs/guides/pointer-events) for the complete
+handler list, event shape, hit-testing, and propagation reference.
 
 ## Cursor Highlight
 

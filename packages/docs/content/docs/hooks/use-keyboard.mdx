@@ -13,18 +13,21 @@ import { useKeyboard } from "@gridland/utils"
 
 ## Usage
 
-```tsx title="Basic"
+Pass `{ global: true }` for app-level handlers and `{ focusId }` to scope a handler to a
+focus id. Calling `useKeyboard(handler)` without an options bag is deprecated — see below.
+
+```tsx title="Basic (global)"
 useKeyboard((event) => {
   if (event.name === "q") quit()
   if (event.name === "return") submit()
-})
+}, { global: true })
 ```
 
 ```tsx title="With modifiers"
 useKeyboard((event) => {
   if (event.ctrl && event.name === "s") save()
   if (event.shift && event.name === "Tab") focusPrevious()
-})
+}, { global: true })
 ```
 
 ```tsx title="With release events"
@@ -34,7 +37,7 @@ useKeyboard((event) => {
   } else {
     heldKeys.add(event.name)
   }
-}, { release: true })
+}, { global: true, release: true })
 ```
 
 ## Focus-aware routing
@@ -64,10 +67,72 @@ useKeyboard((e) => {
 
 ## KeyEvent
 
+The callback receives a `KeyEvent` with every field populated for most keys. Fields marked
+**Kitty-only** are undefined unless the terminal supports the Kitty keyboard protocol.
+
 | Property | Type | Description |
 |----------|------|-------------|
-| `name` | `string` | Key name (`"a"`, `"return"`, `"escape"`, `"up"`, etc.) |
-| `ctrl` | `boolean` | Whether Ctrl was held |
-| `shift` | `boolean` | Whether Shift was held |
-| `repeated` | `boolean` | Whether this is a key repeat |
-| `eventType` | `"press" \| "release"` | Only present when `release: true` |
+| `name` | `string` | Logical key name (`"a"`, `"left"`, `"f1"`, `"escape"`, `"return"`). Also set to the literal character for printable punctuation like `"["`, `"]"`, `";"`, `"/"`. |
+| `ctrl` | `boolean` | Whether Ctrl was held. |
+| `meta` | `boolean` | Whether Meta was held. Raw parser also sets this for Alt/Option escape sequences — `meta` and `option` often co-occur. |
+| `shift` | `boolean` | Whether Shift was held. For letters, `name` is lowercased and `shift` carries the case. |
+| `option` | `boolean` | Whether Option (macOS) / Alt was held. |
+| `sequence` | `string` | Raw bytes from the terminal. Equals `name` for single-char input; for named keys this is the ANSI escape sequence (`"\x1b[A"`), not the name. Prefer `name` for logic. |
+| `number` | `boolean` | True if the key is a digit `0`–`9`. |
+| `raw` | `string` | Literal pre-parse bytes. Rarely needed — prefer `sequence` or `name`. |
+| `eventType` | `"press" \| "release" \| "repeat"` | Usually `"press"`. Releases and repeats require Kitty keyboard protocol plus `{ release: true }`. |
+| `source` | `"raw" \| "kitty"` | Which parser produced the event. |
+| `code` | `string \| undefined` | ANSI code (`"[A"`) or Kitty CSI-u code (`"[57352u"`) for escape sequences. Undefined for single-char input. |
+| `super` | `boolean \| undefined` | Super / Windows / Command key. Populated by Kitty and by `modifyOtherKeys` in raw mode. |
+| `hyper` | `boolean \| undefined` | Hyper key. Populated by Kitty and by `modifyOtherKeys` in raw mode. |
+| `capsLock` | `boolean \| undefined` | **Kitty-only.** Whether Caps Lock was on. |
+| `numLock` | `boolean \| undefined` | **Kitty-only.** Whether Num Lock was on. |
+| `baseCode` | `number \| undefined` | **Kitty-only.** Base-layout codepoint (for QWERTY vs Dvorak disambiguation). |
+| `repeated` | `boolean \| undefined` | **Kitty-only.** True for key-repeat events. |
+
+`KeyEvent` also exposes `defaultPrevented` / `propagationStopped` (read-only getters) and
+`preventDefault()` / `stopPropagation()` methods. `preventDefault()` suppresses the framework's
+focus-navigation logic and stops renderable-scoped listeners from firing. `stopPropagation()`
+additionally halts any remaining global listeners. Both are honored by the key dispatcher
+(`KeyHandler`) at runtime.
+
+## Which field should I read?
+
+Prefer `name` for almost everything. Reach for `sequence` or `raw` only when detecting a
+specific byte pattern that `name` does not normalize.
+
+```tsx
+import { useKeyboard, type KeyEvent } from "@gridland/utils"
+
+useKeyboard((event: KeyEvent) => {
+  // Letters with modifiers → name + modifier flag
+  if (event.ctrl && event.name === "s") save()
+
+  // Arrow keys and named keys → name
+  if (event.name === "left") prevItem()
+  if (event.name === "escape") closeModal()
+
+  // Function keys → name
+  if (event.name === "f1") showHelp()
+
+  // Printable punctuation → name (it is set to the character)
+  if (event.name === "[") prevPage()
+  if (event.name === "]") nextPage()
+}, { global: true })
+```
+
+## Deprecation: bare form
+
+Calling `useKeyboard(handler)` without an options bag is **deprecated**. Pass `{ global: true }`
+explicitly for app-level shortcuts, or `{ focusId }` for focus-scoped handlers. The bare form
+still works at runtime — this deprecation exists so every call site states its intent at
+the source. `@gridland/utils` ships an overloaded `@deprecated` type signature so IDE hover
+surfaces the warning on bare calls.
+
+```tsx title="Before (deprecated)"
+useKeyboard((event) => { /* ... */ })
+```
+
+```tsx title="After"
+useKeyboard((event) => { /* ... */ }, { global: true })
+```

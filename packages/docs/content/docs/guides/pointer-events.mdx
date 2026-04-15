@@ -1,0 +1,172 @@
+---
+title: Pointer Events
+description: Mouse and click handling on Gridland intrinsic elements
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+All intrinsic elements (`<box>`, `<text>`, `<input>`, etc.) accept pointer event handlers as
+props. Handlers receive a single event object with **cell coordinates** (not pixels) and modifier
+flags. This page is the full reference for the event shape, the handler set, hit testing, and
+propagation semantics.
+
+## Supported Handlers
+
+Gridland's base `Renderable` exposes eleven pointer-event props. The handler dispatched depends on
+the DOM event the browser renderer observes.
+
+| Prop | Browser dispatch | Fires when |
+|---|---|---|
+| `onMouseDown` | `mousedown` | Any button pressed over the element |
+| `onMouseUp` | `mouseup` | Any button released over the element |
+| `onClick` | synthesized on `mouseup` | Left-button press + release on the same element |
+| `onMouseMove` | `mousemove` | Pointer moves while over the element |
+| `onMouseOver` | `mousemove` (entering) | Pointer enters the element |
+| `onMouseOut` | `mousemove` (leaving) | Pointer leaves the element |
+| `onMouseScroll` | `wheel` | Scroll wheel scrolled over the element |
+| `onMouse` | all of the above | Catch-all that fires before the typed handler |
+| `onMouseDrag` | terminal only | Drag gesture (not dispatched by `@gridland/web`) |
+| `onMouseDragEnd` | terminal only | Drag released (not dispatched by `@gridland/web`) |
+| `onMouseDrop` | terminal only | Drop onto the element (not dispatched by `@gridland/web`) |
+
+The three `drag*` / `drop` handlers exist on the renderable type because terminal environments
+dispatch them, but `@gridland/web` does not currently synthesize them from DOM drag events. Code
+that sets them in a browser app compiles but never fires.
+
+## Event Payload
+
+The event object is identical across handlers — `type` discriminates which kind it is.
+
+```ts
+interface PointerEvent {
+  type: "down" | "up" | "move" | "over" | "out" | "scroll"
+  button: number                 // 0 = left, 1 = middle, 2 = right
+  x: number                      // cell column (NOT pixels)
+  y: number                      // cell row (NOT pixels)
+  target: Renderable
+  modifiers: { shift: boolean; alt: boolean; ctrl: boolean }
+  // Only populated when type === "scroll":
+  scroll?: { direction: "up" | "down" | "left" | "right"; delta: number }
+  // Propagation state — getters, mutate only via the methods below:
+  readonly propagationStopped: boolean
+  readonly defaultPrevented: boolean
+  stopPropagation(): void
+  preventDefault(): void
+}
+```
+
+<Callout type="warn">
+  **React devs — read this.** Several fields that you reach for by reflex do **not** exist:
+  no `timestamp`, `nativeEvent`, `clientX`, `clientY`, `pageX`, or `pageY`. `x` / `y` are cell
+  coordinates (columns and rows), not pixels — `pixelToCell` has already translated them.
+  `modifiers.alt` is the OS Alt/Option key (separate from `modifiers.ctrl`). `propagationStopped`
+  and `defaultPrevented` are read-only getters; assigning them directly silently fails.
+</Callout>
+
+### Scroll payload
+
+`onMouseScroll` is the only handler where `event.scroll` is populated. The raw
+`WheelEvent.deltaX` / `deltaY` are reduced to a single `direction` (the dominant axis) and a
+positive integer `delta` (`Math.max(1, Math.abs(Math.round(raw / 40)))`). The DOM-style
+`deltaX` / `deltaY` fields are thrown away.
+
+```tsx
+<box
+  onMouseScroll={(e) => {
+    if (e.scroll?.direction === "down") scrollDown(e.scroll.delta)
+    if (e.scroll?.direction === "up") scrollUp(e.scroll.delta)
+  }}
+>
+  {items.map((item) => <text key={item.id}>{item.label}</text>)}
+</box>
+```
+
+### `onClick` quirk
+
+`onClick` is synthesized when a left-button `mousedown` and the matching `mouseup` land on the
+same renderable. The synthesizer reuses the `mousedown` event object, so the handler receives
+`event.type === "down"` — **not** `"click"`. Narrowing on `event.type === "click"` inside an
+`onClick` handler will never match.
+
+```tsx
+<box onClick={(e) => {
+  // e.type is "down", not "click" — this is expected.
+  console.log("clicked at cell", e.x, e.y)
+}}>
+  <text>Click me</text>
+</box>
+```
+
+## Hover-Steals-Focus Pattern
+
+Combine `onMouseOver` with `useFocus().focus()` to make hovering an element claim keyboard focus.
+This is the canonical way to make a multi-modal UI (keyboard + mouse) where hovering "previews"
+the focused item.
+
+```tsx
+import { useFocus } from "@gridland/utils"
+
+function Item({ id }: { id: string }) {
+  const { focus, focusRef } = useFocus({ id })
+  return (
+    <box ref={focusRef} onMouseOver={() => focus()} border>
+      <text>{id}</text>
+    </box>
+  )
+}
+```
+
+## Hit Testing
+
+The browser renderer paints into a **hit grid** during the render pass, with each entry carrying
+the renderable's cell rectangle (clipped by any active `overflow="hidden"` scissor). On every
+mouse event, the hit-tester walks the grid **in reverse insertion order** and returns the first
+entry whose rect contains the cursor cell. Because entries are pushed in draw order, the
+last-drawn (topmost) renderable at a given cell wins.
+
+**What this means in practice:**
+
+- Children are drawn after their parent, so children naturally win over their own parent's empty
+  regions.
+- Siblings are resolved by draw order. `zIndex` changes draw order, so raising a sibling's
+  `zIndex` makes it win against overlapping peers.
+- Cells outside any registered rect return `null` — the event is swallowed without dispatch.
+- Scissor rects (from `overflow="hidden"`) clip the hit grid entries at insertion time, so a
+  child that overflows its parent's `overflow="hidden"` bounds is **not** hittable in the clipped
+  region.
+
+## Propagation
+
+When `processMouseEvent` fires on the hit renderable, it invokes the renderable's handlers in
+this order: `onMouse` (catch-all) → the typed handler (`onMouseDown`, `onMouseOver`, etc.) → the
+renderable's internal `onMouseEvent` hook → **then bubbles up to the parent**. The parent chain
+continues until either the root renderable is reached or `event.stopPropagation()` was called.
+
+```tsx
+// Child consumes the click; parent's onClick never fires.
+<box onClick={(e) => { /* parent handler */ }}>
+  <box onClick={(e) => { e.stopPropagation() }}>
+    <text>Click me</text>
+  </box>
+</box>
+```
+
+`preventDefault()` sets a flag on the event but does not affect bubbling. It is provided for
+framework-internal hooks that consult it (for example, `packages/core/src/renderer.ts:1187`
+suppresses auto-focus on a left-button `down` event when `defaultPrevented` is true).
+
+`onClick` is synthesized separately and does **not** bubble — the click synthesizer calls
+`_clickHandler` directly on the hit renderable only, without walking the parent chain.
+
+## Cursor Style
+
+The renderer automatically sets the canvas cursor to `"pointer"` when the pointer is over any
+renderable whose ancestor chain contains an `onClick` or `onMouseDown` handler — no extra markup
+needed. Link regions (rendered via `<a href>`) also trigger the pointer cursor.
+
+## Related
+
+- [Focus and Navigation](/docs/guides/focus-and-navigation) — how keyboard focus interacts with
+  pointer events.
+- [TUI Primitives](/docs/components/primitives) — the intrinsic elements that accept these
+  handler props.

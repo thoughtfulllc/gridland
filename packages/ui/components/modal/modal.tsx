@@ -30,6 +30,9 @@ export function Modal({
   const theme = useTheme()
   const resolvedBorderColor = borderColor ?? theme.border
 
+  // intentional bare form: fires while this Modal's subtree is mounted. The Modal is
+  // only rendered when open, so the handler naturally scopes to the modal lifecycle —
+  // converting to `{ global: true }` would be semantically identical but adds noise.
   useKeyboard((event: any) => {
     if (event.name === "escape" && onClose) {
       onClose()

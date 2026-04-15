@@ -14,7 +14,10 @@ function flush2(flush: () => void) {
 }
 
 describe("useKeyboard", () => {
-  it("fires for every keypress when no options are passed", () => {
+  // Keep until @gridland/utils next major: pins deprecated bare-form behavior so removing
+  // it later is an intentional, grep-able change (`rg "deprecated: bare useKeyboard"`),
+  // not silent drift. Bare form is functionally equivalent to { global: true } today.
+  it("deprecated: bare useKeyboard(handler) fires globally for every keypress", () => {
     const events: string[] = []
     function Listener() {
       useKeyboard((e) => events.push(e.name))

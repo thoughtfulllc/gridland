@@ -11,7 +11,7 @@ function DemoShell({ children }: { children: ReactNode }) {
     if (event.name === "escape") {
       _renderer.destroy()
     }
-  })
+  }, { global: true })
 
   return (
     <box flexDirection="column" flexGrow={1}>
