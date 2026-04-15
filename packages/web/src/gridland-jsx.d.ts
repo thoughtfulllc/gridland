@@ -6,6 +6,34 @@ import "react"
 import "react/jsx-runtime"
 import "react/jsx-dev-runtime"
 import "csstype"
+import type * as React from "react"
+import type { BrowserIntrinsicNames } from "../../core/src/react/types/runtime-capability"
+
+// Compile-time coverage assertion (D2.3 of tasks/003-browser-compat-contract.md):
+// every Gridland-unique browser-compatible intrinsic declared in
+// runtime-capability.ts must appear in the IntrinsicElements augmentation
+// below. If a new dual-impl/universal intrinsic is added to the capability
+// map without updating this file, _MissingFromBrowserJsx resolves to a
+// non-empty union and the assert errors with a literal type mismatch.
+//
+// "Gridland-unique" excludes names that React already types via its built-in
+// HTML/SVG element interfaces (`a`, `b`, `code`, `i`, `em`, `strong`, `u`,
+// `br`, `select`, `text` (SVG), `span`) — those compile in browser JSX
+// regardless of whether we list them, because React provides the typings.
+// See §5 INV-3 carve-out for the full rationale.
+type _ReactProvidedNames = "a" | "b" | "code" | "i" | "em" | "strong" | "u" | "br" | "select" | "text" | "span"
+type _GridlandUniqueBrowserNames = Exclude<BrowserIntrinsicNames, _ReactProvidedNames>
+type _MissingFromBrowserJsx = Exclude<_GridlandUniqueBrowserNames, keyof React.JSX.IntrinsicElements>
+// Constraint-style type assertion: the `T extends true` constraint is
+// evaluated at alias instantiation, so if any Gridland-unique browser
+// intrinsic is missing from the IntrinsicElements augmentation below,
+// `_AssertCovered` is invoked with `false` and tsc errors with
+// "Type 'false' does not satisfy the constraint 'true'." Update all three
+// IntrinsicElements blocks (react, react/jsx-runtime, react/jsx-dev-runtime)
+// when this fires.
+type _AssertCovered<_T extends true> = void
+type _IntrinsicCoverage = _AssertCovered<_MissingFromBrowserJsx extends never ? true : false>
+export type { _IntrinsicCoverage }
 
 // Strong types for Gridland-only elements (no React 19 conflict)
 interface GridlandBoxProps {
