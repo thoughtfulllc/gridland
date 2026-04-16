@@ -61,8 +61,8 @@ appears between the extra content and the keybinding items.
 
 ```tsx title="With extra"
 import { StatusBar } from "@/components/ui/status-bar"
-import { textStyle } from "@/components/ui/text-style"
-import { useTheme } from "@/components/ui/theme"
+import { textStyle } from "@/lib/text-style"
+import { useTheme } from "@/lib/theme"
 
 const theme = useTheme()
 
@@ -95,8 +95,8 @@ Style the extra content using theme tokens.
 
 ```tsx title="Themed extra"
 import { StatusBar } from "@/components/ui/status-bar"
-import { textStyle } from "@/components/ui/text-style"
-import { useTheme } from "@/components/ui/theme"
+import { textStyle } from "@/lib/text-style"
+import { useTheme } from "@/lib/theme"
 
 function MyStatusBar({ model }: { model: string }) {
   const theme = useTheme()

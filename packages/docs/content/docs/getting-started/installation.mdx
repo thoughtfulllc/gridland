@@ -1,0 +1,97 @@
+---
+title: Installation
+description: Scaffold a new Gridland project or add Gridland to an existing app
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+
+Gridland renders terminal-style UIs directly to an HTML5 Canvas using React.
+Built on the [opentui](https://opentui.com) engine. No xterm.js, no terminal emulator, just a React reconciler, Yoga layout, and canvas pixels.
+
+## Start a new project
+
+Scaffold a new Gridland app with everything pre-configured bundler, shadcn
+registry, themes, and example components. You can then add components with a
+single command:
+
+<Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
+<Tab value="bun">
+```bash title="Terminal"
+bunx create-gridland my-app
+cd my-app
+bunx create-gridland add spinner
+```
+</Tab>
+<Tab value="npm">
+```bash title="Terminal"
+npx create-gridland my-app
+cd my-app
+npx create-gridland add spinner
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn create gridland my-app
+cd my-app
+yarn dlx create-gridland add spinner
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm create gridland my-app
+cd my-app
+pnpm dlx create-gridland add spinner
+```
+</Tab>
+</Tabs>
+
+`create-gridland add` detects your package manager and proxies to shadcn under
+the hood scaffolded projects already have `components.json` wired up so it
+just works.
+
+## Add to an existing project
+
+If you already have a React app, pick your bundler:
+
+<Cards>
+  <Card title="Vite" href="/docs/getting-started/vite">
+    Quickest setup one plugin, zero config.
+  </Card>
+  <Card title="Next.js" href="/docs/getting-started/nextjs">
+    For server-rendered apps using the App Router.
+  </Card>
+  <Card title="Manual Installation" href="/docs/getting-started/manual-installation">
+    Webpack, Rspack, or any other bundler. Also covers shadcn setup and the full component list.
+  </Card>
+</Cards>
+
+## Install components
+
+Gridland UI components are distributed via a [shadcn](https://ui.shadcn.com)
+registry components are copied into your project so you own the code and can
+customize them freely. Scaffolded projects have shadcn pre-configured, so you
+can add components right away:
+
+```bash title="Terminal"
+bunx create-gridland add spinner
+```
+
+For the full list of components, shared utilities, and the `components.json`
+setup for non-scaffolded projects, see [Manual Installation →
+Install components](/docs/getting-started/manual-installation#install-components).
+
+## Packages
+
+<Cards>
+  <Card title="@gridland/web" href="/docs/api/gridland-web">
+    Core canvas renderer and React integration.
+  </Card>
+  <Card title="@gridland/ui" href="/docs/api/gridland-ui">
+    Higher-level UI components (Gradient, Table).
+  </Card>
+  <Card title="@gridland/testing" href="/docs/api/gridland-testing">
+    Test utilities for TUI components.
+  </Card>
+</Cards>

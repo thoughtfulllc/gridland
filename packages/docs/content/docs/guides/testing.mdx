@@ -59,7 +59,7 @@ test("renders hello world", () => {
 
 ## Querying the Screen
 
-`tui.screen` exposes methods that read the rendered cell buffer directly — no
+`tui.screen` exposes methods that read the rendered cell buffer directly no
 ANSI parsing.
 
 ```ts title="example.test.ts"
@@ -190,7 +190,7 @@ poll interval).
 ## Cleaning Up Between Tests
 
 Each instance returned from `renderTui` must be unmounted to release its
-renderer. The top-level `cleanup` helper unmounts every active instance — wire
+renderer. The top-level `cleanup` helper unmounts every active instance wire
 it into `afterEach` once and you can omit the per-test `tui.unmount()` call.
 
 ```ts title="setup.ts"
@@ -218,9 +218,9 @@ tui.unmount()
 
 `@gridland/testing` works with any test runner that supports ESM:
 
-- **Bun** — Recommended; used by Gridland's own test suite
-- **Vitest** — Works with proper module resolution
-- **Jest** — Works with ESM transforms configured
+- **Bun** Recommended; used by Gridland's own test suite
+- **Vitest** Works with proper module resolution
+- **Jest** Works with ESM transforms configured
 
 <Callout type="info">
 Bun is the recommended test runner for Gridland projects. It has native ESM
@@ -233,4 +233,4 @@ and is the runner Gridland's own test suite uses.
 - Set explicit `cols` and `rows` for deterministic layout
 - Call `tui.flush()` after any input or state change before asserting on the screen
 - Print `tui.screen.text()` to the console when debugging a failing assertion
-- Always `tui.unmount()` at the end of a test — or call `cleanup()` in `afterEach` once
+- Always `tui.unmount()` at the end of a test or call `cleanup()` in `afterEach` once

@@ -170,7 +170,7 @@ A disabled input ignores focus and keystrokes.
 
 TextInput registers with the focus system via `focusId`, so composing multiple
 inputs into a form is just a matter of giving each one its own id. Tab and
-Shift-Tab cycle between them automatically — no external keyboard wiring
+Shift-Tab cycle between them automatically no external keyboard wiring
 needed.
 
 ```tsx title="Form"
@@ -215,7 +215,7 @@ function MyForm() {
 |------|------|---------|-------------|
 | `label` | `string` | - | Field label shown above the input |
 | `description` | `string` | - | Helper text shown inline next to the label |
-| `error` | `string` | - | Error message — overrides description when set |
+| `error` | `string` | - | Error message overrides description when set |
 | `required` | `boolean` | `false` | Show required indicator (`*`) on the label |
 | `disabled` | `boolean` | `false` | Disable the input |
 | `value` | `string` | *required* | Current value of the input |

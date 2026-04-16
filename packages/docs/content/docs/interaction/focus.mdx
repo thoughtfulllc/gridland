@@ -27,7 +27,7 @@ Gridland provides a unified focus and input system that works identically in bot
 
 ## Usage
 
-The primary API is `useInteractive` — one hook that composes focus registration,
+The primary API is `useInteractive` one hook that composes focus registration,
 selection-scoped keyboard routing, and shortcut hints. It lives in `@gridland/utils`
 (the runtime npm package), so you can use it without touching the shadcn registry
 layer. Theme-aware focus borders are a separate concern: call `useFocusBorderStyle`
@@ -140,15 +140,15 @@ whenever your component doesn't render a focus-responsive border (e.g., `TextInp
 `useInteractiveStyled` when you render a `<box border>` that should show the
 four-state affordance automatically.
 
-**`onKey`** uses a ref swap — call it every render with a fresh closure. The
+**`onKey`** uses a ref swap call it every render with a fresh closure. The
 underlying listener is registered once per mount and replaces the stored
 handler on each call. The handler fires **only while this component is
 selected** (focused + Enter pressed).
 
 ## Structural context
 
-- **`FocusProvider`** — the root wrapper (mounted implicitly by `GridlandProvider`). Pass `disableFocusProvider` to `GridlandProvider` to opt out of the implicit wrap.
-- **`FocusScope`** — constrain navigation to a subtree (useful for modals and menus).
+- **`FocusProvider`** the root wrapper (mounted implicitly by `GridlandProvider`). Pass `disableFocusProvider` to `GridlandProvider` to opt out of the implicit wrap.
+- **`FocusScope`** constrain navigation to a subtree (useful for modals and menus).
 
 ## How it works
 
@@ -171,7 +171,7 @@ A component that only needs to observe focus state (e.g. a bordered wrapper arou
 
 ## Advanced: raw primitives
 
-These remain exported from `@gridland/utils` as escape hatches for advanced cases (global keyboard listeners, custom shortcut reducers, status bar integration). Reach for `useInteractive` first — the primitives below exist for cases it cannot express.
+These remain exported from `@gridland/utils` as escape hatches for advanced cases (global keyboard listeners, custom shortcut reducers, status bar integration). Reach for `useInteractive` first the primitives below exist for cases it cannot express.
 
 **`useKeyboard`** handles keyboard input. Pass `focusId` to scope it to the focused component, or `global: true` to always listen.
 
@@ -206,5 +206,5 @@ Constrain navigation to a group of components. When `trap` is enabled, Tab wraps
 
 ## Related
 
-- [Pointer Events](/docs/interaction/pointer-events) — mouse handlers, event shape, hit testing, and propagation.
-- [Cursor Highlight](/docs/interaction/cursor-highlight) — highlight the terminal cell under the mouse cursor.
+- [Pointer Events](/docs/interaction/pointer-events) mouse handlers, event shape, hit testing, and propagation.
+- [Cursor Highlight](/docs/interaction/cursor-highlight) highlight the terminal cell under the mouse cursor.

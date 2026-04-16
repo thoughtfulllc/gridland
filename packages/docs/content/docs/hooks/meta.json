@@ -1,4 +1,11 @@
 {
   "title": "Hooks",
-  "pages": ["use-keyboard", "use-captured-keyboard", "use-terminal-dimensions", "use-file-drop", "use-paste"]
+  "pages": [
+    "use-file-drop",
+    "use-interactive",
+    "use-keyboard",
+    "use-paste",
+    "use-shortcuts",
+    "use-terminal-dimensions"
+  ]
 }

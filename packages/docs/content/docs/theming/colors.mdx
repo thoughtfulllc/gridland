@@ -8,7 +8,7 @@ import { DemoWindow } from '@/components/ui/demo-window'
 import { ThemingApp } from '@demos/theming'
 import { DarkThemeDisplay, LightThemeDisplay } from '@/components/ui/color-palette'
 
-Gridland UI uses semantic color tokens to theme all components. A `Theme` is a flat object with 11 hex values.
+Gridland UI uses semantic color tokens to theme all components. A `Theme` is a flat object of 17 hex values covering brand, content, borders, status, focus indicators, and message bubbles.
 
 <Callout type="info">
   Without a `ThemeProvider`, all components fall back to the built-in dark theme.
@@ -21,7 +21,7 @@ Gridland UI uses semantic color tokens to theme all components. A `Theme` is a f
 ## Quick Start
 
 ```tsx title="app.tsx"
-import { ThemeProvider, darkTheme } from "@/components/ui/theme"
+import { ThemeProvider, darkTheme } from "@/lib/theme"
 import { Spinner } from "@/components/ui/spinner"
 import { Table } from "@/components/ui/table"
 
@@ -37,24 +37,59 @@ function App() {
 
 ## Tokens
 
+### Brand
+
 | Token | Purpose |
 |-------|---------|
-| `primary` | Headers, highlights, active elements |
-| `accent` | Focused/interactive elements |
-| `secondary` | User messages, checkboxes, prompts |
-| `muted` | Disabled states, cursor, secondary text |
-| `placeholder` | Placeholder text in inputs |
-| `border` | Borders and dividers |
-| `foreground` | Default text color |
+| `primary` | Main brand color headings, highlights, active elements |
+| `accent` | Secondary brand color interactive highlights, focused states |
+| `secondary` | Tertiary color user messages, checkboxes, prompts |
+
+### Content
+
+| Token | Purpose |
+|-------|---------|
+| `foreground` | Default foreground text color |
 | `background` | App background color |
-| `success` | Completed states |
-| `error` | Failed states |
-| `warning` | In-progress states |
+| `muted` | Subdued color disabled states, secondary text, cursor |
+| `placeholder` | Placeholder text in inputs |
+
+### Borders
+
+| Token | Purpose |
+|-------|---------|
+| `border` | Borders and dividers |
+| `borderMuted` | Muted border color subtle structural dividers |
+
+### Status
+
+| Token | Purpose |
+|-------|---------|
+| `success` | Success state color |
+| `error` | Error state color |
+| `warning` | Warning state color |
+
+### Focus
+
+Three-tier focus system (see [Focus](/docs/interaction/focus) for the full model):
+
+| Token | Purpose |
+|-------|---------|
+| `focusSelected` | Bright focus component is selected (entered for interaction) |
+| `focusFocused` | Medium focus component has keyboard focus |
+| `focusIdle` | Dimmed focus idle hint that the component is selectable |
+
+### Messages
+
+| Token | Purpose |
+|-------|---------|
+| `messageAssistant` | Background color for assistant message bubbles |
+| `messageUser` | Background color for user message bubbles |
 
 ## Built-in Themes
 
 ```tsx
-import { darkTheme, lightTheme } from "@/components/ui/theme"
+import { darkTheme, lightTheme } from "@/lib/theme"
 ```
 
 ### Dark
@@ -72,27 +107,39 @@ import { darkTheme, lightTheme } from "@/components/ui/theme"
 ## Custom Themes
 
 ```tsx title="my-theme.ts"
-import type { Theme } from "@/components/ui/theme"
+import type { Theme } from "@/lib/theme"
 
 export const myTheme: Theme = {
+  // Brand
   primary: "#61afef",
   accent: "#c678dd",
   secondary: "#98c379",
-  muted: "#5c6370",
-  placeholder: "#4b5263",
-  border: "#5c6370",
+  // Content
   foreground: "#abb2bf",
   background: "#282c34",
+  muted: "#5c6370",
+  placeholder: "#4b5263",
+  // Borders
+  border: "#5c6370",
+  borderMuted: "#3e4451",
+  // Status
   success: "#98c379",
   error: "#e06c75",
   warning: "#e5c07b",
+  // Focus (bright → dim)
+  focusSelected: "#61afef",
+  focusFocused: "#4b8dc9",
+  focusIdle: "#2c3e50",
+  // Message bubbles
+  messageAssistant: "#2c313a",
+  messageUser: "#3a3f4b",
 }
 ```
 
 Or extend a built-in theme:
 
 ```tsx title="custom-theme.ts"
-import { darkTheme } from "@/components/ui/theme"
+import { darkTheme } from "@/lib/theme"
 
 export const customTheme = {
   ...darkTheme,
@@ -105,7 +152,7 @@ export const customTheme = {
 Access tokens in your own components:
 
 ```tsx
-import { useTheme } from "@/components/ui/theme"
+import { useTheme } from "@/lib/theme"
 
 function MyComponent() {
   const theme = useTheme()

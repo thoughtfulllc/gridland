@@ -1,0 +1,132 @@
+---
+title: useShortcuts
+description: Register and read keyboard shortcut hints for StatusBar integration
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+Gridland's shortcut system is a two-sided pair of hooks: `useShortcuts`
+**writes** shortcut hints keyed to a focus id, and `useFocusedShortcuts`
+**reads** the hints for whichever component currently has focus. Feed the
+read side into a `StatusBar` to get context-sensitive key hints that update
+automatically as the user navigates.
+
+```tsx title="Import"
+import { useShortcuts, useFocusedShortcuts } from "@gridland/utils"
+```
+
+<Callout type="info">
+For component code, prefer `useInteractive({ shortcuts })` it calls
+`useShortcuts` internally and keeps the focus id in one place. Reach for
+`useShortcuts` directly when you need a shortcut registration that is
+decoupled from `useInteractive`'s lifecycle (custom reducers, shortcut
+registries driven by non-focusable parents, test fixtures).
+See [useInteractive shortcuts](/docs/hooks/use-interactive#shortcuts-function-form).
+</Callout>
+
+## `useShortcuts`
+
+Register keyboard shortcut hints for a specific focus id. The hints are
+available to `useFocusedShortcuts` while that id is focused.
+
+```tsx title="Direct registration"
+import { useShortcuts } from "@gridland/utils"
+
+function MyPanel() {
+  useShortcuts(
+    [
+      { key: "enter", label: "submit" },
+      { key: "esc", label: "cancel" },
+    ],
+    "my-panel",
+  )
+
+  return <text>content</text>
+}
+```
+
+### Parameters
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `shortcuts` | `ShortcutEntry[]` | Array of `{ key, label }` hints. Serialized to a stable string internally so inline array literals don't cause infinite re-render loops. |
+| `focusId` | `string` | The focus id these shortcuts belong to. Must match the id used by `useInteractive` / `useKeyboard` for the same component. |
+
+### `ShortcutEntry`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `key` | `string` | The key or key combination label. Free-form `"enter"`, `"esc"`, `"↑↓"`, `"ctrl+s"`, etc. This is the literal string shown in `StatusBar`. |
+| `label` | `string` | The human-readable description of what the key does (e.g. `"submit"`, `"navigate"`). |
+
+## `useFocusedShortcuts`
+
+Read the shortcuts registered by the currently focused component. Returns an
+empty array when nothing is focused or when the focused component has no
+registered shortcuts.
+
+```tsx title="StatusBar integration"
+import { useFocusedShortcuts } from "@gridland/utils"
+import { StatusBar } from "@/components/ui/status-bar"
+
+function AppStatusBar() {
+  const shortcuts = useFocusedShortcuts()
+  return <StatusBar items={shortcuts} />
+}
+```
+
+### Returns
+
+`ShortcutEntry[]` the active shortcut hints, or an empty array. The return
+value is memoized against `focusedId` and the shortcut map, so `StatusBar`
+only re-renders when the focused component or its hints actually change.
+
+## End-to-end example
+
+```tsx title="Full StatusBar wiring"
+import { useInteractive, useFocusedShortcuts } from "@gridland/utils"
+import { StatusBar } from "@/components/ui/status-bar"
+
+function Cell({ id, label }: { id: string; label: string }) {
+  // useInteractive calls useShortcuts internally with the function-form hints.
+  const interactive = useInteractive({
+    id,
+    shortcuts: ({ isSelected }) =>
+      isSelected
+        ? [{ key: "enter", label: "submit" }, { key: "esc", label: "back" }]
+        : [{ key: "enter", label: "select" }],
+  })
+
+  return (
+    <box ref={interactive.focusRef} border>
+      <text>{label}</text>
+    </box>
+  )
+}
+
+function AppStatusBar() {
+  const shortcuts = useFocusedShortcuts()
+  return <StatusBar items={shortcuts} />
+}
+
+function App() {
+  return (
+    <box>
+      <Cell id="inbox" label="Inbox" />
+      <Cell id="drafts" label="Drafts" />
+      <AppStatusBar />
+    </box>
+  )
+}
+```
+
+As the user Tabs between `Cell` components, the `StatusBar` automatically
+shows the hints for whichever cell is currently focused. When a cell is
+selected (entered via Enter), the function-form `shortcuts` re-runs and the
+`StatusBar` swaps to the selected-state hints.
+
+## Related
+
+- [useInteractive](/docs/hooks/use-interactive) the primary composed hook, which calls `useShortcuts` internally
+- [Focus](/docs/interaction/focus) the focus system conceptual guide
+- [StatusBar](/docs/components/status-bar) the component that renders shortcut hints

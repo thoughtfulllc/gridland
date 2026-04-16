@@ -10,7 +10,7 @@ Gridland apps run in terminals of varying widths, from narrow mobile screens to 
 ## Usage
 
 ```tsx
-import { useBreakpoints } from "@/components/ui/breakpoints"
+import { useBreakpoints } from "@/hooks/use-breakpoints"
 
 function MyApp() {
   const { isMobile, isNarrow, isTiny, isDesktop, width, height } = useBreakpoints()
@@ -46,7 +46,7 @@ The raw `width` and `height` values are also returned for custom thresholds.
 The breakpoint thresholds are exported as `BREAKPOINTS` for use outside of React components:
 
 ```tsx
-import { BREAKPOINTS } from "@/components/ui/breakpoints"
+import { BREAKPOINTS } from "@/hooks/use-breakpoints"
 
 // BREAKPOINTS.tiny   = 40
 // BREAKPOINTS.narrow = 60

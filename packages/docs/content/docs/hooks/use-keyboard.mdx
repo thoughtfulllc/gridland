@@ -3,9 +3,20 @@ title: useKeyboard
 description: Subscribe to keyboard events
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout'
+
 The `useKeyboard` hook subscribes to keyboard events inside a `<TUI>` component.
 By default it receives press events (including key repeats). Use `options.release`
 to also receive release events.
+
+<Callout type="info">
+For focus-aware components, prefer [`useInteractive({ id }).onKey(handler)`](/docs/hooks/use-interactive#onkey)
+over `useKeyboard({ focusId })`. `useInteractive` composes focus registration,
+selection-scoped keyboard routing, and shortcut hints in a single call see
+[Focus](/docs/interaction/focus) for the full model. Reach for `useKeyboard`
+directly when you need a global shortcut, a raw listener outside the focus
+system, or a custom reducer on top of `KeyEvent`.
+</Callout>
 
 ```tsx title="Import"
 import { useKeyboard } from "@gridland/utils"
@@ -14,7 +25,7 @@ import { useKeyboard } from "@gridland/utils"
 ## Usage
 
 Pass `{ global: true }` for app-level handlers and `{ focusId }` to scope a handler to a
-focus id. Calling `useKeyboard(handler)` without an options bag is deprecated — see below.
+focus id. Calling `useKeyboard(handler)` without an options bag is deprecated see below.
 
 ```tsx title="Basic (global)"
 useKeyboard((event) => {
@@ -40,10 +51,18 @@ useKeyboard((event) => {
 }, { global: true, release: true })
 ```
 
-## Focus-aware routing
+## Focus-aware routing (escape hatch)
 
-```tsx title="Focus-scoped: only fires when this component is focused"
-const { focusId } = useInteractive()
+Most focus-aware components should use
+[`useInteractive({ id }).onKey(handler)`](/docs/hooks/use-interactive#onkey)
+instead of the options below. The raw `useKeyboard` options are useful when
+you need a keyboard listener outside the `useInteractive` lifecycle: global
+shortcuts, status-bar reducers, or components that manage their own focus id
+for a reason that `useInteractive` doesn't cover.
+
+```tsx title="Focus-scoped: only fires when this id is focused"
+// Low-level form prefer useInteractive({ id }).onKey(handler) for component code
+const { focusId } = useInteractive({ id: "my-panel" })
 useKeyboard((e) => {
   if (e.name === "return") submit()
 }, { focusId })
@@ -74,12 +93,12 @@ The callback receives a `KeyEvent` with every field populated for most keys. Fie
 |----------|------|-------------|
 | `name` | `string` | Logical key name (`"a"`, `"left"`, `"f1"`, `"escape"`, `"return"`). Also set to the literal character for printable punctuation like `"["`, `"]"`, `";"`, `"/"`. |
 | `ctrl` | `boolean` | Whether Ctrl was held. |
-| `meta` | `boolean` | Whether Meta was held. Raw parser also sets this for Alt/Option escape sequences — `meta` and `option` often co-occur. |
+| `meta` | `boolean` | Whether Meta was held. Raw parser also sets this for Alt/Option escape sequences `meta` and `option` often co-occur. |
 | `shift` | `boolean` | Whether Shift was held. For letters, `name` is lowercased and `shift` carries the case. |
 | `option` | `boolean` | Whether Option (macOS) / Alt was held. |
 | `sequence` | `string` | Raw bytes from the terminal. Equals `name` for single-char input; for named keys this is the ANSI escape sequence (`"\x1b[A"`), not the name. Prefer `name` for logic. |
 | `number` | `boolean` | True if the key is a digit `0`–`9`. |
-| `raw` | `string` | Literal pre-parse bytes. Rarely needed — prefer `sequence` or `name`. |
+| `raw` | `string` | Literal pre-parse bytes. Rarely needed prefer `sequence` or `name`. |
 | `eventType` | `"press" \| "release" \| "repeat"` | Usually `"press"`. Releases and repeats require Kitty keyboard protocol plus `{ release: true }`. |
 | `source` | `"raw" \| "kitty"` | Which parser produced the event. |
 | `code` | `string \| undefined` | ANSI code (`"[A"`) or Kitty CSI-u code (`"[57352u"`) for escape sequences. Undefined for single-char input. |
@@ -125,7 +144,7 @@ useKeyboard((event: KeyEvent) => {
 
 Calling `useKeyboard(handler)` without an options bag is **deprecated**. Pass `{ global: true }`
 explicitly for app-level shortcuts, or `{ focusId }` for focus-scoped handlers. The bare form
-still works at runtime — this deprecation exists so every call site states its intent at
+still works at runtime this deprecation exists so every call site states its intent at
 the source. `@gridland/utils` ships an overloaded `@deprecated` type signature so IDE hover
 surfaces the warning on bare calls.
 

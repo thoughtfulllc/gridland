@@ -1,4 +1,4 @@
 {
   "title": "Components",
-  "pages": ["tui", "primitives", "gradient", "table", "spinner", "text-input", "select-input", "multi-select", "prompt-input", "message", "chain-of-thought", "link", "ascii", "tabs", "status-bar", "modal", "terminal-window", "side-nav"]
+  "pages": ["ascii", "chain-of-thought", "gradient", "link", "message", "modal", "multi-select", "prompt-input", "select-input", "side-nav", "spinner", "status-bar", "table", "tabs", "terminal-window", "text-input"]
 }

@@ -7,6 +7,29 @@
 - Next.js app router with Fumadocs
 - Registry JSON: `packages/docs/public/r/` (static files, served at `https://gridland.io/r/<name>.json`)
 
+## Information Architecture
+
+Top-level sections carry specific semantics. Put a new page in the section whose question it answers:
+
+| Section | Answers | Example content |
+|---|---|---|
+| `index.mdx` | What is Gridland? | positioning, 4 principles, no code examples |
+| `getting-started/` | How do I start? | installation, framework plugins |
+| `core-concepts/` | How does the framework *work*? | rendering, cells and layout, intrinsic elements |
+| `theming/` | How do I customize visuals? | colors, text style, breakpoints |
+| `interaction/` | How do I handle input? | focus, keyboard, pointer events |
+| `components/` | What pre-built UI can I use? | user-facing components from the `@gridland/ui` registry |
+| `blocks/` | What composed patterns can I use? | full layouts, AI chat interface |
+| `guides/` | How do I do X? | compile-binary, testing, sandboxing, ssr-for-agents |
+| `hooks/` | What hooks exist? | `use-*` reference pages |
+| `api/` | What does package X export? | per-package reference |
+
+**Core concepts is not guides.** `core-concepts/` is for things users need to *understand* (the rendering model, cell grid, intrinsic elements). `guides/` is for things users need to *do* (compile a binary, write tests, sandbox). These were previously merged under `core-concepts/` and the section became a dumping ground. Don't merge them again.
+
+**Intrinsic elements (`<box>`, `<text>`, `<input>`, etc.) live in `core-concepts/intrinsic-elements.mdx`, not in `components/`.** They are framework primitives, not installable components. The `components/` section is reserved for React components users install via the shadcn registry.
+
+**`index.mdx` follows the shadcn intro model.** One-sentence pitch, a "this is not..." positioning line, four H2 principle sections, then cards. No code examples on the intro page: they belong on installation and component pages, one click away. Resist the urge to add a quick snippet.
+
 ## Registry emission
 
 The shadcn registry that end users consume is emitted directly into this package's `public/r/` by `packages/ui/scripts/build-registry.ts`. Next.js serves the files as static assets \u2014 there is no separate copy step and no intermediate staging folder.

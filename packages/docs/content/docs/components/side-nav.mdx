@@ -67,7 +67,7 @@ const items = [
 When the user presses Enter on a sidebar item, `SideNav` wraps the panel in a
 `<FocusScope trap selectable autoFocus autoSelect>`. Panel content just needs
 to use its own focus-aware components (`TextInput`, `SelectInput`, etc. with
-`focusId`) — the scope trap keeps focus contained until Esc exits.
+`focusId`) the scope trap keeps focus contained until Esc exits.
 
 ```tsx title="Interactive"
 function MyPanel() {
@@ -152,8 +152,8 @@ const [activeId, setActiveId] = useState<string>()
 | Key | Action |
 |-----|--------|
 | `↑` / `↓` | Navigate sidebar items |
-| `Enter` | Select item — interact with main panel content |
-| `Escape` | Deselect — return to sidebar navigation |
+| `Enter` | Select item interact with main panel content |
+| `Escape` | Deselect return to sidebar navigation |
 
 ## API Reference
 

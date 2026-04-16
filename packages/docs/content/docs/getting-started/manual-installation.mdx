@@ -1,0 +1,428 @@
+---
+title: Manual Installation
+description: Install @gridland/web and wire it into your bundler by hand
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { Step, Steps } from 'fumadocs-ui/components/steps'
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
+
+Gridland ships first-party plugins for [Vite](/docs/getting-started/vite) and
+[Next.js](/docs/getting-started/nextjs). **Use those if you can** they handle
+everything on this page automatically. Install Gridland by hand only when
+neither plugin applies.
+
+Installing the package itself is one line (`npm install @gridland/web`). The
+rest of this guide is bundler configuration the unavoidable work of pointing
+native modules and Node built-ins at browser-safe shims. The recipes below
+target **webpack and webpack-compatible bundlers** (Rspack, Turbopack with
+webpack config). Rollup, Parcel, and esbuild need the same category of fixes
+with different syntax see *Porting to other bundlers* at the bottom.
+
+## Why bundlers need configuration
+
+`@gridland/web` is a browser build, but it pulls in code paths from the shared
+Gridland engine that reference Bun FFI, tree-sitter native parsers, and Node
+built-ins. None of those work in a browser, and your bundler will crash trying
+to resolve them unless you redirect each one to a pure-JS stub.
+
+The package ships those stubs alongside its source at
+`@gridland/web/src/shims/*.ts`. Your job is to wire them up.
+
+<Callout type="warn">
+The shims are TypeScript source files, not pre-compiled JavaScript. Your
+bundler must be configured to transpile `.ts` files inside
+`node_modules/@gridland/web/src/shims/`. In Next.js and Vite this happens
+automatically; in a hand-rolled webpack config it does not. Step 2 below shows
+how to enable it.
+</Callout>
+
+## Webpack recipe
+
+<Steps>
+<Step>
+
+### Install
+
+```bash title="Terminal"
+npm install @gridland/web
+```
+
+</Step>
+<Step>
+
+### Transpile shims
+
+Webpack does not process files inside `node_modules` by default. The Gridland
+shims live there and must go through your TypeScript or Babel loader. Add an
+explicit rule that *includes* `@gridland/web`:
+
+```js title="webpack.config.js"
+const path = require("path")
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        include: [
+          path.resolve(__dirname, "src"),
+          /node_modules[\\/]@gridland[\\/]web[\\/]src[\\/]shims/,
+        ],
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [
+              "@babel/preset-env",
+              "@babel/preset-typescript",
+            ],
+          },
+        },
+      },
+    ],
+  },
+}
+```
+
+`ts-loader` works equally well the important part is that the rule's
+`include` (or inverted `exclude`) lets the shim directory through.
+
+</Step>
+<Step>
+
+### Redirect native modules to shims
+
+Add webpack aliases that point every Bun-FFI, tree-sitter, and devtools import
+at the browser-safe shim shipped with `@gridland/web`:
+
+```js title="webpack.config.js"
+const path = require("path")
+
+const gridlandWeb = path.dirname(require.resolve("@gridland/web/package.json"))
+const shim = (p) => path.resolve(gridlandWeb, p)
+
+module.exports = {
+  resolve: {
+    alias: {
+      // Bun FFI the engine imports these unconditionally on startup
+      "bun:ffi": shim("src/shims/bun-ffi.ts"),
+      "bun-ffi-structs": shim("src/shims/bun-ffi-structs.ts"),
+      bun: shim("src/shims/bun-ffi.ts"),
+
+      // Node built-in shims
+      "node:buffer": shim("src/shims/buffer-stub.ts"),
+      events$: shim("src/shims/events-shim.ts"),
+
+      // Tree-sitter native parsers replaced with no-op stubs
+      "tree-sitter-styled-text": shim("src/shims/tree-sitter-styled-text-stub.ts"),
+      "web-tree-sitter": shim("src/shims/tree-sitter-stub.ts"),
+      "hast-styled-text": shim("src/shims/hast-stub.ts"),
+
+      // React devtools polyfill pulls in modules that don't exist in the browser
+      "react-devtools-core": shim("src/shims/devtools-polyfill-stub.ts"),
+      ws: shim("src/shims/devtools-polyfill-stub.ts"),
+    },
+  },
+}
+```
+
+</Step>
+<Step>
+
+### Catch remaining `bun:*` imports
+
+Static aliases only cover the `bun:*` modules we know about. If a transitive
+dependency imports something like `bun:sqlite`, webpack will still fail. A
+`NormalModuleReplacementPlugin` catches every `bun:*` prefix as a fallback:
+
+```js title="webpack.config.js"
+const webpack = require("webpack")
+
+module.exports = {
+  plugins: [
+    new webpack.NormalModuleReplacementPlugin(/^bun:/, (resource) => {
+      resource.request = resource.request.replace(/^bun:/, "")
+    }),
+  ],
+}
+```
+
+</Step>
+<Step>
+
+### Define runtime globals
+
+The Gridland engine branches on `process.env` and `globalThis.Bun` at module
+load time. Replace them at compile time so the browser build takes the
+correct path:
+
+```js title="webpack.config.js"
+const webpack = require("webpack")
+
+module.exports = {
+  plugins: [
+    new webpack.DefinePlugin({
+      "process.env": JSON.stringify({}),
+      "globalThis.Bun": "undefined",
+    }),
+  ],
+}
+```
+
+</Step>
+<Step>
+
+### Enable top-level await and async output
+
+The engine's module graph contains top-level `await`, and some shims return
+async functions at module scope. Webpack refuses to emit these unless you
+opt in:
+
+```js title="webpack.config.js"
+module.exports = {
+  experiments: {
+    topLevelAwait: true,
+  },
+  output: {
+    environment: {
+      asyncFunction: true,
+    },
+  },
+}
+```
+
+</Step>
+<Step>
+
+### Use it
+
+```tsx title="App.tsx"
+import { TUI } from "@gridland/web"
+
+export default function App() {
+  return (
+    <TUI style={{ width: "100vw", height: "100vh" }}>
+      <box border borderStyle="rounded" padding={1}>
+        <text fg="#a3be8c">Hello from Gridland!</text>
+      </box>
+    </TUI>
+  )
+}
+```
+
+</Step>
+</Steps>
+
+## Complete webpack.config.js
+
+The seven steps above, combined into one file:
+
+```js title="webpack.config.js"
+const path = require("path")
+const webpack = require("webpack")
+
+const gridlandWeb = path.dirname(require.resolve("@gridland/web/package.json"))
+const shim = (p) => path.resolve(gridlandWeb, p)
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        include: [
+          path.resolve(__dirname, "src"),
+          /node_modules[\\/]@gridland[\\/]web[\\/]src[\\/]shims/,
+        ],
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [
+              "@babel/preset-env",
+              "@babel/preset-typescript",
+              ["@babel/preset-react", { runtime: "automatic" }],
+            ],
+          },
+        },
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"],
+    alias: {
+      "bun:ffi": shim("src/shims/bun-ffi.ts"),
+      "bun-ffi-structs": shim("src/shims/bun-ffi-structs.ts"),
+      bun: shim("src/shims/bun-ffi.ts"),
+      "node:buffer": shim("src/shims/buffer-stub.ts"),
+      events$: shim("src/shims/events-shim.ts"),
+      "tree-sitter-styled-text": shim("src/shims/tree-sitter-styled-text-stub.ts"),
+      "web-tree-sitter": shim("src/shims/tree-sitter-stub.ts"),
+      "hast-styled-text": shim("src/shims/hast-stub.ts"),
+      "react-devtools-core": shim("src/shims/devtools-polyfill-stub.ts"),
+      ws: shim("src/shims/devtools-polyfill-stub.ts"),
+    },
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      "process.env": JSON.stringify({}),
+      "globalThis.Bun": "undefined",
+    }),
+    new webpack.NormalModuleReplacementPlugin(/^bun:/, (resource) => {
+      resource.request = resource.request.replace(/^bun:/, "")
+    }),
+  ],
+  experiments: {
+    topLevelAwait: true,
+  },
+  output: {
+    environment: {
+      asyncFunction: true,
+    },
+  },
+}
+```
+
+<Callout type="info">
+This config mirrors what [`withGridland` (Next.js)](https://github.com/thoughtfulllc/gridland/blob/main/packages/web/src/next-plugin.ts)
+and [`gridlandWebPlugin` (Vite)](https://github.com/thoughtfulllc/gridland/blob/main/packages/web/src/vite-plugin.ts)
+do automatically. If you run into a missing alias or unexpected resolution
+error, check those plugin sources they are the canonical list.
+</Callout>
+
+## Porting to other bundlers
+
+The same categories of fix apply to every browser bundler:
+
+1. **Transpile** the `.ts` shim files inside `@gridland/web`
+2. **Alias** `bun:*`, `node:buffer`, `events`, the three tree-sitter modules, and the two devtools modules to the shims in `@gridland/web/src/shims/`
+3. **Replace** any remaining `bun:*` imports with their unprefixed form
+4. **Define** `process.env` as `{}` and `globalThis.Bun` as `undefined`
+5. **Allow** top-level await and async functions in the output
+
+Rollup users: config this through `@rollup/plugin-alias`, `@rollup/plugin-replace`, and a TypeScript plugin. Parcel users: Parcel handles TS transpilation automatically but still needs the alias map via the `alias` field in `package.json`. esbuild users: use the `alias` option, `define`, and a TypeScript-aware loader.
+
+## Configure shadcn
+
+Gridland UI components are distributed via a [shadcn](https://ui.shadcn.com)
+registry components are copied into your project so you own the code and can
+customize it freely.
+
+<Callout type="info">
+Projects created with `create-gridland` already have `components.json`
+configured. This section is only for projects you're setting up by hand.
+</Callout>
+
+Create a `components.json` file in your project root with the Gridland
+registry:
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "",
+    "baseColor": "neutral",
+    "cssVariables": false
+  },
+  "aliases": {
+    "components": "@/components",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks",
+    "utils": "@/lib/utils"
+  },
+  "registries": {
+    "@gridland": "https://gridland.io/r/{name}.json"
+  }
+}
+```
+
+Set `"rsc": true` if you're using Next.js with React Server Components. Make
+sure your `tsconfig.json` has a `@/*` path alias configured (e.g.
+`"@/*": ["./src/*"]` for Vite or `"@/*": ["./*"]` for Next.js).
+
+## Install components
+
+Once `components.json` is in place, add components with the built-in
+`create-gridland add` subcommand. It detects your package manager and proxies
+to shadcn for you:
+
+<Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
+<Tab value="bun">
+```bash title="Terminal"
+bunx create-gridland add spinner
+```
+</Tab>
+<Tab value="npm">
+```bash title="Terminal"
+npx create-gridland add spinner
+```
+</Tab>
+<Tab value="yarn">
+```bash title="Terminal"
+yarn dlx create-gridland add spinner
+```
+</Tab>
+<Tab value="pnpm">
+```bash title="Terminal"
+pnpm dlx create-gridland add spinner
+```
+</Tab>
+</Tabs>
+
+Bare names like `spinner` are auto-namespaced to `@gridland/spinner`.
+Already-namespaced names (`@gridland/modal`) pass through unchanged. Install
+multiple at once, or use flags to control behavior:
+
+```bash title="Terminal"
+bunx create-gridland add modal side-nav --yes       # skip prompts
+bunx create-gridland add spinner --dry-run          # preview the resolved shadcn command
+bunx create-gridland add table --overwrite          # overwrite existing files
+bunx create-gridland add link --cwd ./apps/web      # target a sub-package
+```
+
+If you'd rather call shadcn directly to pin a specific shadcn version, or
+to inspect the raw command the equivalent invocation is:
+
+```bash title="Terminal"
+bunx shadcn@latest add @gridland/spinner
+```
+
+Components that depend on shared utilities (like `theme` or `text-style`)
+automatically install those dependencies alongside the component.
+
+## Available components
+
+| Component | Registry name |
+|-----------|--------------|
+| Ascii | `ascii` |
+| Chain of Thought | `chain-of-thought` |
+| Gradient | `gradient` |
+| Link | `link` |
+| Message | `message` |
+| Modal | `modal` |
+| Multi Select | `multi-select` |
+| Prompt Input | `prompt-input` |
+| Select Input | `select-input` |
+| Side Nav | `side-nav` |
+| Spinner | `spinner` |
+| Status Bar | `status-bar` |
+| Table | `table` |
+| Tabs | `tab-bar` |
+| Terminal Window | `terminal-window` |
+| Text Input | `text-input` |
+
+## Shared utilities
+
+These ship as separate registry items but are resolved automatically when you
+install a component that depends on them you rarely need to install them by
+hand.
+
+| Utility | Registry name | Description |
+|---------|--------------|-------------|
+| Theme | `theme` | Theme context, provider, and built-in dark/light themes |
+| Text Style | `text-style` | Helper to convert text decoration flags to opentui style objects |
+| Provider | `provider` | `GridlandProvider` root component with theme and keyboard context |
+| Use Breakpoints | `use-breakpoints` | Responsive breakpoints hook driven by terminal dimensions |

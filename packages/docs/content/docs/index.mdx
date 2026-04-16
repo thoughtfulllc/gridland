@@ -1,88 +1,41 @@
 ---
-title: Getting Started
-description: A framework for building terminal apps, built on OpenTUI + React. Gridland apps work in the browser and terminal.
+title: Introduction
+description: One codebase, runs on terminal and web.
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs'
-import { Callout } from 'fumadocs-ui/components/callout'
 import { Card, Cards } from 'fumadocs-ui/components/card'
 
-Gridland renders terminal-style UIs directly to an HTML5 Canvas using React.
-Built on the [opentui](https://opentui.com) engine. No xterm.js, no terminal emulator, just a React reconciler, Yoga layout, and canvas pixels.
+Gridland renders the same React components to a browser canvas, a terminal, or plain text for AI agents, and ships component source directly into your project instead of as an installable package.
 
-## Start a new project
+## Two Runtimes, One Tree
 
-Scaffold a new Gridland app with everything pre-configured:
+Your Gridland components run in two places from the same source. In a browser, [`@gridland/web`](/docs/api/gridland-web) draws them to an HTML5 `<canvas>`, so you can drop a TUI inside any React app. In a terminal, [`@gridland/bun`](/docs/api/gridland-bun) draws them to real stdout over a native FFI bridge, so you can ship standalone CLIs with `bun build --compile`. Both runtimes are built on the [OpenTUI](https://opentui.com) engine with Yoga for Flexbox layout, wired into React through a custom reconciler. No xterm.js, no terminal emulator, no hidden iframe. Just cells.
 
-<Tabs items={['bun', 'npm', 'yarn', 'pnpm']}>
-<Tab value="bun">
-```bash title="Terminal"
-bunx create-gridland my-app
-```
-</Tab>
-<Tab value="npm">
-```bash title="Terminal"
-npx create-gridland my-app
-```
-</Tab>
-<Tab value="yarn">
-```bash title="Terminal"
-yarn create gridland my-app
-```
-</Tab>
-<Tab value="pnpm">
-```bash title="Terminal"
-pnpm create gridland my-app
-```
-</Tab>
-</Tabs>
+## Readable by Agents
 
-## Add to an existing project
+The same component tree renders to plain text for AI agents, crawlers, and screen readers. A TUI your users run interactively is, by default, also a document an LLM can read. No separate accessibility layer, no server-side rewrite. See [SSR for Agents](/docs/guides/ssr-for-agents).
 
-Choose your framework:
+## You Own the Components
+
+Gridland borrows [shadcn/ui](https://ui.shadcn.com)'s distribution model. Run `create-gridland add button` and the source lands in your project, where you can read, edit, and version it like any other file. If a component doesn't fit your app, change it. It's yours.
+
+## Pixel-Perfect Alignment
+
+Every element sizes in character cells, not pixels, so layouts stay perfectly aligned across font sizes, zoom levels, and terminal widths. The API is standard Flexbox via Yoga, so `<box width={40}>` is 40 columns wide and the rest of the layout composes the way you already know. See [Rendering](/docs/core-concepts/rendering) for the full mental model.
+
+<div className="pb-8" />
 
 <Cards>
-  <Card title="Vite" href="/docs/guides/vite">
-    Quickest setup — one plugin, zero config.
+  <Card title="Installation" href="/docs/getting-started/installation">
+    Scaffold a new project or add Gridland to an existing app.
   </Card>
-  <Card title="Next.js" href="/docs/guides/nextjs">
-    For server-rendered apps using the App Router.
+  <Card title="Components" href="/docs/components/text-input">
+    Browse the component library and install them via the shadcn registry.
   </Card>
-  <Card title="Custom Bundler" href="/docs/guides/custom">
-    Webpack, Rollup, or any other bundler.
+  <Card title="SSR for Agents" href="/docs/guides/ssr-for-agents">
+    Render your TUI as plain text so AI agents and crawlers can read it.
   </Card>
-</Cards>
-
-## Install components
-
-Gridland UI components are distributed via a [shadcn](https://ui.shadcn.com) registry. Install individual components into your project so you own the code and can customize it freely.
-
-If you scaffolded with `create-gridland`, shadcn is already configured — just run:
-
-```bash
-bunx create-gridland add spinner
-```
-
-`create-gridland add` detects your package manager and proxies to shadcn under the hood. You can install multiple components at once (`bunx create-gridland add modal side-nav`) and preview the resolved command with `--dry-run`.
-
-Otherwise, configure shadcn in your project and call it directly:
-
-```bash
-bunx shadcn@latest add @gridland/spinner
-```
-
-See the [Installing Components](/docs/guides/components) guide for setup instructions and the full list of available components.
-
-## Packages
-
-<Cards>
-  <Card title="@gridland/web" href="/docs/api/gridland-web">
-    Core canvas renderer and React integration.
-  </Card>
-  <Card title="@gridland/ui" href="/docs/api/gridland-ui">
-    Higher-level UI components (Gradient, Table).
-  </Card>
-  <Card title="@gridland/testing" href="/docs/api/gridland-testing">
-    Test utilities for TUI components.
+  <Card title="Compile a Binary" href="/docs/guides/compile-binary">
+    Ship a standalone CLI using Bun's compile step.
   </Card>
 </Cards>

@@ -1,0 +1,216 @@
+---
+title: Rendering
+description: How Gridland components become pixels in a browser canvas or in an actual terminal
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+import { RunDemo } from '@/components/ui/run-demo'
+import { DemoWindow } from '@/components/ui/demo-window'
+import { PrimitivesApp } from '@demos/primitives'
+
+Gridland is JSX that renders to a cell grid, not HTML. The same component tree can
+run in three places:
+
+- **In a browser**, drawn to an HTML5 `<canvas>` by [`@gridland/web`](/docs/api/gridland-web)
+- **In a terminal**, drawn to real stdout by [`@gridland/bun`](https://bun.sh) over a native FFI bridge
+- **As plain text**, rendered headlessly for AI agents, crawlers, screen readers, and server-side snapshots
+
+All three paths accept the same components and hooks, so a single app can ship as
+an embedded web TUI, a standalone CLI binary, and an agent-readable document
+from one codebase. This page covers all three targets. Pick the section that
+matches where you want your UI to run.
+
+## In the browser
+
+The `@gridland/web` package renders your TUI to an HTML `<canvas>` inside any
+React app Next.js, Vite, Remix, plain CRA. The `TUI` component is the single
+entry point: it handles client detection, canvas creation, reconciler setup,
+and automatic resizing. Gridland is built on the [opentui](https://opentui.com) engine.
+
+<div className="my-8">
+  <DemoWindow title="Primitives" tuiStyle={{ width: "100%", height: 200 }} autoFocus>
+    <PrimitivesApp />
+  </DemoWindow>
+</div>
+
+<RunDemo name="primitives" />
+
+### Install
+
+```bash title="Terminal"
+bun add @gridland/web
+```
+
+### Usage
+
+```tsx title="Example"
+import { TUI } from "@gridland/web"
+
+<TUI style={{ width: "100vw", height: "100vh" }}>
+  <box border padding={1}>
+    <text>Your TUI content here</text>
+  </box>
+</TUI>
+```
+
+### SSR behavior
+
+<Callout type="info">
+On the server, `TUI` renders an empty `<div>` with the provided
+style and className. On the client, it hydrates and creates the canvas
+automatically. No `dynamic(() => import(...), { ssr: false })` wrapper is needed.
+</Callout>
+
+The client-side hydration process:
+
+1. Detects the browser environment via `useEffect`
+2. Creates a `<canvas>` element inside the container
+3. Initializes the React reconciler with a `BrowserRenderContext`
+4. Sets up `ResizeObserver` for automatic canvas resizing
+5. Renders children through the TUI reconciler to the canvas
+
+### Architecture
+
+```
+React JSX
+  |
+  v
+@opentui/react reconciler
+  |
+  v
+Renderable tree (Box, Text, etc.)
+  |
+  v
+Yoga layout engine (flexbox)
+  |
+  v
+BrowserBuffer (cell grid)
+  |
+  v
+CanvasPainter (pixels)
+  |
+  v
+HTML5 Canvas
+```
+
+### `TUI` props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | | TUI elements to render (`<box>`, `<text>`, etc.) |
+| `style` | `CSSProperties` | | CSS styles for the outer container div |
+| `className` | `string` | | CSS class for the outer container div |
+| `fontSize` | `number` | `14` | Font size in pixels |
+| `fontFamily` | `string` | JetBrains Mono → Fira Code → Cascadia Code → Consolas → monospace | Font stack used by the canvas painter |
+| `autoFocus` | `boolean` | `true` | Focus the canvas on mount so it receives keyboard input |
+| `backgroundColor` | `string` | transparent | Canvas background color |
+| `onReady` | `(renderer: BrowserRenderer) => void` | | Called once the renderer has initialized |
+| `fallbackCols` | `number` | `80` | Columns used for the SSR headless render before hydration |
+| `fallbackRows` | `number` | `24` | Rows used for the SSR headless render before hydration |
+| `cursorHighlight` | `boolean` | `false` | Draw a highlight on the cell under the mouse cursor |
+| `cursorHighlightColor` | `string` | theme-dependent | CSS color string for the cursor highlight |
+| `cursorHighlightOpacity` | `number` | `0.15` | Opacity of the cursor highlight overlay |
+
+## In the terminal
+
+The `@gridland/bun` package renders your React TUI to an actual terminal using
+Bun's FFI bridge to the OpenTUI native engine. Same components, same hooks,
+same JSX the output goes to stdout instead of a canvas.
+
+### Requirements
+
+- [Bun](https://bun.sh) 1.0 or later the runtime uses `bun:ffi`, which only exists in Bun
+- macOS (x64, arm64) or Linux (x64, arm64)
+- Windows is not supported
+
+### Install
+
+```bash title="Terminal"
+bun add @gridland/bun
+```
+
+Platform-specific native binaries ship as optional dependencies, so only the
+binary for your OS/arch is downloaded.
+
+### Usage
+
+```tsx title="src/app.tsx"
+import { createCliRenderer, createRoot } from "@gridland/bun"
+
+function App() {
+  return (
+    <box border padding={1}>
+      <text>Hello from the terminal</text>
+    </box>
+  )
+}
+
+const renderer = await createCliRenderer({ exitOnCtrlC: true })
+createRoot(renderer).render(<App />)
+```
+
+```bash title="Terminal"
+bun src/app.tsx
+```
+
+### Compile to a standalone binary
+
+Bun can compile your app to a self-contained executable no runtime required,
+users don't need Bun, Node, or npm installed:
+
+```bash title="Terminal"
+bun build --compile src/app.tsx --outfile my-app
+./my-app
+```
+
+### `createCliRenderer` options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `exitOnCtrlC` | `boolean` | `true` | Exit the process cleanly on Ctrl-C |
+| `targetFps` | `number` | `30` | Frame budget for the render loop |
+| `useMouse` | `boolean` | `true` | Enable terminal mouse tracking |
+| `useAlternateScreen` | `boolean` | `true` | Switch to the alternate screen buffer so the TUI doesn't scroll your terminal history (overridable via `OTUI_USE_ALTERNATE_SCREEN`) |
+
+<Callout type="info">
+`createCliRenderer` is async you must `await` it before calling `createRoot`.
+This is because it initializes native FFI bindings and queries the terminal
+size before the first render.
+</Callout>
+
+## As plain text
+
+Gridland components render to a **canvas** in a browser and to **stdout** in a
+terminal both are pixel/cell-based outputs that AI agents, crawlers, and
+screen readers can't read. Headless rendering solves this by rendering the
+same component tree to **plain text** instead. No canvas, no browser, no
+terminal just a string you can hand to an LLM or embed in an HTML page for
+search indexing.
+
+This is a first-class render target, not a workaround. The same component tree
+produces different output depending on who's looking at it:
+
+- A human in a browser sees the canvas-drawn TUI
+- A human in a terminal sees the stdout-drawn TUI
+- An agent, crawler, or screen reader sees the plain-text version
+
+No separate accessibility layer, no server-side rewrite, no duplicated markup.
+Concretely, this means an AI agent browsing your site can read a Gridland chat
+interface, and a search engine can index the content of a Gridland component
+that's rendered to a canvas.
+
+See the [SSR for Agents guide](/docs/guides/ssr-for-agents) for how to wire
+this into a Next.js app or any server-rendered React framework.
+
+## Which target should I pick?
+
+| Shipping… | Use |
+|---|---|
+| A CLI tool users run in their own terminal (dev tools, git helpers, AI chat clients) | [`@gridland/bun`](https://bun.sh) + `bun build --compile` |
+| A TUI embedded inside a web app, docs site, or marketing page | [`@gridland/web`](/docs/api/gridland-web) + the `TUI` component |
+| Content that must be crawlable, agent-readable, or accessible to screen readers | [`@gridland/web`](/docs/api/gridland-web) with SSR see the [SSR for Agents guide](/docs/guides/ssr-for-agents) |
+| All three | Share your component tree, call `createCliRenderer` in the CLI entry, `<TUI>` in the web entry, and let SSR handle headless rendering automatically |
+
+All three runtimes accept the same component tree, so you can share code
+across a terminal build, a browser build, and an agent-readable build of the
+same app.

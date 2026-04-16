@@ -1,0 +1,221 @@
+---
+title: useInteractive
+description: Compose focus registration, selection-scoped keyboard routing, and shortcut hints in one hook
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+The primary hook for focus-aware components. `useInteractive` composes three
+things that would otherwise be three separate hook calls: focus registration
+with the `FocusProvider`, selection-scoped keyboard routing (handlers that
+fire only while the component is entered), and shortcut hint registration for
+`StatusBar` integration.
+
+For the full conceptual model `FocusProvider`, `FocusScope`, navigation, the
+4-state border affordance, and the styled variant see
+[Focus](/docs/interaction/focus). This page is the standalone API reference.
+
+```tsx title="Import"
+import { useInteractive } from "@gridland/utils"
+```
+
+## Usage
+
+```tsx title="Minimal"
+function Cell({ id, label }: { id: string; label: string }) {
+  const interactive = useInteractive({ id })
+
+  interactive.onKey((e) => {
+    if (e.name === "return") console.log("submitted", label)
+  })
+
+  return (
+    <box ref={interactive.focusRef} border>
+      <text>{label}</text>
+    </box>
+  )
+}
+```
+
+```tsx title="With shortcuts and themed border"
+import { useInteractive } from "@gridland/utils"
+import { useFocusBorderStyle } from "@/lib/theme"
+
+function Cell({ id, label }: { id: string; label: string }) {
+  const interactive = useInteractive({
+    id,
+    shortcuts: ({ isSelected }) =>
+      isSelected
+        ? [{ key: "enter", label: "submit" }, { key: "esc", label: "back" }]
+        : [{ key: "↑↓←→", label: "navigate" }, { key: "enter", label: "select" }],
+  })
+
+  const { borderColor, borderStyle } = useFocusBorderStyle({
+    isFocused: interactive.isFocused,
+    isSelected: interactive.isSelected,
+    isAnySelected: interactive.isAnySelected,
+  })
+
+  interactive.onKey((e) => {
+    if (e.name === "return") console.log("submitted", label)
+  })
+
+  return (
+    <box ref={interactive.focusRef} border borderStyle={borderStyle} borderColor={borderColor}>
+      <text>{label}</text>
+    </box>
+  )
+}
+```
+
+## Parameters
+
+`useInteractive` accepts a single options object. All fields are optional.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `id` | `string` | auto-generated via `useId()` | Stable focus id. Pass an explicit id when another component needs to share it (display wrappers) or when tests need to target it. |
+| `autoFocus` | `boolean` | `false` | Focus this component on mount. |
+| `disabled` | `boolean` | `false` | Remove this component from the tab cycle. Still renders, but cannot receive focus. |
+| `selectable` | `boolean` | `true` | Whether pressing Enter selects the component for interaction. Set to `false` for components that should focus but never enter a selected state. |
+| `tabIndex` | `number` | `0` | Tab order. `-1` removes from the tab cycle (equivalent to `disabled` for navigation purposes, but the component can still be focused imperatively). |
+| `scopeId` | `string \| null` | inherited from enclosing `FocusScope` | Override the enclosing scope. `undefined` uses the context scope. `null` opts out of any enclosing scope and routes to the root used for modals-within-modals, portals, and headless composition. |
+| `shortcuts` | `ShortcutEntry[] \| ((state) => ShortcutEntry[])` | `[]` | Shortcut hints surfaced via `useFocusedShortcuts` while this component is focused. The function form receives `{ isFocused, isSelected }` and is re-evaluated every render, so you can return different hints for focused vs. selected states. |
+
+## Returns
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `focusRef` | `(node: any) => void` | Ref callback. Attach to the component's root `<box>` so spatial navigation can measure positions. |
+| `focusId` | `string` | The stable focus id (provided or auto-generated). Use this when passing to other hooks like `useKeyboard` directly. |
+| `isFocused` | `boolean` | True when this component has keyboard focus. |
+| `isSelected` | `boolean` | True when this component is selected (entered for interaction via Enter). |
+| `isAnySelected` | `boolean` | True when any component in the focus tree is selected. **Scope-aware** stays true when the selection is saved behind a `FocusScope`, so sibling borders correctly hide. Used by `useFocusBorderStyle` to drive the sibling-selected state. |
+| `onKey` | `(handler: (event: KeyEvent) => void) => void` | Register (or replace) the keyboard handler that fires while this component is selected. See [onKey](#onkey) below. |
+| `focus` | `() => void` | Imperatively focus this component. |
+| `blur` | `() => void` | Imperatively blur this component. |
+| `select` | `() => void` | Imperatively select (enter) this component. |
+| `deselect` | `() => void` | Imperatively deselect the currently selected component. |
+
+## `onKey`
+
+`onKey` uses a **ref swap**. Call it every render with a fresh closure the
+underlying keyboard listener is registered once per mount and replaces the
+stored handler on each call. This means you can close over component state
+in the handler without worrying about stale closures or re-subscription.
+
+```tsx
+const interactive = useInteractive({ id: "panel" })
+const [count, setCount] = useState(0)
+
+// Fresh closure every render reads the latest `count` without re-subscribing.
+interactive.onKey((e) => {
+  if (e.name === "return") setCount(count + 1)
+})
+```
+
+The handler fires **only while the component is selected** (focused and
+entered via Enter). For global handlers or handlers that should fire while
+only focused not selected reach for [`useKeyboard`](/docs/hooks/use-keyboard)
+directly.
+
+## `shortcuts`: function form
+
+Pass a function when the shortcut hints should differ between focused and
+selected states. The function is re-evaluated every render, so it always
+reflects the latest state.
+
+```tsx
+useInteractive({
+  id,
+  shortcuts: ({ isFocused, isSelected }) =>
+    isSelected
+      ? [{ key: "enter", label: "submit" }, { key: "esc", label: "back" }]
+      : [{ key: "↑↓←→", label: "navigate" }, { key: "enter", label: "select" }],
+})
+```
+
+For static hints, pass an array:
+
+```tsx
+useInteractive({
+  id,
+  shortcuts: [{ key: "enter", label: "submit" }],
+})
+```
+
+Consume the active shortcuts from a `StatusBar` with
+[`useFocusedShortcuts`](/docs/hooks/use-shortcuts#usefocusedshortcuts).
+
+## Display wrappers share a `focusId`
+
+A component that only needs to observe focus state for example, a bordered
+wrapper around an already-interactive child should call
+`useInteractive({ id })` with **no** `shortcuts` option and **without**
+calling `onKey`. Share the same `id` with the inner interactive component.
+
+```tsx
+function BorderedWrapper({ id, children }: { id: string; children: ReactNode }) {
+  const { isFocused, isSelected, isAnySelected, focusRef } = useInteractive({ id })
+  const { borderColor, borderStyle } = useFocusBorderStyle({
+    isFocused,
+    isSelected,
+    isAnySelected,
+  })
+  return (
+    <box ref={focusRef} border borderStyle={borderStyle} borderColor={borderColor}>
+      {children /* inner component uses useInteractive({ id }) with the same id */}
+    </box>
+  )
+}
+```
+
+The outer call registers for state observation. The inner call owns the
+keyboard dispatch and shortcut registration. The internal `useShortcuts` call
+short-circuits on an empty array, so the wrapper does not stomp the inner
+component's registration.
+
+<Callout type="info">
+This pattern is load-bearing it's the only way to compose a focus-responsive
+border around a component that already manages its own keyboard routing
+(like `TextInput` wrapping a native `<input>`). See the
+[display wrapper rule](/docs/interaction/focus#display-wrappers-share-a-focusid)
+on the Focus page.
+</Callout>
+
+## Styled variant
+
+If your component renders a `<box border>` that should show the 4-state focus
+affordance automatically, `@gridland/ui` ships `useInteractiveStyled` as a
+one-hook ergonomic:
+
+```tsx
+import { useInteractiveStyled } from "@/hooks/use-interactive-styled"
+
+function FocusCard({ id, children }: { id: string; children: ReactNode }) {
+  const { focusRef, borderColor, borderStyle } = useInteractiveStyled({ id })
+  return (
+    <box ref={focusRef} border borderColor={borderColor} borderStyle={borderStyle}>
+      {children}
+    </box>
+  )
+}
+```
+
+It returns everything `useInteractive` does plus `borderColor` and
+`borderStyle` derived from `useFocusBorderStyle`. Because it depends on the
+theme it ships as a shadcn registry hook
+(`bunx shadcn@latest add @gridland/use-interactive-styled`) rather than
+through `@gridland/utils`.
+
+**When to use which:** reach for the pure `useInteractive` from
+`@gridland/utils` whenever your component doesn't render a focus-responsive
+border (e.g. `TextInput`, `PromptInput`, anything wrapping a native `<input>`).
+Reach for `useInteractiveStyled` when you render a `<box border>` that should
+show the four-state affordance automatically.
+
+## Related
+
+- [Focus](/docs/interaction/focus) full conceptual model: `FocusProvider`, `FocusScope`, navigation, and the 4-state border affordance
+- [useKeyboard](/docs/hooks/use-keyboard) raw keyboard primitive, used under the hood by `onKey`
+- [useShortcuts](/docs/hooks/use-shortcuts) the lower-level shortcut registration hook that `useInteractive({ shortcuts })` calls internally

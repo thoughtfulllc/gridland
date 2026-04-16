@@ -1,0 +1,191 @@
+---
+title: Cells and Layout
+description: Gridland measures everything in character cells, not pixels. Understanding the cell grid is the difference between fighting the layout system and using it.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout'
+
+The single biggest mental-model shift when coming to Gridland from the web is
+that **everything is measured in character cells**, not pixels. If you
+remember one thing from this page, remember that.
+
+In a normal React app, `<div style={{ width: 300 }}>` means 300 pixels wide.
+In Gridland, `<box width={300}>` means 300 character columns wide which, on
+a typical 80-column terminal, is almost four screen-widths and your content
+will overflow.
+
+This page explains what a cell is, why the framework works this way, and how
+to size and lay out components without fighting the grid.
+
+## What is a cell?
+
+A cell is one character position in the terminal font. It has a width and a
+height, both determined by the monospace font you render with. Every
+character of text occupies exactly one cell. Every `<box>` occupies a
+rectangular region of cells. Every border, every padding unit, every flex
+gap is expressed as an integer number of cells. There are no half-cells,
+no subpixel positioning, no DPI scaling math. The grid is discrete.
+
+<Callout type="info">
+A cell is to Gridland what a pixel is to the DOM the smallest unit you can
+position, size, or paint. The difference is that cells are much larger (a
+whole character) and align to a fixed grid.
+</Callout>
+
+Gridland defaults to JetBrains Mono at 14px in the browser runtime, but you
+can override both via the `fontFamily` and `fontSize` props on the
+[`TUI` component](/docs/core-concepts/rendering#tui-props). In a real
+terminal, the terminal emulator decides the font.
+
+## Why cells and not pixels?
+
+Three reasons:
+
+1. **It matches the terminal.** A terminal has no concept of pixels. When
+   you ship the same component tree to an actual terminal via
+   [`@gridland/bun`](/docs/api/gridland-bun), everything must be in cells
+   because that's the only unit the terminal understands. Using cells in the
+   browser runtime too keeps the code identical across both targets.
+
+2. **Integer-aligned layout is simpler.** No half-pixel rounding bugs, no
+   subpixel antialiasing artifacts, no "why is this one pixel off" debugging
+   sessions. A box either starts at column 5 or column 6 never column 5.5.
+
+3. **It matches the aesthetic.** Gridland is for terminal-style UIs. Those
+   UIs were designed for character grids. Writing them against a character
+   grid keeps the design language honest.
+
+## Sizing a `<box>`
+
+The `width` and `height` props on `<box>` accept two kinds of values:
+
+- **Numbers** integer cell counts. `width={40}` is 40 columns wide.
+- **Percentage strings** fractions of the parent. `width="50%"` is half of whatever the parent is.
+
+```tsx title="Fixed width, half height"
+<box width={40} height="50%" border>
+  <text>40 columns wide, half the parent's height</text>
+</box>
+```
+
+Use percentages for anything that should adapt to the viewport the root of
+your app, full-width rows, flexible columns. Use fixed cell counts for things
+that should be a specific character-column size fixed-width sidebars,
+columns in a table, status bars with an exact row count.
+
+## Padding, margin, and gap
+
+All three are integer cell counts. There are no `em`, `rem`, or `px` units
+just numbers.
+
+```tsx title="A padded, gapped column layout"
+<box flexDirection="column" padding={2} gap={1} border>
+  <text>First row</text>
+  <text>Second row 1 cell gap above</text>
+  <text>Third row 1 cell gap above</text>
+</box>
+```
+
+`padding={2}` adds 2 cells of space on every side inside the border.
+`gap={1}` adds 1 cell of space between each child. `margin` works the same
+way but on the outside of the box.
+
+<Callout type="info">
+Borders count as part of the box. A `<box border width={10}>` has 10 cells of
+total width, including 1 cell of border on each side leaving 8 cells of
+content area. This is analogous to CSS `box-sizing: border-box`.
+</Callout>
+
+## Flexbox, in cell units
+
+Layout in Gridland uses [Yoga](https://www.yogalayout.dev/), Facebook's C++
+Flexbox engine the same one React Native uses. The API is the standard
+Flexbox model you already know: `flexDirection`, `flexGrow`, `flexShrink`,
+`justifyContent`, `alignItems`. The only difference from CSS Flexbox is that
+every measurement is in cells.
+
+```tsx title="A split-pane layout, 30/70"
+<box flexDirection="row" width="100%" height="100%">
+  <box flexGrow={3} border padding={1}>
+    <text>Left pane 30% of the width</text>
+  </box>
+  <box flexGrow={7} border padding={1}>
+    <text>Right pane 70% of the width</text>
+  </box>
+</box>
+```
+
+Flex ratios, justification, and alignment all behave the way you'd expect. If
+you know Flexbox for the web, you know layout in Gridland.
+
+## "Why doesn't `width: 300` work?"
+
+It does but it probably doesn't mean what you think. Coming from the web,
+`width: 300` reflexively reads as "300 pixels." In Gridland, `width={300}`
+means **300 character columns**. On a typical 80-column terminal, that's
+nearly four screen-widths, so your content will be clipped or will cause the
+parent to overflow.
+
+**Rule of thumb:** if you want a box that fills the screen, use a percentage
+(`width="100%"`). If you want a specific character count (a fixed-width
+sidebar, exactly 30 columns), use a small integer. If you find yourself
+reaching for three-digit cell counts, you almost certainly want a percentage
+or a `flexGrow` instead.
+
+<Callout type="warn">
+There is no `px` unit. Numbers are always cells. If you're porting a
+component from a web layout, halve and halve again most pixel values
+become single-digit cell counts.
+</Callout>
+
+## Common patterns
+
+### Centered box
+
+```tsx title="Centered 40 × 10 box inside a fullscreen parent"
+<box
+  width="100%"
+  height="100%"
+  justifyContent="center"
+  alignItems="center"
+>
+  <box width={40} height={10} border padding={1}>
+    <text>Centered, 40 × 10 cells</text>
+  </box>
+</box>
+```
+
+### Sidebar + flexible main area
+
+```tsx title="Fixed 30-column sidebar, main area fills the rest"
+<box flexDirection="row" width="100%" height="100%">
+  <box width={30} border padding={1}>
+    <text>Sidebar exactly 30 columns</text>
+  </box>
+  <box flexGrow={1} border padding={1}>
+    <text>Main area fills the rest</text>
+  </box>
+</box>
+```
+
+### Header, body, footer
+
+```tsx title="Fullscreen app shell"
+<box flexDirection="column" width="100%" height="100%">
+  <box height={3} border padding={1}>
+    <text bold>Header (3 rows)</text>
+  </box>
+  <box flexGrow={1} border padding={1}>
+    <text>Body fills the remaining height</text>
+  </box>
+  <box height={1}>
+    <text dim>Footer (1 row)</text>
+  </box>
+</box>
+```
+
+## Next steps
+
+- [Intrinsic Elements](/docs/core-concepts/intrinsic-elements) the full list of built-in tags (`<box>`, `<text>`, `<input>`, etc.) with prop tables
+- [Rendering](/docs/core-concepts/rendering) how the cell grid becomes canvas pixels or terminal stdout
+- [Theming → Breakpoints](/docs/theming/breakpoints) adapt layouts to the viewport's cell dimensions

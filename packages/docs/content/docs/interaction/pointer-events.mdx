@@ -43,7 +43,7 @@ that sets them in a browser app compiles but never fires.
 
 ## Event Payload
 
-The event object is identical across handlers — `type` discriminates which kind it is.
+The event object is identical across handlers `type` discriminates which kind it is.
 
 ```ts
 interface PointerEvent {
@@ -55,7 +55,7 @@ interface PointerEvent {
   modifiers: { shift: boolean; alt: boolean; ctrl: boolean }
   // Only populated when type === "scroll":
   scroll?: { direction: "up" | "down" | "left" | "right"; delta: number }
-  // Propagation state — getters, mutate only via the methods below:
+  // Propagation state getters, mutate only via the methods below:
   readonly propagationStopped: boolean
   readonly defaultPrevented: boolean
   stopPropagation(): void
@@ -64,9 +64,9 @@ interface PointerEvent {
 ```
 
 <Callout type="warn">
-  **React devs — read this.** Several fields that you reach for by reflex do **not** exist:
+  **React devs read this.** Several fields that you reach for by reflex do **not** exist:
   no `timestamp`, `nativeEvent`, `clientX`, `clientY`, `pageX`, or `pageY`. `x` / `y` are cell
-  coordinates (columns and rows), not pixels — `pixelToCell` has already translated them.
+  coordinates (columns and rows), not pixels `pixelToCell` has already translated them.
   `modifiers.alt` is the OS Alt/Option key (separate from `modifiers.ctrl`). `propagationStopped`
   and `defaultPrevented` are read-only getters; assigning them directly silently fails.
 </Callout>
@@ -93,12 +93,12 @@ positive integer `delta` (`Math.max(1, Math.abs(Math.round(raw / 40)))`). The DO
 
 `onClick` is synthesized when a left-button `mousedown` and the matching `mouseup` land on the
 same renderable. The synthesizer reuses the `mousedown` event object, so the handler receives
-`event.type === "down"` — **not** `"click"`. Narrowing on `event.type === "click"` inside an
+`event.type === "down"` **not** `"click"`. Narrowing on `event.type === "click"` inside an
 `onClick` handler will never match.
 
 ```tsx
 <box onClick={(e) => {
-  // e.type is "down", not "click" — this is expected.
+  // e.type is "down", not "click" this is expected.
   console.log("clicked at cell", e.x, e.y)
 }}>
   <text>Click me</text>
@@ -138,7 +138,7 @@ last-drawn (topmost) renderable at a given cell wins.
   regions.
 - Siblings are resolved by draw order. `zIndex` changes draw order, so raising a sibling's
   `zIndex` makes it win against overlapping peers.
-- Cells outside any registered rect return `null` — the event is swallowed without dispatch.
+- Cells outside any registered rect return `null` the event is swallowed without dispatch.
 - Scissor rects (from `overflow="hidden"`) clip the hit grid entries at insertion time, so a
   child that overflows its parent's `overflow="hidden"` bounds is **not** hittable in the clipped
   region.
@@ -163,17 +163,17 @@ continues until either the root renderable is reached or `event.stopPropagation(
 framework-internal hooks that consult it (for example, `packages/core/src/renderer.ts:1187`
 suppresses auto-focus on a left-button `down` event when `defaultPrevented` is true).
 
-`onClick` is synthesized separately and does **not** bubble — the click synthesizer calls
+`onClick` is synthesized separately and does **not** bubble the click synthesizer calls
 `_clickHandler` directly on the hit renderable only, without walking the parent chain.
 
 ## Cursor Style
 
 The renderer automatically sets the canvas cursor to `"pointer"` when the pointer is over any
-renderable whose ancestor chain contains an `onClick` or `onMouseDown` handler — no extra markup
+renderable whose ancestor chain contains an `onClick` or `onMouseDown` handler no extra markup
 needed. Link regions (rendered via `<a href>`) also trigger the pointer cursor.
 
 ## Related
 
-- [Focus](/docs/interaction/focus) — how keyboard focus interacts with pointer events.
-- [TUI Primitives](/docs/components/primitives) — the intrinsic elements that accept these
+- [Focus](/docs/interaction/focus) how keyboard focus interacts with pointer events.
+- [TUI Primitives](/docs/core-concepts/intrinsic-elements) the intrinsic elements that accept these
   handler props.
