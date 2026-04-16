@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "bun run scripts/check-intrinsic-tags.ts && bun run scripts/lint-renderable-constructors.ts",
+    "lint:renderables": "bun run scripts/lint-renderable-constructors.ts",
     "test": "bun test --preload ../web/test/preload.ts"
   },
   "dependencies": {
@@ -11,6 +13,9 @@
     "marked": "^15.0.0",
     "diff": "^7.0.0",
     "bun-ffi-structs": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
   },
   "peerDependencies": {
     "react": ">=19.0.0"

@@ -29,17 +29,20 @@ const nested = (
   </box>
 )
 
-// Input element with strong types
-const input = <input value="hello" placeholder="type..." onInput={(v: string) => console.log(v)} />
-
-// Other custom elements exist
+// Universal intrinsics (see tasks/003 §4.4)
 const scrollbox = <scrollbox />
 const code = <code />
 const md = <markdown />
 const diff = <diff />
-const asciiFont = <ascii-font />
 const tabSelect = <tab-select />
-const lineNumber = <line-number />
+
+// Dual-impl intrinsics — Phase 3 of tasks/003 added a browser implementation
+// (packages/web/src/components/browser-ascii-font.ts) registered via
+// register.ts, so ascii-font is back in the browser JSX namespace.
+const asciiFont = <ascii-font text="hello" font="tiny" />
 
 // Standard HTML elements still work (widened by the augmentation)
 const div = <div className="test" />
+
+// Note: <input>, <textarea>, and <line-number> remain terminal-only — see
+// invalid-jsx.tsx for the coverage notes and the line-number @ts-expect-error.

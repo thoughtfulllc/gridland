@@ -1,0 +1,730 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`Bun demo regression baselines gradient first-frame snapshot 1`] = `
+"                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+          ██████╗ ██████╗ ██╗██████╗ ██╗      █████╗ ███╗   ██╗██████╗          
+         ██╔════╝ ██╔══██╗██║██╔══██╗██║     ██╔══██╗████╗  ██║██╔══██╗         
+         ██║  ███╗██████╔╝██║██║  ██║██║     ███████║██╔██╗ ██║██║  ██║         
+         ██║   ██║██╔══██╗██║██║  ██║██║     ██╔══██║██║╚██╗██║██║  ██║         
+         ╚██████╔╝██║  ██║██║██████╔╝███████╗██║  ██║██║ ╚████║██████╔╝         
+          ╚═════╝ ╚═╝  ╚═╝╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝          
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ instagram    │   ←→  gradient                                                  
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines ascii first-frame snapshot 1`] = `
+"                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                          d8b      888 888                        888           
+                          Y8P      888 888                        888           
+                                   888 888                        888           
+          .d88b.  888d888 888  .d88888 888  8888b.  88888b.   .d88888           
+         d88P"88b 888P"   888 d88" 888 888     "88b 888 "88b d88" 888           
+         888  888 888     888 888  888 888 .d888888 888  888 888  888           
+         Y88b 888 888     888 Y88b 888 888 888  888 888  888 Y88b 888           
+          "Y88888 888     888  "Y88888 888 "Y888888 888  888  "Y88888           
+              888                                                               
+         Y8b d88P                                                               
+          "Y88P"                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Colossal     │   ←→  change font                                               
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines table first-frame snapshot 1`] = `
+"                                                                                
+ Recent invoices                                                                
+  Invoice   Status    Qty      Amount                                           
+ ─────────────────────────────────────                                          
+  INV001    Paid      2       $500.00                                           
+ ─────────────────────────────────────                                          
+  INV002    Pending   1       $150.00                                           
+ ─────────────────────────────────────                                          
+  INV003    Overdue   3       $750.00                                           
+ ─────────────────────────────────────                                          
+  Total                     $1,400.00                                           
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines spinner first-frame snapshot 1`] = `
+"                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                       ⠋                                        
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ dots      │   ←→  change spinner type                                          
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines select-input first-frame snapshot 1`] = `
+"                                                                                
+ ◆ Choose a language                                                            
+ │ ▸ ○ TypeScript                                                               
+ │   ○ JavaScript                                                               
+ │   ○ Python                                                                   
+ │   ○ Rust                                                                     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  ↑↓  navigate  enter  select                                                   
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines multi-select first-frame snapshot 1`] = `
+"                                                                                
+ ◆ Select languages                                                             
+ │ ▸ ○ TypeScript                                                               
+ │   ○ JavaScript                                                               
+ │   ○ Python                                                                   
+ │   ○ Rust                                                                     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  ↑↓  navigate  enter  select                                                   
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines prompt-input first-frame snapshot 1`] = `
+"                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+────────────────────────────────────────────────────────────────────────────────
+  ❯ Message Claude...                                                           
+────────────────────────────────────────────────────────────────────────────────
+ model: opus                                                                    
+                                                                                
+   ⏎ enter  send  /model  change model  ↑  history                              
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines text-input first-frame snapshot 1`] = `
+"                                                                                
+ ▸ Username *                                                                   
+   > enter your name                                                            
+                                                                                
+   Email * | We'll never share your email                                       
+   > user@example.com                                                           
+                                                                                
+   Password                                                                     
+   > enter password                                                             
+                                                                                
+   API Key                                                                      
+   > sk-...                                                                     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  enter  edit                                                                   
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines link first-frame snapshot 1`] = `
+"                                                                                
+ Made with ❤️ by Chris Roth + Jessica Cheng                                     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ solid   │   ←→  underline style                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines tabs first-frame snapshot 1`] = `
+"                                                                                
+  Files │ Search │ Git │ Debug                                                  
+ ───────────────────────────────────────────────────────────────────────────────
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  ←→  switch tab                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines status-bar first-frame snapshot 1`] = `
+"                                                                                
+ Press a key to trigger an action                                               
+                                                                                
+ ● Ready  │   Tab  switch focus  ←→  cycle  b  back  z  reset                   
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines modal first-frame snapshot 1`] = `
+"                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                            Press  m  to open modal                             
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines primitives first-frame snapshot 1`] = `
+"                                                                                
+ ╭───────────────────────────────────Layout───────────────────────────────────╮ 
+ │                                                                            │ 
+ │ ┌─────────────────────┐  ┌──────────────────────┐  ┌─────────────────────┐ │ 
+ │ │                     │  │                      │  │                     │ │ 
+ │ │ Box 1               │  │ Box 2                │  │ Box 3               │ │ 
+ │ │                     │  │                      │  │                     │ │ 
+ │ └─────────────────────┘  └──────────────────────┘  └─────────────────────┘ │ 
+ │                                                                            │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+   Nested boxes with borders, colors & flexbox layout                           
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines chain-of-thought first-frame snapshot 1`] = `
+"                                                                                
+ ▼ Thought for 0.0s                                                             
+  ⠋ Reading codebase — src/                                                     
+  │                                                                             
+  ○ Planning changes — auth module                                              
+  │                                                                             
+  ○ Editing files — 4 files                                                     
+  │                                                                             
+  ○ Running tests — vitest                                                      
+  │                                                                             
+  ○ Fixing test — routes.test.ts                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  ctrl+shift+e  toggle  r  restart                                              
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines message first-frame snapshot 1`] = `
+"                                                                                
+                                                                                
+                                            Can you refactor the auth module?   
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  r  restart                                                                    
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines terminal-window first-frame snapshot 1`] = `
+"                                                                                
+ $ echo "Hello from TerminalWindow"                                             
+ Hello from TerminalWindow                                                      
+ $ _                                                                            
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines focus-grid first-frame snapshot 1`] = `
+"                                                                                
+               ╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮ ╭──────────────╮ ╭──────────────╮               
+               ┆              ┆ │              │ │              │               
+               ┆ not selected ┆ │ not selected │ │ not selected │               
+               ┆              ┆ │              │ │              │               
+               ╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄╯ ╰──────────────╯ ╰──────────────╯               
+                                                                                
+               ╭──────────────╮ ╭──────────────╮ ╭──────────────╮               
+               │              │ │              │ │              │               
+               │ not selected │ │ not selected │ │ not selected │               
+               │              │ │              │ │              │               
+               ╰──────────────╯ ╰──────────────╯ ╰──────────────╯               
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  ↑↓←→  navigate  enter  select  tab  cycle                                     
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines focus-chat first-frame snapshot 1`] = `
+"                                                                                
+                                                                                
+                                         How do I set up keyboard navigation?   
+                                                                                
+                                                                                
+ ╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮ 
+ ┆▶ Thought for 1.2s                                                          ┆ 
+ ╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╯ 
+                                                                                
+   Use the useKeyboard hook to listen for key events. Wrap your                 
+   app in a FocusProvider to enable tab navigation between                      
+   focusable components.                                                        
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+────────────────────────────────────────────────────────────────────────────────
+ ❯ Type a message...                                                            
+────────────────────────────────────────────────────────────────────────────────
+  ↑↓  navigate  tab  cycle  enter  select                                       
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines focus first-frame snapshot 1`] = `
+"                                                                                
+ ╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╮ ╭──────────────────────╮ ╭──────────────────────╮ 
+ ┆ ◆ Language               ┆ │ ◆ Framework          │ │ ◆ Runtime            │ 
+ ┆ │ ▸ ○ TypeScript         ┆ │ │ ▸ ○ React          │ │ │ ▸ ○ Bun            │ 
+ ┆ │   ○ JavaScript         ┆ │ │   ○ Vue            │ │ │   ○ Node           │ 
+ ┆ │   ○ Python             ┆ │ │   ○ Svelte         │ │ │   ○ Deno           │ 
+ ┆ │   ○ Rust               ┆ │ │   ○ Solid          │ │ │   ↳ Submit         │ 
+ ┆ │   ↳ Submit             ┆ │ │   ↳ Submit         │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ┆                          ┆ │                      │ │                      │ 
+ ╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄╯ ╰──────────────────────╯ ╰──────────────────────╯ 
+                                                                                
+  ←→  navigate  tab  cycle  enter  select                                       
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines pointer first-frame snapshot 1`] = `
+"                                                                                
+ ╭────────╮ ╭───────────╮ ╭────────────╮ ╭──────────╮ ╭─────────╮ ╭───────────╮ 
+ │ Red    │ │ Orange    │ │ Yellow     │ │ Green    │ │ Blue    │ │ Purple    │ 
+ ╰────────╯ ╰───────────╯ ╰────────────╯ ╰──────────╯ ╰─────────╯ ╰───────────╯ 
+                                                                                
+ ╭──────────────────╮                                                           
+ │                  │  Click a color                                            
+ │ Hover me         │                                                           
+ │                  │                                                           
+ ╰──────────────────╯                                                           
+   click  select  ←→  keyboard nav                                              
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines cursor-highlight first-frame snapshot 1`] = `
+"                                                                                
+ Cursor Highlight                                                               
+ Move your mouse over the grid                                                  
+                                                                                
+ ░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░ 
+ ▓▓                                                                             
+ ▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓ 
+ ░░                                                                             
+ ░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░ 
+ ▓▓                                                                             
+ ▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓ 
+ ░░                                                                             
+ ░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░ 
+ ▓▓                                                                             
+ ▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓░░▓▓ 
+ ░░                                                                             
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  x    -  y    -                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines text-style first-frame snapshot 1`] = `
+"                                                                                
+ bold          textStyle({ bold: true })                                        
+ dim           textStyle({ dim: true })                                         
+ italic        textStyle({ italic: true })                                      
+ underline     textStyle({ underline: true })                                   
+ inverse       textStyle({ inverse: true })                                     
+                                                                                
+ fg color      textStyle({ fg: theme.primary })                                 
+ bg color      textStyle({ fg: theme.foreground, bg: theme.secondary })         
+                                                                                
+ combined      textStyle({ fg: theme.accent, bold: true, underline: true })     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines headless first-frame snapshot 1`] = `
+"                                                                                
+  name      role       status                                                   
+ ─────────────────────────────                                                  
+  Alice     Engineer   Active                                                   
+ ─────────────────────────────                                                  
+  Bob       Designer   Active                                                   
+ ─────────────────────────────                                                  
+  Charlie   PM         Away                                                     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines theming first-frame snapshot 1`] = `
+"                                                                                
+ ⠋ Loading data...                                                              
+                                                                                
+  name    role       status                                                     
+ ───────────────────────────                                                    
+  Alice   Engineer   Active                                                     
+ ───────────────────────────                                                    
+  Bob     Designer   Away                                                       
+                                                                                
+ ◆ Select                                                                       
+ │ ▸ ○ TypeScript                                                               
+ │   ○ JavaScript                                                               
+ │   ○ Python                                                                   
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                "
+`;
+
+exports[`Bun demo regression baselines ripple first-frame snapshot 1`] = `
+" Click or press Enter to create ripples                                         
+ ········································                                       
+ ········································                                       
+ ········································                                       
+ ········································                                       
+ ········································                                       
+ ····················◆···················                                       
+ ········································                                       
+ ········································                                       
+ ········································                                       
+ ········································                                       
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+  ↑↓←→  move  enter/click  ripple                                               "
+`;
+
+exports[`Bun demo regression baselines puzzle first-frame snapshot 1`] = `
+" Slide tiles to solve the puzzle                                                
+ ╭──────╮╭──────╮╭──────╮╭──────╮                                               
+ │ 1    ││ 2    ││ 3    ││ 4    │                                               
+ ╰──────╯╰──────╯╰──────╯╰──────╯                                               
+ ╭──────╮╭──────╮╭──────╮╭──────╮                                               
+ │ 5    ││ 6    ││ 7    ││ 8    │                                               
+ ╰──────╯╰──────╯╰──────╯╰──────╯                                               
+ ╭──────╮╭──────╮╭──────╮                                                       
+ │ 9    ││10    ││11    │                                                       
+ ╰──────╯╰──────╯╰──────╯                                                       
+                                                                                
+ Moves: 0                                                                       
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+   ↑↓←→  slide  click  slide tile  r  shuffle                                   "
+`;
+
+exports[`Bun demo regression baselines side-nav first-frame snapshot 1`] = `
+"                   │                                                            
+  Mail             │ Inbox                                                      
+                   │                                                            
+ ▸ Inbox (3)       │ 3 items                                                    
+   Drafts (1)      │                                                            
+   Sent (2)        │ Re: deployment plan                                        
+   Trash           │ Weekly sync notes                                          
+                   │ Bug report #482                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │                                                            
+                   │  ↑↓  navigate  enter  select                               
+                   │                                                            "
+`;

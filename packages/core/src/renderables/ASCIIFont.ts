@@ -12,6 +12,7 @@ import {
   Selection,
   type LocalSelectionBounds,
 } from "../lib/selection"
+import type { OptimizedBuffer } from "../buffer"
 import type { RenderableOptions } from "../Renderable"
 import type { RenderContext } from "../types"
 import { FrameBufferRenderable, type FrameBufferOptions } from "./FrameBuffer"
@@ -48,6 +49,7 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
   protected lastLocalSelection: LocalSelectionBounds | null = null
 
   private selectionHelper: ASCIIFontSelectionHelper
+  private _bufferDirty: boolean = true
 
   constructor(ctx: RenderContext, options: ASCIIFontOptions) {
     const defaultOptions = ASCIIFontRenderable._defaultOptions
@@ -75,8 +77,6 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
       () => this._text,
       () => this._font,
     )
-
-    this.renderFontToBuffer()
   }
 
   get text(): string {
@@ -91,7 +91,7 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
       this.selectionHelper.onLocalSelectionChanged(this.lastLocalSelection, this.width, this.height)
     }
 
-    this.renderFontToBuffer()
+    this._bufferDirty = true
     this.requestRender()
   }
 
@@ -107,7 +107,7 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
       this.selectionHelper.onLocalSelectionChanged(this.lastLocalSelection, this.width, this.height)
     }
 
-    this.renderFontToBuffer()
+    this._bufferDirty = true
     this.requestRender()
   }
 
@@ -117,7 +117,7 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
 
   set color(value: ColorInput | ColorInput[]) {
     this._color = value
-    this.renderFontToBuffer()
+    this._bufferDirty = true
     this.requestRender()
   }
 
@@ -127,7 +127,7 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
 
   set backgroundColor(value: ColorInput) {
     this._backgroundColor = value
-    this.renderFontToBuffer()
+    this._bufferDirty = true
     this.requestRender()
   }
 
@@ -148,7 +148,7 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
     this.lastLocalSelection = localSelection
     const changed = this.selectionHelper.onLocalSelectionChanged(localSelection, this.width, this.height)
     if (changed) {
-      this.renderFontToBuffer()
+      this._bufferDirty = true
       this.requestRender()
     }
     return changed
@@ -166,14 +166,27 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
 
   protected onResize(width: number, height: number): void {
     super.onResize(width, height)
-    this.renderFontToBuffer()
+    this._bufferDirty = true
   }
 
-  private renderFontToBuffer(): void {
-    if (this.isDestroyed) return
-    this.frameBuffer.clear(parseColor(this._backgroundColor))
+  protected renderSelf(buffer: OptimizedBuffer, deltaTime: number): void {
+    if (!this.visible || this.isDestroyed) return
+    const fb = this.ensureBuffer()
+    if (!fb) return
 
-    renderFontToFrameBuffer(this.frameBuffer, {
+    if (this._bufferDirty) {
+      this.populateBuffer(fb)
+      this._bufferDirty = false
+    }
+
+    buffer.drawFrameBuffer(this.x, this.y, fb)
+  }
+
+  private populateBuffer(fb: OptimizedBuffer): void {
+    if (this.isDestroyed) return
+    fb.clear(parseColor(this._backgroundColor))
+
+    renderFontToFrameBuffer(fb, {
       text: this._text,
       x: 0,
       y: 0,
@@ -184,11 +197,11 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
 
     const selection = this.selectionHelper.getSelection()
     if (selection && (this._selectionBg || this._selectionFg)) {
-      this.renderSelectionHighlight(selection)
+      this.renderSelectionHighlight(fb, selection)
     }
   }
 
-  private renderSelectionHighlight(selection: { start: number; end: number }): void {
+  private renderSelectionHighlight(fb: OptimizedBuffer, selection: { start: number; end: number }): void {
     if (!this._selectionBg && !this._selectionFg) return
 
     const selectedText = this._text.slice(selection.start, selection.end)
@@ -202,11 +215,11 @@ export class ASCIIFontRenderable extends FrameBufferRenderable {
         : measureText({ text: this._text, font: this._font }).width
 
     if (this._selectionBg) {
-      this.frameBuffer.fillRect(startX, 0, endX - startX, this.height, parseColor(this._selectionBg))
+      fb.fillRect(startX, 0, endX - startX, this.height, parseColor(this._selectionBg))
     }
 
     if (this._selectionFg || this._selectionBg) {
-      renderFontToFrameBuffer(this.frameBuffer, {
+      renderFontToFrameBuffer(fb, {
         text: selectedText,
         x: startX,
         y: 0,

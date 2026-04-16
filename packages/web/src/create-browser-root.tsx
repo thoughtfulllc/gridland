@@ -1,3 +1,9 @@
+// Side-effect import: registers browser overrides in core's component catalogue
+// before any _createContainer call. Must stay as the very first import — see
+// tasks/003-browser-compat-contract.md §4.3 for load-order requirement, and
+// the "sideEffects" entry in packages/web/package.json for tree-shake safety.
+import "./components/register"
+
 import React, { type ReactNode } from "react"
 import type { BrowserRenderer } from "./browser-renderer"
 import { BrowserContext } from "./browser-context"

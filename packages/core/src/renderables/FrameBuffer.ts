@@ -9,16 +9,28 @@ export interface FrameBufferOptions extends RenderableOptions<FrameBufferRendera
 }
 
 export class FrameBufferRenderable extends Renderable {
-  public frameBuffer: OptimizedBuffer
+  public frameBuffer: OptimizedBuffer | null = null
   protected respectAlpha: boolean
+  private _frameBufferIdBase: string
 
   constructor(ctx: RenderContext, options: FrameBufferOptions) {
     super(ctx, options)
     this.respectAlpha = options.respectAlpha || false
-    this.frameBuffer = OptimizedBuffer.create(options.width, options.height, this._ctx.widthMethod, {
+    this._frameBufferIdBase = options.id || `framebufferrenderable-${this.id}`
+  }
+
+  protected ensureBuffer(): OptimizedBuffer | null {
+    if (this.frameBuffer) return this.frameBuffer
+
+    const w = this.width
+    const h = this.height
+    if (w <= 0 || h <= 0) return null
+
+    this.frameBuffer = OptimizedBuffer.create(w, h, this._ctx.widthMethod, {
       respectAlpha: this.respectAlpha,
-      id: options.id || `framebufferrenderable-${this.id}`,
+      id: this._frameBufferIdBase,
     })
+    return this.frameBuffer
   }
 
   protected onResize(width: number, height: number): void {
@@ -26,22 +38,25 @@ export class FrameBufferRenderable extends Renderable {
       throw new Error(`Invalid resize dimensions for FrameBufferRenderable ${this.id}: ${width}x${height}`)
     }
 
-    this.frameBuffer.resize(width, height)
+    if (this.frameBuffer) {
+      this.frameBuffer.destroy()
+      this.frameBuffer = null
+    }
+
     super.onResize(width, height)
     this.requestRender()
   }
 
-  protected renderSelf(buffer: OptimizedBuffer): void {
+  protected renderSelf(buffer: OptimizedBuffer, deltaTime: number): void {
     if (!this.visible || this.isDestroyed) return
-    buffer.drawFrameBuffer(this.x, this.y, this.frameBuffer)
+    const fb = this.ensureBuffer()
+    if (!fb) return
+    buffer.drawFrameBuffer(this.x, this.y, fb)
   }
 
   protected destroySelf(): void {
-    // TODO: framebuffer collides with buffered Renderable, which holds a framebuffer
-    // and destroys it if it exists already. Maybe instead of extending FrameBufferRenderable,
-    // subclasses can use the buffered option on the base renderable instead,
-    // then this would become something that takes in an external framebuffer to bring it into layout.
     this.frameBuffer?.destroy()
+    this.frameBuffer = null
     super.destroySelf()
   }
 }

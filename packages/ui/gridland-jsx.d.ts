@@ -106,18 +106,20 @@ declare module "react" {
     [key: string]: any
   }
   namespace JSX {
+    // Phase 2 of tasks/003-browser-compat-contract.md: "ascii-font", "input",
+    // "textarea", and "line-number" are tagged terminal-only and deliberately
+    // omitted from the browser JSX namespace so misuse becomes a compile
+    // error instead of a runtime crash. Phase 3 re-adds "ascii-font" when
+    // BrowserAsciiFontRenderable lands (capability tag flips to "dual-impl").
     interface IntrinsicElements {
       // Custom elements not in React's definitions — strong types for Gridland-only elements
       box: GridlandBoxProps
       scrollbox: Record<string, any>
-      "ascii-font": Record<string, any>
       "tab-select": Record<string, any>
-      "line-number": Record<string, any>
+      "ascii-font": Record<string, any>
       code: Record<string, any>
       diff: Record<string, any>
       markdown: Record<string, any>
-      textarea: Record<string, any>
-      input: GridlandInputProps
     }
   }
 }
@@ -129,14 +131,11 @@ declare module "react/jsx-runtime" {
     interface IntrinsicElements {
       box: GridlandBoxProps
       scrollbox: Record<string, any>
-      "ascii-font": Record<string, any>
       "tab-select": Record<string, any>
-      "line-number": Record<string, any>
+      "ascii-font": Record<string, any>
       code: Record<string, any>
       diff: Record<string, any>
       markdown: Record<string, any>
-      textarea: Record<string, any>
-      input: GridlandInputProps
     }
   }
 }
@@ -146,14 +145,11 @@ declare module "react/jsx-dev-runtime" {
     interface IntrinsicElements {
       box: GridlandBoxProps
       scrollbox: Record<string, any>
-      "ascii-font": Record<string, any>
       "tab-select": Record<string, any>
-      "line-number": Record<string, any>
+      "ascii-font": Record<string, any>
       code: Record<string, any>
       diff: Record<string, any>
       markdown: Record<string, any>
-      textarea: Record<string, any>
-      input: GridlandInputProps
     }
   }
 }
