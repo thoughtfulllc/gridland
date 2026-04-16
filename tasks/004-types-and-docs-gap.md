@@ -258,7 +258,7 @@ Record the choice in the PR description. The rest of this ticket assumes Path A 
    ```bash
    bun run --cwd packages/create-gridland build
    cd /tmp && rm -rf scratch-test
-   bun /Users/jessicacheng/thoughtful/gridland/packages/create-gridland/dist/index.js scratch-test --template vite
+   bun $PWD/packages/create-gridland/dist/index.js scratch-test --template vite
    cd scratch-test && bun install && bunx tsc --noEmit
    ```
    Confirm the `bin` entry and main dist path by reading `packages/create-gridland/package.json` first — the dist file may be named differently after a refactor.
@@ -286,9 +286,10 @@ Record the choice in the PR description. The rest of this ticket assumes Path A 
 ### Verification
 
 ```bash
+# Run from repo root: export GRIDLAND_ROOT=$PWD
 # Full scaffold + typecheck
 rm -rf /tmp/scratch-test
-cd /tmp && bun /Users/jessicacheng/thoughtful/gridland/packages/create-gridland/dist/index.js scratch-test --template vite
+cd /tmp && bun $GRIDLAND_ROOT/packages/create-gridland/dist/index.js scratch-test --template vite
 cd scratch-test && bun install && bunx tsc --noEmit
 echo "exit code: $?"  # must be 0
 
@@ -598,7 +599,7 @@ Before merging Ticket 2, run the evaluator's acceptance test:
 ```bash
 cd /tmp && rm -rf my-test
 # (adjust invocation to match what create-gridland's bin expects after build)
-bun /Users/jessicacheng/thoughtful/gridland/packages/create-gridland/dist/index.js my-test --template vite
+bun $GRIDLAND_ROOT/packages/create-gridland/dist/index.js my-test --template vite
 cd my-test && bun install
 
 # Manually extend App.tsx to exercise the full surface:
@@ -638,7 +639,7 @@ Questions 1–3 are **pre-PR blockers** — they must be answered in the PR desc
 
 ## References
 
-- Plan file: `/Users/jessicacheng/.claude/plans/expressive-cooking-panda.md` (CTO assessment and rationale)
+- Plan file: `~/.claude/plans/expressive-cooking-panda.md` (CTO assessment and rationale)
 - Framework conventions: `CLAUDE.md` at repo root
 - Subprocess safety (for any Ticket 2 work in `create-gridland`): `.claude/rules/subprocess-safety.md`
 - Registry pipeline (if Ticket 1 touches `packages/ui/`): `.claude/rules/registry-pipeline.md`

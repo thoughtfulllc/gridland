@@ -7,7 +7,7 @@ import { RunDemo } from '@/components/ui/run-demo'
 import MessageDemo, { MessageWithInputDemo } from '@/components/demos/message-demo'
 
 A chat message component with role-based styling and streaming support. Message
-is a thin layout shell it provides alignment, background color, and context.
+is a thin layout shell — it provides alignment, background color, and context.
 Content goes inside `MessageContent`, text inside `MessageText`. Other concerns
 (tool calls, sources, reasoning, footer) are separate components composed
 alongside Message, not inside it.
@@ -96,7 +96,7 @@ Override the default role-based background with `backgroundColor`.
 ### Mapping Vercel AI SDK Parts
 
 Map `message.parts` from `useChat` to sub-components. The consumer owns the
-mapping the component has no SDK dependency.
+mapping — the component has no SDK dependency.
 
 ```tsx title="Vercel AI SDK"
 import { useChat } from "@ai-sdk/react"
@@ -152,7 +152,7 @@ function MyCustomStatus() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `role` | `"user" \| "assistant" \| "system"` | - | Message role determines alignment and background |
+| `role` | `"user" \| "assistant" \| "system"` | - | Message role — determines alignment and background |
 | `isStreaming` | `boolean` | `false` | Whether the message is currently streaming |
 | `backgroundColor` | `string` | - | Override the default role-based background color |
 | `children` | `ReactNode` | - | Sub-components |

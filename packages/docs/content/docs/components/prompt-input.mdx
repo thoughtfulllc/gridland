@@ -51,7 +51,7 @@ accepts keystrokes and renders an `<input>` intrinsic in the terminal runtime.
 
 ### Vercel AI SDK
 
-Direct pass-through `sendMessage` accepts `{ text }` natively.
+Direct pass-through — `sendMessage` accepts `{ text }` natively.
 
 ```tsx title="Vercel AI SDK"
 import { useChat } from "@ai-sdk/react"
@@ -208,7 +208,7 @@ When not using `status`, use `disabled` and `disabledText` directly.
 ## Compound Components
 
 For full control over layout, pass children to enter compound mode. Subcomponents
-read state from `PromptInput` via context no prop drilling needed.
+read state from `PromptInput` via context — no prop drilling needed.
 
 ```tsx title="Compound usage"
 import { PromptInput } from "@/components/ui/prompt-input"
@@ -290,7 +290,7 @@ function MyCustomStatus() {
 ## Command Registry
 
 Wrap your app in `CommandProvider` to let sibling components register slash
-commands that automatically appear in `PromptInput`'s autocomplete without
+commands that automatically appear in `PromptInput`'s autocomplete — without
 passing `commands` as a prop.
 
 ```tsx title="Command Registry"
@@ -338,7 +338,7 @@ Subscribe to all registered commands. Returns the current command list reactivel
 
 ```tsx title="Consuming commands"
 const commands = useRegistryCommands()
-// Returns PromptInputCommand[] updates when commands are added/removed
+// Returns PromptInputCommand[] — updates when commands are added/removed
 ```
 
 ### CommandProvider
@@ -381,7 +381,7 @@ const commands = useRegistryCommands()
 | `commands` | `PromptInputCommand[]` | `[]` | Slash commands for autocomplete |
 | `skills` | `PromptInputCommand[]` | `[]` | Dynamically-provided skills merged into autocomplete alongside commands |
 | `files` | `string[]` | `[]` | File paths for `@` mention autocomplete |
-| `getSuggestions` | `(value: string) => Suggestion[]` | - | Custom suggestion provider overrides commands/files |
+| `getSuggestions` | `(value: string) => Suggestion[]` | - | Custom suggestion provider — overrides commands/files |
 | `maxSuggestions` | `number` | `5` | Max visible suggestions |
 | `enableHistory` | `boolean` | `true` | Enable command history with ↑/↓ |
 | `model` | `string` | - | Model name displayed below the input |

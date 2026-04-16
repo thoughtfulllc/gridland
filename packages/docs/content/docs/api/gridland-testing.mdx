@@ -4,7 +4,7 @@ description: Testing utilities API reference
 ---
 
 `@gridland/testing` mounts Gridland components into an in-memory buffer for
-unit tests. It exposes one entry point `renderTui` plus the `Screen`,
+unit tests. It exposes one entry point — `renderTui` — plus the `Screen`,
 `KeySender`, and `waitFor` primitives. See the [Testing guide](/docs/guides/testing)
 for end-to-end examples.
 
@@ -17,7 +17,7 @@ const tui = renderTui(node, options?)
 ```
 
 Mounts a React tree into an in-memory buffer and returns a `TuiInstance`. The
-call is synchronous the initial render pass completes before `renderTui`
+call is synchronous — the initial render pass completes before `renderTui`
 returns.
 
 **Parameters:**
@@ -59,7 +59,7 @@ The `Screen` class provides read-only access to the cell buffer.
 | `matches(pattern: RegExp)` | `true` if the trimmed text matches `pattern` |
 | `line(n: number)` | The `n`th line (0-indexed) or `""` if out of range |
 | `lines()` | All non-empty lines as an array |
-| `frames()` | Captured frame snapshots one per render pass |
+| `frames()` | Captured frame snapshots — one per render pass |
 | `captureFrame()` | Manually push the current frame onto the snapshot list |
 | `attributeAt(row, col)` | Raw u32 text attributes at a cell |
 | `fgAt(row, col)` | Foreground RGBA tuple `[r, g, b, a]` at a cell |
@@ -85,7 +85,7 @@ Dispatches synthetic keypress events through the focus system.
 | `home()` / `end()` | Home / End |
 | `pageUp()` / `pageDown()` | Page Up / Page Down |
 
-All key helpers are methods, not properties call them with `()`.
+All key helpers are methods, not properties — call them with `()`.
 
 ## `waitFor`
 

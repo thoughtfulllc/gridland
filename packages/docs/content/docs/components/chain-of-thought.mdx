@@ -8,7 +8,7 @@ import ChainOfThoughtDemo, { ChainOfThoughtCollapsedDemo, ChainOfThoughtExpanded
 
 A collapsible compound component that visualizes AI reasoning steps with
 animated spinners, status indicators, and optional output
-content. SDK-agnostic works with any provider that exposes thinking/reasoning
+content. SDK-agnostic — works with any provider that exposes thinking/reasoning
 data.
 
 <div className="my-8">
@@ -48,7 +48,7 @@ import {
 
 ### Collapsed
 
-The default state is collapsed only the header is visible.
+The default state is collapsed — only the header is visible.
 
 ```tsx title="Collapsed"
 <ChainOfThought>
@@ -93,7 +93,7 @@ Pass children to a step to render output content below it with a pipe gutter.
   <ChainOfThoughtContent>
     <ChainOfThoughtStep label="Reading config" status="done" />
     <ChainOfThoughtStep label="Running tests" description="vitest" status="error">
-      FAIL src/auth.test.ts expected 200, got 401
+      FAIL src/auth.test.ts — expected 200, got 401
     </ChainOfThoughtStep>
     <ChainOfThoughtStep label="Fixing auth handler" status="running" isLast />
   </ChainOfThoughtContent>
@@ -152,7 +152,7 @@ const [open, setOpen] = useState(false)
 |-----------|-------------|
 | `ChainOfThought` | Root container with collapsible state |
 | `ChainOfThoughtHeader` | Expand/collapse arrow with label and duration |
-| `ChainOfThoughtContent` | Content wrapper renders `null` when collapsed |
+| `ChainOfThoughtContent` | Content wrapper — renders `null` when collapsed |
 | `ChainOfThoughtStep` | Individual step with status dot, label, and optional output |
 
 ## API Reference

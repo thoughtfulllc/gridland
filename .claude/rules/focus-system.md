@@ -35,8 +35,6 @@ Reach for these only when `useInteractive` does not fit your case (global keyboa
 
 **`useKeyboard(handler, { focusId, global, selectedOnly })`** — Raw keyboard subscription. Prefer `useInteractive({ ... }).onKey(handler)` when routing to a selected component.
 
-**`useCapturedKeyboard(focusId)`** — Returns a keyboard hook scoped to when this element is selected.
-
 ## Focus Style Hooks (from `@gridland/ui`)
 
 **`useFocusBorderStyle({ isFocused, isSelected, isAnySelected })`** — Returns `{ borderColor, borderStyle }` for `<box border>` components. Reads colors from `theme.focusSelected`/`focusFocused`/`focusIdle` via `useTheme()`.

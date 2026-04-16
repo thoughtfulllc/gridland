@@ -95,7 +95,7 @@ Minimal surfaces confirmed to compile under the current types: `<TUI>`, `<box>`,
    ```bash
    bun run --cwd packages/create-gridland build
    cd /tmp && rm -rf scratch-005
-   bun /Users/jessicacheng/thoughtful/gridland/packages/create-gridland/dist/index.js scratch-005 --template vite
+   bun $PWD/packages/create-gridland/dist/index.js scratch-005 --template vite
    cd scratch-005 && bun install && bunx tsc --noEmit
    echo "exit code: $?"  # must be 0
    ```
@@ -110,17 +110,18 @@ Minimal surfaces confirmed to compile under the current types: `<TUI>`, `<box>`,
 ## Verification
 
 ```bash
+# Run from repo root: export GRIDLAND_ROOT=$PWD
 # Typecheck
 rm -rf /tmp/scratch-005
 bun run --cwd packages/create-gridland build
-cd /tmp && bun /Users/jessicacheng/thoughtful/gridland/packages/create-gridland/dist/index.js scratch-005 --template vite
+cd /tmp && bun $GRIDLAND_ROOT/packages/create-gridland/dist/index.js scratch-005 --template vite
 cd scratch-005 && bun install && bunx tsc --noEmit && echo "OK"
 
 # Negative check
 rg "@ts-nocheck" /tmp/scratch-005 packages/create-gridland/templates/ && echo "FAIL" || echo "OK"
 
 # Subprocess safety regression (unrelated but cheap to run after touching create-gridland)
-bun /Users/jessicacheng/thoughtful/gridland/packages/create-gridland/dist/index.js add 'safe; echo PWNED_FROM_SHELL' --dry-run
+bun $GRIDLAND_ROOT/packages/create-gridland/dist/index.js add 'safe; echo PWNED_FROM_SHELL' --dry-run
 # Expected: literal "safe; echo PWNED_FROM_SHELL" appears as one argv position; "PWNED_FROM_SHELL" does not appear on its own line.
 ```
 
