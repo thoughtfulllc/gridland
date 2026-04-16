@@ -7,8 +7,8 @@
     "start": "next start"
   },
   "dependencies": {
-    "@gridland/utils": "^0.3.0",
-    "@gridland/web": "^0.3.0",
+    "@gridland/utils": "^0.4.0",
+    "@gridland/web": "^0.4.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
