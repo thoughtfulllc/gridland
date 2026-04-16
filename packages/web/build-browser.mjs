@@ -154,7 +154,7 @@ const requireShimBanner = [
   `  if (m) return m;`,
   `  throw new Error('Dynamic require of "' + id + '" is not supported');`,
   `});`,
-  `if (typeof process === "undefined") var process = { env: { NODE_ENV: "production" } };`,
+  `if (typeof globalThis.process === "undefined") globalThis.process = { env: { NODE_ENV: "production" } };`,
 ].join(" ")
 
 const shared = {

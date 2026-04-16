@@ -11,6 +11,14 @@ describe("build output", () => {
     expect(content).toContain('NODE_ENV: "production"')
   })
 
+  it("does not contain a local `var process` polyfill (would shadow Vite's define)", () => {
+    expect(content).not.toContain("var process =")
+  })
+
+  it("polyfills process on globalThis so define substitution still works", () => {
+    expect(content).toContain("globalThis.process")
+  })
+
   it("does not contain react-reconciler development build", () => {
     expect(content).not.toContain("react-reconciler.development")
   })
