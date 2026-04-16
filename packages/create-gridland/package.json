@@ -1,6 +1,6 @@
 {
   "name": "create-gridland",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Create a new Gridland project",
   "type": "module",
   "bin": {
